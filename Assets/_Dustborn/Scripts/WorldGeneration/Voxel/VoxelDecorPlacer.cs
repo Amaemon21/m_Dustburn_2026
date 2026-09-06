@@ -45,7 +45,7 @@ public class VoxelDecorPlacer
         }
     }
 
-    public int Place(int layerIndex, Vector2 origin, float span, List<DecorInstance> output)
+    public int Place(int layerIndex, Vector2 origin, float span, List<DecorInstance> output, DecorSurface frame = default)
     {
         VoxelDecorLayer layer = _layers[layerIndex];
 
@@ -82,7 +82,7 @@ public class VoxelDecorPlacer
                 if (random.NextFloat() > chance)
                     continue;
 
-                if (!Fits(layer, point, random.NextFloat(), out float surface))
+                if (!Fits(layer, point, random.NextFloat(), frame, out float surface))
                 {
                     Rejected++;
                     continue;
@@ -95,8 +95,6 @@ public class VoxelDecorPlacer
         return (maxX - minX + 1) * (maxY - minY + 1);
     }
 
-    // A layer belongs to one biome, and a chunk column usually sits in one. Probing the column before
-    // walking its cells throws away three layers out of four for the price of a few dozen samples.
     private bool InBiome(VoxelDecorLayer layer, Vector2 origin, float span)
     {
         int steps = Mathf.Clamp(Mathf.CeilToInt(span / BIOME_PROBE_STEP), 1, MAX_BIOME_PROBES);
@@ -115,7 +113,7 @@ public class VoxelDecorPlacer
         return false;
     }
 
-    private bool Fits(VoxelDecorLayer layer, Vector2 point, float roll, out float surface)
+    private bool Fits(VoxelDecorLayer layer, Vector2 point, float roll, DecorSurface frame, out float surface)
     {
         surface = 0f;
 
@@ -125,7 +123,7 @@ public class VoxelDecorPlacer
         if (!_filter.IsClear(point, layer.Footprint, layer.RoadClearance))
             return false;
 
-        surface = _field.Surface(point.x, point.y);
+        surface = _field.Surface(point.x, point.y, frame);
 
         float elevation = surface / _config.MaxHeight;
 

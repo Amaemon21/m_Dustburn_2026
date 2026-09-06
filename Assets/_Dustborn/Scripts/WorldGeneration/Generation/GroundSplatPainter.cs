@@ -117,6 +117,24 @@ public class GroundSplatPainter : IDisposable
         NativeBuffer.Release(ref _roadMask);
     }
 
+    private static GroundRule Flat(int layer)
+    {
+        return new GroundRule
+        {
+            Layer = layer,
+            Weight = 1f,
+            MinSlope = 0f,
+            MaxSlope = 90f,
+            SlopeFade = 0f,
+            MinHeight = 0f,
+            MaxHeight = 1f,
+            HeightFade = 0f,
+            PatchFrequency = 1f,
+            PatchThreshold = 0f,
+            PatchFade = 0f
+        };
+    }
+
     private void BuildRules(List<TerrainLayer> layers, BiomeDatabase biomes, BiomeWeightField weightField,
         List<GroundRule> rules, int[] starts, int[] counts)
     {
@@ -168,7 +186,10 @@ public class GroundSplatPainter : IDisposable
                 if (layer < 0)
                     layer = Register(layers, ground.Layer);
 
-                buckets[biome].Add(ToRule(ground, layer));
+                buckets[biome].Add(_config.OneGroundPerBiome ? Flat(layer) : ToRule(ground, layer));
+
+                if (_config.OneGroundPerBiome)
+                    break;
             }
         }
 

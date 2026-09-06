@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LayeredData
   m_EditorClassIdentifier: com.williamschack.Repetitionless.Editor::Repetitionless.Editor.Data.RepetitionlessLayeredDataSO
   LayerMode: 0
-  MaxLayers: 16
+  MaxLayers: 8
   ControlTextures:
   - ChannelTextures:
     - Texture: {fileID: 0}

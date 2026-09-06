@@ -35,12 +35,12 @@ public class VoxelChunkMesher : IDisposable
         _cells = VoxelCellLayout.Create(Allocator.Persistent);
     }
 
-    public void Mesh(int lod, int chunkX, int chunkY, int chunkZ, VoxelMesh output, int trim = 0)
+    public void Mesh(int lod, int chunkX, int chunkY, int chunkZ, VoxelMesh output, int trim = 0, int morph = 0)
     {
-        Schedule(lod, chunkX, chunkY, chunkZ, output, trim).Complete();
+        Schedule(lod, chunkX, chunkY, chunkZ, output, trim, morph).Complete();
     }
 
-    public JobHandle Schedule(int lod, int chunkX, int chunkY, int chunkZ, VoxelMesh output, int trim = 0)
+    public JobHandle Schedule(int lod, int chunkX, int chunkY, int chunkZ, VoxelMesh output, int trim = 0, int morph = 0)
     {
         int scale = 1 << lod;
 
@@ -52,8 +52,10 @@ public class VoxelChunkMesher : IDisposable
             ChunkZ = chunkZ,
             Size = _size,
             VoxelSize = _baseVoxelSize * scale,
-            SkirtDepth = lod == 0 ? 0f : _baseSkirtDepth * scale,
+            SkirtDepth = _baseSkirtDepth * scale,
             Trim = trim,
+            Morph = morph,
+            SkirtFaces = lod == 0 ? TrimmedFaces(trim) : VoxelColumnKey.FACE_ALL,
             Columns = _columns,
             Density = _density,
             VertexAt = _vertexAt,
@@ -67,6 +69,19 @@ public class VoxelChunkMesher : IDisposable
         _pending = job.Schedule(_pending);
 
         return _pending;
+    }
+
+    private static int TrimmedFaces(int trim)
+    {
+        int faces = 0;
+
+        if ((trim & VoxelColumnKey.TRIM_X) != 0)
+            faces |= VoxelColumnKey.FACE_MIN_X;
+
+        if ((trim & VoxelColumnKey.TRIM_Z) != 0)
+            faces |= VoxelColumnKey.FACE_MIN_Z;
+
+        return faces;
     }
 
     public void Dispose()

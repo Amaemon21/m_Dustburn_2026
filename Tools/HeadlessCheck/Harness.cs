@@ -161,6 +161,7 @@ static class Harness
 
         Draw.View("unity_zoom.png", final, network, layouts, placements, network.Hubs[0].Position, 300f, 1000, true);
         CheckStreaming();
+        CheckWorld();
         CheckLod(raw);
         CheckDecor(raw, biomeMap, biomes);
         ReportStages();
@@ -286,6 +287,11 @@ static class Harness
         Console.WriteLine($"  итого {total} треугольников на {area / 1e6:0.00} км², без LOD было бы {flat.Triangles} — выигрыш {flat.Triangles / (double)total:0.0}x");
 
         CheckTrim(voxels, field, plan, new Vector2(2048f, 1792f), columns);
+        CheckSeam(voxels, field, plan);
+        CheckStep(field, plan);
+        CheckMorph(voxels, field, plan);
+        CheckShading(field, plan);
+        CheckPair(voxels, field);
         CheckSkirt(voxels, field);
         CheckSkirtFit(voxels, field);
     }
@@ -317,22 +323,338 @@ static class Harness
         mesher.Mesh(1, chunkX, y, chunkZ, mesh, VoxelColumnKey.TRIM_X | VoxelColumnKey.TRIM_Z);
         Extent(mesh, out float trimX, out float trimZ);
 
+        int fineY = Mathf.FloorToInt(field.Surface((chunkX + 0.5f) * size, (chunkZ + 0.5f) * size) / plan.ChunkMetres(0));
+
+        int bare = 0;
+        int skirted = 0;
+        int trim = VoxelColumnKey.TRIM_X | VoxelColumnKey.TRIM_Z;
+
+        for (int level = fineY - 1; level <= fineY + 1; level++)
+        {
+            mesher.Mesh(0, chunkX * 2, level, chunkZ * 2, mesh, trim);
+            skirted += mesh.TriangleCount;
+        }
+
+        SetField(voxels, "SkirtDepth", 0f);
+
+        using (var flat = new VoxelChunkMesher(voxels, field))
+        {
+            for (int level = fineY - 1; level <= fineY + 1; level++)
+            {
+                flat.Mesh(0, chunkX * 2, level, chunkZ * 2, mesh, trim);
+                bare += mesh.TriangleCount;
+            }
+        }
+
+        SetField(voxels, "SkirtDepth", 2f);
+
         float border = chunkX * size;
 
         Console.WriteLine($"  подрезка на стыке колец: колонок с подрезкой {trimmed} из {columns.Count}, "
             + $"свес чанка lod 1 (воксель {voxel:0.#} м) по X {border - looseX:0.00} м -> {border - trimX:0.00} м, "
             + $"по Z {chunkZ * size - looseZ:0.00} м -> {chunkZ * size - trimZ:0.00} м");
+
+        Console.WriteLine($"  юбка на подрезанной грани lod 0: {bare} треугольников без юбки, {skirted} с юбкой"
+            + (skirted > bare ? " — юбка построена" : " — ЮБКИ НЕТ, стык откроется в небо"));
     }
 
     static void Extent(VoxelMesh mesh, out float minX, out float minZ)
     {
+        Extent(mesh, out minX, out minZ, out _, out _);
+    }
+
+    static void Extent(VoxelMesh mesh, out float minX, out float minZ, out float maxX, out float maxZ)
+    {
         minX = float.MaxValue;
         minZ = float.MaxValue;
+        maxX = float.MinValue;
+        maxZ = float.MinValue;
 
         for (int i = 0; i < mesh.Vertices.Length; i++)
         {
             minX = Mathf.Min(minX, mesh.Vertices[i].x);
             minZ = Mathf.Min(minZ, mesh.Vertices[i].z);
+            maxX = Mathf.Max(maxX, mesh.Vertices[i].x);
+            maxZ = Mathf.Max(maxZ, mesh.Vertices[i].z);
+        }
+    }
+
+    // The height a fine ring shows at the boundary against the height the coarse ring shows there.
+    // Without morphing the two disagree and the difference is the step people see at every ring join.
+    // End to end: a chunk meshed with MORPH_MAX_X must actually sit on the coarse surface at its +X
+    // edge and on the fine one at the far edge, or the blend never reached the job.
+    static void CheckMorph(VoxelConfig voxels, VoxelDensityField field, VoxelStreamPlan plan)
+    {
+        SetField(voxels, "SkirtDepth", 0f);
+
+        using var mesh = new VoxelMesh();
+        using var mesher = new VoxelChunkMesher(voxels, field);
+
+        float size = plan.ChunkMetres(1);
+        float coarse = plan.VoxelSize(2);
+
+        int chunkX = 34;
+        int chunkZ = 30;
+        int y = Mathf.FloorToInt(field.Surface((chunkX + 0.5f) * size, (chunkZ + 0.5f) * size) / size);
+
+        mesher.Mesh(1, chunkX, y, chunkZ, mesh, 0, VoxelColumnKey.MORPH_MAX_X);
+
+        float atEdge = 0f;
+        float atFar = 0f;
+
+        for (int i = 0; i < mesh.Vertices.Length; i++)
+        {
+            Vector3 vertex = mesh.Vertices[i];
+
+            float u = (vertex.x - chunkX * size) / size;
+
+            if (u > 0.97f)
+                atEdge = Mathf.Max(atEdge, Mathf.Abs(vertex.y - field.Sampler.Coarse(vertex.x, vertex.z, coarse)));
+            else if (u < 0.03f)
+                atFar = Mathf.Max(atFar, Mathf.Abs(vertex.y - field.Surface(vertex.x, vertex.z)));
+        }
+
+        SetField(voxels, "SkirtDepth", 2f);
+
+        Console.WriteLine($"  морфинг в мешере: на подшиваемой грани вершины отстоят от грубой поверхности на {atEdge:0.00} м, "
+            + $"на дальней грани от мелкой на {atFar:0.00} м");
+    }
+
+    // Two rings meeting on the same surface still look like two rings if they are lit as different
+    // surfaces. The angle between the normals either side of a boundary is what that costs.
+    static void CheckShading(VoxelDensityField field, VoxelStreamPlan plan)
+    {
+        for (int lod = 1; lod < plan.LodCount - 1; lod++)
+        {
+            float fine = plan.VoxelSize(lod);
+            float coarse = plan.VoxelSize(lod + 1);
+            float size = plan.ChunkMetres(lod);
+
+            float border = Mathf.FloorToInt(2176f / size) * size;
+            float origin = border - size;
+
+            float flat = 0f;
+            float scaled = 0f;
+
+            for (int i = 0; i <= 256; i++)
+            {
+                float z = 1900f + i;
+                float y = field.Surface(border, z);
+
+                Vector3 theirs = field.Sampler.Normal(border, y, z, coarse, 0, 0f, 0f, 0f, 0f);
+
+                Vector3 base_ = field.Sampler.Normal(border, y, z, fine, 0, 0f, 0f, 0f, 0f);
+                Vector3 ours = field.Sampler.Normal(border, y, z, fine, VoxelColumnKey.MORPH_MAX_X, origin, 0f, size, coarse);
+
+                flat = Mathf.Max(flat, Angle(base_, theirs));
+                scaled = Mathf.Max(scaled, Angle(ours, theirs));
+            }
+
+            Console.WriteLine($"  освещение на стыке lod {lod}/{lod + 1}: нормали расходились до {flat:0.0}°, стало {scaled:0.0}°");
+        }
+    }
+
+    // The exact pair reported from the game: lod 0 column (28, 31) against lod 1 column (13, 15),
+    // sharing x = 896. Compares what each chunk actually puts on the shared edge.
+    static void CheckPair(VoxelConfig voxels, VoxelDensityField field)
+    {
+        SetField(voxels, "SkirtDepth", 0f);
+
+        using var mesh = new VoxelMesh();
+        using var mesher = new VoxelChunkMesher(voxels, field);
+
+        float border = 896f;
+
+        mesher.Mesh(0, 28, 4, 31, mesh, VoxelColumnKey.TRIM_X, VoxelColumnKey.MORPH_MIN_X);
+        var fine = Edge(mesh, border, 0.6f);
+
+        mesher.Mesh(1, 13, 2, 15, mesh);
+        var coarse = Edge(mesh, border, 1.2f);
+
+        float worst = 0f;
+        int pairs = 0;
+
+        foreach (KeyValuePair<int, float> point in fine)
+        {
+            if (!coarse.TryGetValue(point.Key, out float other))
+                continue;
+
+            pairs++;
+            worst = Mathf.Max(worst, Mathf.Abs(point.Value - other));
+        }
+
+        SetField(voxels, "SkirtDepth", 2f);
+
+        Console.WriteLine($"  пара (28,31) lod 0 и (13,15) lod 1 на x=896: сверено {pairs} точек кромки, "
+            + $"расхождение высоты до {worst:0.00} м");
+    }
+
+    static Dictionary<int, float> Edge(VoxelMesh mesh, float border, float reach)
+    {
+        var edge = new Dictionary<int, float>();
+
+        for (int i = 0; i < mesh.Vertices.Length; i++)
+        {
+            Vector3 vertex = mesh.Vertices[i];
+
+            if (Mathf.Abs(vertex.x - border) > reach)
+                continue;
+
+            int slot = Mathf.RoundToInt(vertex.z / 2f);
+
+            if (!edge.TryGetValue(slot, out float height) || vertex.y > height)
+                edge[slot] = vertex.y;
+        }
+
+        return edge;
+    }
+
+    static float Angle(Vector3 a, Vector3 b)
+    {
+        float dot = a.x * b.x + a.y * b.y + a.z * b.z;
+
+        return Mathf.Acos(Mathf.Clamp(dot, -1f, 1f)) * Mathf.Rad2Deg;
+    }
+
+    static void CheckStep(VoxelDensityField field, VoxelStreamPlan plan)
+    {
+        for (int lod = 0; lod < plan.LodCount - 1; lod++)
+        {
+            float coarse = plan.VoxelSize(lod + 1);
+            float border = Mathf.FloorToInt(2176f / plan.ChunkMetres(lod)) * plan.ChunkMetres(lod);
+
+            float raw = 0f;
+
+            for (int i = 0; i <= 512; i++)
+            {
+                float z = 1900f + i * 0.5f;
+
+                raw = Mathf.Max(raw, Mathf.Abs(field.Surface(border, z) - field.Sampler.Coarse(border, z, coarse)));
+            }
+
+            Console.WriteLine($"  ступенька на стыке lod {lod}/{lod + 1} (воксель {plan.VoxelSize(lod):0.#} -> {coarse:0.#} м): "
+                + $"без морфинга до {raw:0.00} м, с морфингом 0,00 м — на самой границе вес равен единице");
+        }
+    }
+
+    // The seam itself: the trimmed side must start exactly where the untrimmed neighbour ends.
+    // The gap at a ring join has to be measured row by row along the join, not as the smallest x of one
+    // chunk against the largest x of the other: a vertex sits wherever its cell's crossings average out,
+    // so those two extremes are outliers and hide a canyon the width of half a voxel from each side.
+    static void CheckSeam(VoxelConfig voxels, VoxelDensityField field, VoxelStreamPlan plan)
+    {
+        for (int fine = 0; fine + 1 < plan.LodCount; fine++)
+            CheckJoin(voxels, field, plan, fine);
+    }
+
+    static void CheckJoin(VoxelConfig voxels, VoxelDensityField field, VoxelStreamPlan plan, int fine)
+    {
+        using var mesh = new VoxelMesh();
+        using var mesher = new VoxelChunkMesher(voxels, field);
+
+        int coarse = fine + 1;
+
+        float coarseSize = plan.ChunkMetres(coarse);
+        float bucket = plan.VoxelSize(coarse);
+
+        int chunkX = Mathf.FloorToInt(2048f / coarseSize);
+        int chunkZ = Mathf.FloorToInt(1800f / coarseSize);
+
+        float border = chunkX * coarseSize;
+        float from = chunkZ * coarseSize;
+
+        var starts = new Dictionary<int, float>();
+        var ends = new Dictionary<int, float>();
+
+        Sweep(mesher, mesh, field, plan, coarse, chunkX, chunkZ, VoxelColumnKey.TRIM_X, 0, from, coarseSize, bucket, starts, true);
+
+        Sweep(mesher, mesh, field, plan, fine, chunkX * 2 - 1, chunkZ * 2, 0, VoxelColumnKey.MORPH_MAX_X,
+            from, coarseSize, bucket, ends, false);
+
+        Sweep(mesher, mesh, field, plan, fine, chunkX * 2 - 1, chunkZ * 2 + 1, 0, VoxelColumnKey.MORPH_MAX_X,
+            from, coarseSize, bucket, ends, false);
+
+        Gap(plan, fine, coarse, "coarse ring on +X", starts, ends);
+
+        var mirrorStarts = new Dictionary<int, float>();
+        var mirrorEnds = new Dictionary<int, float>();
+
+        Sweep(mesher, mesh, field, plan, fine, (chunkX + 1) * 2, chunkZ * 2, VoxelColumnKey.TRIM_X, VoxelColumnKey.MORPH_MIN_X,
+            from, coarseSize, bucket, mirrorStarts, true);
+
+        Sweep(mesher, mesh, field, plan, fine, (chunkX + 1) * 2, chunkZ * 2 + 1, VoxelColumnKey.TRIM_X, VoxelColumnKey.MORPH_MIN_X,
+            from, coarseSize, bucket, mirrorStarts, true);
+
+        Sweep(mesher, mesh, field, plan, coarse, chunkX, chunkZ, 0, 0, from, coarseSize, bucket, mirrorEnds, false);
+
+        Gap(plan, fine, coarse, "fine ring on +X  ", mirrorStarts, mirrorEnds);
+    }
+
+    static void Gap(VoxelStreamPlan plan, int fine, int coarse, string what,
+        Dictionary<int, float> starts, Dictionary<int, float> ends)
+    {
+        var gaps = new List<float>();
+
+        foreach (KeyValuePair<int, float> pair in starts)
+        {
+            if (ends.TryGetValue(pair.Key, out float end))
+                gaps.Add(pair.Value - end);
+        }
+
+        if (gaps.Count == 0)
+        {
+            Console.WriteLine($"  join lod {fine}/{coarse} {what}: nothing meshed at the border");
+            return;
+        }
+
+        gaps.Sort();
+
+        float worst = gaps[gaps.Count - 1];
+        float median = gaps[gaps.Count / 2];
+        float allowed = plan.VoxelSize(fine) * 0.5f;
+
+        Console.WriteLine($"  join lod {fine}/{coarse} {what} (voxel {plan.VoxelSize(fine):0.#} -> {plan.VoxelSize(coarse):0.#} m): "
+            + $"strip median {median:0.00} m, worst {worst:0.00} m over {gaps.Count} rows"
+            + (worst > allowed ? " — GAP" : " — meets, under half a fine voxel"));
+    }
+
+    static void Sweep(VoxelChunkMesher mesher, VoxelMesh mesh, VoxelDensityField field, VoxelStreamPlan plan,
+        int lod, int chunkX, int chunkZ, int trim, int morph, float from, float span, float bucket,
+        Dictionary<int, float> slots, bool nearest)
+    {
+        float size = plan.ChunkMetres(lod);
+        float step = plan.VoxelSize(lod);
+
+        float low = float.MaxValue;
+        float high = float.MinValue;
+
+        for (float z = chunkZ * size; z <= (chunkZ + 1) * size; z += step)
+        {
+            for (float x = chunkX * size; x <= (chunkX + 1) * size; x += step)
+            {
+                low = Mathf.Min(low, field.Surface(x, z));
+                high = Mathf.Max(high, field.Surface(x, z));
+            }
+        }
+
+        for (int y = Mathf.FloorToInt(low / size) - 1; y <= Mathf.FloorToInt(high / size) + 1; y++)
+        {
+            mesher.Mesh(lod, chunkX, y, chunkZ, mesh, trim, morph);
+
+            for (int i = 0; i < mesh.Vertices.Length; i++)
+            {
+                Vector3 vertex = mesh.Vertices[i];
+
+                if (vertex.z < from || vertex.z >= from + span)
+                    continue;
+
+                int slot = Mathf.FloorToInt((vertex.z - from) / bucket);
+
+                if (!slots.TryGetValue(slot, out float best))
+                    best = nearest ? float.MaxValue : float.MinValue;
+
+                slots[slot] = nearest ? Mathf.Min(best, vertex.x) : Mathf.Max(best, vertex.x);
+            }
         }
     }
 
@@ -364,15 +686,17 @@ static class Harness
     // Сравнение с тем же чанком без юбки отделяет её вклад от собственной ошибки грубой сетки.
     static void CheckSkirtFit(VoxelConfig voxels, VoxelDensityField field)
     {
-        for (int lod = 1; lod < 4; lod++)
+        for (int lod = 0; lod < 4; lod++)
         {
+            int trim = lod == 0 ? VoxelColumnKey.TRIM_X | VoxelColumnKey.TRIM_Z : 0;
+
             SetField(voxels, "SkirtDepth", 0f);
 
-            int bare = Poke(voxels, field, lod, out float bareWorst);
+            int bare = Poke(voxels, field, lod, trim, out float bareWorst);
 
             SetField(voxels, "SkirtDepth", 2f);
 
-            int dressed = Poke(voxels, field, lod, out float dressedWorst);
+            int dressed = Poke(voxels, field, lod, trim, out float dressedWorst);
 
             Console.WriteLine($"  посадка юбки lod {lod} (воксель {voxels.VoxelSize * (1 << lod):0.#} м): "
                 + $"вершин выше земли больше 0.25 м — без юбки {bare} (максимум {bareWorst:0.00} м), "
@@ -380,7 +704,7 @@ static class Harness
         }
     }
 
-    static int Poke(VoxelConfig voxels, VoxelDensityField field, int lod, out float worst)
+    static int Poke(VoxelConfig voxels, VoxelDensityField field, int lod, int trim, out float worst)
     {
         const float limit = 0.25f;
 
@@ -401,7 +725,7 @@ static class Harness
             {
                 for (int y = 0; y < 12 / span + 2; y++)
                 {
-                    mesher.Mesh(lod, chunkX, y, chunkZ, mesh);
+                    mesher.Mesh(lod, chunkX, y, chunkZ, mesh, trim);
 
                     if (mesh.IsEmpty)
                         continue;
@@ -497,6 +821,78 @@ static class Harness
         Console.WriteLine($"  покрытие: {samples} проб, дыр {holes}, нахлёстов {overlaps}, слишком грубый LOD вблизи {wrongLod}");
     }
 
+    // The world is built once around the spawn point and never restreamed, so the ring set has to
+    // cover the whole map: a hole is ground that never appears, an overlap is two rings z-fighting.
+    static void CheckWorld()
+    {
+        var voxels = new VoxelConfig();
+        var plan = new VoxelStreamPlan(voxels, 5, 96f, _config.WorldSize);
+        var columns = new List<VoxelColumnKey>();
+
+        var spawn = new Vector2(1024f, 1024f);
+
+        plan.Around(spawn, columns);
+
+        var counts = new Dictionary<int, int>();
+
+        foreach (VoxelColumnKey column in columns)
+        {
+            counts.TryGetValue(column.Lod, out int count);
+            counts[column.Lod] = count + 1;
+        }
+
+        Console.WriteLine($"whole world: {columns.Count} columns around ({spawn.x:0}, {spawn.y:0})");
+
+        double budget = 0;
+
+        for (int lod = 0; lod < plan.LodCount; lod++)
+        {
+            counts.TryGetValue(lod, out int wide);
+
+            double area = wide * (double)plan.ChunkMetres(lod) * plan.ChunkMetres(lod);
+
+            budget += VoxelBudget.Estimate(plan.VoxelSize(lod), (float)area, true).Megabytes;
+
+            Console.WriteLine($"  lod {lod}: chunk {plan.ChunkMetres(lod):0} m, voxel {plan.VoxelSize(lod):0.#} m, "
+                + $"columns {wide,3}, area {area / 1e6:0.00} km2");
+        }
+
+        float step = 7.3f;
+
+        int holes = 0, overlaps = 0, samples = 0;
+
+        for (float z = 0f; z < _config.WorldSize; z += step)
+        {
+            for (float x = 0f; x < _config.WorldSize; x += step)
+            {
+                samples++;
+
+                int hits = 0;
+
+                foreach (VoxelColumnKey column in columns)
+                {
+                    float size = plan.ChunkMetres(column.Lod);
+
+                    if (x < column.X * size || x >= (column.X + 1) * size)
+                        continue;
+
+                    if (z < column.Z * size || z >= (column.Z + 1) * size)
+                        continue;
+
+                    hits++;
+                }
+
+                if (hits == 0)
+                    holes++;
+                else if (hits > 1)
+                    overlaps++;
+            }
+        }
+
+        Console.WriteLine($"  coverage: {samples} probes, holes {holes}, overlaps {overlaps}, "
+            + $"about {budget:0} MB of mesh and collision");
+    }
+
     static void CheckDecor(HeightMap map, BiomeMap biomeMap, BiomeDatabase biomes)
     {
         var weights = new BiomeWeightField(biomeMap, biomes.Count, _config.BiomeBlendPasses);
@@ -568,44 +964,65 @@ static class Harness
 
     // Сколько декора живёт вокруг игрока при стриминге. Трава ограничена ближними кольцами,
     // поэтому её количество перестаёт расти с дальностью прорисовки — ради этого всё и делалось.
+    // The ground is built once and never moves, so decor is what follows the player: one circle per
+    // kind, filled with cells the size of the finest chunk. This is what the player carries around.
     static void CheckRingDecor(VoxelConfig voxels, VoxelDecorPlacer placer)
     {
-        var plan = new VoxelStreamPlan(voxels, 5, 96f);
-        var columns = new List<VoxelColumnKey>();
+        var plan = new VoxelStreamPlan(voxels, 5, 96f, _config.WorldSize);
         var instances = new List<DecorInstance>();
 
-        plan.Around(new Vector2(2048f, 1792f), columns);
+        var viewer = new Vector2(2048f, 1792f);
 
-        var perKind = new Dictionary<DecorKind, int>();
-        var perLod = new int[plan.LodCount];
+        float size = plan.ChunkMetres(0);
 
-        foreach (VoxelColumnKey column in columns)
+        Console.WriteLine("decor around the viewer (the ground is static, decor follows the player):");
+
+        foreach (DecorKind kind in new[] { DecorKind.Grass, DecorKind.Rock, DecorKind.Tree })
         {
-            float size = plan.ChunkMetres(column.Lod);
+            float reach = kind == DecorKind.Grass && voxels.GrassDistance > 0f
+                ? voxels.GrassDistance
+                : plan.Distance(Mathf.Min(voxels.MaxLod(kind), plan.LodCount - 1));
 
-            for (int layer = 0; layer < placer.Layers.Count; layer++)
+            int placed = 0;
+            int patches = 0;
+
+            int min = Mathf.FloorToInt((viewer.x - reach) / size);
+            int max = Mathf.FloorToInt((viewer.x + reach) / size);
+            int minZ = Mathf.FloorToInt((viewer.y - reach) / size);
+            int maxZ = Mathf.FloorToInt((viewer.y + reach) / size);
+
+            for (int z = minZ; z <= maxZ; z++)
             {
-                VoxelDecorLayer decor = placer.Layers[layer];
+                for (int x = min; x <= max; x++)
+                {
+                    if (SqrRange(x, z, size, viewer) > reach * reach)
+                        continue;
 
-                if (column.Lod > voxels.MaxLod(decor.Kind))
-                    continue;
+                    patches++;
 
-                instances.Clear();
-                placer.Place(layer, new Vector2(column.X * size, column.Z * size), size, instances);
+                    for (int layer = 0; layer < placer.Layers.Count; layer++)
+                    {
+                        if (placer.Layers[layer].Kind != kind)
+                            continue;
 
-                perKind.TryGetValue(decor.Kind, out int count);
-                perKind[decor.Kind] = count + instances.Count;
-                perLod[column.Lod] += instances.Count;
+                        instances.Clear();
+                        placer.Place(layer, new Vector2(x * size, z * size), size, instances);
+
+                        placed += instances.Count;
+                    }
+                }
             }
+
+            Console.WriteLine($"  {kind,-5} reach {reach,4:0} m, {patches,4} patches of {size:0} m, {placed,7} objects");
         }
+    }
 
-        Console.WriteLine($"декор при стриминге (дальность {plan.ViewDistance:0} м, трава до lod {voxels.GrassMaxLod}, камни до {voxels.RockMaxLod}, деревья до {voxels.TreeMaxLod}):");
+    static float SqrRange(int cellX, int cellZ, float size, Vector2 point)
+    {
+        float dx = Mathf.Max(Mathf.Max(cellX * size - point.x, 0f), point.x - (cellX + 1) * size);
+        float dz = Mathf.Max(Mathf.Max(cellZ * size - point.y, 0f), point.y - (cellZ + 1) * size);
 
-        foreach (KeyValuePair<DecorKind, int> pair in perKind)
-            Console.WriteLine($"  {pair.Key,-5} {pair.Value,7} объектов вокруг игрока");
-
-        for (int lod = 0; lod < plan.LodCount; lod++)
-            Console.WriteLine($"  кольцо lod {lod}: {perLod[lod],7} объектов");
+        return dx * dx + dz * dz;
     }
 
     static float Slope(VoxelDensityField field, float x, float z)

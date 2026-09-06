@@ -31,6 +31,17 @@ public struct VoxelBudget
         };
     }
 
+    public static VoxelBudget operator +(VoxelBudget first, VoxelBudget second)
+    {
+        return new VoxelBudget
+        {
+            Triangles = first.Triangles + second.Triangles,
+            Vertices = first.Vertices + second.Vertices,
+            MeshBytes = first.MeshBytes + second.MeshBytes,
+            ColliderBytes = first.ColliderBytes + second.ColliderBytes
+        };
+    }
+
     public string Describe()
     {
         return $"{Triangles / 1e6:0.0} M triangles, {Vertices / 1e6:0.0} M vertices, {Megabytes:0} MB"

@@ -26,9 +26,6 @@ public static class MeshCombinePlan
 
     public const int DUPLICATE_CEILING = 400000;
 
-    // A mesh this small is cheaper to duplicate than to re-upload: an instanced draw hands its whole
-    // matrix array to the GPU every frame, while a combined one is a renderer the engine culls and
-    // batches for free. Grass cards are eight vertices.
     public const int TINY_MESH = 64;
 
     public static CombineVerdict Decide(PrefabProfile profile, int instances, int vertexBudget, bool keepColliders, bool distanceCulled, out string reason)

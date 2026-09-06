@@ -38,9 +38,10 @@ public class VoxelDecorSpawner : IDisposable
             _combiners[i] = Build(placer.Layers[i]);
     }
 
-    public void Spawn(Vector2 origin, float span, Transform parent, int lod = 0)
+    public void Spawn(Vector2 origin, float span, Transform parent, int lod = 0, DecorSurface frame = default,
+        DecorScope scope = DecorScope.All)
     {
-        var build = new VoxelDecorBuild(origin, span, parent, lod);
+        var build = new VoxelDecorBuild(origin, span, parent, lod, frame, scope);
 
         while (!build.Done)
             Step(build, int.MaxValue);
@@ -97,7 +98,7 @@ public class VoxelDecorSpawner : IDisposable
     {
         VoxelDecorLayer decor = _placer.Layers[build.Layer];
 
-        if (build.Lod > _voxels.MaxLod(decor.Kind))
+        if (!Reaches(build, decor))
         {
             build.NextLayer();
 
@@ -106,7 +107,7 @@ public class VoxelDecorSpawner : IDisposable
 
         if (!build.Placed)
         {
-            int cells = _placer.Place(build.Layer, build.Origin, build.Span, build.Instances);
+            int cells = _placer.Place(build.Layer, build.Origin, build.Span, build.Instances, build.Frame);
 
             build.Placed = true;
 
@@ -133,6 +134,14 @@ public class VoxelDecorSpawner : IDisposable
         return verdict == CombineVerdict.Instantiate
             ? Populate(build, decor)
             : Finish(build, combiner, decor, verdict);
+    }
+
+    private bool Reaches(VoxelDecorBuild build, VoxelDecorLayer decor)
+    {
+        if (!build.Wants(decor.Kind))
+            return false;
+
+        return build.Scope != DecorScope.All || build.Lod <= _voxels.MaxLod(decor.Kind);
     }
 
     private int Finish(VoxelDecorBuild build, MeshCombiner combiner, VoxelDecorLayer decor, CombineVerdict verdict)

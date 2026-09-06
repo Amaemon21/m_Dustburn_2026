@@ -46,62 +46,67 @@ public class VoxelTerrainStreamer : MonoBehaviour
     private int _batchVertexBudget = 48000;
 
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), Range(0f, 1f)]
-    [Tooltip("Fraction of the grass the biomes ask for. Streaming already keeps grass to the near rings, so this can stay at one unless the near ring is very dense.")]
+    [Tooltip("Fraction of the grass the biomes ask for. Grass only ever covers the GrassDistance circle around the viewer, so this can stay at one unless that circle is very dense.")]
     [SerializeField]
     private float _grassDensity = 1f;
 
-    [BoxGroup("Streaming"), Required("The transform the world is streamed around, usually the player"), SerializeField]
+    [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), MinValue(1f)]
+    [Tooltip("How far the viewer has to move before the decor circles around them are recomputed. The ground never moves; decor is the one thing that follows the player, because a whole world of grass is millions of cards and a whole world of trees is a quarter of a million prefabs. Each kind reaches as far as its own ring in VoxelConfig: GrassDistance for grass, RockMaxLod and TreeMaxLod for the rest.")]
+    [SerializeField]
+    private float _decorStep = 16f;
+
+    [BoxGroup("World"), Required("The transform the world is built around, usually the player"), SerializeField]
     private Transform _viewer;
 
-    [BoxGroup("Streaming"), Range(1, 6)]
-    [Tooltip("Levels of detail. Each one doubles both the voxel size and the radius it covers.")]
+    [BoxGroup("World"), Range(1, 6)]
+    [Tooltip("Levels of detail. Each one doubles both the voxel size and the radius it covers, and the coarsest one is stretched over everything that is left of the world, so the whole map is built. Raise it to push the fine rings further out, at four times the triangles per step.")]
     [SerializeField]
     private int _lodCount = 5;
 
-    [BoxGroup("Streaming"), MinValue(32f)]
-    [Tooltip("Radius of the finest ring in metres. Everything closer is built at the full voxel size.")]
+    [BoxGroup("World"), MinValue(32f)]
+    [Tooltip("Radius of the finest ring in metres, measured from where the viewer stands when the world is built. Everything closer is built at the full voxel size.")]
     [SerializeField]
     private float _nearDistance = 96f;
 
-    [BoxGroup("Streaming"), MinValue(1)]
-    [Tooltip("Chunk columns started per frame. The rest wait in the queue, so a jump across the map costs frames rather than a freeze.")]
+    [BoxGroup("World"), MinValue(1)]
+    [Tooltip("Chunk columns started per frame once the world is up. The first set ignores this while Preload is on, because nothing is being played yet.")]
     [SerializeField]
     private int _columnsPerFrame = 3;
 
-    [BoxGroup("Streaming"), Range(1, 16)]
+    [BoxGroup("World"), Range(1, 16)]
     [Tooltip("Chunk meshing jobs allowed to run at once. They are scheduled one frame and picked up the next, so the meshing happens on worker threads while the main thread runs the game. Each worker holds about 0.3 MB of scratch buffers.")]
     [SerializeField]
     private int _meshWorkers = 8;
 
-    [BoxGroup("Streaming"), MinValue(0f)]
-    [Tooltip("How far the viewer has to move before the wanted set is recomputed.")]
+    [BoxGroup("World"), Range(0, 5)]
+    [Tooltip("Coarsest ring that still gets a collider. The world is built once and the player can walk anywhere in it, so this should cover every ring: below the last one they walk off the edge of the collision into ground that renders and does not exist to physics.")]
     [SerializeField]
-    private float _refreshStep = 16f;
+    private int _colliderMaxLod = 5;
 
-    [BoxGroup("Streaming"), MinValue(0f)]
-    [Tooltip("Metres the rings are pushed along the direction of travel. The ground a walking player is about to stand on is built before they get there, and the queue is sorted from that point too, so what is ahead is built before what is behind. Zero centres everything on the viewer.")]
+    [BoxGroup("World"), MinValue(1)]
+    [Tooltip("Collision meshes cooked at once. Cooking runs on worker threads and the collider is attached the next frame, so a larger batch simply means the world becomes solid sooner.")]
     [SerializeField]
-    private float _lookAhead = 32f;
+    private int _collidersPerFrame = 32;
 
-    [BoxGroup("Streaming")]
-    [Tooltip("Colliders are built for the finest ring only: you can only walk on what is near, and a collider on a coarse chunk would not match the ground you see.")]
-    [SerializeField]
-    private bool _nearColliders = true;
-
-    [BoxGroup("Streaming"), MinValue(1)]
-    [Tooltip("Collision meshes cooked at once. Cooking runs on worker threads and the collider is attached the next frame, so this is how many chunks may wait for ground to stand on.")]
-    [SerializeField]
-    private int _collidersPerFrame = 3;
-
-    [BoxGroup("Streaming"), MinValue(0.5f)]
-    [Tooltip("Milliseconds per frame spent placing decor. A column is not shown until its decor is done, so this also sets how fast ground appears: too small and the queue falls behind the columns being opened, too large and placement costs a visible hitch.")]
+    [BoxGroup("World"), MinValue(0.5f)]
+    [Tooltip("Milliseconds per frame spent placing decor once the world is up. That is grass following the viewer; the trees and rocks are placed with the world and never move.")]
     [SerializeField]
     private float _decorBudget = 6f;
 
-    [BoxGroup("Streaming"), MinValue(1)]
-    [Tooltip("Children destroyed per frame when a column is unloaded.")]
+    [BoxGroup("World"), MinValue(1)]
+    [Tooltip("Children destroyed per frame when a patch of grass leaves the circle around the viewer.")]
     [SerializeField]
     private int _demolishPerFrame = 256;
+
+    [BoxGroup("World")]
+    [Tooltip("Build the whole world before the game starts rather than over the following seconds, and spend as much of each frame on it as it takes. Poll Progress and Ready from a loading screen; the streamer does not stop anything by itself.")]
+    [SerializeField]
+    private bool _preload = true;
+
+    [BoxGroup("World"), MinValue(1f)]
+    [Tooltip("Milliseconds per frame the preload may spend placing decor. Nothing is being played yet, so this is far larger than the running budget.")]
+    [SerializeField]
+    private float _preloadBudget = 60f;
 
     private class Column
     {
@@ -110,11 +115,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         public int Remaining { get; set; }
 
-        public VoxelDecorBuild Decor { get; set; }
-
-        public bool Ready => Remaining <= 0 && (Decor == null || Decor.Done);
-
-        public bool Visible => Root != null && Root.activeSelf;
+        public bool Ready => Remaining <= 0;
 
         public Column(VoxelColumnKey key, GameObject root, int chunks)
         {
@@ -124,18 +125,31 @@ public class VoxelTerrainStreamer : MonoBehaviour
         }
     }
 
-    private const int RETIRED_LIMIT = 64;
+    private class DecorRing
+    {
+        public DecorScope Scope { get; }
+        public float Reach { get; }
+
+        public Dictionary<Vector2Int, GameObject> Patches { get; } = new();
+
+        public Vector2 Sown { get; set; }
+        public bool Planted { get; set; }
+
+        public DecorRing(DecorScope scope, float reach)
+        {
+            Scope = scope;
+            Reach = reach;
+        }
+    }
+
     private const int DECOR_SLICE = 48;
-    private const int DECOR_BACKLOG = 4;
-    private const float STEER_EPSILON = 1e-4f;
-    private const float STEER_SMOOTHING = 0.05f;
 
     private readonly Dictionary<VoxelColumnKey, Column> _loaded = new();
-    private readonly List<Column> _retired = new();
+    private readonly Dictionary<Vector2Int, VoxelColumnKey> _cover = new();
+    private readonly List<DecorRing> _rings = new();
+    private readonly List<Vector2Int> _faded = new();
     private readonly List<VoxelColumnKey> _wanted = new();
     private readonly Queue<VoxelColumnKey> _pending = new();
-    private readonly List<VoxelColumnKey> _stale = new();
-    private readonly HashSet<VoxelColumnKey> _keep = new();
     private readonly List<PendingChunk> _inFlight = new();
     private readonly Queue<VoxelDecorBuild> _decorQueue = new();
     private readonly Queue<GameObject> _demolishing = new();
@@ -146,11 +160,10 @@ public class VoxelTerrainStreamer : MonoBehaviour
     private VoxelColliderQueue _colliders;
     private VoxelStreamPlan _plan;
 
-    private Vector2 _lastRefresh = new(float.MinValue, float.MinValue);
-    private Vector2 _lastGround;
-    private Vector2 _heading;
-
-    private bool _releaseDue;
+    private bool _planned;
+    private bool _ready;
+    private int _wantedAtStart;
+    private int _decorAtStart;
 
     private VoxelColumnKey _active;
     private int _activeY;
@@ -163,10 +176,27 @@ public class VoxelTerrainStreamer : MonoBehaviour
     private Vector2 _sortOrigin;
 
     [ShowNativeProperty]
-    public string StreamStatus => _plan == null
+    public bool Ready => _ready;
+
+    public float Progress => _wantedAtStart <= 0
+        ? 0f
+        : Mathf.Clamp01(1f - (_pending.Count + _queue.InFlight + _decorQueue.Count) / (float)(_wantedAtStart + _decorAtStart));
+
+    [ShowNativeProperty]
+    public string WorldStatus => _plan == null
         ? "not started"
-        : $"{_loaded.Count} columns loaded, {_pending.Count} queued, {_retired.Count} kept until replaced, "
-          + $"{_queue.InFlight} chunks meshing on {_queue.Workers} workers, view distance {_plan.ViewDistance:0} m";
+        : $"{_loaded.Count} of {_wanted.Count} columns built, {_pending.Count} queued, {_queue.InFlight} chunks meshing on {_queue.Workers} workers, "
+          + $"{_colliders.Waiting} waiting for collision, {Patches()} patches of decor, {_decorQueue.Count} decor builds waiting";
+
+    private int Patches()
+    {
+        int patches = 0;
+
+        foreach (DecorRing ring in _rings)
+            patches += ring.Patches.Count;
+
+        return patches;
+    }
 
     private void OnEnable()
     {
@@ -182,11 +212,14 @@ public class VoxelTerrainStreamer : MonoBehaviour
         _decor = CreateDecor(map);
 
         _byDistance = ByDistance;
-        _plan = new VoxelStreamPlan(_voxels, _lodCount, _nearDistance);
+        _plan = new VoxelStreamPlan(_voxels, _lodCount, _nearDistance, _config.WorldSize);
 
-        _lastRefresh = new Vector2(float.MinValue, float.MinValue);
-        _lastGround = new Vector2(_viewer.position.x, _viewer.position.z);
-        _heading = Vector2.zero;
+        Rings();
+
+        _planned = false;
+        _ready = false;
+        _wantedAtStart = 0;
+        _decorAtStart = 0;
     }
 
     private VoxelDecorSpawner CreateDecor(HeightMap map)
@@ -261,59 +294,92 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         Collect();
 
-        Steer(ground);
+        if (!_planned)
+            Plan(ground);
 
-        if (!DistanceUtility.WithinRadius(ground, _lastRefresh, _refreshStep))
-        {
-            _lastRefresh = ground;
-            Refresh(ground + _heading * _lookAhead);
-        }
+        if (_preload && !_ready)
+            Rush();
+        else
+            Dispatch();
 
-        Dispatch();
+        Sow(ground);
 
         Decorate();
 
-        if (_releaseDue)
-        {
-            _releaseDue = false;
-
-            Release();
-            Promote();
-        }
+        Settle();
 
         Demolish();
 
         _colliders.Dispatch();
     }
 
-    // The heading follows travel rather than where the camera looks: turning on the spot must not
-    // move the rings, or every look around costs a band of columns.
-    private void Steer(Vector2 ground)
+    private void Plan(Vector2 ground)
     {
-        Vector2 step = ground - _lastGround;
+        _planned = true;
 
-        _lastGround = ground;
+        _plan.Around(ground, _wanted);
 
-        if (step.sqrMagnitude < STEER_EPSILON)
-            return;
+        _sortOrigin = ground;
+        _wanted.Sort(_byDistance);
 
-        _heading = Vector2.Lerp(_heading, step.normalized, STEER_SMOOTHING).normalized;
+        _cover.Clear();
+        _pending.Clear();
+
+        foreach (VoxelColumnKey key in _wanted)
+        {
+            _pending.Enqueue(key);
+
+            Cover(key);
+        }
+
+        _wantedAtStart = _wanted.Count;
+
+        Debug.Log($"Voxel terrain: building the whole {_config.WorldSize} m world once, {_wanted.Count} columns, "
+            + $"{_plan.LodCount} levels of detail around ({ground.x:0}, {ground.y:0}) from {_plan.VoxelSize(0):0.##} m voxels "
+            + $"out to {_plan.VoxelSize(_plan.LodCount - 1):0.##} m. Nothing is rebuilt afterwards", this);
     }
 
-    private void Demolish(GameObject column)
+    private void Cover(VoxelColumnKey key)
     {
-        if (column == null)
+        int scale = 1 << key.Lod;
+
+        for (int z = 0; z < scale; z++)
+        {
+            for (int x = 0; x < scale; x++)
+                _cover[new Vector2Int(key.X * scale + x, key.Z * scale + z)] = key;
+        }
+    }
+
+    private void Settle()
+    {
+        if (_ready || !_planned)
+            return;
+
+        if (_decorAtStart == 0)
+            _decorAtStart = _decorQueue.Count;
+
+        if (_pending.Count > 0 || _queue.InFlight > 0 || _decorQueue.Count > 0 || _colliders.Waiting > 0)
+            return;
+
+        _ready = true;
+
+        Debug.Log($"Voxel terrain: world built in {Time.timeSinceLevelLoad:0.0} s. {WorldStatus}", this);
+    }
+
+    private void Demolish(GameObject patch)
+    {
+        if (patch == null)
             return;
 
         foreach (VoxelDecorBuild build in _decorQueue)
         {
-            if (build.Owns(column))
+            if (build.Owns(patch))
                 build.Done = true;
         }
 
-        column.SetActive(false);
+        patch.SetActive(false);
 
-        _demolishing.Enqueue(column);
+        _demolishing.Enqueue(patch);
     }
 
     private void Demolish()
@@ -322,16 +388,16 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         while (budget > 0 && _demolishing.Count > 0)
         {
-            GameObject column = _demolishing.Peek();
+            GameObject patch = _demolishing.Peek();
 
-            if (column == null)
+            if (patch == null)
             {
                 _demolishing.Dequeue();
 
                 continue;
             }
 
-            Transform root = column.transform;
+            Transform root = patch.transform;
 
             while (budget > 0 && root.childCount > 0)
             {
@@ -349,7 +415,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
             _demolishing.Dequeue();
 
-            GeneratedMesh.Destroy(column);
+            GeneratedMesh.Destroy(patch);
         }
     }
 
@@ -357,6 +423,8 @@ public class VoxelTerrainStreamer : MonoBehaviour
     {
         if (_decor == null || _decorQueue.Count == 0)
             return;
+
+        float budget = _preload && !_ready ? _preloadBudget : _decorBudget;
 
         _clock.Restart();
 
@@ -367,13 +435,9 @@ public class VoxelTerrainStreamer : MonoBehaviour
             _decor.Step(build, DECOR_SLICE);
 
             if (build.Done)
-            {
                 _decorQueue.Dequeue();
 
-                _releaseDue = true;
-            }
-
-            if (_clock.Elapsed.TotalMilliseconds >= _decorBudget)
+            if (_clock.Elapsed.TotalMilliseconds >= budget)
                 break;
         }
     }
@@ -397,14 +461,28 @@ public class VoxelTerrainStreamer : MonoBehaviour
             column.Remaining--;
 
             if (!mesh.IsEmpty)
-                Spawn(mesh, column.Root.transform, $"{chunk.Key} y {chunkY}", chunk.Key.Lod == 0 && _nearColliders);
+                Spawn(mesh, column.Root.transform, $"{chunk.Key} y {chunkY}", Solid(chunk.Key.Lod));
 
-            if (column.Remaining <= 0)
-                _releaseDue = true;
+            if (column.Ready)
+                Show(column);
         }
 
         _queue.Reset();
         _inFlight.Clear();
+    }
+
+    private void Rush()
+    {
+        _clock.Restart();
+
+        while (_pending.Count > 0 || _hasActive || _queue.InFlight > 0)
+        {
+            Dispatch();
+            Collect();
+
+            if (_clock.Elapsed.TotalMilliseconds >= _preloadBudget)
+                break;
+        }
     }
 
     private void Dispatch()
@@ -415,10 +493,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
         {
             if (!_hasActive)
             {
-                if (started >= _columnsPerFrame || _pending.Count == 0)
-                    break;
-
-                if (_decorQueue.Count >= DECOR_BACKLOG)
+                if (started >= (_preload && !_ready ? int.MaxValue : _columnsPerFrame) || _pending.Count == 0)
                     break;
 
                 VoxelColumnKey key = _pending.Dequeue();
@@ -432,7 +507,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
             while (_hasActive && _queue.Free > 0)
             {
-                if (!_queue.TrySchedule(_active.Lod, _active.X, _activeY, _active.Z, _active.Trim))
+                if (!_queue.TrySchedule(_active.Lod, _active.X, _activeY, _active.Z, _active.Trim, _active.Morph))
                     break;
 
                 _inFlight.Add(new PendingChunk(_active, _activeY));
@@ -459,197 +534,124 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         _loaded[key] = column;
 
-        if (_decor != null)
-        {
-            column.Decor = new VoxelDecorBuild(new Vector2(key.X * size, key.Z * size), size, root.transform, key.Lod);
-
-            _decorQueue.Enqueue(column.Decor);
-        }
-
         _active = key;
         _activeY = low;
         _activeHigh = high;
         _hasActive = low <= high;
 
         if (column.Ready)
-            _releaseDue = true;
+            Show(column);
     }
 
-    // Ground that replaces ground waits for everything, so the swap carries no doubled surface and no
-    // half-decorated frame. Ground that replaces nothing is shown the moment it has geometry: waiting
-    // for its grass there would only mean a hole, and there is nothing underneath to fight with.
-    private void Promote()
+    private void Show(Column column)
     {
-        foreach (KeyValuePair<VoxelColumnKey, Column> pair in _loaded)
-        {
-            Column column = pair.Value;
-
-            if (column.Visible || column.Root == null)
-                continue;
-
-            if (Retires(column.Key))
-            {
-                if (!column.Ready)
-                    continue;
-            }
-            else if (column.Remaining > 0)
-            {
-                continue;
-            }
-
-            column.Root.SetActive(true);
-        }
-    }
-
-    private bool Retires(VoxelColumnKey key)
-    {
-        foreach (Column retired in _retired)
-        {
-            if (Overlaps(key, retired.Key))
-                return true;
-        }
-
-        return false;
-    }
-
-    private void Refresh(Vector2 ground)
-    {
-        _releaseDue = true;
-
-        _plan.Around(ground, _wanted);
-
-        _sortOrigin = ground;
-        _wanted.Sort(_byDistance);
-
-        _keep.Clear();
-
-        foreach (VoxelColumnKey key in _wanted)
-            _keep.Add(key);
-
-        _stale.Clear();
-
-        foreach (KeyValuePair<VoxelColumnKey, Column> pair in _loaded)
-        {
-            if (!_keep.Contains(pair.Key))
-                _stale.Add(pair.Key);
-        }
-
-        foreach (VoxelColumnKey key in _stale)
-        {
-            if (_hasActive && _active.Equals(key))
-                _hasActive = false;
-
-            Retire(_loaded[key]);
-            _loaded.Remove(key);
-        }
-
-        _pending.Clear();
-
-        foreach (VoxelColumnKey key in _wanted)
-        {
-            if (_loaded.ContainsKey(key))
-                continue;
-
-            Column revived = Revive(key);
-
-            if (revived == null)
-                _pending.Enqueue(key);
-            else
-                _loaded[key] = revived;
-        }
-    }
-
-    private void Retire(Column column)
-    {
-        if (!column.Ready)
-        {
-            Demolish(column.Root);
-
+        if (column.Root == null || column.Root.activeSelf)
             return;
-        }
 
-        _retired.Add(column);
-
-        while (_retired.Count > RETIRED_LIMIT)
-            Demolish(Evict());
+        column.Root.SetActive(true);
     }
 
-    // A retired column is the only ground under the area it covers until the replacement is shown,
-    // so eviction takes one that covers nothing unfinished, and only then the farthest.
-    private GameObject Evict()
+    private void Sow(Vector2 ground)
     {
-        int worst = 0;
-        float range = float.MinValue;
+        if (_decor == null || !_planned)
+            return;
 
-        for (int i = 0; i < _retired.Count; i++)
+        foreach (DecorRing ring in _rings)
+            Sow(ring, ground);
+    }
+
+    private void Sow(DecorRing ring, Vector2 ground)
+    {
+        if (ring.Planted && DistanceUtility.WithinRadius(ground, ring.Sown, _decorStep))
+            return;
+
+        ring.Sown = ground;
+        ring.Planted = true;
+
+        float size = _plan.ChunkMetres(0);
+
+        _faded.Clear();
+
+        foreach (KeyValuePair<Vector2Int, GameObject> patch in ring.Patches)
         {
-            if (!Blocked(_retired[i].Key))
+            if (SqrRange(patch.Key, size, ground) > (ring.Reach + size) * (ring.Reach + size))
+                _faded.Add(patch.Key);
+        }
+
+        foreach (Vector2Int cell in _faded)
+        {
+            Demolish(ring.Patches[cell]);
+
+            ring.Patches.Remove(cell);
+        }
+
+        int minX = Mathf.FloorToInt((ground.x - ring.Reach) / size);
+        int maxX = Mathf.FloorToInt((ground.x + ring.Reach) / size);
+        int minZ = Mathf.FloorToInt((ground.y - ring.Reach) / size);
+        int maxZ = Mathf.FloorToInt((ground.y + ring.Reach) / size);
+
+        for (int z = minZ; z <= maxZ; z++)
+        {
+            for (int x = minX; x <= maxX; x++)
             {
-                worst = i;
+                var cell = new Vector2Int(x, z);
 
-                break;
+                if (ring.Patches.ContainsKey(cell))
+                    continue;
+
+                if (SqrRange(cell, size, ground) > ring.Reach * ring.Reach)
+                    continue;
+
+                Grow(ring, cell, size);
             }
-
-            float distance = SqrRange(_retired[i].Key);
-
-            if (distance <= range)
-                continue;
-
-            range = distance;
-            worst = i;
-        }
-
-        GameObject root = _retired[worst].Root;
-
-        _retired.RemoveAt(worst);
-
-        return root;
-    }
-
-    private Column Revive(VoxelColumnKey key)
-    {
-        for (int i = 0; i < _retired.Count; i++)
-        {
-            if (!_retired[i].Key.Equals(key))
-                continue;
-
-            Column column = _retired[i];
-
-            _retired.RemoveAt(i);
-
-            return column;
-        }
-
-        return null;
-    }
-
-    private void Release()
-    {
-        for (int i = _retired.Count - 1; i >= 0; i--)
-        {
-            if (Blocked(_retired[i].Key))
-                continue;
-
-            Demolish(_retired[i].Root);
-            _retired.RemoveAt(i);
         }
     }
 
-    private bool Blocked(VoxelColumnKey key)
+    private void Grow(DecorRing ring, Vector2Int cell, float size)
     {
-        foreach (VoxelColumnKey pending in _pending)
-        {
-            if (Overlaps(key, pending))
-                return true;
-        }
+        if (!_cover.TryGetValue(cell, out VoxelColumnKey column))
+            return;
 
-        foreach (KeyValuePair<VoxelColumnKey, Column> pair in _loaded)
-        {
-            if (!pair.Value.Ready && Overlaps(key, pair.Key))
-                return true;
-        }
+        var patch = new GameObject($"{ring.Scope} {cell.x} {cell.y}");
 
-        return false;
+        patch.transform.SetParent(transform, false);
+
+        ring.Patches[cell] = patch;
+
+        _decorQueue.Enqueue(new VoxelDecorBuild(new Vector2(cell.x * size, cell.y * size), size, patch.transform,
+            column.Lod, Frame(column), ring.Scope));
+    }
+
+    private void Rings()
+    {
+        _rings.Clear();
+
+        if (_decor == null)
+            return;
+
+        _rings.Add(new DecorRing(DecorScope.Grass, _voxels.GrassDistance <= 0f ? _plan.Distance(0) : _voxels.GrassDistance));
+        _rings.Add(new DecorRing(DecorScope.Rocks, _plan.Distance(Mathf.Min(_voxels.RockMaxLod, _plan.LodCount - 1))));
+        _rings.Add(new DecorRing(DecorScope.Trees, _plan.Distance(Mathf.Min(_voxels.TreeMaxLod, _plan.LodCount - 1))));
+    }
+
+    private DecorSurface Frame(VoxelColumnKey column)
+    {
+        float span = _plan.ChunkMetres(column.Lod);
+
+        return new DecorSurface(new Vector2(column.X * span, column.Z * span), span, _plan.VoxelSize(column.Lod), column.Morph);
+    }
+
+    private static float SqrRange(Vector2Int cell, float size, Vector2 point)
+    {
+        float dx = Mathf.Max(Mathf.Max(cell.x * size - point.x, 0f), point.x - (cell.x + 1) * size);
+        float dz = Mathf.Max(Mathf.Max(cell.y * size - point.y, 0f), point.y - (cell.y + 1) * size);
+
+        return dx * dx + dz * dz;
+    }
+
+    private bool Solid(int lod)
+    {
+        return lod <= _colliderMaxLod;
     }
 
     private int ByDistance(VoxelColumnKey first, VoxelColumnKey second)
@@ -663,16 +665,6 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         return DistanceUtility.SqrDistance(new Vector2((key.X + 0.5f) * size, (key.Z + 0.5f) * size), _sortOrigin);
     }
-
-    private bool Overlaps(VoxelColumnKey a, VoxelColumnKey b)
-    {
-        float sizeA = _plan.ChunkMetres(a.Lod);
-        float sizeB = _plan.ChunkMetres(b.Lod);
-
-        return a.X * sizeA < (b.X + 1) * sizeB && b.X * sizeB < (a.X + 1) * sizeA
-            && a.Z * sizeA < (b.Z + 1) * sizeB && b.Z * sizeB < (a.Z + 1) * sizeA;
-    }
-
 
     private GameObject NewColumn(VoxelColumnKey key)
     {
@@ -736,7 +728,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
     {
         if (_config == null || _heightMap == null)
         {
-            Debug.LogError("Voxel streaming: assign the WorldGenerationConfig and HeightMap.bytes before baking the material", this);
+            Debug.LogError("Voxel terrain: assign the WorldGenerationConfig and HeightMap.bytes before baking the material", this);
             return;
         }
 
@@ -764,6 +756,23 @@ public class VoxelTerrainStreamer : MonoBehaviour
 #endif
     }
 
+    [Button("Rebuild World")]
+    public void Rebuild()
+    {
+        if (_plan == null)
+        {
+            Debug.LogWarning("Voxel terrain: the world is built in play mode, there is nothing to rebuild here", this);
+            return;
+        }
+
+        Unload();
+
+        _planned = false;
+        _ready = false;
+        _wantedAtStart = 0;
+        _decorAtStart = 0;
+    }
+
     [Button("Unload Everything")]
     public void Unload()
     {
@@ -772,9 +781,13 @@ public class VoxelTerrainStreamer : MonoBehaviour
             GeneratedMesh.Destroy(pair.Value.Root);
         }
 
-        foreach (Column column in _retired)
+        foreach (DecorRing ring in _rings)
         {
-            GeneratedMesh.Destroy(column.Root);
+            foreach (KeyValuePair<Vector2Int, GameObject> patch in ring.Patches)
+                GeneratedMesh.Destroy(patch.Value);
+
+            ring.Patches.Clear();
+            ring.Planted = false;
         }
 
         while (_demolishing.Count > 0)
@@ -782,8 +795,8 @@ public class VoxelTerrainStreamer : MonoBehaviour
             GeneratedMesh.Destroy(_demolishing.Dequeue());
         }
 
-        _retired.Clear();
         _loaded.Clear();
+        _cover.Clear();
         _pending.Clear();
         _inFlight.Clear();
         _decorQueue.Clear();
@@ -811,13 +824,13 @@ public class VoxelTerrainStreamer : MonoBehaviour
     {
         if (_config == null || _voxels == null || _heightMap == null)
         {
-            Debug.LogError("Voxel streaming: assign the WorldGenerationConfig, the VoxelConfig and HeightMap.bytes", this);
+            Debug.LogError("Voxel terrain: assign the WorldGenerationConfig, the VoxelConfig and HeightMap.bytes", this);
             return false;
         }
 
         if (_viewer == null)
         {
-            Debug.LogError("Voxel streaming: no viewer transform assigned, there is nothing to stream around", this);
+            Debug.LogError("Voxel terrain: no viewer transform assigned, there is nothing to build the world around", this);
             return false;
         }
 

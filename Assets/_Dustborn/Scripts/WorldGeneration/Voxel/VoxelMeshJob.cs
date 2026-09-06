@@ -18,6 +18,8 @@ public struct VoxelMeshJob : IJob
     public float VoxelSize;
     public float SkirtDepth;
     public int Trim;
+    public int SkirtFaces;
+    public int Morph;
 
     public NativeArray<float> Columns;
     public NativeArray<float> Density;
@@ -45,7 +47,7 @@ public struct VoxelMeshJob : IJob
 
         var origin = new Vector3(ChunkX * Size * scale, ChunkY * Size * scale, ChunkZ * Size * scale);
 
-        if (!Field.Fill(origin, scale, Samples, Columns, Density))
+        if (!Field.Fill(origin, scale, Samples, Columns, Density, Morph, Size))
             return;
 
         BuildVertices(origin, scale);
@@ -55,18 +57,27 @@ public struct VoxelMeshJob : IJob
 
     private void BuildSkirt()
     {
-        if (SkirtDepth <= 0f)
+        if (SkirtDepth <= 0f || SkirtFaces == 0)
             return;
 
-        int lowX = (Trim & VoxelColumnKey.TRIM_X) != 0 ? 1 : 0;
-        int lowZ = (Trim & VoxelColumnKey.TRIM_Z) != 0 ? 1 : 0;
+        bool minX = (SkirtFaces & VoxelColumnKey.FACE_MIN_X) != 0;
+        bool maxX = (SkirtFaces & VoxelColumnKey.FACE_MAX_X) != 0;
+        bool minZ = (SkirtFaces & VoxelColumnKey.FACE_MIN_Z) != 0;
+        bool maxZ = (SkirtFaces & VoxelColumnKey.FACE_MAX_Z) != 0;
 
         for (int step = 0; step < Size; step++)
         {
-            Curtain(Ridge(lowX, step + 1), Ridge(lowX, step));
-            Curtain(Ridge(Size, step), Ridge(Size, step + 1));
-            Curtain(Ridge(step, lowZ), Ridge(step + 1, lowZ));
-            Curtain(Ridge(step + 1, Size), Ridge(step, Size));
+            if (minX)
+                Curtain(Ridge(0, step + 1), Ridge(0, step));
+
+            if (maxX)
+                Curtain(Ridge(Size, step), Ridge(Size, step + 1));
+
+            if (minZ)
+                Curtain(Ridge(step, 0), Ridge(step + 1, 0));
+
+            if (maxZ)
+                Curtain(Ridge(step + 1, Size), Ridge(step, Size));
         }
     }
 
@@ -125,12 +136,6 @@ public struct VoxelMeshJob : IJob
 
     private int Vertex(Vector3 origin, float scale, int slotX, int slotY, int slotZ)
     {
-        if (slotX == 0 && (Trim & VoxelColumnKey.TRIM_X) != 0)
-            return NONE;
-
-        if (slotZ == 0 && (Trim & VoxelColumnKey.TRIM_Z) != 0)
-            return NONE;
-
         if (!Straddles(slotX, slotY, slotZ))
             return NONE;
 
@@ -173,13 +178,38 @@ public struct VoxelMeshJob : IJob
             origin.y + (slotY - 1 + sumY / crossings) * scale,
             origin.z + (slotZ - 1 + sumZ / crossings) * scale);
 
+        Stitch(ref position, origin, scale, slotX, slotZ);
+
         float world = Field.CellSize * (Field.Resolution - 1);
 
         Vertices.Add(position);
-        Normals.Add(Field.Normal(position.x, position.y, position.z));
+        Normals.Add(Field.Normal(position.x, position.y, position.z, scale, Morph,
+            origin.x, origin.z, Size * scale, scale * 2f));
         Uv.Add(new Vector2(position.x / world, position.z / world));
 
         return Vertices.Length - 1;
+    }
+
+    private void Stitch(ref Vector3 position, Vector3 origin, float scale, int slotX, int slotZ)
+    {
+        bool alongX = slotX == 0 && (Trim & VoxelColumnKey.TRIM_X) != 0;
+        bool alongZ = slotZ == 0 && (Trim & VoxelColumnKey.TRIM_Z) != 0;
+
+        if (!alongX && !alongZ)
+            return;
+
+        if (alongX)
+            position.x = origin.x - Neighbour(scale, VoxelColumnKey.MORPH_MIN_X) * 0.5f;
+
+        if (alongZ)
+            position.z = origin.z - Neighbour(scale, VoxelColumnKey.MORPH_MIN_Z) * 0.5f;
+
+        position.y = Field.Height(position.x, position.z, scale, Morph, origin.x, origin.z, Size * scale, scale * 2f);
+    }
+
+    private float Neighbour(float scale, int morph)
+    {
+        return (Morph & morph) != 0 ? scale * 2f : scale * 0.5f;
     }
 
     private bool Straddles(int slotX, int slotY, int slotZ)

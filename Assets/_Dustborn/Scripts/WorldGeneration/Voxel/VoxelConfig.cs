@@ -17,19 +17,19 @@ public class VoxelConfig : ScriptableObject
     public float Bedrock { get; private set; } = 64f;
 
     [field: SerializeField, BoxGroup("Decor"), Range(0, 5)]
-    [field: Tooltip("Coarsest ring that still gets grass. Zero keeps it in the nearest ring only, which is what detailObjectDistance did for the old terrain.")]
+    [field: Tooltip("Coarsest ring that still gets grass in the editor preview. At runtime grass follows the viewer and its reach is GrassDistance instead, because the ground is built once and does not move with the player.")]
     public int GrassMaxLod { get; private set; }
 
     [field: SerializeField, BoxGroup("Decor"), MinValue(0f)]
-    [field: Tooltip("Metres from the camera a patch of grass is still drawn. The ring it lives in is far wider than grass is worth, so this is the knob that decides how much of it reaches the screen. Zero draws the whole ring.")]
+    [field: Tooltip("Metres around the viewer that grass is placed in, and the distance its shader dissolves it over. Grass is the densest decor by far, so this is the knob that decides how much of it reaches the screen. Zero falls back to the radius of the nearest ring.")]
     public float GrassDistance { get; private set; } = 96f;
 
     [field: SerializeField, BoxGroup("Decor"), Range(0, 5)]
-    [field: Tooltip("Coarsest ring that still gets rocks.")]
+    [field: Tooltip("How far rocks reach around the viewer, in rings: the radius of that ring is what they cover. Two doubles the radius against one.")]
     public int RockMaxLod { get; private set; } = 1;
 
     [field: SerializeField, BoxGroup("Decor"), Range(0, 5)]
-    [field: Tooltip("Coarsest ring that still gets trees. They read as the silhouette of the landscape, so they reach further than grass.")]
+    [field: Tooltip("How far trees reach around the viewer, in rings. They read as the silhouette of the landscape, so they reach further than grass and rocks; every step doubles the radius and quadruples the count.")]
     public int TreeMaxLod { get; private set; } = 2;
 
     public int MaxLod(DecorKind kind)

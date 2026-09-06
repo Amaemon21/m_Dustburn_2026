@@ -51,7 +51,7 @@ public class VoxelTerrainBuilder : MonoBehaviour
     private int _batchVertexBudget = 48000;
 
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), Range(0f, 1f)]
-    [Tooltip("Fraction of the grass the biomes ask for. Unity Terrain could afford full density because detailObjectDistance culled it at 200 m; a mesh has no such cull until chunk streaming lands, and full density is hundreds of thousands of bushes per square kilometre.")]
+    [Tooltip("Fraction of the grass the biomes ask for. Grass reaches only as far as GrassMaxLod, the ring around the centre, so the whole world does not carry it.")]
     [SerializeField]
     private float _grassDensity = 1f;
 
@@ -60,20 +60,29 @@ public class VoxelTerrainBuilder : MonoBehaviour
     [SerializeField]
     private bool _decorColliders;
 
-    [BoxGroup("Region")]
-    [Tooltip("Centre of the area to build, in metres. The whole world at one metre per voxel does not fit in memory, so the builder only covers a patch.")]
+    [BoxGroup("World")]
+    [Tooltip("Where the detail is centred, in metres. The whole world is built either way; this is where the finest ring sits, so put it where the player starts.")]
     [SerializeField]
     private Vector2 _center = new(1024f, 1024f);
 
-    [BoxGroup("Region"), MinValue(1), SerializeField]
-    private int _chunksPerSide = 8;
+    [BoxGroup("World"), Range(1, 6)]
+    [Tooltip("Levels of detail, the same rings the streamer builds at runtime. Each one doubles both the voxel size and the radius it covers, and the coarsest is stretched over everything left of the world.")]
+    [SerializeField]
+    private int _lodCount = 5;
 
-    [BoxGroup("Region"), MinValue(16)]
-    [Tooltip("Memory the built region may take in megabytes. The build is refused before it starts if the estimate goes over, because running out of memory takes the editor down with it.")]
+    [BoxGroup("World"), MinValue(32f)]
+    [Tooltip("Radius of the finest ring in metres, measured from the centre.")]
+    [SerializeField]
+    private float _nearDistance = 96f;
+
+    [BoxGroup("World"), MinValue(16)]
+    [Tooltip("Memory the built world may take in megabytes. The build is refused before it starts if the estimate goes over, because running out of memory takes the editor down with it.")]
     [SerializeField]
     private int _memoryBudget = 512;
 
     private readonly List<MeshFilter> _chunks = new();
+    private readonly List<VoxelColumnKey> _columns = new();
+    private readonly Dictionary<VoxelColumnKey, Transform> _roots = new();
 
     private void Awake()
     {
@@ -90,18 +99,35 @@ public class VoxelTerrainBuilder : MonoBehaviour
     private VoxelDecorSpawner _decor;
 
     [ShowNativeProperty]
-    public string RegionStatus => _voxels == null
-        ? "VoxelConfig is not assigned"
-        : $"{_chunksPerSide}x{_chunksPerSide} chunks of {_voxels.ChunkMetres} m, {_chunksPerSide * _voxels.ChunkMetres} m across, {_chunks.Count} built";
+    public string WorldStatus => _voxels == null || _config == null
+        ? "VoxelConfig or WorldGenerationConfig is not assigned"
+        : $"the whole {_config.WorldSize} m world in {Plan().LodCount} rings around ({_center.x:0}, {_center.y:0}), {_chunks.Count} chunks built";
 
     [ShowNativeProperty]
-    public string BuildCost => _voxels == null ? "VoxelConfig is not assigned" : Estimate().Describe();
+    public string BuildCost => _voxels == null || _config == null
+        ? "VoxelConfig or WorldGenerationConfig is not assigned"
+        : Estimate().Describe();
+
+    private VoxelStreamPlan Plan()
+    {
+        return new VoxelStreamPlan(_voxels, _lodCount, _nearDistance, _config.WorldSize);
+    }
 
     private VoxelBudget Estimate()
     {
-        float side = _chunksPerSide * _voxels.ChunkMetres;
+        VoxelStreamPlan plan = Plan();
+        var budget = new VoxelBudget();
 
-        return VoxelBudget.Estimate(_voxels.VoxelSize, side * side, _buildColliders);
+        plan.Around(_center, _columns);
+
+        foreach (VoxelColumnKey key in _columns)
+        {
+            float size = plan.ChunkMetres(key.Lod);
+
+            budget += VoxelBudget.Estimate(plan.VoxelSize(key.Lod), size * size, _buildColliders);
+        }
+
+        return budget;
     }
 
     [Button("Build Voxel Terrain")]
@@ -121,46 +147,53 @@ public class VoxelTerrainBuilder : MonoBehaviour
         using var mesher = new VoxelChunkMesher(_voxels, field);
         using var mesh = new VoxelMesh();
 
-        float span = _voxels.ChunkMetres;
+        VoxelStreamPlan plan = Plan();
 
-        int originX = Mathf.FloorToInt((_center.x - _chunksPerSide * span * 0.5f) / span);
-        int originZ = Mathf.FloorToInt((_center.y - _chunksPerSide * span * 0.5f) / span);
-
-        VerticalRange(field, originX, originZ, span, out int low, out int high);
+        plan.Around(_center, _columns);
 
         var clock = Stopwatch.StartNew();
 
         int triangles = 0;
         int attempted = 0;
 
-        for (int z = 0; z < _chunksPerSide; z++)
+        foreach (VoxelColumnKey key in _columns)
         {
-            for (int x = 0; x < _chunksPerSide; x++)
+            float size = plan.ChunkMetres(key.Lod);
+
+            VerticalRange(field, key, size, plan.VoxelSize(key.Lod), out int low, out int high);
+
+            Transform column = NewColumn(key);
+
+            for (int y = low; y <= high; y++)
             {
-                for (int y = low; y <= high; y++)
-                {
-                    attempted++;
-                    mesher.Mesh(0, originX + x, y, originZ + z, mesh);
+                attempted++;
+                mesher.Mesh(key.Lod, key.X, y, key.Z, mesh, key.Trim, key.Morph);
 
-                    if (mesh.IsEmpty)
-                        continue;
+                if (mesh.IsEmpty)
+                    continue;
 
-                    triangles += mesh.TriangleCount;
-                    Spawn(mesh, originX + x, y, originZ + z);
-                }
+                triangles += mesh.TriangleCount;
+                Spawn(mesh, column, $"Chunk {key} y {y}");
             }
+
+            if (column.childCount > 0)
+                continue;
+
+            _roots.Remove(key);
+
+            GeneratedMesh.Destroy(column.gameObject);
         }
 
         clock.Stop();
 
         string splat = PaintSplatmap(map);
-        string decor = SpawnDecor(field, originX, originZ, span);
+        string decor = SpawnDecor(field, plan);
 
-        Debug.Log($"Voxel terrain: {_chunks.Count} chunks of {_voxels.ChunkSize} voxels at {_voxels.VoxelSize} m, "
+        Debug.Log($"Voxel terrain: the whole {_config.WorldSize} m world in {_columns.Count} columns, {_chunks.Count} chunks, "
             + $"{triangles} triangles, {attempted} chunks visited, {clock.ElapsedMilliseconds} ms. {splat}. {decor}", this);
     }
 
-    private string SpawnDecor(VoxelDensityField field, int originX, int originZ, float span)
+    private string SpawnDecor(VoxelDensityField field, VoxelStreamPlan plan)
     {
         if (!_spawnDecor)
             return "no decor";
@@ -194,19 +227,24 @@ public class VoxelTerrainBuilder : MonoBehaviour
 
         _decor = spawner;
 
-        for (int z = 0; z < _chunksPerSide; z++)
+        foreach (VoxelColumnKey key in _columns)
         {
-            for (int x = 0; x < _chunksPerSide; x++)
-            {
-                var bucket = new GameObject($"Decor {originX + x} {originZ + z}");
+            float size = plan.ChunkMetres(key.Lod);
 
-                bucket.transform.SetParent(transform, false);
+            if (!_roots.TryGetValue(key, out Transform column))
+                continue;
 
-                spawner.Spawn(new Vector2((originX + x) * span, (originZ + z) * span), span, bucket.transform);
+            var bucket = new GameObject($"Decor {key}");
 
-                if (bucket.transform.childCount == 0)
-                    GeneratedMesh.Destroy(bucket);
-            }
+            bucket.transform.SetParent(column, false);
+
+            var origin = new Vector2(key.X * size, key.Z * size);
+            var frame = new DecorSurface(origin, size, plan.VoxelSize(key.Lod), key.Morph);
+
+            spawner.Spawn(origin, size, bucket.transform, key.Lod, frame);
+
+            if (bucket.transform.childCount == 0)
+                GeneratedMesh.Destroy(bucket);
         }
 
         clock.Stop();
@@ -270,6 +308,7 @@ public class VoxelTerrainBuilder : MonoBehaviour
     public void Clear()
     {
         _chunks.Clear();
+        _roots.Clear();
 
         _decor?.Dispose();
         _decor = null;
@@ -280,13 +319,24 @@ public class VoxelTerrainBuilder : MonoBehaviour
         }
     }
 
-    private void Spawn(VoxelMesh source, int chunkX, int chunkY, int chunkZ)
+    private Transform NewColumn(VoxelColumnKey key)
     {
-        var holder = new GameObject($"Chunk {chunkX} {chunkY} {chunkZ}");
+        var column = new GameObject($"Column {key}");
 
-        holder.transform.SetParent(transform, false);
+        column.transform.SetParent(transform, false);
 
-        var mesh = new Mesh { name = holder.name };
+        _roots[key] = column.transform;
+
+        return column.transform;
+    }
+
+    private void Spawn(VoxelMesh source, Transform parent, string name)
+    {
+        var holder = new GameObject(name);
+
+        holder.transform.SetParent(parent, false);
+
+        var mesh = new Mesh { name = name };
 
         if (source.VertexCount > 65000)
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
@@ -308,19 +358,14 @@ public class VoxelTerrainBuilder : MonoBehaviour
         _chunks.Add(holder.GetComponent<MeshFilter>());
     }
 
-    private void VerticalRange(VoxelDensityField field, int originX, int originZ, float span, out int low, out int high)
+    private void VerticalRange(VoxelDensityField field, VoxelColumnKey key, float size, float step, out int low, out int high)
     {
         float lowest = float.MaxValue;
         float highest = float.MinValue;
 
-        float from = originX * span;
-        float to = (originX + _chunksPerSide) * span;
-        float fromZ = originZ * span;
-        float toZ = (originZ + _chunksPerSide) * span;
-
-        for (float z = fromZ; z <= toZ; z += _voxels.VoxelSize)
+        for (float z = key.Z * size; z <= (key.Z + 1) * size; z += step)
         {
-            for (float x = from; x <= to; x += _voxels.VoxelSize)
+            for (float x = key.X * size; x <= (key.X + 1) * size; x += step)
             {
                 float surface = field.Surface(x, z);
 
@@ -329,8 +374,8 @@ public class VoxelTerrainBuilder : MonoBehaviour
             }
         }
 
-        low = Mathf.FloorToInt(lowest / span) - 1;
-        high = Mathf.FloorToInt(highest / span) + 1;
+        low = Mathf.FloorToInt(lowest / size) - 1;
+        high = Mathf.FloorToInt(highest / size) + 1;
     }
 
     private static float Lowest(HeightMap map)
@@ -350,11 +395,9 @@ public class VoxelTerrainBuilder : MonoBehaviour
         if (budget.Megabytes <= _memoryBudget)
             return true;
 
-        float side = _chunksPerSide * _voxels.ChunkMetres;
-
-        Debug.LogError($"Voxel terrain: {side:0} m at {_voxels.VoxelSize} m per voxel is {budget.Describe()}, over the {_memoryBudget} MB budget. "
-            + $"The build is refused because running out of memory takes the editor down. {VoxelBudget.Advise(_voxels.VoxelSize, side * side, _memoryBudget, _buildColliders)}, "
-            + "or lower ChunksPerSide, or raise the budget if the machine really has the memory", this);
+        Debug.LogError($"Voxel terrain: the world at {_voxels.VoxelSize} m per voxel over {_lodCount} rings is {budget.Describe()}, "
+            + $"over the {_memoryBudget} MB budget. The build is refused because running out of memory takes the editor down. "
+            + "Lower LodCount or NearDistance, raise VoxelSize, or raise the budget if the machine really has the memory", this);
 
         return false;
     }

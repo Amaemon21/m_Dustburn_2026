@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb408c6c278d089499556a57ba898ba9, type: 3}
   m_Name: WorldGenerationConfig
   m_EditorClassIdentifier: Assembly-CSharp::WorldGenerationConfig
-  <Seed>k__BackingField: 1981929481
+  <Seed>k__BackingField: 123234
   <WorldSize>k__BackingField: 4096
   <BiomeCellSize>k__BackingField: 8
   <HeightCellSize>k__BackingField: 2
@@ -201,6 +201,7 @@ MonoBehaviour:
   <RuralChance>k__BackingField: 0.6
   <RuralClearance>k__BackingField: 1.25
   <MaxTerrainLayers>k__BackingField: 32
+  <OneGroundPerBiome>k__BackingField: 1
   <CliffLayer>k__BackingField: {fileID: 8574412962073106934, guid: 3c9e601db5f4c7d6eaa8b53f91627c14, type: 2}
   <RoadLayer>k__BackingField: {fileID: 8574412962073106934, guid: 4daf712ec605d8e7fbb9c640a2738d25, type: 2}
   <CliffSlopeStart>k__BackingField: 28

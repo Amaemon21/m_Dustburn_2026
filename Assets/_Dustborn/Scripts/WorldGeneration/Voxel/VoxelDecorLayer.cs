@@ -7,6 +7,32 @@ public enum DecorKind
     Grass
 }
 
+public enum DecorScope
+{
+    All,
+    Trees,
+    Rocks,
+    Grass
+}
+
+public readonly struct DecorSurface
+{
+    public Vector2 Origin { get; }
+    public float Span { get; }
+    public float VoxelSize { get; }
+    public int Morph { get; }
+
+    public DecorSurface(Vector2 origin, float span, float voxelSize, int morph)
+    {
+        Origin = origin;
+        Span = span;
+        VoxelSize = voxelSize;
+        Morph = morph;
+    }
+
+    public bool IsPlain => Span <= 0f;
+}
+
 public class VoxelDecorLayer
 {
     public GameObject Prefab { get; private set; }

@@ -160,6 +160,10 @@ public class WorldGenerationConfig : ScriptableObject
     [field: Tooltip("Free Repetitionless holds 4 ground layers, Pro holds 32. Layers past the budget are not registered: cliff and road take their slots first, then biome grounds in order of world coverage.")]
     public int MaxTerrainLayers { get; private set; } = 32;
 
+    [field: SerializeField, Foldout("Terrain layers")]
+    [field: Tooltip("Paint each biome with the first ground of its list and nothing else, ignoring the slope, height and patch rules. The shared cliff and road layers still apply, since they are not a biome's own ground. A flat look for working on something else, and it costs one layer slot per biome instead of five or six.")]
+    public bool OneGroundPerBiome { get; private set; }
+
     [field: SerializeField, Foldout("Terrain layers")] public TerrainLayer CliffLayer { get; private set; }
     [field: SerializeField, Foldout("Terrain layers")] public TerrainLayer RoadLayer { get; private set; }
     [field: SerializeField, Foldout("Terrain layers"), Range(0f, 90f)] public float CliffSlopeStart { get; private set; } = 28f;

@@ -9,15 +9,13 @@ public class GrassCardFactory : IDisposable
     private const string PLAIN = "Universal Render Pipeline/Simple Lit";
     private const string FALLBACK = "Universal Render Pipeline/Lit";
 
-    private const float CUTOFF = 0.4f;
+    private const float CUTOFF = 0.3f;
     private const float FADE_FRACTION = 0.9f;
 
     private readonly Dictionary<(Texture2D, Color), Material> _materials = new();
 
     private Mesh _mesh;
 
-    // Metres at which a card is fully dissolved. Zero leaves the cards visible to wherever the ring
-    // ends, which is a hard edge, so the streamer hands its grass distance down.
     public float Distance { get; set; }
 
     public Mesh Mesh => _mesh == null ? _mesh = BuildMesh() : _mesh;
@@ -99,8 +97,6 @@ public class GrassCardFactory : IDisposable
         return mesh;
     }
 
-    // A shader that fails to compile is still found by name and would paint the world magenta, so the
-    // card shader is taken only when the platform reports it as supported.
     private static Shader Pick()
     {
         Shader card = Shader.Find(SHADER);

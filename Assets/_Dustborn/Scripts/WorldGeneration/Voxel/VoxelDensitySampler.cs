@@ -39,15 +39,52 @@ public struct VoxelDensitySampler
         return Surface(x, z) - y;
     }
 
+    public float Blend(float x, float z, int morph, float u, float v, float step)
+    {
+        float weight = Weight(morph, u, v);
+
+        return weight <= 0f ? Surface(x, z) : math.lerp(Surface(x, z), Coarse(x, z, step), weight);
+    }
+
+    private static float Weight(int morph, float u, float v)
+    {
+        float weight = 0f;
+
+        if ((morph & VoxelColumnKey.MORPH_MIN_X) != 0)
+            weight = math.max(weight, 1f - u);
+
+        if ((morph & VoxelColumnKey.MORPH_MAX_X) != 0)
+            weight = math.max(weight, u);
+
+        if ((morph & VoxelColumnKey.MORPH_MIN_Z) != 0)
+            weight = math.max(weight, 1f - v);
+
+        if ((morph & VoxelColumnKey.MORPH_MAX_Z) != 0)
+            weight = math.max(weight, v);
+
+        return math.saturate(weight);
+    }
+
     public Vector3 Normal(float x, float y, float z)
+    {
+        return Normal(x, y, z, VoxelSize, 0, 0f, 0f, 0f, 0f);
+    }
+
+    public Vector3 Normal(float x, float y, float z, float voxelSize, int morph, float originX, float originZ, float span, float coarse)
     {
         if (y < Floor)
             return Vector3.up;
 
-        float step = VoxelSize * 0.5f;
+        float blend = morph == 0 ? 0f : Weight(morph, (x - originX) / span, (z - originZ) / span);
 
-        float dx = Surface(x + step, z) - Surface(x - step, z);
-        float dz = Surface(x, z + step) - Surface(x, z - step);
+        float step = math.lerp(voxelSize, coarse, blend) * 0.5f;
+
+        float dx = Height(x + step, z, voxelSize, morph, originX, originZ, span, coarse)
+                   - Height(x - step, z, voxelSize, morph, originX, originZ, span, coarse);
+
+        float dz = Height(x, z + step, voxelSize, morph, originX, originZ, span, coarse)
+                   - Height(x, z - step, voxelSize, morph, originX, originZ, span, coarse);
+
         float dy = 2f * step;
 
         float length = math.sqrt(dx * dx + dy * dy + dz * dz);
@@ -58,16 +95,59 @@ public struct VoxelDensitySampler
         return new Vector3(-dx / length, dy / length, -dz / length);
     }
 
-    public bool Fill(Vector3 origin, float voxelSize, int samples, NativeArray<float> columns, NativeArray<float> density)
+    public float Height(float x, float z, float voxelSize, int morph, float originX, float originZ, float span, float coarse)
+    {
+        if (morph == 0 && voxelSize <= CellSize)
+            return Surface(x, z);
+
+        float own = voxelSize <= CellSize ? Surface(x, z) : Coarse(x, z, voxelSize);
+
+        if (morph == 0)
+            return own;
+
+        float weight = Weight(morph, (x - originX) / span, (z - originZ) / span);
+
+        return weight <= 0f ? own : math.lerp(own, Coarse(x, z, coarse), weight);
+    }
+
+    public float Coarse(float x, float z, float step)
+    {
+        float gx = math.floor(x / step) * step;
+        float gz = math.floor(z / step) * step;
+
+        float tx = (x - gx) / step;
+        float tz = (z - gz) / step;
+
+        float bottom = math.lerp(Surface(gx, gz), Surface(gx + step, gz), tx);
+        float top = math.lerp(Surface(gx, gz + step), Surface(gx + step, gz + step), tx);
+
+        return math.lerp(bottom, top, tz);
+    }
+
+    public bool Fill(Vector3 origin, float voxelSize, int samples, NativeArray<float> columns, NativeArray<float> density, int morph = 0, int size = 0)
     {
         float lowest = float.MaxValue;
         float highest = float.MinValue;
+
+        float step = voxelSize * 2f;
+        float span = math.max(1f, size);
 
         for (int z = 0; z < samples; z++)
         {
             for (int x = 0; x < samples; x++)
             {
-                float surface = Surface(origin.x + (x - 1) * voxelSize, origin.z + (z - 1) * voxelSize);
+                float worldX = origin.x + (x - 1) * voxelSize;
+                float worldZ = origin.z + (z - 1) * voxelSize;
+
+                float surface = Surface(worldX, worldZ);
+
+                if (morph != 0)
+                {
+                    float weight = Weight(morph, (x - 1) / span, (z - 1) / span);
+
+                    if (weight > 0f)
+                        surface = math.lerp(surface, Coarse(worldX, worldZ, step), weight);
+                }
 
                 columns[z * samples + x] = surface;
 

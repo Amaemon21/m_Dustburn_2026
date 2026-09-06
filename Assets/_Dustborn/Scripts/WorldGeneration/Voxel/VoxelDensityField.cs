@@ -30,6 +30,15 @@ public class VoxelDensityField : IDisposable
         return Sampler.Surface(x, z);
     }
 
+    public float Surface(float x, float z, DecorSurface frame)
+    {
+        if (frame.IsPlain)
+            return Sampler.Surface(x, z);
+
+        return Sampler.Height(x, z, frame.VoxelSize, frame.Morph, frame.Origin.x, frame.Origin.y, frame.Span,
+            frame.VoxelSize * 2f);
+    }
+
     public float Sample(float x, float y, float z)
     {
         return Sampler.Sample(x, y, z);
