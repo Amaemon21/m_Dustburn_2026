@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 067a66f68d8440b2b8854c722342a2b2, type: 3}
+  m_Name: Kolibri_Settings
+  m_EditorClassIdentifier: 
+  characterController: {fileID: 22100000, guid: de70d9def269c144e94d3eca9fe020f9,
+    type: 2}
+  recoilAnimData: {fileID: 11400000, guid: e5aa7967ab8b47d41a092a19856fe96b, type: 2}
+  cameraShake: {fileID: 11400000, guid: d488ccb41a4a1224c9a97b32cd93bf84, type: 2}
+  ikOffset: {x: 0, y: 0.01, z: 0.03}
+  leftClavicleOffset: {x: 0, y: 0, z: 0}
+  rightClavicleOffset: {x: 0, y: 0, z: 0}
+  aimPointOffset: {x: 0, y: 0, z: -0.1}
+  adsBlend: 0.271
+  fireRate: 600
+  ammo: 6
+  aimFov: 60
+  fullAuto: 0
+  useFireClip: 0
+  hasEquipOverride: 1
+  hasFireOut: 0
+  useSprintTriggerDiscipline: 0
+  fireSounds:
+  - {fileID: 8300000, guid: f96907c5ee4961441afc9cc058e87dd1, type: 3}
+  - {fileID: 8300000, guid: 1399a5e29a6d5a24294d2639a939193c, type: 3}
+  - {fileID: 8300000, guid: e84682e69ba19ed44ae8c1f2abae16bd, type: 3}
+  - {fileID: 8300000, guid: b0003bde20a4522428993d361582321b, type: 3}
+  firePitchRange: {x: 1, y: 1}
+  fireVolumeRange: {x: 1, y: 1}
+  weaponEventSounds:
+  - {fileID: 8300000, guid: bd1c570dc612a1941afc3e87b836710d, type: 3}
+  - {fileID: 8300000, guid: 4cb32bb427d1a4d4d86d67fcf431a469, type: 3}
+  - {fileID: 8300000, guid: 4618d23d007694247b47ef02cdf393f0, type: 3}

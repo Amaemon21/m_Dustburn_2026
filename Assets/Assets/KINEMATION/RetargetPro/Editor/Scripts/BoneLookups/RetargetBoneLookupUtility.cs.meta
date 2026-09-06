@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 24e8ff5b6f1699a419fbed3bc254a3d9
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/BoneLookups/RetargetBoneLookupUtility.cs
+  uploadId: 982620

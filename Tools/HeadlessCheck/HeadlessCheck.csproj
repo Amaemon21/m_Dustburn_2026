@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <Nullable>disable</Nullable>
+    <DefineConstants>$(DefineConstants);UNITY_EDITOR</DefineConstants>
+    <NoWarn>CS0414;CS0169;CS0649;CS0660;CS0661;CS0108;CS0067;CS8981</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <StartupObject>Harness</StartupObject>
+    <WorldGeneration>../../Assets/_Dustborn/Scripts/WorldGeneration</WorldGeneration>
+    <SharedUtils>../../Assets/_Dustborn/Scripts/Utils</SharedUtils>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Stubs.cs" />
+    <Compile Include="JobStubs.cs" />
+    <Compile Include="SimplexNoise.cs" />
+    <Compile Include="AssetReader.cs" />
+    <Compile Include="Missing.cs" />
+    <Compile Include="Png.cs" />
+    <Compile Include="Draw.cs" />
+    <Compile Include="Harness.cs" />
+    <Compile Include="$(SharedUtils)/**/*.cs" />
+    <Compile Include="$(WorldGeneration)/**/*.cs"
+             Exclude="$(WorldGeneration)/Voxel/VoxelTerrainBuilder.cs;
+                      $(WorldGeneration)/Voxel/VoxelTerrainStreamer.cs;
+                      $(WorldGeneration)/Voxel/VoxelDecorSpawner.cs;
+                      $(WorldGeneration)/Voxel/MeshCombiner.cs;
+                      $(WorldGeneration)/Voxel/VoxelDecorRenderer.cs;
+                      $(WorldGeneration)/Voxel/GrassCardFactory.cs;
+                      $(WorldGeneration)/Voxel/VoxelColliderQueue.cs;
+                      $(WorldGeneration)/Voxel/VoxelDecorBuild.cs;
+                      $(WorldGeneration)/Voxel/RepetitionlessVoxelSetup.cs;
+                      $(WorldGeneration)/Voxel/VoxelGroundMaterial.cs;
+                      $(WorldGeneration)/Generation/BiomeMapTexture.cs;
+                      $(WorldGeneration)/Generation/HeightMapTexture.cs" />
+  </ItemGroup>
+</Project>

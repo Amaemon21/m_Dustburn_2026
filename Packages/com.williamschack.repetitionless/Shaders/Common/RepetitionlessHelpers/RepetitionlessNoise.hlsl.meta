@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a0ccc96f0e459118290357e244d32f6c
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/RepetitionlessHelpers/RepetitionlessNoise.hlsl
+  uploadId: 985582

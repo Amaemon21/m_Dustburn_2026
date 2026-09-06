@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d80d1e8c5842457488a0977a65f3da68
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/Structs/RepetitionlessLayerData.hlsl
+  uploadId: 985582

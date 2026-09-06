@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 9c2a4d37026d4e2da5180b9ad59b5a84
+timeCreated: 1772811000
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Mapping/ModelRootRotationUtility.cs
+  uploadId: 982620

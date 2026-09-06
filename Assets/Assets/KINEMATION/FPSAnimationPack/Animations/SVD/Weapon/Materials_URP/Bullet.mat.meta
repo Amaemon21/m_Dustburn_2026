@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6c8306a91d8263045a6f0661951f5137
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/SVD/Weapon/Materials_URP/Bullet.mat
+  uploadId: 973064

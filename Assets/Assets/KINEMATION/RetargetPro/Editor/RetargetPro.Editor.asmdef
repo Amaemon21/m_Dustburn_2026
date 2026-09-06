@@ -1,0 +1,23 @@
+{
+    "name": "RetargetPro.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:efc75facae3d348488b02e54eaaba14f",
+        "GUID:d8548a9d25a091541a1fcde53694c91a",
+        "GUID:9e0de4a12aaad02499ffafb271fc9e4c",
+        "GUID:2b3eec6472d6cb248b60138bebe1f26e",
+        "GUID:241f6709250c6af4cae74cc5da405c87",
+        "GUID:3b9c1e777897a454ab8f17fb7264c2af"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

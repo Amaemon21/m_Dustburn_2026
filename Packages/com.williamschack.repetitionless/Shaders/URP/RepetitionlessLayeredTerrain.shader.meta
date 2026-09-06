@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c2e5b5628c460446790a4c73b7abe8c3
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/URP/RepetitionlessLayeredTerrain.shader
+  uploadId: 985582

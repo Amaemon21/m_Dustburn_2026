@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bc8383a2b92c23ec6a6bb17ebb3ef12f
+ComputeShaderImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Resources/repetitionless_FillPositionMapSeams.compute
+  uploadId: 985582

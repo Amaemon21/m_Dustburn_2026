@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cad4e15b238d4954db2c0164da050f65
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/G3/Weapon/Materials_URP/metal_bolt.mat
+  uploadId: 973064

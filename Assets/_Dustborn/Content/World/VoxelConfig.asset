@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91b7e34ca0d6459f8c25de7013fa48b6, type: 3}
+  m_Name: VoxelConfig
+  m_EditorClassIdentifier: Assembly-CSharp::VoxelConfig
+  <VoxelSize>k__BackingField: 1
+  <ChunkSize>k__BackingField: 32
+  <Bedrock>k__BackingField: 64
+  <GrassDistance>k__BackingField: 96
+  <GrassMaxLod>k__BackingField: 0
+  <RockMaxLod>k__BackingField: 1
+  <TreeMaxLod>k__BackingField: 2
+  <SkirtDepth>k__BackingField: 2

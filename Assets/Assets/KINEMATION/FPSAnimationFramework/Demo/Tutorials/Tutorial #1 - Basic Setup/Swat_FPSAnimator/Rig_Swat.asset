@@ -1,0 +1,302 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9c04639ae548bdb0a8e927492d029d, type: 3}
+  m_Name: Rig_Swat
+  m_EditorClassIdentifier: 
+  targetAnimator: {fileID: 9100000, guid: 70b165214a68c65428af65a49a82895b, type: 2}
+  rigHierarchy:
+  - name: mixamorig:Hips
+    index: 0
+    depth: 0
+  - name: mixamorig:LeftUpLeg
+    index: 1
+    depth: 1
+  - name: mixamorig:LeftLeg
+    index: 2
+    depth: 2
+  - name: mixamorig:LeftFoot
+    index: 3
+    depth: 3
+  - name: mixamorig:LeftToeBase
+    index: 4
+    depth: 4
+  - name: mixamorig:LeftToe_End
+    index: 5
+    depth: 5
+  - name: mixamorig:RightUpLeg
+    index: 6
+    depth: 1
+  - name: mixamorig:RightLeg
+    index: 7
+    depth: 2
+  - name: mixamorig:RightFoot
+    index: 8
+    depth: 3
+  - name: mixamorig:RightToeBase
+    index: 9
+    depth: 4
+  - name: mixamorig:RightToe_End
+    index: 10
+    depth: 5
+  - name: mixamorig:Spine
+    index: 11
+    depth: 1
+  - name: mixamorig:Spine1
+    index: 12
+    depth: 2
+  - name: mixamorig:Spine2
+    index: 13
+    depth: 3
+  - name: mixamorig:LeftShoulder
+    index: 14
+    depth: 4
+  - name: mixamorig:LeftArm
+    index: 15
+    depth: 5
+  - name: mixamorig:LeftForeArm
+    index: 16
+    depth: 6
+  - name: mixamorig:LeftHand
+    index: 17
+    depth: 7
+  - name: mixamorig:LeftHandIndex1
+    index: 18
+    depth: 8
+  - name: mixamorig:LeftHandIndex2
+    index: 19
+    depth: 9
+  - name: mixamorig:LeftHandIndex3
+    index: 20
+    depth: 10
+  - name: mixamorig:LeftHandIndex4
+    index: 21
+    depth: 11
+  - name: mixamorig:LeftHandMiddle1
+    index: 22
+    depth: 8
+  - name: mixamorig:LeftHandMiddle2
+    index: 23
+    depth: 9
+  - name: mixamorig:LeftHandMiddle3
+    index: 24
+    depth: 10
+  - name: mixamorig:LeftHandMiddle4
+    index: 25
+    depth: 11
+  - name: mixamorig:LeftHandPinky1
+    index: 26
+    depth: 8
+  - name: mixamorig:LeftHandPinky2
+    index: 27
+    depth: 9
+  - name: mixamorig:LeftHandPinky3
+    index: 28
+    depth: 10
+  - name: mixamorig:LeftHandPinky4
+    index: 29
+    depth: 11
+  - name: mixamorig:LeftHandRing1
+    index: 30
+    depth: 8
+  - name: mixamorig:LeftHandRing2
+    index: 31
+    depth: 9
+  - name: mixamorig:LeftHandRing3
+    index: 32
+    depth: 10
+  - name: mixamorig:LeftHandRing4
+    index: 33
+    depth: 11
+  - name: mixamorig:LeftHandThumb1
+    index: 34
+    depth: 8
+  - name: mixamorig:LeftHandThumb2
+    index: 35
+    depth: 9
+  - name: mixamorig:LeftHandThumb3
+    index: 36
+    depth: 10
+  - name: mixamorig:LeftHandThumb4
+    index: 37
+    depth: 11
+  - name: IK WeaponBoneLeft
+    index: 38
+    depth: 8
+  - name: mixamorig:Neck
+    index: 39
+    depth: 4
+  - name: mixamorig:Neck1
+    index: 40
+    depth: 5
+  - name: mixamorig:Head
+    index: 41
+    depth: 6
+  - name: mixamorig:HeadTop_End
+    index: 42
+    depth: 7
+  - name: mixamorig:Jaw
+    index: 43
+    depth: 7
+  - name: mixamorig:LeftEye
+    index: 44
+    depth: 7
+  - name: mixamorig:RightEye
+    index: 45
+    depth: 7
+  - name: IK WeaponBone
+    index: 46
+    depth: 7
+  - name: IK RightHand
+    index: 47
+    depth: 8
+  - name: IK LeftHand
+    index: 48
+    depth: 8
+  - name: IK RightElbow
+    index: 49
+    depth: 8
+  - name: IK LeftElbow
+    index: 50
+    depth: 8
+  - name: Camera
+    index: 51
+    depth: 7
+  - name: mixamorig:RightShoulder
+    index: 52
+    depth: 4
+  - name: mixamorig:RightArm
+    index: 53
+    depth: 5
+  - name: mixamorig:RightForeArm
+    index: 54
+    depth: 6
+  - name: mixamorig:RightHand
+    index: 55
+    depth: 7
+  - name: mixamorig:RightHandIndex1
+    index: 56
+    depth: 8
+  - name: mixamorig:RightHandIndex2
+    index: 57
+    depth: 9
+  - name: mixamorig:RightHandIndex3
+    index: 58
+    depth: 10
+  - name: mixamorig:RightHandIndex4
+    index: 59
+    depth: 11
+  - name: mixamorig:RightHandMiddle1
+    index: 60
+    depth: 8
+  - name: mixamorig:RightHandMiddle2
+    index: 61
+    depth: 9
+  - name: mixamorig:RightHandMiddle3
+    index: 62
+    depth: 10
+  - name: mixamorig:RightHandMiddle4
+    index: 63
+    depth: 11
+  - name: mixamorig:RightHandPinky1
+    index: 64
+    depth: 8
+  - name: mixamorig:RightHandPinky2
+    index: 65
+    depth: 9
+  - name: mixamorig:RightHandPinky3
+    index: 66
+    depth: 10
+  - name: mixamorig:RightHandPinky4
+    index: 67
+    depth: 11
+  - name: mixamorig:RightHandRing1
+    index: 68
+    depth: 8
+  - name: mixamorig:RightHandRing2
+    index: 69
+    depth: 9
+  - name: mixamorig:RightHandRing3
+    index: 70
+    depth: 10
+  - name: mixamorig:RightHandRing4
+    index: 71
+    depth: 11
+  - name: mixamorig:RightHandThumb1
+    index: 72
+    depth: 8
+  - name: mixamorig:RightHandThumb2
+    index: 73
+    depth: 9
+  - name: mixamorig:RightHandThumb3
+    index: 74
+    depth: 10
+  - name: mixamorig:RightHandThumb4
+    index: 75
+    depth: 11
+  - name: IK WeaponBoneRight
+    index: 76
+    depth: 8
+  - name: WeaponBone
+    index: 77
+    depth: 1
+  - name: WeaponBoneAdditive
+    index: 78
+    depth: 1
+  - name: IK RightFoot
+    index: 79
+    depth: 1
+  - name: IK LeftFoot
+    index: 80
+    depth: 1
+  - name: IK RightKnee
+    index: 81
+    depth: 1
+  - name: IK LeftKnee
+    index: 82
+    depth: 1
+  rigElementChains:
+  - chainName: PelvisChain
+    elementChain:
+    - name: mixamorig:Hips
+      index: 0
+      depth: 0
+  - chainName: SpineRootChain
+    elementChain:
+    - name: mixamorig:Spine
+      index: 11
+      depth: 0
+  - chainName: RightHandChain
+    elementChain:
+    - name: mixamorig:RightHand
+      index: 55
+      depth: 0
+  - chainName: LeftHandChain
+    elementChain:
+    - name: mixamorig:LeftHand
+      index: 17
+      depth: 0
+  - chainName: RightFootChain
+    elementChain:
+    - name: mixamorig:RightFoot
+      index: 8
+      depth: 0
+  - chainName: LeftFootChain
+    elementChain:
+    - name: mixamorig:LeftFoot
+      index: 3
+      depth: 0
+  inputConfig: {fileID: 0}
+  rigCurves:
+  - Overlay
+  - WeaponBoneWeight
+  - MaskAttachHand
+  rigDepths: 00000000010000000200000003000000040000000500000001000000020000000300000004000000050000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000040000000500000006000000070000000700000007000000070000000700000008000000080000000800000008000000070000000400000005000000060000000700000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000090000000a0000000b00000008000000010000000100000001000000010000000100000001000000

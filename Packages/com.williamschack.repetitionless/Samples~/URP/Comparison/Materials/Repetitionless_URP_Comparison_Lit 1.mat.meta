@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: d0c15f68c0c7456f88cb299fdb34301e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Comparison/Materials/Repetitionless_URP_Comparison_Lit
+    1.mat
+  uploadId: 985582

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: acfd6c8eeb0c8c64cbeff06191ad4920
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/AnimatorControllers/DefaultAnimations/UnEquip.anim
+  uploadId: 973064

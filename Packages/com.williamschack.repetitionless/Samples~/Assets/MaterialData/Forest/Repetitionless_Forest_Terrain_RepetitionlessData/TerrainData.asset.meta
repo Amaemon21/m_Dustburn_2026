@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 62822bf7bec7f3ff99fb6996be57ebee
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/MaterialData/Forest/Repetitionless_Forest_Terrain_RepetitionlessData/TerrainData.asset
+  uploadId: 985582

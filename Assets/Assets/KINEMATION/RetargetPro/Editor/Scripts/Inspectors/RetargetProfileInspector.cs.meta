@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 8d6c4b9a1fe14df79fb7fd3cf4be12a8
+timeCreated: 1772236801
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Inspectors/RetargetProfileInspector.cs
+  uploadId: 982620

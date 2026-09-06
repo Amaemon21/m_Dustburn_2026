@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 467fa291ebe1bce22a0f59077d306e50
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/HDRP~/RepetitionlessHDRPSampleTerrainNew.hlsl
+  uploadId: 985582

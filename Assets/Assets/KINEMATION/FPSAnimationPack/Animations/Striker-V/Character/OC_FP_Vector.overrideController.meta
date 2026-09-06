@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ab0d94ee482228446b1d0d681489febb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/Striker-V/Character/OC_FP_Vector.overrideController
+  uploadId: 973064

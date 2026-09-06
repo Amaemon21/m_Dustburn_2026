@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a991dafacadc5dd25bca0f14e9c53f9b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/BIRP/Flat/Flat.unity
+  uploadId: 985582

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5d1fca4807f64967b82238b881a1fe1d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Window/RetargetProWindowStyles.cs
+  uploadId: 982620

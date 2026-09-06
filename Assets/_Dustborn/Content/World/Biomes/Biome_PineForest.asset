@@ -1,0 +1,369 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f95039ed64bf6f45a3e6262a7ba62a8, type: 3}
+  m_Name: Biome_PineForest
+  m_EditorClassIdentifier: Assembly-CSharp::BiomeDefinition
+  <Type>k__BackingField: 0
+  <MapColor>k__BackingField:
+    serializedVersion: 2
+    rgba: 4278206464
+  <RegionWeight>k__BackingField: 1.9
+  <Ground>k__BackingField:
+  - <Layer>k__BackingField: {fileID: 8574412962073106934, guid: 1a7c4e0b93f2d5a4b8e6c31d7f405a92, type: 2}
+    <Weight>k__BackingField: 1
+    <PatchFrequency>k__BackingField: 140
+    <PatchThreshold>k__BackingField: 0
+    <PatchFade>k__BackingField: 0.12
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 90
+    <SlopeFade>k__BackingField: 8
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 8574412962073106802, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a02, type: 2}
+    <Weight>k__BackingField: 1.9
+    <PatchFrequency>k__BackingField: 95
+    <PatchThreshold>k__BackingField: 0.5
+    <PatchFade>k__BackingField: 0.16
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 20
+    <SlopeFade>k__BackingField: 8
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 0.6
+    <HeightFade>k__BackingField: 0.1
+  - <Layer>k__BackingField: {fileID: 8574412962073106803, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a03, type: 2}
+    <Weight>k__BackingField: 1.7
+    <PatchFrequency>k__BackingField: 62
+    <PatchThreshold>k__BackingField: 0.48
+    <PatchFade>k__BackingField: 0.14
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 26
+    <SlopeFade>k__BackingField: 9
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 8574412962073106801, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a01, type: 2}
+    <Weight>k__BackingField: 1.5
+    <PatchFrequency>k__BackingField: 165
+    <PatchThreshold>k__BackingField: 0.55
+    <PatchFade>k__BackingField: 0.18
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 32
+    <SlopeFade>k__BackingField: 10
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 8574412962073106805, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a05, type: 2}
+    <Weight>k__BackingField: 1.2
+    <PatchFrequency>k__BackingField: 48
+    <PatchThreshold>k__BackingField: 0.68
+    <PatchFade>k__BackingField: 0.1
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 15
+    <SlopeFade>k__BackingField: 6
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 0.75
+    <HeightFade>k__BackingField: 0.08
+  - <Layer>k__BackingField: {fileID: 8574412962073106807, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a07, type: 2}
+    <Weight>k__BackingField: 1.4
+    <PatchFrequency>k__BackingField: 120
+    <PatchThreshold>k__BackingField: 0.62
+    <PatchFade>k__BackingField: 0.12
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 90
+    <SlopeFade>k__BackingField: 8
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 8574412962073106810, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a10, type: 2}
+    <Weight>k__BackingField: 2.6
+    <PatchFrequency>k__BackingField: 140
+    <PatchThreshold>k__BackingField: 0
+    <PatchFade>k__BackingField: 0.12
+    <MinSlope>k__BackingField: 24
+    <MaxSlope>k__BackingField: 90
+    <SlopeFade>k__BackingField: 10
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  <Grass>k__BackingField:
+  - <Card>k__BackingField: {fileID: 2800000, guid: 84d19b2fc76d5544abb9adbf66ea1f6b, type: 3}
+    <Prefab>k__BackingField: {fileID: 1517068201192904, guid: 6f62c6f9e92a8ed44878e929e7e8db3f, type: 3}
+    <Density>k__BackingField: 0.078
+    <PatchFrequency>k__BackingField: 26
+    <PatchThreshold>k__BackingField: 0.26
+    <MaxSlope>k__BackingField: 34
+    <MinWidth>k__BackingField: 0.85
+    <MaxWidth>k__BackingField: 1.3
+    <MinHeight>k__BackingField: 0.85
+    <MaxHeight>k__BackingField: 1.35
+    <HealthyColor>k__BackingField: {r: 0.42, g: 0.55, b: 0.28, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.35
+  - <Card>k__BackingField: {fileID: 2800000, guid: 7ed7f0e4becdc234b88c5316e935a6c0, type: 3}
+    <Prefab>k__BackingField: {fileID: 1923026048575658, guid: f6a0cd899fb3b8c449a40e5fb69e258d, type: 3}
+    <Density>k__BackingField: 0.066
+    <PatchFrequency>k__BackingField: 25
+    <PatchThreshold>k__BackingField: 0.3
+    <MaxSlope>k__BackingField: 34
+    <MinWidth>k__BackingField: 0.85
+    <MaxWidth>k__BackingField: 1.25
+    <MinHeight>k__BackingField: 0.85
+    <MaxHeight>k__BackingField: 1.3
+    <HealthyColor>k__BackingField: {r: 0.38, g: 0.5, b: 0.25, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.35
+  - <Card>k__BackingField: {fileID: 2800000, guid: b59ed95cf04d09a42b8421aaf3513a3b, type: 3}
+    <Prefab>k__BackingField: {fileID: 1037344459507410, guid: 9c8446fabd2f61c4a823aebd526a359d, type: 3}
+    <Density>k__BackingField: 0.057
+    <PatchFrequency>k__BackingField: 33
+    <PatchThreshold>k__BackingField: 0.32
+    <MaxSlope>k__BackingField: 33
+    <MinWidth>k__BackingField: 0.8
+    <MaxWidth>k__BackingField: 1.2
+    <MinHeight>k__BackingField: 0.85
+    <MaxHeight>k__BackingField: 1.25
+    <HealthyColor>k__BackingField: {r: 0.46, g: 0.58, b: 0.3, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.4
+  - <Card>k__BackingField: {fileID: 2800000, guid: ac6cb07830356774fa45abf3f55f6cc6, type: 3}
+    <Prefab>k__BackingField: {fileID: 1364733423325056, guid: 97e77ce5d8e6fcf45968ff6855ddddf2, type: 3}
+    <Density>k__BackingField: 0.0495
+    <PatchFrequency>k__BackingField: 43
+    <PatchThreshold>k__BackingField: 0.35
+    <MaxSlope>k__BackingField: 33
+    <MinWidth>k__BackingField: 0.8
+    <MaxWidth>k__BackingField: 1.2
+    <MinHeight>k__BackingField: 0.8
+    <MaxHeight>k__BackingField: 1.25
+    <HealthyColor>k__BackingField: {r: 0.35, g: 0.47, b: 0.24, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.3
+  - <Card>k__BackingField: {fileID: 2800000, guid: 9a2c901954dafb94ca326bae894a050e, type: 3}
+    <Prefab>k__BackingField: {fileID: 1393679957294896, guid: c0afa580c5ee8484183dafdc704e8768, type: 3}
+    <Density>k__BackingField: 0.042
+    <PatchFrequency>k__BackingField: 67
+    <PatchThreshold>k__BackingField: 0.38
+    <MaxSlope>k__BackingField: 32
+    <MinWidth>k__BackingField: 0.8
+    <MaxWidth>k__BackingField: 1.15
+    <MinHeight>k__BackingField: 0.8
+    <MaxHeight>k__BackingField: 1.2
+    <HealthyColor>k__BackingField: {r: 0.5, g: 0.6, b: 0.32, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.3
+  - <Card>k__BackingField: {fileID: 2800000, guid: 2b159cd802041cf42a0b513cdd60a2ae, type: 3}
+    <Prefab>k__BackingField: {fileID: 1346982405202136, guid: 09a3b44b8937d6245b39d930062109c6, type: 3}
+    <Density>k__BackingField: 0.0285
+    <PatchFrequency>k__BackingField: 79
+    <PatchThreshold>k__BackingField: 0.42
+    <MaxSlope>k__BackingField: 32
+    <MinWidth>k__BackingField: 0.85
+    <MaxWidth>k__BackingField: 1.25
+    <MinHeight>k__BackingField: 0.85
+    <MaxHeight>k__BackingField: 1.3
+    <HealthyColor>k__BackingField: {r: 0.4, g: 0.52, b: 0.27, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.25
+  - <Card>k__BackingField: {fileID: 2800000, guid: 0a02c831bd2840948b672ae5f9a19083, type: 3}
+    <Prefab>k__BackingField: {fileID: 1896228811670048, guid: a77401c30ad8d4a4cbf36d16e8126678, type: 3}
+    <Density>k__BackingField: 0.021
+    <PatchFrequency>k__BackingField: 67
+    <PatchThreshold>k__BackingField: 0.45
+    <MaxSlope>k__BackingField: 32
+    <MinWidth>k__BackingField: 0.8
+    <MaxWidth>k__BackingField: 1.2
+    <MinHeight>k__BackingField: 0.85
+    <MaxHeight>k__BackingField: 1.25
+    <HealthyColor>k__BackingField: {r: 0.56, g: 0.63, b: 0.34, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.25
+  - <Card>k__BackingField: {fileID: 2800000, guid: c2cdc62e67176a74db35dff3395e83d0, type: 3}
+    <Prefab>k__BackingField: {fileID: 1994116034729256, guid: 9b0b9e5bc77867f45ad0f3080aa409e3, type: 3}
+    <Density>k__BackingField: 0.015
+    <PatchFrequency>k__BackingField: 88
+    <PatchThreshold>k__BackingField: 0.48
+    <MaxSlope>k__BackingField: 30
+    <MinWidth>k__BackingField: 0.8
+    <MaxWidth>k__BackingField: 1.15
+    <MinHeight>k__BackingField: 0.8
+    <MaxHeight>k__BackingField: 1.2
+    <HealthyColor>k__BackingField: {r: 0.36, g: 0.48, b: 0.26, a: 1}
+    <DryColor>k__BackingField: {r: 0.82, g: 0.78, b: 0.62, a: 1}
+    <NoiseSpread>k__BackingField: 0.3
+  <Trees>k__BackingField:
+  - <Prefab>k__BackingField: {fileID: 1182756067964316, guid: fc9f550802bde56499ac8b64cac565f0, type: 3}
+    <PerHectare>k__BackingField: 36
+    <Spacing>k__BackingField: 7
+    <PatchFrequency>k__BackingField: 230
+    <PatchThreshold>k__BackingField: 0.36
+    <MaxSlope>k__BackingField: 34
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.85
+    <MaxScale>k__BackingField: 1.3
+    <Squash>k__BackingField: 0.14
+    <Tint>k__BackingField: {r: 0.96, g: 1, b: 0.96, a: 1}
+    <TintVariance>k__BackingField: 0.07
+    <Footprint>k__BackingField: 2
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 4
+  - <Prefab>k__BackingField: {fileID: 1247767785291130, guid: 0734397d1a4fd924f98424ecb4ca43b9, type: 3}
+    <PerHectare>k__BackingField: 27.9
+    <Spacing>k__BackingField: 7
+    <PatchFrequency>k__BackingField: 215
+    <PatchThreshold>k__BackingField: 0.38
+    <MaxSlope>k__BackingField: 34
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.85
+    <MaxScale>k__BackingField: 1.3
+    <Squash>k__BackingField: 0.14
+    <Tint>k__BackingField: {r: 0.96, g: 1, b: 0.96, a: 1}
+    <TintVariance>k__BackingField: 0.07
+    <Footprint>k__BackingField: 2
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 4
+  - <Prefab>k__BackingField: {fileID: 1858709007138160, guid: 058b5ab120afe6048b4289730cb3e5c9, type: 3}
+    <PerHectare>k__BackingField: 8.1
+    <Spacing>k__BackingField: 13
+    <PatchFrequency>k__BackingField: 250
+    <PatchThreshold>k__BackingField: 0.45
+    <MaxSlope>k__BackingField: 30
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.9
+    <MaxScale>k__BackingField: 1.2
+    <Squash>k__BackingField: 0.1
+    <Tint>k__BackingField: {r: 0.94, g: 0.98, b: 0.94, a: 1}
+    <TintVariance>k__BackingField: 0.06
+    <Footprint>k__BackingField: 3
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 5
+  - <Prefab>k__BackingField: {fileID: 1137204502678828, guid: fa1fbed80c6345a4da5ccfbda3b22ac4, type: 3}
+    <PerHectare>k__BackingField: 23.4
+    <Spacing>k__BackingField: 6
+    <PatchFrequency>k__BackingField: 180
+    <PatchThreshold>k__BackingField: 0.3
+    <MaxSlope>k__BackingField: 36
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.8
+    <MaxScale>k__BackingField: 1.35
+    <Squash>k__BackingField: 0.16
+    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <TintVariance>k__BackingField: 0.08
+    <Footprint>k__BackingField: 1.2
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 3
+  - <Prefab>k__BackingField: {fileID: 1130392368877672, guid: 1ea71f643417d124d91e53eae7c666a6, type: 3}
+    <PerHectare>k__BackingField: 11.7
+    <Spacing>k__BackingField: 9
+    <PatchFrequency>k__BackingField: 150
+    <PatchThreshold>k__BackingField: 0.55
+    <MaxSlope>k__BackingField: 30
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.85
+    <MaxScale>k__BackingField: 1.25
+    <Squash>k__BackingField: 0.12
+    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <TintVariance>k__BackingField: 0.07
+    <Footprint>k__BackingField: 1.8
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 4
+  - <Prefab>k__BackingField: {fileID: 1444406132134774, guid: cee0719eaa611da43905af2904d1904c, type: 3}
+    <PerHectare>k__BackingField: 9
+    <Spacing>k__BackingField: 10
+    <PatchFrequency>k__BackingField: 190
+    <PatchThreshold>k__BackingField: 0.58
+    <MaxSlope>k__BackingField: 28
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.85
+    <MaxScale>k__BackingField: 1.2
+    <Squash>k__BackingField: 0.12
+    <Tint>k__BackingField: {r: 0.98, g: 1, b: 0.94, a: 1}
+    <TintVariance>k__BackingField: 0.07
+    <Footprint>k__BackingField: 2.2
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 4
+  - <Prefab>k__BackingField: {fileID: 1552408322253738, guid: c104bd949dbb87644ab3fe86ab934293, type: 3}
+    <PerHectare>k__BackingField: 3.6
+    <Spacing>k__BackingField: 16
+    <PatchFrequency>k__BackingField: 120
+    <PatchThreshold>k__BackingField: 0.5
+    <MaxSlope>k__BackingField: 30
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.9
+    <MaxScale>k__BackingField: 1.15
+    <Squash>k__BackingField: 0.08
+    <Tint>k__BackingField: {r: 0.9, g: 0.88, b: 0.82, a: 1}
+    <TintVariance>k__BackingField: 0.06
+    <Footprint>k__BackingField: 1
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 3
+  <Rocks>k__BackingField:
+  - <Prefab>k__BackingField: {fileID: 1279149807870478, guid: 51917b8e41ef6a1469249c9dfee70390, type: 3}
+    <PerHectare>k__BackingField: 12
+    <Spacing>k__BackingField: 14
+    <PatchFrequency>k__BackingField: 160
+    <PatchThreshold>k__BackingField: 0.42
+    <MaxSlope>k__BackingField: 55
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.8
+    <MaxScale>k__BackingField: 1.4
+    <Squash>k__BackingField: 0.18
+    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <TintVariance>k__BackingField: 0.08
+    <Footprint>k__BackingField: 2.5
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 2
+  - <Prefab>k__BackingField: {fileID: 1548467455464118, guid: a66fcd4b0c95c3c4f8a2e3ec71b821fd, type: 3}
+    <PerHectare>k__BackingField: 26
+    <Spacing>k__BackingField: 9
+    <PatchFrequency>k__BackingField: 130
+    <PatchThreshold>k__BackingField: 0.35
+    <MaxSlope>k__BackingField: 60
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.7
+    <MaxScale>k__BackingField: 1.3
+    <Squash>k__BackingField: 0.2
+    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <TintVariance>k__BackingField: 0.08
+    <Footprint>k__BackingField: 1
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 1
+  - <Prefab>k__BackingField: {fileID: 1334708611183978, guid: d0e76f6d08ce67d48994804f237e67eb, type: 3}
+    <PerHectare>k__BackingField: 3
+    <Spacing>k__BackingField: 30
+    <PatchFrequency>k__BackingField: 200
+    <PatchThreshold>k__BackingField: 0.55
+    <MaxSlope>k__BackingField: 48
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <MinScale>k__BackingField: 0.85
+    <MaxScale>k__BackingField: 1.2
+    <Squash>k__BackingField: 0.12
+    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <TintVariance>k__BackingField: 0.06
+    <Footprint>k__BackingField: 7
+    <BendFactor>k__BackingField: 0
+    <RoadClearance>k__BackingField: 5
+  <BaseHeight>k__BackingField: 0.32
+  <HillAmplitude>k__BackingField: 0.22
+  <RidgeAmplitude>k__BackingField: 0.14
+  <DuneAmplitude>k__BackingField: 0
+  <DetailAmplitude>k__BackingField: 0.012

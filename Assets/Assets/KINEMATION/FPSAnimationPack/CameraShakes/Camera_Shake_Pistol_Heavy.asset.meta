@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b786bb4be603b364b9ae835875efde57
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/CameraShakes/Camera_Shake_Pistol_Heavy.asset
+  uploadId: 973064

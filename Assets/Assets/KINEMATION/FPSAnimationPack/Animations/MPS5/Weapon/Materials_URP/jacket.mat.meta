@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6c72cd387e49ba94db8f5373cd76d5d3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/MPS5/Weapon/Materials_URP/jacket.mat
+  uploadId: 973064

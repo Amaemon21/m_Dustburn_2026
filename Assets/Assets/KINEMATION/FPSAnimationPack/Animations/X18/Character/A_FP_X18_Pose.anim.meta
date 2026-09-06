@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 06a2228064b75b04b84fd12e36d0077f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/X18/Character/A_FP_X18_Pose.anim
+  uploadId: 973064

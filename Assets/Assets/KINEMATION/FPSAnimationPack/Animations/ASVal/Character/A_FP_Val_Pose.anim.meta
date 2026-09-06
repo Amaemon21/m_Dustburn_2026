@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 28ad28f680737834a9d4e3cb146db030
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/ASVal/Character/A_FP_Val_Pose.anim
+  uploadId: 973064

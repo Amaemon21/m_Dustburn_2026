@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2c3383776f2fc274da01787e455c1328
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/X18/Weapon/Materials_URP/casing.mat
+  uploadId: 973064

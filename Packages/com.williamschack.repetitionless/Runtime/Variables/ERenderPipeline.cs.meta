@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 99c5b687d60410f5794c0909e50a2f27
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Runtime/Variables/ERenderPipeline.cs
+  uploadId: 985582

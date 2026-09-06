@@ -1,0 +1,213 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb408c6c278d089499556a57ba898ba9, type: 3}
+  m_Name: WorldGenerationConfig
+  m_EditorClassIdentifier: Assembly-CSharp::WorldGenerationConfig
+  <Seed>k__BackingField: 1981929481
+  <WorldSize>k__BackingField: 4096
+  <BiomeCellSize>k__BackingField: 8
+  <HeightCellSize>k__BackingField: 2
+  <SeedJitter>k__BackingField: 0.8
+  <WarpStrength>k__BackingField: 0.18
+  <WarpFrequency>k__BackingField: 2.6
+  <WarpOctaves>k__BackingField: 5
+  <WarpLacunarity>k__BackingField: 2.3
+  <WarpPersistence>k__BackingField: 0.62
+  <SmoothingPasses>k__BackingField: 1
+  <MinRegionCells>k__BackingField: 250
+  <MaxHeight>k__BackingField: 360
+  <ReliefScale>k__BackingField: 1
+  <BiomeBlendPasses>k__BackingField: 6
+  <ContinentAmplitude>k__BackingField: 0.22
+  <ContinentFrequency>k__BackingField: 1
+  <HillFrequency>k__BackingField: 2.8
+  <RidgeFrequency>k__BackingField: 2.5
+  <DuneFrequency>k__BackingField: 8
+  <DetailFrequency>k__BackingField: 26
+  <ContinentOctaves>k__BackingField: 4
+  <HillOctaves>k__BackingField: 2
+  <RidgeOctaves>k__BackingField: 4
+  <DuneOctaves>k__BackingField: 4
+  <DetailOctaves>k__BackingField: 2
+  <MountainMaskFrequency>k__BackingField: 1.8
+  <MountainMaskLow>k__BackingField: 0.45
+  <MountainMaskHigh>k__BackingField: 0.72
+  <ErosionPasses>k__BackingField: 32
+  <ErosionTalusAngle>k__BackingField: 30
+  <ErosionStrength>k__BackingField: 0.5
+  <HubCount>k__BackingField: 12
+  <HubCandidateStep>k__BackingField: 64
+  <HubSampleRadius>k__BackingField: 110
+  <MinHubDistance>k__BackingField: 700
+  <HubEdgeMargin>k__BackingField: 500
+  <MaxHubRelief>k__BackingField: 45
+  <MinHubRadius>k__BackingField: 150
+  <MaxHubRadius>k__BackingField: 220
+  <HubPadFraction>k__BackingField: 0.6
+  <MaxHubFill>k__BackingField: 12
+  <MaxHubCut>k__BackingField: 25
+  <RoadCellSize>k__BackingField: 32
+  <RoadSlopePenalty>k__BackingField: 20
+  <RoadCrossSlopePenalty>k__BackingField: 16
+  <RoadReuseDiscount>k__BackingField: 0.35
+  <RoadExtraEdges>k__BackingField: 5
+  <RoadHalfWidth>k__BackingField: 5
+  <RoadShoulder>k__BackingField: 11
+  <RoadSurfaceFraction>k__BackingField: 0.35
+  <RoadProfileSmoothing>k__BackingField: 12
+  <MaxRoadFill>k__BackingField: 5
+  <MaxRoadCut>k__BackingField: 14
+  <RoadEmbankmentSlope>k__BackingField: 3.5
+  <RoadTurnPenalty>k__BackingField: 55
+  <RoadSimplifyTolerance>k__BackingField: 14
+  <RoadSmoothPasses>k__BackingField: 3
+  <RoadRelaxPasses>k__BackingField: 24
+  <RoadRelaxStrength>k__BackingField: 0.4
+  <RoadCorridor>k__BackingField: 36
+  <RoadMaxGrade>k__BackingField: 0.1
+  <RoadPointSpacing>k__BackingField: 12
+  <StreetCornerRadius>k__BackingField: 9
+  <CityCount>k__BackingField: 2
+  <TownCount>k__BackingField: 3
+  <SettlementPlanAttempts>k__BackingField: 3
+  <CityProfile>k__BackingField:
+    <Name>k__BackingField: City
+    <RadiusScale>k__BackingField: 1
+    <CoreBlockSize>k__BackingField: 62
+    <OuterBlockSize>k__BackingField: 96
+    <StreetBranchDepth>k__BackingField: 3
+    <DowntownFraction>k__BackingField: 0.34
+    <ResidentialFraction>k__BackingField: 0.66
+    <IndustrialSpan>k__BackingField: 120
+    <OuterDistrict>k__BackingField: 1
+    <LotMargin>k__BackingField: 1.5
+    <Composition>k__BackingField:
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 5888edc89f69f19f52c675405cbbd2ec, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0
+      <MaxRadius>k__BackingField: 0.45
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 83fec73ba1c3a11ec5ab0c7a176028a6, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0
+      <MaxRadius>k__BackingField: 0.4
+    - <Definition>k__BackingField: {fileID: 11400000, guid: b3de46de7025286aa4de0695c1f06f88, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0
+      <MaxRadius>k__BackingField: 0.5
+    - <Definition>k__BackingField: {fileID: 11400000, guid: d06bceae50f6db657b73dc62698fc26f, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0.1
+      <MaxRadius>k__BackingField: 0.7
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 977a9f689245daeb2b510f0f76647767, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0.4
+      <MaxRadius>k__BackingField: 1.1
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 5bc731ec61b873c49dac637706cc5390, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0.5
+      <MaxRadius>k__BackingField: 1.2
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 4e5faeb94d2de7a06f721482cacb8060, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0.5
+      <MaxRadius>k__BackingField: 1.2
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 5941f1560270247f3cc2cf44b892c7eb, type: 2}
+      <Count>k__BackingField: 2
+      <MinRadius>k__BackingField: 0.5
+      <MaxRadius>k__BackingField: 1.2
+  <TownProfile>k__BackingField:
+    <Name>k__BackingField: Town
+    <RadiusScale>k__BackingField: 0.66
+    <CoreBlockSize>k__BackingField: 62
+    <OuterBlockSize>k__BackingField: 88
+    <StreetBranchDepth>k__BackingField: 2
+    <DowntownFraction>k__BackingField: 0.38
+    <ResidentialFraction>k__BackingField: 0.72
+    <IndustrialSpan>k__BackingField: 100
+    <OuterDistrict>k__BackingField: 1
+    <LotMargin>k__BackingField: 3.5
+    <Composition>k__BackingField:
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 5888edc89f69f19f52c675405cbbd2ec, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0
+      <MaxRadius>k__BackingField: 0.5
+    - <Definition>k__BackingField: {fileID: 11400000, guid: d06bceae50f6db657b73dc62698fc26f, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0
+      <MaxRadius>k__BackingField: 0.7
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 977a9f689245daeb2b510f0f76647767, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0.3
+      <MaxRadius>k__BackingField: 1.1
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 4e5faeb94d2de7a06f721482cacb8060, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0.5
+      <MaxRadius>k__BackingField: 1.2
+  <VillageProfile>k__BackingField:
+    <Name>k__BackingField: Village
+    <RadiusScale>k__BackingField: 0.42
+    <CoreBlockSize>k__BackingField: 48
+    <OuterBlockSize>k__BackingField: 64
+    <StreetBranchDepth>k__BackingField: 1
+    <DowntownFraction>k__BackingField: 0
+    <ResidentialFraction>k__BackingField: 0
+    <IndustrialSpan>k__BackingField: 0
+    <OuterDistrict>k__BackingField: 3
+    <LotMargin>k__BackingField: 6
+    <Composition>k__BackingField:
+    - <Definition>k__BackingField: {fileID: 11400000, guid: 140297afe1aa8d6ae8d929354b095018, type: 2}
+      <Count>k__BackingField: 1
+      <MinRadius>k__BackingField: 0
+      <MaxRadius>k__BackingField: 1.2
+  <CityRadiusScale>k__BackingField: 1.35
+  <CityShapeJitter>k__BackingField: 0.18
+  <StreetStepLength>k__BackingField: 24
+  <StreetMaxTurn>k__BackingField: 12
+  <StreetCurveJitter>k__BackingField: 5
+  <StreetStraightBias>k__BackingField: 0.09
+  <MaxStreetSlope>k__BackingField: 0.22
+  <StreetSpacingFraction>k__BackingField: 0.7
+  <StreetJunctionAngle>k__BackingField: 35
+  <StreetBranchChance>k__BackingField: 0.9
+  <StreetBranchJitter>k__BackingField: 12
+  <StreetSpanMin>k__BackingField: 1.6
+  <StreetSpanMax>k__BackingField: 4
+  <MinStreetLength>k__BackingField: 45
+  <StreetFillPasses>k__BackingField: 3
+  <MaxStreetsPerSettlement>k__BackingField: 160
+  <StreetHalfWidth>k__BackingField: 4
+  <StreetShoulder>k__BackingField: 8
+  <StreetProfileSmoothing>k__BackingField: 6
+  <MaxStreetFill>k__BackingField: 2.5
+  <MaxStreetCut>k__BackingField: 8
+  <LotSetback>k__BackingField: 3
+  <LotFrontGap>k__BackingField: 2.5
+  <LotGap>k__BackingField: 6
+  <LotProbeStep>k__BackingField: 8
+  <MaxPoiFill>k__BackingField: 6
+  <MaxPoiCut>k__BackingField: 10
+  <PoiPadMargin>k__BackingField: 2
+  <PoiPadSkirt>k__BackingField: 5
+  <RuralSpacing>k__BackingField: 180
+  <RuralOffset>k__BackingField: 26
+  <RuralChance>k__BackingField: 0.6
+  <RuralClearance>k__BackingField: 1.25
+  <MaxTerrainLayers>k__BackingField: 32
+  <CliffLayer>k__BackingField: {fileID: 8574412962073106934, guid: 3c9e601db5f4c7d6eaa8b53f91627c14, type: 2}
+  <RoadLayer>k__BackingField: {fileID: 8574412962073106934, guid: 4daf712ec605d8e7fbb9c640a2738d25, type: 2}
+  <CliffSlopeStart>k__BackingField: 28
+  <CliffSlopeFull>k__BackingField: 48
+  <BiomeMapAssetPath>k__BackingField: Assets/_Dustborn/Generated/BiomeMap.png
+  <HeightMapAssetPath>k__BackingField: Assets/_Dustborn/Generated/HeightMap.bytes
+  <HeightMapPreviewPath>k__BackingField: Assets/_Dustborn/Generated/HeightMapPreview.png
+  <RoadMaskAssetPath>k__BackingField: Assets/_Dustborn/Generated/RoadMask.png
+  <RoadNetworkAssetPath>k__BackingField: Assets/_Dustborn/Generated/RoadNetwork.asset
+  <PoiPlacementAssetPath>k__BackingField: Assets/_Dustborn/Generated/PoiPlacement.asset

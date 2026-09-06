@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e7a1d91e79070365293c1a35cf3decd2
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/Scripts/Editor/com.williamschack.Repetitionless.Editor.Samples.asmdef
+  uploadId: 985582

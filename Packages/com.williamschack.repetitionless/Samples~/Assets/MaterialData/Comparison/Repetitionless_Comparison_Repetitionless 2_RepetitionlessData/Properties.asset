@@ -1,0 +1,184 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e4185d91801be3a5b5864a95014f1a4, type: 3}
+  m_Name: Properties
+  m_EditorClassIdentifier: com.williamschack.Repetitionless.Editor::Repetitionless.Data.RepetitionlessMaterialDataSO
+  Data:
+  - BaseMaterialData:
+      NoiseEnabled: 1
+      RandomiseNoiseScaling: 1
+      RandomiseNoiseRotation: 1
+      SmoothnessEnabled: 1
+      VariationEnabled: 0
+      PackedTexture: 0
+      EmissionEnabled: 0
+      AlbedoAssigned: 1
+      MetallicAssigned: 0
+      SmoothnessAssigned: 0
+      NormalAssigned: 1
+      OcclussionAssigned: 1
+      EmissionAssigned: 0
+      VariationAssigned: 0
+      PackedTextureAssigned: 0
+      AlbedoTint: {r: 1, g: 1, b: 1, a: 1}
+      EmissionColour: {r: 0, g: 0, b: 0, a: 1}
+      TilingOffset: {x: 1, y: 1, z: 0, w: 0}
+      Metallic: 0
+      SmoothnessRoughness: 0
+      NormalScale: 1
+      OcclussionStrength: 1
+      AlphaClipping: 0.5
+      NoiseAngleOffset: 2
+      NoiseScale: 2
+      NoiseScalingMinMax: {x: 0.8, y: 1.2}
+      NoiseRandomiseRotationMinMax: {x: 0, y: 360}
+      VariationMode: 2
+      VariationOpacity: 0.5
+      VariationBrightness: 0.3
+      VariationSmallScale: 2
+      VariationMediumScale: 1
+      VariationLargeScale: 0.5
+      VariationNoiseStrength: 0.4
+      VariationNoiseScale: 100
+      VariationNoiseOffset: {x: 0, y: 0}
+      VariationTextureTO: {x: 5, y: 5, z: 0, w: 0}
+    FarMaterialData:
+      NoiseEnabled: 1
+      RandomiseNoiseScaling: 1
+      RandomiseNoiseRotation: 1
+      SmoothnessEnabled: 1
+      VariationEnabled: 0
+      PackedTexture: 0
+      EmissionEnabled: 0
+      AlbedoAssigned: 0
+      MetallicAssigned: 0
+      SmoothnessAssigned: 0
+      NormalAssigned: 0
+      OcclussionAssigned: 0
+      EmissionAssigned: 0
+      VariationAssigned: 0
+      PackedTextureAssigned: 0
+      AlbedoTint: {r: 1, g: 1, b: 1, a: 1}
+      EmissionColour: {r: 0, g: 0, b: 0, a: 1}
+      TilingOffset: {x: 1, y: 1, z: 0, w: 0}
+      Metallic: 0
+      SmoothnessRoughness: 0.5
+      NormalScale: 1
+      OcclussionStrength: 1
+      AlphaClipping: 0.5
+      NoiseAngleOffset: 2
+      NoiseScale: 5
+      NoiseScalingMinMax: {x: 0.8, y: 1.2}
+      NoiseRandomiseRotationMinMax: {x: 0, y: 360}
+      VariationMode: 2
+      VariationOpacity: 0.5
+      VariationBrightness: 0.3
+      VariationSmallScale: 2
+      VariationMediumScale: 1
+      VariationLargeScale: 0.5
+      VariationNoiseStrength: 0.4
+      VariationNoiseScale: 100
+      VariationNoiseOffset: {x: 0, y: 0}
+      VariationTextureTO: {x: 5, y: 5, z: 0, w: 0}
+    BlendMaterialData:
+      NoiseEnabled: 1
+      RandomiseNoiseScaling: 1
+      RandomiseNoiseRotation: 1
+      SmoothnessEnabled: 1
+      VariationEnabled: 0
+      PackedTexture: 0
+      EmissionEnabled: 0
+      AlbedoAssigned: 0
+      MetallicAssigned: 0
+      SmoothnessAssigned: 0
+      NormalAssigned: 0
+      OcclussionAssigned: 0
+      EmissionAssigned: 0
+      VariationAssigned: 0
+      PackedTextureAssigned: 0
+      AlbedoTint: {r: 1, g: 1, b: 1, a: 1}
+      EmissionColour: {r: 0, g: 0, b: 0, a: 1}
+      TilingOffset: {x: 1, y: 1, z: 0, w: 0}
+      Metallic: 0
+      SmoothnessRoughness: 0.5
+      NormalScale: 1
+      OcclussionStrength: 1
+      AlphaClipping: 0.5
+      NoiseAngleOffset: 2
+      NoiseScale: 5
+      NoiseScalingMinMax: {x: 0.8, y: 1.2}
+      NoiseRandomiseRotationMinMax: {x: 0, y: 360}
+      VariationMode: 2
+      VariationOpacity: 0.5
+      VariationBrightness: 0.3
+      VariationSmallScale: 2
+      VariationMediumScale: 1
+      VariationLargeScale: 0.5
+      VariationNoiseStrength: 0.4
+      VariationNoiseScale: 100
+      VariationNoiseOffset: {x: 0, y: 0}
+      VariationTextureTO: {x: 5, y: 5, z: 0, w: 0}
+    GlobalTilingOffset: {x: 3, y: 3, z: 0, w: 0}
+    DistanceBlendEnabled: 0
+    DistanceBlendMode: 0
+    DistanceBlendMinMax: {x: 100, y: 150}
+    MaterialBlendEnabled: 0
+    BlendMaskAssigned: 0
+    OverrideDistanceBlend: 1
+    OverrideDistanceBlendTO: 1
+    BlendMaskType: 0
+    BlendMaskDistanceTO: {x: 1, y: 1, z: 0, w: 0}
+    BlendMaskOpacity: 1
+    BlendMaskStrength: 1
+    BlendMaskNoiseScale: 10
+    BlendMaskNoiseOffset: {x: 0, y: 0}
+    BlendMaskTextureTO: {x: 1, y: 1, z: 0, w: 0}
+    BlendMaskVertexColour: {r: 0, g: 0, b: 0, a: 1}
+    BlendMaskVertexColourThreshold: {x: 0.01, y: 0.2}
+  _dataCompressed:
+  - BaseMaterialData:
+      Settings1: {x: 15, y: 25, z: 0, w: 0}
+      Settings2: {x: 1, y: 1, z: 0.5, w: 2}
+      Settings3: {x: 2, y: 2, z: 0.5, w: 0.3}
+      Settings4: {x: 2, y: 1, z: 0.5, w: 0.4}
+      Settings5: {x: 0.8, y: 1.2, z: 0, w: 360}
+      AlbedoTint: {x: 1, y: 1, z: 1}
+      EmissionColour: {x: 0, y: 0, z: 0}
+      TilingOffset: {x: 3, y: 3, z: 0, w: 0}
+      VariationTO: {x: 5, y: 5, z: 0, w: 0}
+    FarMaterialData:
+      Settings1: {x: 15, y: 0, z: 0, w: 0.5}
+      Settings2: {x: 1, y: 1, z: 0.5, w: 2}
+      Settings3: {x: 5, y: 2, z: 0.5, w: 0.3}
+      Settings4: {x: 2, y: 1, z: 0.5, w: 0.4}
+      Settings5: {x: 0.8, y: 1.2, z: 0, w: 360}
+      AlbedoTint: {x: 1, y: 1, z: 1}
+      EmissionColour: {x: 0, y: 0, z: 0}
+      TilingOffset: {x: 3, y: 3, z: 0, w: 0}
+      VariationTO: {x: 5, y: 5, z: 0, w: 0}
+    BlendMaterialData:
+      Settings1: {x: 15, y: 0, z: 0, w: 0.5}
+      Settings2: {x: 1, y: 1, z: 0.5, w: 2}
+      Settings3: {x: 5, y: 2, z: 0.5, w: 0.3}
+      Settings4: {x: 2, y: 1, z: 0.5, w: 0.4}
+      Settings5: {x: 0.8, y: 1.2, z: 0, w: 360}
+      AlbedoTint: {x: 1, y: 1, z: 1}
+      EmissionColour: {x: 0, y: 0, z: 0}
+      TilingOffset: {x: 3, y: 3, z: 0, w: 0}
+      VariationTO: {x: 5, y: 5, z: 0, w: 0}
+    DistanceBlendSettings: {x: 0, y: 0, z: 100, w: 150}
+    BlendMaskDistanceTO: {x: 1, y: 1, z: 0, w: 0}
+    MaterialBlendSettings: {x: 12, y: 0, z: 1, w: 1}
+    MaterialBlendMaskTO: {x: 10, y: 0, z: 0, w: 0}
+    MaterialBlendMaskExtraSettings: {x: 0, y: 0, z: 0, w: 0}
+  _noiseQuality: 1
+  _globalTilingOffset: {x: 3, y: 3, z: 0, w: 0}

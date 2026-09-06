@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2ac8f034e81d78d428f9ca5b4fc2767f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/Mk14EBR/Weapon/OC_W_Mk14EBR.overrideController
+  uploadId: 973064

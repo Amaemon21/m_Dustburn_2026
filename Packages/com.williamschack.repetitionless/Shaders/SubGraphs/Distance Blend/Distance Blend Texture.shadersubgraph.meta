@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 03a5180ad65ba4a46b5026cca45b09a1
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/SubGraphs/Distance
+    Blend/Distance Blend Texture.shadersubgraph
+  uploadId: 985582

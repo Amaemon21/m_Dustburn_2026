@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 991cd8e0c0d1be444891282bca4d9951
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Poses/A_TPose_UE4.anim
+  uploadId: 982620

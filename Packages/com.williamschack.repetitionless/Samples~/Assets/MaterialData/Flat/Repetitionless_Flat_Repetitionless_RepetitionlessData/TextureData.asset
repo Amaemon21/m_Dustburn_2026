@@ -1,0 +1,265 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c98a44b94ebc1b3b1f54733139dac6, type: 3}
+  m_Name: TextureData
+  m_EditorClassIdentifier: com.williamschack.Repetitionless.Editor::Repetitionless.Data.RepetitionlessTextureDataSO
+  LayersTextureData:
+  - BaseMaterialTextures:
+      AVTextures:
+      - Texture: {fileID: 2800000, guid: a231b5934fba11f9aaa3d24a69ece201, type: 3}
+        Disabled: 0
+        DataTexture: 0
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+        - From: 2
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      NSOTextures:
+      - Texture: {fileID: 2800000, guid: 2b5ae3149b4556623b251e31caea52b1, type: 3}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 1
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+      - Texture: {fileID: 2800000, guid: afd4d01f4261153ee8c906e2a2dbc584, type: 3}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 2
+      - Texture: {fileID: 2800000, guid: 0e5149c46a361fd29bd4a696e672c85d, type: 3}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      - Texture: {fileID: 0}
+        Disabled: 1
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 1
+          To: 3
+        - From: 3
+          To: 2
+      EMTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+        - From: 2
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      - Texture: {fileID: 0}
+        Disabled: 1
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+    FarMaterialTextures:
+      AVTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 0
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+        - From: 2
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      NSOTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 1
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      - Texture: {fileID: 0}
+        Disabled: 1
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 1
+          To: 3
+        - From: 3
+          To: 2
+      EMTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+        - From: 2
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      - Texture: {fileID: 0}
+        Disabled: 1
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+    BlendMaterialTextures:
+      AVTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 0
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+        - From: 2
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      NSOTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 1
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      - Texture: {fileID: 0}
+        Disabled: 1
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 1
+          To: 3
+        - From: 3
+          To: 2
+      EMTextures:
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 0
+        - From: 1
+          To: 1
+        - From: 2
+          To: 2
+      - Texture: {fileID: 0}
+        Disabled: 0
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+      - Texture: {fileID: 0}
+        Disabled: 1
+        DataTexture: 1
+        NormalMap: 0
+        FromToChannels:
+        - From: 0
+          To: 3
+    BlendMaskTexture:
+    - Texture: {fileID: 0}
+      Disabled: 0
+      DataTexture: 0
+      NormalMap: 0
+      FromToChannels:
+      - From: 0
+        To: 0
+  _assignedAVTextures: 010000000000000000000000
+  _assignedNSOTextures: 010000000000000000000000
+  _assignedEMTextures: 000000000000000000000000
+  _assignedBMTextures: 0
+  PackedColourSpace: 1

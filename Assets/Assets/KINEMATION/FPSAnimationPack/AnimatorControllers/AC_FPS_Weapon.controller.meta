@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 731e770f979a19047b05b058d964b419
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/AnimatorControllers/AC_FPS_Weapon.controller
+  uploadId: 973064

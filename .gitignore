@@ -106,3 +106,10 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 .idea/
+.claude/
+CLAUDE.md
+# Консольный харнесс генерации мира (Tools/HeadlessCheck) — его csproj нужен в репозитории
+!/Tools/HeadlessCheck/HeadlessCheck.csproj
+
+# Проверка компиляции против сборок Unity (Tools/UnityCompileCheck) — её csproj тоже нужен
+!/Tools/UnityCompileCheck/UnityCompileCheck.csproj

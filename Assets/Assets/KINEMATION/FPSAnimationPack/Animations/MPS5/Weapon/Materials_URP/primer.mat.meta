@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1ae84e7a9e049a449bff9c1909b77aa4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/MPS5/Weapon/Materials_URP/primer.mat
+  uploadId: 973064

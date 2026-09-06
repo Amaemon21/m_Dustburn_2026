@@ -525,7 +525,10 @@ PlayerSettings:
       m_Height: 720
       m_Kind: 1
       m_SubKind: 
-  m_BuildTargetBatching: []
+  m_BuildTargetBatching:
+  - m_BuildTarget: Standalone
+    m_StaticBatching: 0
+    m_DynamicBatching: 0
   m_BuildTargetShaderSettings: []
   m_BuildTargetGraphicsJobs: []
   m_BuildTargetGraphicsJobMode: []
@@ -826,7 +829,25 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    EmbeddedLinux: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    GameCoreScarlett: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    GameCoreXboxOne: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    Kepler: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    LinuxHeadlessSimulation: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    Nintendo Switch: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    Nintendo Switch 2: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    PS4: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    PS5: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    QNX: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    Standalone: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    VisionOS: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    WebGL: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    Windows Store Apps: DOTWEEN
+    XboxOne: DOTWEEN;ENVIRO_3;ENVIRO_URP
+    iPhone: DOTWEEN
+    tvOS: DOTWEEN;ENVIRO_3;ENVIRO_URP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -923,7 +944,7 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 1
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: de84bdae-2546-41af-8070-fb2520625867
   framebufferDepthMemorylessMode: 0

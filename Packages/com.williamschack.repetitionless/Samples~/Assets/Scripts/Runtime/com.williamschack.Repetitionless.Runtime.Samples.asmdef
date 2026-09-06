@@ -1,0 +1,17 @@
+{
+    "name": "com.williamschack.Repetitionless.Runtime.Samples",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a620bba248562f4889995c340a74987a",
+        "GUID:aac300686f1831651a78a0478fa3c753"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f2084001a9d74eb8d80ec9f5f122ce6c
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/Noise/Keijiro/SimplexNoise2D.hlsl
+  uploadId: 985582

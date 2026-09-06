@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c7ad7dc645a024e44b5cc0b0ee787b3e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/G3/Weapon/Materials_URP/polymer_grip.mat
+  uploadId: 973064

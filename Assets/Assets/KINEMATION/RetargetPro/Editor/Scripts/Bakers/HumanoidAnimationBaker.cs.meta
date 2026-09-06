@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: fcbf7847507b4588b72531acae875948
+timeCreated: 1772812558
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Bakers/HumanoidAnimationBaker.cs
+  uploadId: 982620

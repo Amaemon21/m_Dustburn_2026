@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b7403928d2da93f48b928fd759aa2024
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Settings/Player/FPSPlayer_Settings_Pro.asset
+  uploadId: 973064

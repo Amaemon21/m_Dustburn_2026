@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a2f8aa28968698592b8a5814c6efac45
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Comparison/Materials/Repetitionless_HDRP_Comparison_Lit
+    2.mat
+  uploadId: 985582

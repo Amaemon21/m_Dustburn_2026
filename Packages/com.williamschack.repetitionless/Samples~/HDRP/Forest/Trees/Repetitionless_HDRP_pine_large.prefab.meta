@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5d2230ecbc626f3d2996fb14b47cd5c0
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Forest/Trees/Repetitionless_HDRP_pine_large.prefab
+  uploadId: 985582

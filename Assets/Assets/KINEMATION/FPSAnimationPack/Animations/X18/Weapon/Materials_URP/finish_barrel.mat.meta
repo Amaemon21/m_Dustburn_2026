@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b33db1cdcb8cb9a4bb4c70870cf5d180
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/X18/Weapon/Materials_URP/finish_barrel.mat
+  uploadId: 973064

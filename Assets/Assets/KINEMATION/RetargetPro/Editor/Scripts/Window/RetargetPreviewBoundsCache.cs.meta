@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b7de9a1e7f3a4ee9b54b53422f45dbfa
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Window/RetargetPreviewBoundsCache.cs
+  uploadId: 982620

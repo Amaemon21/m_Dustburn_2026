@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 3984d53be1f88334aa9ca84eddfb8c09
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Bakers/RetargetProBakerRegistry.cs
+  uploadId: 982620

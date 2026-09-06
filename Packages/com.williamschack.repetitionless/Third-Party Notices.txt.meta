@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fb0b61818bec4ba7a80e7b544a28d33a
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Third-Party Notices.txt
+  uploadId: 985582

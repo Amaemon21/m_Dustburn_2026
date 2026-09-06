@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9b6f80c5944a446cb35d2e99927e6c51
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Materials/M_RetargetPreviewGrid.mat
+  uploadId: 982620

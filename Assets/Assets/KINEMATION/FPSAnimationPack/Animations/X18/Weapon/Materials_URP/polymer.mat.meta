@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2bdbc983a22826c45b83b2724e53601a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/X18/Weapon/Materials_URP/polymer.mat
+  uploadId: 973064

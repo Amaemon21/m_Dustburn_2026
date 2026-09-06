@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 9467b2cd62b8f0ff3a561d3465df209b
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/RepetitionlessHelpers/GetArrayAssignedTextures.hlsl
+  uploadId: 985582

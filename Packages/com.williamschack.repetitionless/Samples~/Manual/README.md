@@ -1,0 +1,1 @@
+To install the samples, open the Repetitionless window (Window > Repetitionless > Open Window) and import them with the "Import Samples" button. That will automatically import the samples for your render pipeline and complete extra required import steps

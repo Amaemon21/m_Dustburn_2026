@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2c3686bbc5ad80b418e9d97b33d2e015
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/G3/Weapon/Materials_URP/white.mat
+  uploadId: 973064

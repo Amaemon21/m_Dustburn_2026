@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2127d783a2666ef48ac92b588a048759
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/MGX5/Weapon/AC_W_MGX5.controller
+  uploadId: 973064

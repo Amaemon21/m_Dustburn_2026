@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3f10b407f47f8a668a272d35b2595269
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Painting/Painter.cs
+  uploadId: 985582

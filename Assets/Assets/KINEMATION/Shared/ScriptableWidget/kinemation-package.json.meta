@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2a0f1790d776207408070fcfbdf007c2
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/Shared/ScriptableWidget/kinemation-package.json
+  uploadId: 982620

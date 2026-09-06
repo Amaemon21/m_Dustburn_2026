@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7de376828e7d5bce19ecbec4b9e5b8e2
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/URP/DepthOnlyPass.hlsl
+  uploadId: 985582

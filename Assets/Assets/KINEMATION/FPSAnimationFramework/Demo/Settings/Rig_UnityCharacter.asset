@@ -1,0 +1,359 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9c04639ae548bdb0a8e927492d029d, type: 3}
+  m_Name: Rig_UnityCharacter
+  m_EditorClassIdentifier: 
+  targetAnimator: {fileID: 9100000, guid: b09d8a0688c5abe42998a0987f3f1210, type: 2}
+  rigHierarchy:
+  - name: Skeleton
+    index: 0
+    depth: 0
+  - name: Hips
+    index: 1
+    depth: 1
+  - name: Left_UpperLeg
+    index: 2
+    depth: 2
+  - name: Left_LowerLeg
+    index: 3
+    depth: 3
+  - name: Left_Foot
+    index: 4
+    depth: 4
+  - name: Left_Toes
+    index: 5
+    depth: 5
+  - name: Left_ToesEnd
+    index: 6
+    depth: 6
+  - name: Right_UpperLeg
+    index: 7
+    depth: 2
+  - name: Right_LowerLeg
+    index: 8
+    depth: 3
+  - name: Right_Foot
+    index: 9
+    depth: 4
+  - name: Right_Toes
+    index: 10
+    depth: 5
+  - name: Right_ToesEnd
+    index: 11
+    depth: 6
+  - name: Spine
+    index: 12
+    depth: 2
+  - name: Chest
+    index: 13
+    depth: 3
+  - name: UpperChest
+    index: 14
+    depth: 4
+  - name: Left_Shoulder
+    index: 15
+    depth: 5
+  - name: Left_UpperArm
+    index: 16
+    depth: 6
+  - name: Left_LowerArm
+    index: 17
+    depth: 7
+  - name: Left_Hand
+    index: 18
+    depth: 8
+  - name: Left_IndexProximal
+    index: 19
+    depth: 9
+  - name: Left_IndexIntermediate
+    index: 20
+    depth: 10
+  - name: Left_IndexDistal
+    index: 21
+    depth: 11
+  - name: Left_IndexDistalEnd
+    index: 22
+    depth: 12
+  - name: Left_MiddleProximal
+    index: 23
+    depth: 9
+  - name: Left_MiddleIntermediate
+    index: 24
+    depth: 10
+  - name: Left_MiddleDistal
+    index: 25
+    depth: 11
+  - name: Left_MiddleDistalEnd
+    index: 26
+    depth: 12
+  - name: Left_PinkyProximal
+    index: 27
+    depth: 9
+  - name: Left_PinkyIntermediate
+    index: 28
+    depth: 10
+  - name: Left_PinkyDistal
+    index: 29
+    depth: 11
+  - name: Left_PinkyDistalEnd
+    index: 30
+    depth: 12
+  - name: Left_RingProximal
+    index: 31
+    depth: 9
+  - name: Left_RingIntermediate
+    index: 32
+    depth: 10
+  - name: Left_RingDistal
+    index: 33
+    depth: 11
+  - name: Left_RingDistalEnd
+    index: 34
+    depth: 12
+  - name: Left_ThumbProximal
+    index: 35
+    depth: 9
+  - name: Left_ThumbIntermediate
+    index: 36
+    depth: 10
+  - name: Left_ThumbDistal
+    index: 37
+    depth: 11
+  - name: Left_ThumbDistalEnd
+    index: 38
+    depth: 12
+  - name: IK WeaponBoneLeft
+    index: 39
+    depth: 9
+  - name: Neck
+    index: 40
+    depth: 5
+  - name: Head
+    index: 41
+    depth: 6
+  - name: Jaw
+    index: 42
+    depth: 7
+  - name: Left_Eye
+    index: 43
+    depth: 7
+  - name: Right_Eye
+    index: 44
+    depth: 7
+  - name: Camera
+    index: 45
+    depth: 7
+  - name: CameraSocket
+    index: 46
+    depth: 8
+  - name: Socket
+    index: 47
+    depth: 7
+  - name: IK WeaponBone
+    index: 48
+    depth: 7
+  - name: IK RightHand
+    index: 49
+    depth: 8
+  - name: IK RightElbow
+    index: 50
+    depth: 8
+  - name: IK LeftHand
+    index: 51
+    depth: 8
+  - name: IK LeftElbow
+    index: 52
+    depth: 8
+  - name: Neck_Twist_A
+    index: 53
+    depth: 6
+  - name: Right_Shoulder
+    index: 54
+    depth: 5
+  - name: Right_UpperArm
+    index: 55
+    depth: 6
+  - name: Right_LowerArm
+    index: 56
+    depth: 7
+  - name: Right_Hand
+    index: 57
+    depth: 8
+  - name: Right_IndexProximal
+    index: 58
+    depth: 9
+  - name: Right_IndexIntermediate
+    index: 59
+    depth: 10
+  - name: Right_IndexDistal
+    index: 60
+    depth: 11
+  - name: Right_IndexDistalEnd
+    index: 61
+    depth: 12
+  - name: Right_MiddleProximal
+    index: 62
+    depth: 9
+  - name: Right_MiddleIntermediate
+    index: 63
+    depth: 10
+  - name: Right_MiddleDistal
+    index: 64
+    depth: 11
+  - name: Right_MiddleDistalEnd
+    index: 65
+    depth: 12
+  - name: Right_PinkyProximal
+    index: 66
+    depth: 9
+  - name: Right_PinkyIntermediate
+    index: 67
+    depth: 10
+  - name: Right_PinkyDistal
+    index: 68
+    depth: 11
+  - name: Right_PinkyDistalEnd
+    index: 69
+    depth: 12
+  - name: Right_RingProximal
+    index: 70
+    depth: 9
+  - name: Right_RingIntermediate
+    index: 71
+    depth: 10
+  - name: Right_RingDistal
+    index: 72
+    depth: 11
+  - name: Right_RingDistalEnd
+    index: 73
+    depth: 12
+  - name: Right_ThumbProximal
+    index: 74
+    depth: 9
+  - name: Right_ThumbIntermediate
+    index: 75
+    depth: 10
+  - name: Right_ThumbDistal
+    index: 76
+    depth: 11
+  - name: Right_ThumbDistalEnd
+    index: 77
+    depth: 12
+  - name: IK WeaponBoneRight
+    index: 78
+    depth: 9
+  - name: IK_Elbow_Left
+    index: 79
+    depth: 1
+  - name: IK_Elbow_Right
+    index: 80
+    depth: 1
+  - name: ik_hand_gun
+    index: 81
+    depth: 1
+  - name: IK_Hand_Left
+    index: 82
+    depth: 1
+  - name: IK_Hand_Right
+    index: 83
+    depth: 1
+  - name: WeaponBone
+    index: 84
+    depth: 1
+  - name: WeaponBoneAdditive
+    index: 85
+    depth: 1
+  - name: IK RightFoot
+    index: 86
+    depth: 1
+  - name: IK RightKnee
+    index: 87
+    depth: 1
+  - name: IK LeftFoot
+    index: 88
+    depth: 1
+  - name: IK LeftKnee
+    index: 89
+    depth: 1
+  rigElementChains:
+  - chainName: LeftHand
+    elementChain:
+    - name: Left_Hand
+      index: 18
+      depth: 0
+    - name: Left_IndexProximal
+      index: 19
+      depth: 0
+    - name: Left_IndexIntermediate
+      index: 20
+      depth: 0
+    - name: Left_IndexDistal
+      index: 21
+      depth: 0
+    - name: Left_IndexDistalEnd
+      index: 22
+      depth: 0
+    - name: Left_MiddleProximal
+      index: 23
+      depth: 0
+    - name: Left_MiddleIntermediate
+      index: 24
+      depth: 0
+    - name: Left_MiddleDistal
+      index: 25
+      depth: 0
+    - name: Left_MiddleDistalEnd
+      index: 26
+      depth: 0
+    - name: Left_PinkyProximal
+      index: 27
+      depth: 0
+    - name: Left_PinkyIntermediate
+      index: 28
+      depth: 0
+    - name: Left_PinkyDistal
+      index: 29
+      depth: 0
+    - name: Left_PinkyDistalEnd
+      index: 30
+      depth: 0
+    - name: Left_RingProximal
+      index: 31
+      depth: 0
+    - name: Left_RingIntermediate
+      index: 32
+      depth: 0
+    - name: Left_RingDistal
+      index: 33
+      depth: 0
+    - name: Left_RingDistalEnd
+      index: 34
+      depth: 0
+    - name: Left_ThumbProximal
+      index: 35
+      depth: 0
+    - name: Left_ThumbIntermediate
+      index: 36
+      depth: 0
+    - name: Left_ThumbDistal
+      index: 37
+      depth: 0
+    - name: Left_ThumbDistalEnd
+      index: 38
+      depth: 0
+  inputConfig: {fileID: 0}
+  rigCurves:
+  - MaskAttachHand
+  - WeaponBoneWeight
+  - Overlay
+  - PelvisYawOffset
+  rigDepths: 00000000010000000200000003000000040000000500000006000000020000000300000004000000050000000600000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c00000009000000050000000600000007000000070000000700000007000000080000000700000007000000080000000800000008000000080000000600000005000000060000000700000008000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000

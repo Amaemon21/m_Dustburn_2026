@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 10d4c1e3f57a9cdb8b13df57c9a9bbbd
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/RepetitionlessHelpers/MacroMicroVariation.hlsl
+  uploadId: 985582

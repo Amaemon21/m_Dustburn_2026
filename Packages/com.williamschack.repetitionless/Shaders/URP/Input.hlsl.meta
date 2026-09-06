@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b1c4b0f3586d34d7ab608cf6ed2f3cb1
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/URP/Input.hlsl
+  uploadId: 985582

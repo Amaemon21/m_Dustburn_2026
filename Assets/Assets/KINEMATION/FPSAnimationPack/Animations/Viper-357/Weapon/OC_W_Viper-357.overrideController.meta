@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6718cc0cda492204881dcdf2f9b1cbfe
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/Viper-357/Weapon/OC_W_Viper-357.overrideController
+  uploadId: 973064

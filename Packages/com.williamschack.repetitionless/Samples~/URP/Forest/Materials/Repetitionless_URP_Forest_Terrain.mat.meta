@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 29fc7235d548b7dd1946c2994a9fa1d2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Forest/Materials/Repetitionless_URP_Forest_Terrain.mat
+  uploadId: 985582

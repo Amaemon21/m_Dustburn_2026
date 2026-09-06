@@ -1,0 +1,124 @@
+#pragma kernel CSMain
+
+struct TextureData
+{
+    uint NormalMap;
+    uint SRGB;
+    uint ChannelsUsedAmount;
+
+    // Inputting Vector4 so using int will give incorrect values
+    // Convert to int later
+    half4 FromChannels;
+    half4 ToChannels;
+};
+
+uint LinearColourSpace;
+
+// Texture Resolution
+uint Width;
+uint Height;
+
+// Input Textures
+Texture2D<float4> Tex0;
+Texture2D<float4> Tex1;
+Texture2D<float4> Tex2;
+Texture2D<float4> Tex3;
+
+StructuredBuffer<TextureData> Data;
+int TextureCount;
+
+half4 DefaultColours;
+
+// Output texture
+RWTexture2D<float4> Result;
+
+// Copied from UnityCG.cginc
+inline half3 UnpackNormal(half4 packedNormal = 0)
+{
+#if defined(UNITY_NO_DXT5nm)
+    return packedNormal.xyz * 2 - 1;
+#else
+    packedNormal.x *= packedNormal.w;
+
+    half3 normal;
+    normal.xy = packedNormal.xy * 2 - 1;
+    normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
+    return normal;
+#endif
+}
+
+// Copied from unity postprocessing Colors.hlsl
+float4 PositivePow(float4 base, float4 power)
+{
+    float fltEpsilon = 1.192092896e-07;
+    return pow(max(abs(base), float4(fltEpsilon, fltEpsilon, fltEpsilon, fltEpsilon)), power);
+}
+
+// Copied from unity postprocessing Colors.hlsl
+inline half4 LinearToSRGB(half4 c)
+{
+    half4 sRGBLo = c * 12.92;
+    half4 sRGBHi = (PositivePow(c, float4(1.0 / 2.4, 1.0 / 2.4, 1.0 / 2.4, 1.0 / 2.4)) * 1.055) - 0.055;
+    half4 sRGB = (c <= 0.0031308) ? sRGBLo : sRGBHi;
+    return sRGB;
+}
+
+inline half4 SampleTexture(int channelIndex = 0, float2 uv = 0)
+{
+    half4 colour = 0;
+
+    switch (channelIndex) {
+        case 0: colour = Tex0[uv]; break;
+        case 1: colour = Tex1[uv]; break;
+        case 2: colour = Tex2[uv]; break;
+        case 3: colour = Tex3[uv]; break;
+    }
+
+    // In linear colour space, srgb textures need to be converted
+    // This also means that if changing between linear <> gamma colour space the texture will need to be repacked
+    if (LinearColourSpace && Data[channelIndex].SRGB == 1 && Data[channelIndex].NormalMap != 1) {
+        colour = LinearToSRGB(colour);
+    }
+
+    return colour;
+}
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    // Assumes all textures have the same dimensions, but exit here if not
+    if (id.x >= Width || id.y >= Height)
+        return;
+
+    half channelValues[4];
+
+    // Initialise with default values
+    [unroll]
+    for (int i = 0; i < 4; i++) {
+        channelValues[i] = DefaultColours[i];
+    }
+
+    // Sample textures
+    for (int t = 0; t < TextureCount; t++) {
+        half4 value = SampleTexture(t, id.xy);
+        TextureData data = Data[t];
+
+        if (data.NormalMap == 1) {
+            half3 unpackedNormal = UnpackNormal(value);
+            value.xy = unpackedNormal.xy * 0.5 + 0.5;
+        }
+
+        for (uint c = 0; c < data.ChannelsUsedAmount; c++) {
+            uint fromChannel = (uint)data.FromChannels[c];
+            uint toChannel = (uint)data.ToChannels[c];
+            channelValues[toChannel] = value[fromChannel];
+        }
+    }
+
+    Result[id.xy] = float4(
+        channelValues[0],
+        channelValues[1],
+        channelValues[2],
+        channelValues[3]
+    );
+}

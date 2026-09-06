@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbde190e5d31d5fe19b5924e15090b54, type: 3}
+  m_Name: TerrainData
+  m_EditorClassIdentifier: com.williamschack.Repetitionless.Editor::Repetitionless.Editor.Data.RepetitionlessTerrainDataSO
+  _terrainLayers:
+  - {fileID: 8574412962073106934, guid: d4f6428bab91ff24eb864825a974493a, type: 2}
+  - {fileID: 8574412962073106934, guid: 81b0d4ade4fc91c4bbf2680f6ffba4ee, type: 2}
+  - {fileID: 8574412962073106934, guid: 125ce5c8840417b4ab3c43e1a2ed0042, type: 2}
+  - {fileID: 8574412962073106934, guid: a98ec4a00a45bef41bdc446cc0f30b60, type: 2}
+  AutoSyncLayers: 1

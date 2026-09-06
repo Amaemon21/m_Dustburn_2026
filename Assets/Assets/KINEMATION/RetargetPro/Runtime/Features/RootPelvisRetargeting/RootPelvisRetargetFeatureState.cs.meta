@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 24ec9122233d3cb43950230e81c26936
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Runtime/Features/RootPelvisRetargeting/RootPelvisRetargetFeatureState.cs
+  uploadId: 982620

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b011d3971556d9c4e83409725e1aa52d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Runtime/Features/CopyBone/CopyBoneFeatureState.cs
+  uploadId: 982620

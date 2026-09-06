@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b25d15f7037575812bc5bfabe3b05c6f
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/LICENCE.md
+  uploadId: 985582

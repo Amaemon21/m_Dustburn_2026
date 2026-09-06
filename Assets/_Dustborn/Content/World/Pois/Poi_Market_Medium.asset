@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d4b8ef09200f984f9b44e0ce8a7e013, type: 3}
+  m_Name: Poi_Market_Medium
+  m_EditorClassIdentifier: Assembly-CSharp::PoiDefinition
+  <Prefab>k__BackingField: {fileID: 1575535087174988, guid: 526a98456f094134ea335de6eac32587, type: 3}
+  <GroundOffset>k__BackingField: 0.24921036
+  <PivotOffset>k__BackingField: {x: -8.121094, y: 5.150771}
+  <District>k__BackingField: 0
+  <FootprintWidth>k__BackingField: 27.452225
+  <FootprintDepth>k__BackingField: 22.328104
+  <Weight>k__BackingField: 0.6
+  <MaxPerSettlement>k__BackingField: 1
+  <MaxPerWorld>k__BackingField: 0

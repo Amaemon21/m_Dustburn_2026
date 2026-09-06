@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fc22e877fb858604981028ef7a0ce593
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/MGX5/Character/A_FP_MGX5_Reload_Empty.anim
+  uploadId: 973064

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 24052a1d5c64475fc889890049d0ee86
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/BIRP/MetaPass.hlsl
+  uploadId: 985582

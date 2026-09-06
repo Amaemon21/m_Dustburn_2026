@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 191ff8df424a2a19a871ab9467f03197
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/URP/TerrainDepthNormalsPass.hlsl
+  uploadId: 985582

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bfcc55b5bf1ea8f44a9e55b448b89646
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/MX16A4/Weapon/Materials_URP/bolt.mat
+  uploadId: 973064

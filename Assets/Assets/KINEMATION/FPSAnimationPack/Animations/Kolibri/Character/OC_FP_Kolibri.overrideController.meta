@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: de70d9def269c144e94d3eca9fe020f9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/Kolibri/Character/OC_FP_Kolibri.overrideController
+  uploadId: 973064

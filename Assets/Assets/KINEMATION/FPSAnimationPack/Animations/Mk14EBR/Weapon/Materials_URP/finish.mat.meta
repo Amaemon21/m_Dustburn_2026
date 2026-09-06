@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ef5e4ee38ac6b6b4083110df6d7889c3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/Mk14EBR/Weapon/Materials_URP/finish.mat
+  uploadId: 973064

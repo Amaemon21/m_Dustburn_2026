@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: e8ad39bf7ddc43509a659ce5df42358b
+timeCreated: 1715769686
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Runtime/Features/FPSRetargeting/FPSRetargetFeature.cs
+  uploadId: 982620

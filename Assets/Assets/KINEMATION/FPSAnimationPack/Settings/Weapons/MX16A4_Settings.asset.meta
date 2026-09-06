@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b04eccb126612c64f801778e9f9b5c5c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Settings/Weapons/MX16A4_Settings.asset
+  uploadId: 973064

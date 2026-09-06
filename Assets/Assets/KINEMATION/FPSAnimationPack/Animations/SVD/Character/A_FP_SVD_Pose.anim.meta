@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cc77a702baa03504a9a4202634950c50
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/SVD/Character/A_FP_SVD_Pose.anim
+  uploadId: 973064

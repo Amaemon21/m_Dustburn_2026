@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c4fc664e079659442aa2fcf1fa04192b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/RPG/Character/OC_FP_RPG.overrideController
+  uploadId: 973064

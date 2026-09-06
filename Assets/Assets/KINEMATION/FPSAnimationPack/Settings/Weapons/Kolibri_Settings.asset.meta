@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: aa1508b5d83ba6048bc3fc849ecab68b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Settings/Weapons/Kolibri_Settings.asset
+  uploadId: 973064

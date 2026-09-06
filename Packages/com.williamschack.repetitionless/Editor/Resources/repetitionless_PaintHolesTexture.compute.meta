@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4bfefa96305b7d263b1cf52e0259193a
+ComputeShaderImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Resources/repetitionless_PaintHolesTexture.compute
+  uploadId: 985582

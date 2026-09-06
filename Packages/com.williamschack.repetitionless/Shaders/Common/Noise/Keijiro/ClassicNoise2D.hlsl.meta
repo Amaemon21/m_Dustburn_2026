@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4fec78cba3d5922beacdf89f08b91159
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/Noise/Keijiro/ClassicNoise2D.hlsl
+  uploadId: 985582

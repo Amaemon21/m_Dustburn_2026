@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 74684f0491fd6b74bb9f8b4a494b5691
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/AnimatorControllers/DefaultAnimations/Reload_End.anim
+  uploadId: 973064

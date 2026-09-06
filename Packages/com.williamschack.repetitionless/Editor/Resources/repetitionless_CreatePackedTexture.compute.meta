@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8c2bb18480b03a79ea7c1f2949a976a4
+ComputeShaderImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Resources/repetitionless_CreatePackedTexture.compute
+  uploadId: 985582

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 777d1613b149a4a42aabff6b5d3751cf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Preview/RetargetPreviewRenderIsolation.cs
+  uploadId: 982620

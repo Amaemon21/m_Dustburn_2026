@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9ce8145f3e6955840a0ae1cbf890b0ba
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/KXG12/Character/OC_FP_KXG12.overrideController
+  uploadId: 973064

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1d7a43c3cbbae2d4f9eb3df664148a45
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/MPS5/Weapon/OC_W_MPS5.overrideController
+  uploadId: 973064

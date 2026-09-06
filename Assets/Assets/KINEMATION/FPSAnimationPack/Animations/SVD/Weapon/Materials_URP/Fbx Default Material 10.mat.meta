@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a5931bb198328814a97783f778608f36
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/SVD/Weapon/Materials_URP/Fbx
+    Default Material 10.mat
+  uploadId: 973064

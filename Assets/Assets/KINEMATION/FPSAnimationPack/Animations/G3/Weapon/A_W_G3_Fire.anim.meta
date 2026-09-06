@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6698dcb90691d2044bc499acfcdd56d0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/G3/Weapon/A_W_G3_Fire.anim
+  uploadId: 973064

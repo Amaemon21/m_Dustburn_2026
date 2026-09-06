@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 423b58fdea4f4b099955efe7fac68efa
+timeCreated: 1715260311
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/Scripts/Bakers/GenericAnimationBaker.cs
+  uploadId: 982620

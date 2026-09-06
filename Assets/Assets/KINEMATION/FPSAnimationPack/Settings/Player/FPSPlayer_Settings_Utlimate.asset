@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf4f2a981409c44383dcad289302a47, type: 3}
+  m_Name: FPSPlayer_Settings_Utlimate
+  m_EditorClassIdentifier: 
+  sensitivity: 0.5
+  weaponPrefabs:
+  - {fileID: 1131289991105794758, guid: 9ebf1fe96606c5849baa95d75f2d5ae4, type: 3}
+  - {fileID: 2249710175363591869, guid: 8e489e7f96cc8a844a939320b2d379d1, type: 3}
+  - {fileID: 5193707894200647093, guid: c0bb93e96810b2d4f936fddc3a1bf15a, type: 3}
+  - {fileID: 1405136511983599699, guid: e3dc7986e8951ce4e8b9cf5cb7e738e2, type: 3}
+  - {fileID: 6690984862818700287, guid: cf93d915ca3f5ab40972403945530e49, type: 3}
+  - {fileID: 4119752980679374769, guid: 69c07d195de38784cbca4935c1aca4df, type: 3}
+  - {fileID: 727220435377141568, guid: a3fc2663bfbfab94596da70beea6b979, type: 3}
+  - {fileID: 6888615015265622251, guid: 242521fc9aca9d64992c8c7c346f7a51, type: 3}
+  - {fileID: 1296441095062677571, guid: b87ceb94cc5a0134c89c313b83e8fc29, type: 3}
+  - {fileID: 157572759977565402, guid: 66d44803811c2b041940980ea4a55e23, type: 3}
+  - {fileID: 4570632894932531902, guid: 338ef2d65bd3d6f4cbc5f5b53f0a1485, type: 3}
+  - {fileID: 4032086537580138804, guid: 30c4d5711db263c4d8aa54889bae18db, type: 3}
+  - {fileID: 4086048301901386321, guid: 9833a571cb8070c4a869d1c1ac4f3fd8, type: 3}
+  - {fileID: 472434944859137347, guid: 2c4c2d8e2bdf83143a1815ce7344a8eb, type: 3}
+  - {fileID: 3174501939102319710, guid: a8477ed0e705e8a4da2326378d4b0930, type: 3}
+  - {fileID: 6031535134123767998, guid: 3af2ec59948c2e244967b4a15c86add0, type: 3}
+  - {fileID: 3148118508808845219, guid: 69e6a586f8d7ae542aaafdfd29dda057, type: 3}
+  - {fileID: 6863797633472174846, guid: 7329817974bed81439f888537955e1b3, type: 3}
+  - {fileID: 4034369168780561755, guid: fc15dd0a23ac3ee478f603542ad8aafb, type: 3}
+  - {fileID: 1492658831567539247, guid: c045f93686701af488ffbb1d8fca0935, type: 3}
+  grenadeDelay: 2.1
+  gaitSmoothing: 8
+  aimSpeed: 2.5
+  aimingMotion: {fileID: 11400000, guid: 378c58675d76a5447b524e24fd97e160, type: 2}
+  fireModeMotion: {fileID: 11400000, guid: 609ac1aa3b238e94cba7951e370faeae, type: 2}
+  generalSounds:
+  - {fileID: 8300000, guid: 82470623ed3949b47b2d5ce4680abf50, type: 3}
+  - {fileID: 8300000, guid: 863242d4b3d3c314eb31154f89d4771e, type: 3}

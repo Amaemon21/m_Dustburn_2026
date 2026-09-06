@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ebada7c5033b41970ac026e6ad7f450f
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Painting/EResizingProperty.cs
+  uploadId: 985582

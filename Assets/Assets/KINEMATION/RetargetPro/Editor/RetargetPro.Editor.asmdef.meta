@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f0af9ee85f585074eacb40588214e268
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Editor/RetargetPro.Editor.asmdef
+  uploadId: 982620

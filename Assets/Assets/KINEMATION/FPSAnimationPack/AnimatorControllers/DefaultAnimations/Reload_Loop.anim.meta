@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6374d8659d7fa234c8cb4f9b064c1312
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/AnimatorControllers/DefaultAnimations/Reload_Loop.anim
+  uploadId: 973064

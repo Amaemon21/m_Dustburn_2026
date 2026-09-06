@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 17bd9814ee0146e192dcc7f5059d5a2b
+timeCreated: 1723043189
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Runtime/Features/BasicRetargeting/BasicRetargetJob.cs
+  uploadId: 982620

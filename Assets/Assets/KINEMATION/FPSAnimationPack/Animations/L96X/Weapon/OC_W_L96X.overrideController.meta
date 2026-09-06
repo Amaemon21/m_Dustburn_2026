@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 04bf07de132d0c746af358aa7ef1e86f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/L96X/Weapon/OC_W_L96X.overrideController
+  uploadId: 973064

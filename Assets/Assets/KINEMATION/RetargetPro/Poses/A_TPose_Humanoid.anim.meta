@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b69ed6242e7469b4e8ff0bd0bab2b6f0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Poses/A_TPose_Humanoid.anim
+  uploadId: 982620

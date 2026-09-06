@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 91bbeb3d9bd1437aad875e82b1b58ed5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Runtime/Features/TransformRetargeting/TransformRetargetFeature.cs
+  uploadId: 982620

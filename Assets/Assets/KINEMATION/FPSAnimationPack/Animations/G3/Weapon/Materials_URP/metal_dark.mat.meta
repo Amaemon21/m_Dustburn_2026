@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5decccedfddf14c4586c1ebccc7c2508
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/G3/Weapon/Materials_URP/metal_dark.mat
+  uploadId: 973064

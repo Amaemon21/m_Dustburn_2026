@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 32ffd13e90ee4fe08002607ddb671a10
+timeCreated: 1773739292
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/KINEMATION/RetargetPro/Runtime/Features/MirrorRetargeting/MirrorRetargetFeature.cs
+  uploadId: 982620

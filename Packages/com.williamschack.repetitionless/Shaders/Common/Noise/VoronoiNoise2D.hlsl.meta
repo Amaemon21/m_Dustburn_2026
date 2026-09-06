@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 517cdd2f97c7d7a53b16b52ed7b50054
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/Noise/VoronoiNoise2D.hlsl
+  uploadId: 985582

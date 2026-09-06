@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1b5f16a2500d09848abb60f16cf81655
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/SVD/Character/A_FP_SVD_Reload_Empty.anim
+  uploadId: 973064

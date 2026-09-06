@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 43eda683441ae7e41903327d2d4dd1d0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 22100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240060
+  packageName: FPS Animation Ultimate
+  packageVersion: 3.4.0
+  assetPath: Assets/KINEMATION/FPSAnimationPack/Animations/SVD/Character/OC_FP_SVD.overrideController
+  uploadId: 973064
