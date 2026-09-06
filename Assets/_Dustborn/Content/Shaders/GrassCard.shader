@@ -10,6 +10,8 @@ Shader "Dustborn/GrassCard"
         _WindStrength("Wind Strength", Float) = 0.14
         _WindSpeed("Wind Speed", Float) = 1.1
         _WindFrequency("Wind Frequency", Float) = 0.09
+        _NormalBlend("Normal Blend To Up", Range(0, 1)) = 0.45
+        _Translucency("Translucency", Range(0, 2)) = 0.6
     }
 
     SubShader
@@ -34,6 +36,8 @@ Shader "Dustborn/GrassCard"
             float _WindStrength;
             float _WindSpeed;
             float _WindFrequency;
+            half _NormalBlend;
+            half _Translucency;
         CBUFFER_END
 
         TEXTURE2D(_BaseMap);
@@ -88,6 +92,7 @@ Shader "Dustborn/GrassCard"
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
+                float4 tangentOS : TANGENT;
                 float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
@@ -100,6 +105,7 @@ Shader "Dustborn/GrassCard"
                 float3 positionWS : TEXCOORD2;
                 float fogFactor : TEXCOORD3;
                 float coverage : TEXCOORD4;
+                float3 faceWS : TEXCOORD5;
             };
 
             Varyings Vertex(Attributes input)
@@ -113,6 +119,7 @@ Shader "Dustborn/GrassCard"
                 output.positionWS = positionWS;
                 output.positionCS = TransformWorldToHClip(positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                output.faceWS = TransformObjectToWorldDir(input.tangentOS.xyz);
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 output.fogFactor = ComputeFogFactor(output.positionCS.z);
                 output.coverage = Coverage(positionWS);
@@ -129,10 +136,20 @@ Shader "Dustborn/GrassCard"
 
                 Light main = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
 
-                half3 normalWS = normalize(input.normalWS);
-                half diffuse = saturate(dot(normalWS, main.direction));
+                // The card is drawn from both sides, so the plane normal is turned toward the viewer
+                // instead of asking for a facing semantic, then bent toward up: a blade lit purely by
+                // its own plane reads as cardboard, one lit purely by up takes no light at all.
+                float3 view = normalize(GetWorldSpaceViewDir(input.positionWS));
+                float3 face = normalize(input.faceWS);
 
-                half3 lighting = main.color * (diffuse * main.shadowAttenuation) + SampleSH(normalWS);
+                face = dot(face, view) < 0.0 ? -face : face;
+
+                half3 normalWS = normalize(lerp(face, normalize(input.normalWS), _NormalBlend));
+
+                half wrapped = saturate(dot(normalWS, main.direction) * 0.5 + 0.5);
+                half through = saturate(dot(-face, main.direction)) * _Translucency;
+
+                half3 lighting = main.color * ((wrapped * wrapped + through) * main.shadowAttenuation) + SampleSH(normalWS);
                 half3 color = albedo.rgb * lighting;
 
                 return half4(MixFog(color, input.fogFactor), 1);

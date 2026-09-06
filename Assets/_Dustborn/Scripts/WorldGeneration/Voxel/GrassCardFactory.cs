@@ -10,7 +10,7 @@ public class GrassCardFactory : IDisposable
     private const string FALLBACK = "Universal Render Pipeline/Lit";
 
     private const float CUTOFF = 0.4f;
-    private const float FADE_FRACTION = 0.75f;
+    private const float FADE_FRACTION = 0.9f;
 
     private readonly Dictionary<(Texture2D, Color), Material> _materials = new();
 
@@ -54,12 +54,14 @@ public class GrassCardFactory : IDisposable
 
         var vertices = new Vector3[8];
         var normals = new Vector3[8];
+        var tangents = new Vector4[8];
         var uv = new Vector2[8];
         var triangles = new int[12];
 
         for (int quad = 0; quad < 2; quad++)
         {
             Vector3 side = quad == 0 ? new Vector3(0.5f, 0f, 0f) : new Vector3(0f, 0f, 0.5f);
+            Vector3 face = quad == 0 ? Vector3.forward : Vector3.right;
             int first = quad * 4;
 
             vertices[first + 0] = -side;
@@ -73,7 +75,10 @@ public class GrassCardFactory : IDisposable
             uv[first + 3] = new Vector2(0f, 1f);
 
             for (int corner = 0; corner < 4; corner++)
+            {
                 normals[first + corner] = Vector3.up;
+                tangents[first + corner] = new Vector4(face.x, face.y, face.z, 1f);
+            }
 
             triangles[quad * 6 + 0] = first + 0;
             triangles[quad * 6 + 1] = first + 2;
@@ -85,6 +90,7 @@ public class GrassCardFactory : IDisposable
 
         mesh.vertices = vertices;
         mesh.normals = normals;
+        mesh.tangents = tangents;
         mesh.uv = uv;
         mesh.triangles = triangles;
 
