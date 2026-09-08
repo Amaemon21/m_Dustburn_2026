@@ -268,6 +268,9 @@ public class PoiPlacer
 
                 float ground = SampleMeters(point);
 
+                if (_config.SeaLevel > 0f && ground < _config.SeaLevel + _config.ShoreMargin)
+                    return false;
+
                 if (ground - street > _config.MaxPoiCut)
                     return false;
 

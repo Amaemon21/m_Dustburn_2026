@@ -71,6 +71,9 @@ public class HubPlacer
                 {
                     for (float x = originX + step; x < originX + sectorSize; x += step)
                     {
+                        if (IsFlooded(x, y))
+                            continue;
+
                         float relief = MeasureRelief(x, y);
 
                         if (respectMaxRelief && relief > _config.MaxHubRelief)
@@ -166,6 +169,14 @@ public class HubPlacer
     private float SampleMeters(float x, float y)
     {
         return _map.SampleWorld(new Vector3(x, 0f, y));
+    }
+
+    private bool IsFlooded(float x, float y)
+    {
+        if (_config.SeaLevel <= 0f)
+            return false;
+
+        return _map.SampleWorldSmooth(x, y) < _config.SeaLevel + _config.ShoreMargin;
     }
 
     private static bool IsTooClose(List<Hub> hubs, Hub candidate, float minDistanceSqr)

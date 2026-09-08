@@ -4,9 +4,6 @@ using UnityEngine;
 
 public readonly struct VoxelColumnKey : IEquatable<VoxelColumnKey>
 {
-    public const int TRIM_X = 1;
-    public const int TRIM_Z = 2;
-
     public const int FACE_MIN_X = 1;
     public const int FACE_MAX_X = 2;
     public const int FACE_MIN_Z = 4;
@@ -22,21 +19,22 @@ public readonly struct VoxelColumnKey : IEquatable<VoxelColumnKey>
     public int Z { get; }
     public int Lod { get; }
 
-    public int Trim { get; }
+    public int Seams { get; }
     public int Morph { get; }
 
-    public VoxelColumnKey(int x, int z, int lod, int trim = 0, int morph = 0)
+    public VoxelColumnKey(int x, int z, int lod, int seams = 0, int morph = 0)
     {
         X = x;
         Z = z;
         Lod = lod;
-        Trim = trim;
+        Seams = seams;
         Morph = morph;
     }
 
     public bool Equals(VoxelColumnKey other)
     {
-        return X == other.X && Z == other.Z && Lod == other.Lod && Trim == other.Trim && Morph == other.Morph;
+        return X == other.X && Z == other.Z && Lod == other.Lod
+            && Seams == other.Seams && Morph == other.Morph;
     }
 
     public override bool Equals(object other)
@@ -46,7 +44,8 @@ public readonly struct VoxelColumnKey : IEquatable<VoxelColumnKey>
 
     public override int GetHashCode()
     {
-        return (X * 73856093) ^ (Z * 19349663) ^ (Lod * 83492791) ^ (Trim * 2654435761u).GetHashCode() ^ (Morph * 40503u).GetHashCode();
+        return (X * 73856093) ^ (Z * 19349663) ^ (Lod * 83492791)
+            ^ (Seams * 2654435761u).GetHashCode() ^ (Morph * 40503u).GetHashCode();
     }
 
     public override string ToString()
@@ -108,7 +107,7 @@ public class VoxelStreamPlan
                     if (x >= innerMinX && x <= innerMaxX && z >= innerMinZ && z <= innerMaxZ)
                         continue;
 
-                    output.Add(new VoxelColumnKey(x, z, lod, Trim(viewer, x, z, lod), Morph(viewer, x, z, lod)));
+                    output.Add(new VoxelColumnKey(x, z, lod, Seams(viewer, x, z, lod), Morph(viewer, x, z, lod)));
                 }
             }
 
@@ -119,19 +118,25 @@ public class VoxelStreamPlan
         }
     }
 
-    private int Trim(Vector2 viewer, int x, int z, int lod)
+    private int Seams(Vector2 viewer, int x, int z, int lod)
     {
         float size = ChunkMetres(lod);
 
-        int trim = 0;
+        int faces = 0;
 
         if (Neighbour(viewer, new Vector2((x - 0.5f) * size, (z + 0.5f) * size), lod))
-            trim |= VoxelColumnKey.TRIM_X;
+            faces |= VoxelColumnKey.FACE_MIN_X;
+
+        if (Neighbour(viewer, new Vector2((x + 1.5f) * size, (z + 0.5f) * size), lod))
+            faces |= VoxelColumnKey.FACE_MAX_X;
 
         if (Neighbour(viewer, new Vector2((x + 0.5f) * size, (z - 0.5f) * size), lod))
-            trim |= VoxelColumnKey.TRIM_Z;
+            faces |= VoxelColumnKey.FACE_MIN_Z;
 
-        return trim;
+        if (Neighbour(viewer, new Vector2((x + 0.5f) * size, (z + 1.5f) * size), lod))
+            faces |= VoxelColumnKey.FACE_MAX_Z;
+
+        return faces;
     }
 
     private int Morph(Vector2 viewer, int x, int z, int lod)

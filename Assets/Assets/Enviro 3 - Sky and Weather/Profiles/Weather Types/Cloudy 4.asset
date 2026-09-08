@@ -76,17 +76,17 @@ MonoBehaviour:
     skyColorExponent: 1.25
     skyColorTint: {r: 1, g: 1, b: 1, a: 1}
   fogOverride:
-    fogDensity: 0.06
-    fogHeightFalloff: 0.003
+    fogDensity: 0.241
+    fogHeightFalloff: 0.0038
     fogHeight: 0
-    fogDensity2: 0.25
-    fogHeightFalloff2: 0.05
+    fogDensity2: 0.386
+    fogHeightFalloff2: 0.0141
     fogHeight2: 25
-    fogColorBlend: 0.8
-    fogColorMod: {r: 1, g: 1, b: 1, a: 1}
-    scattering: 0.1
-    extinction: 0.02
-    anistropy: 0.674
+    fogColorBlend: 0.161
+    fogColorMod: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
+    scattering: 0.116
+    extinction: 0.028
+    anistropy: 0.686
     unityFogDensity: 0.002
     unityFogStartDistance: 0
     unityFogEndDistance: 1000

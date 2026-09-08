@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb408c6c278d089499556a57ba898ba9, type: 3}
   m_Name: WorldGenerationConfig
   m_EditorClassIdentifier: Assembly-CSharp::WorldGenerationConfig
-  <Seed>k__BackingField: 123234
-  <WorldSize>k__BackingField: 4096
+  <Seed>k__BackingField: 962781402
+  <WorldSize>k__BackingField: 8192
   <BiomeCellSize>k__BackingField: 8
-  <HeightCellSize>k__BackingField: 2
+  <HeightCellSize>k__BackingField: 1
+  <SeedsPerBiome>k__BackingField: 1
   <SeedJitter>k__BackingField: 0.8
   <WarpStrength>k__BackingField: 0.18
   <WarpFrequency>k__BackingField: 2.6
@@ -25,30 +26,37 @@ MonoBehaviour:
   <SmoothingPasses>k__BackingField: 1
   <MinRegionCells>k__BackingField: 250
   <MaxHeight>k__BackingField: 360
-  <ReliefScale>k__BackingField: 1
-  <BiomeBlendPasses>k__BackingField: 6
-  <ContinentAmplitude>k__BackingField: 0.22
-  <ContinentFrequency>k__BackingField: 1
-  <HillFrequency>k__BackingField: 2.8
-  <RidgeFrequency>k__BackingField: 2.5
-  <DuneFrequency>k__BackingField: 8
-  <DetailFrequency>k__BackingField: 26
+  <ReliefScale>k__BackingField: 0.85
+  <BiomeBlendRadius>k__BackingField: 28
+  <ContinentAmplitude>k__BackingField: 0.3
+  <ContinentFrequency>k__BackingField: 2
+  <HillFrequency>k__BackingField: 5.6
+  <RidgeFrequency>k__BackingField: 5
+  <DuneFrequency>k__BackingField: 16
+  <DetailFrequency>k__BackingField: 52
   <ContinentOctaves>k__BackingField: 4
   <HillOctaves>k__BackingField: 2
   <RidgeOctaves>k__BackingField: 4
   <DuneOctaves>k__BackingField: 4
   <DetailOctaves>k__BackingField: 2
-  <MountainMaskFrequency>k__BackingField: 1.8
-  <MountainMaskLow>k__BackingField: 0.45
-  <MountainMaskHigh>k__BackingField: 0.72
-  <ErosionPasses>k__BackingField: 32
+  <MountainMaskFrequency>k__BackingField: 3.6
+  <MountainMaskLow>k__BackingField: 0.38
+  <MountainMaskHigh>k__BackingField: 0.68
+  <ErosionPasses>k__BackingField: 64
+  <HydraulicPasses>k__BackingField: 48
+  <HydraulicCellSize>k__BackingField: 8
+  <HydraulicStrength>k__BackingField: 16
+  <HydraulicFlowExponent>k__BackingField: 0.55
+  <MaxHydraulicCut>k__BackingField: 34
+  <SeaLevel>k__BackingField: 145
+  <ShoreMargin>k__BackingField: 6
   <ErosionTalusAngle>k__BackingField: 30
   <ErosionStrength>k__BackingField: 0.5
-  <HubCount>k__BackingField: 12
+  <HubCount>k__BackingField: 81
   <HubCandidateStep>k__BackingField: 64
   <HubSampleRadius>k__BackingField: 110
-  <MinHubDistance>k__BackingField: 700
-  <HubEdgeMargin>k__BackingField: 500
+  <MinHubDistance>k__BackingField: 460
+  <HubEdgeMargin>k__BackingField: 400
   <MaxHubRelief>k__BackingField: 45
   <MinHubRadius>k__BackingField: 150
   <MaxHubRadius>k__BackingField: 220
@@ -59,14 +67,14 @@ MonoBehaviour:
   <RoadSlopePenalty>k__BackingField: 20
   <RoadCrossSlopePenalty>k__BackingField: 16
   <RoadReuseDiscount>k__BackingField: 0.35
-  <RoadExtraEdges>k__BackingField: 5
+  <RoadExtraEdges>k__BackingField: 60
   <RoadHalfWidth>k__BackingField: 5
   <RoadShoulder>k__BackingField: 11
   <RoadSurfaceFraction>k__BackingField: 0.35
-  <RoadProfileSmoothing>k__BackingField: 12
+  <RoadProfileSmoothing>k__BackingField: 24
   <MaxRoadFill>k__BackingField: 5
   <MaxRoadCut>k__BackingField: 14
-  <RoadEmbankmentSlope>k__BackingField: 3.5
+  <RoadEmbankmentSlope>k__BackingField: 5
   <RoadTurnPenalty>k__BackingField: 55
   <RoadSimplifyTolerance>k__BackingField: 14
   <RoadSmoothPasses>k__BackingField: 3
@@ -76,8 +84,8 @@ MonoBehaviour:
   <RoadMaxGrade>k__BackingField: 0.1
   <RoadPointSpacing>k__BackingField: 12
   <StreetCornerRadius>k__BackingField: 9
-  <CityCount>k__BackingField: 2
-  <TownCount>k__BackingField: 3
+  <CityCount>k__BackingField: 4
+  <TownCount>k__BackingField: 12
   <SettlementPlanAttempts>k__BackingField: 3
   <CityProfile>k__BackingField:
     <Name>k__BackingField: City
@@ -153,7 +161,7 @@ MonoBehaviour:
       <MaxRadius>k__BackingField: 1.2
   <VillageProfile>k__BackingField:
     <Name>k__BackingField: Village
-    <RadiusScale>k__BackingField: 0.42
+    <RadiusScale>k__BackingField: 0.25
     <CoreBlockSize>k__BackingField: 48
     <OuterBlockSize>k__BackingField: 64
     <StreetBranchDepth>k__BackingField: 1

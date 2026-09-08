@@ -20,9 +20,17 @@
     <Compile Include="Png.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="Harness.cs" />
+    <Compile Include="WorldMapPipelineChecks.cs" />
+    <Compile Include="GeneratedAssetFileChecks.cs" />
+    <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
     <Compile Include="$(SharedUtils)/**/*.cs" />
     <Compile Include="$(WorldGeneration)/**/*.cs"
-             Exclude="$(WorldGeneration)/Voxel/VoxelTerrainBuilder.cs;
+             Exclude="$(WorldGeneration)/Editor/**/*.cs;
+                      $(WorldGeneration)/WorldGenerator.cs;
+                      $(WorldGeneration)/WorldRuntimeLoader.cs;
+                      $(WorldGeneration)/Data/BakedWorld.cs;
+                      $(WorldGeneration)/Generation/PoiInstanceBuilder.cs;
+                      $(WorldGeneration)/Voxel/VoxelTerrainBuilder.cs;
                       $(WorldGeneration)/Voxel/VoxelTerrainStreamer.cs;
                       $(WorldGeneration)/Voxel/VoxelDecorSpawner.cs;
                       $(WorldGeneration)/Voxel/MeshCombiner.cs;

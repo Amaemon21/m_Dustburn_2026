@@ -3,7 +3,9 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>9</LangVersion>
     <Nullable>disable</Nullable>
-    <DefineConstants>$(DefineConstants);UNITY_EDITOR;UNITY_2021_3_OR_NEWER;UNITY_6000_3_OR_NEWER</DefineConstants>
+    <UnityEditorBuild Condition="'$(UnityEditorBuild)' == ''">true</UnityEditorBuild>
+    <DefineConstants>$(DefineConstants);UNITY_2021_3_OR_NEWER;UNITY_6000_3_OR_NEWER</DefineConstants>
+    <DefineConstants Condition="'$(UnityEditorBuild)' == 'true'">$(DefineConstants);UNITY_EDITOR</DefineConstants>
     <NoWarn>CS0414;CS0169;CS0649;CS0108;CS0067</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AssemblyName>UnityCompileCheck</AssemblyName>

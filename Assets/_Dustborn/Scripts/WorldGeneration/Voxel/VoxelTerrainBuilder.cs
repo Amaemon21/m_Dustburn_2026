@@ -133,11 +133,16 @@ public class VoxelTerrainBuilder : MonoBehaviour
     [Button("Build Voxel Terrain")]
     public void Build()
     {
+        Build(null);
+    }
+
+    public bool Build(System.Action<string, float> progress)
+    {
         if (!Validate())
-            return;
+            return false;
 
         if (!Affordable())
-            return;
+            return false;
 
         Clear();
 
@@ -155,9 +160,11 @@ public class VoxelTerrainBuilder : MonoBehaviour
 
         int triangles = 0;
         int attempted = 0;
+        int completed = 0;
 
         foreach (VoxelColumnKey key in _columns)
         {
+            progress?.Invoke("Геометрия ландшафта", 0.7f * completed++ / Mathf.Max(1, _columns.Count));
             float size = plan.ChunkMetres(key.Lod);
 
             VerticalRange(field, key, size, plan.VoxelSize(key.Lod), out int low, out int high);
@@ -167,7 +174,7 @@ public class VoxelTerrainBuilder : MonoBehaviour
             for (int y = low; y <= high; y++)
             {
                 attempted++;
-                mesher.Mesh(key.Lod, key.X, y, key.Z, mesh, key.Trim, key.Morph);
+                mesher.Mesh(key.Lod, key.X, y, key.Z, mesh, key.Seams, key.Morph);
 
                 if (mesh.IsEmpty)
                     continue;
@@ -187,13 +194,37 @@ public class VoxelTerrainBuilder : MonoBehaviour
         clock.Stop();
 
         string splat = PaintSplatmap(map);
-        string decor = SpawnDecor(field, plan);
+        string decor = SpawnDecor(field, plan, progress);
 
         Debug.Log($"Voxel terrain: the whole {_config.WorldSize} m world in {_columns.Count} columns, {_chunks.Count} chunks, "
             + $"{triangles} triangles, {attempted} chunks visited, {clock.ElapsedMilliseconds} ms. {splat}. {decor}", this);
+        progress?.Invoke("Ландшафт готов", 1f);
+        return true;
     }
 
-    private string SpawnDecor(VoxelDensityField field, VoxelStreamPlan plan)
+    public void Configure(WorldBuildSettings settings, BakedWorld world)
+    {
+        _config = world.Config;
+        _voxels = settings.Voxels;
+        _heightMap = world.HeightMap;
+        _material = world.Material;
+        _useRepetitionless = false;
+        _paintSplatmap = false;
+        _biomes = world.Biomes;
+        _biomeMap = world.BiomeMap;
+        _roadMask = world.RoadMask;
+        _poiPlacement = world.Placement;
+        _spawnDecor = settings.SpawnDecor;
+        _grassDensity = settings.GrassDensity;
+        _batchVertexBudget = settings.BatchVertexBudget;
+        _buildColliders = settings.PreviewColliders;
+        _center = settings.PreviewCenter;
+        _lodCount = settings.LodCount;
+        _nearDistance = settings.NearDistance;
+        _memoryBudget = settings.MemoryBudget;
+    }
+
+    private string SpawnDecor(VoxelDensityField field, VoxelStreamPlan plan, System.Action<string, float> progress)
     {
         if (!_spawnDecor)
             return "no decor";
@@ -209,7 +240,7 @@ public class VoxelTerrainBuilder : MonoBehaviour
         if (_poiPlacement == null)
             Debug.LogWarning("Grass and trees will grow through the houses: PoiPlacement.asset is not assigned", this);
 
-        var weightField = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendPasses);
+        var weightField = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendRadius);
 
         float[] roadMask = _roadMask == null ? null : MaskTexture.Read(_roadMask);
         int roadMaskResolution = roadMask == null ? 0 : _roadMask.width;
@@ -226,9 +257,11 @@ public class VoxelTerrainBuilder : MonoBehaviour
         var clock = Stopwatch.StartNew();
 
         _decor = spawner;
+        int completed = 0;
 
         foreach (VoxelColumnKey key in _columns)
         {
+            progress?.Invoke("Трава, деревья и камни", 0.7f + 0.3f * completed++ / Mathf.Max(1, _columns.Count));
             float size = plan.ChunkMetres(key.Lod);
 
             if (!_roots.TryGetValue(key, out Transform column))
@@ -239,7 +272,9 @@ public class VoxelTerrainBuilder : MonoBehaviour
             bucket.transform.SetParent(column, false);
 
             var origin = new Vector2(key.X * size, key.Z * size);
-            var frame = new DecorSurface(origin, size, plan.VoxelSize(key.Lod), key.Morph);
+            var frame = new DecorSurface(origin,
+                VoxelDensitySampler.MorphSpan(_voxels.ChunkSize, plan.VoxelSize(key.Lod)),
+                plan.VoxelSize(key.Lod), key.Morph);
 
             spawner.Spawn(origin, size, bucket.transform, key.Lod, frame);
 
@@ -317,6 +352,12 @@ public class VoxelTerrainBuilder : MonoBehaviour
         {
             GeneratedMesh.Destroy(transform.GetChild(i).gameObject);
         }
+    }
+
+    private void OnDestroy()
+    {
+        _decor?.Dispose();
+        _decor = null;
     }
 
     private Transform NewColumn(VoxelColumnKey key)

@@ -28,7 +28,7 @@ public static class VoxelGroundMaterial
         if (biomeMap == null)
             return "no splatmap";
 
-        var weightField = new BiomeWeightField(biomeMap, request.Biomes.Count, request.Config.BiomeBlendPasses);
+        var weightField = new BiomeWeightField(biomeMap, request.Biomes.Count, request.Config.BiomeBlendRadius);
 
         float[] roadMask = ReadRoadMask(request, context, out int roadMaskResolution);
 

@@ -33,7 +33,7 @@ public class VoxelMeshQueue : IDisposable
         _chunkY = new int[count];
     }
 
-    public bool TrySchedule(int lod, int chunkX, int chunkY, int chunkZ, int trim, int morph)
+    public bool TrySchedule(int lod, int chunkX, int chunkY, int chunkZ, int seams, int morph)
     {
         if (_inFlight >= _meshers.Length)
             return false;
@@ -44,7 +44,7 @@ public class VoxelMeshQueue : IDisposable
         _meshes[slot] ??= new VoxelMesh();
         _chunkY[slot] = chunkY;
 
-        _handles[slot] = _meshers[slot].Schedule(lod, chunkX, chunkY, chunkZ, _meshes[slot], trim, morph);
+        _handles[slot] = _meshers[slot].Schedule(lod, chunkX, chunkY, chunkZ, _meshes[slot], seams, morph);
 
         return true;
     }

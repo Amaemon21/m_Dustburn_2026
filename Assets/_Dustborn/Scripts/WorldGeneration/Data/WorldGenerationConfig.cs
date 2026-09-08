@@ -7,11 +7,12 @@ public class WorldGenerationConfig : ScriptableObject
     public const string RESOURCES_PATH = "WorldGenerationConfig";
 
     [field: SerializeField, BoxGroup("World")] public int Seed { get; private set; } = 1337;
-    [field: SerializeField, BoxGroup("World"), MinValue(256)] public int WorldSize { get; private set; } = 4096;
+    [field: SerializeField, BoxGroup("World"), MinValue(256)] public int WorldSize { get; private set; } = 8192;
     [field: SerializeField, BoxGroup("World"), MinValue(1)] public int BiomeCellSize { get; private set; } = 8;
-    [field: SerializeField, BoxGroup("World"), MinValue(1)] public int HeightCellSize { get; private set; } = 2;
+    [field: SerializeField, BoxGroup("World"), MinValue(1)] public int HeightCellSize { get; private set; } = 1;
 
-    [field: SerializeField, Foldout("Biome regions"), Range(0f, 1f)] public float SeedJitter { get; private set; } = 0.8f;
+    [field: SerializeField, Foldout("Biome regions"), Range(1, 16), Tooltip("Voronoi seeds per biome. One gives four regions over the whole map; more breaks them into a mosaic")] public int SeedsPerBiome { get; private set; } = 1;
+[field: SerializeField, Foldout("Biome regions"), Range(0f, 1f)] public float SeedJitter { get; private set; } = 0.8f;
     [field: SerializeField, Foldout("Biome regions"), MinValue(0f)] public float WarpStrength { get; private set; } = 0.18f;
     [field: SerializeField, Foldout("Biome regions"), MinValue(0.1f)] public float WarpFrequency { get; private set; } = 2.6f;
     [field: SerializeField, Foldout("Biome regions"), Range(1, 8)] public int WarpOctaves { get; private set; } = 5;
@@ -21,26 +22,35 @@ public class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Biome regions"), MinValue(0)] public int MinRegionCells { get; private set; } = 250;
 
     [field: SerializeField, Foldout("Relief"), MinValue(1f)] public float MaxHeight { get; private set; } = 360f;
-    [field: SerializeField, Foldout("Relief"), Range(0f, 2f)] public float ReliefScale { get; private set; } = 1f;
-    [field: SerializeField, Foldout("Relief"), Range(0, 16)] public int BiomeBlendPasses { get; private set; } = 6;
+    [field: SerializeField, Foldout("Relief"), Range(0f, 2f)] public float ReliefScale { get; private set; } = 0.85f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0f), Tooltip("Width of the blend between biome height profiles, in metres. Independent of BiomeCellSize")] public float BiomeBlendRadius { get; private set; } = 28f;
     [field: SerializeField, Foldout("Relief"), MinValue(0f)] public float ContinentAmplitude { get; private set; } = 0.22f;
-    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float ContinentFrequency { get; private set; } = 1f;
-    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float HillFrequency { get; private set; } = 2.8f;
-    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float RidgeFrequency { get; private set; } = 2.5f;
-    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float DuneFrequency { get; private set; } = 8f;
-    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float DetailFrequency { get; private set; } = 26f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float ContinentFrequency { get; private set; } = 2f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float HillFrequency { get; private set; } = 5.6f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float RidgeFrequency { get; private set; } = 5f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float DuneFrequency { get; private set; } = 16f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float DetailFrequency { get; private set; } = 52f;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int ContinentOctaves { get; private set; } = 4;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int HillOctaves { get; private set; } = 2;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int RidgeOctaves { get; private set; } = 4;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int DuneOctaves { get; private set; } = 4;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int DetailOctaves { get; private set; } = 2;
-    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float MountainMaskFrequency { get; private set; } = 1.8f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float MountainMaskFrequency { get; private set; } = 3.6f;
     [field: SerializeField, Foldout("Relief"), Range(0f, 1f)] public float MountainMaskLow { get; private set; } = 0.45f;
     [field: SerializeField, Foldout("Relief"), Range(0f, 1f)] public float MountainMaskHigh { get; private set; } = 0.72f;
 
     [field: SerializeField, Foldout("Erosion"), Range(0, 64)]
     [field: Tooltip("Thermal erosion passes over the finished height map. Every pass moves material one cell downhill wherever the drop is steeper than the talus angle, so ridges gain scree slopes and hollows fill. Zero turns the layer off.")]
-    public int ErosionPasses { get; private set; } = 32;
+    public int ErosionPasses { get; private set; } = 64;
+
+    [field: SerializeField, Foldout("Relief"), Range(0, 128), Tooltip("Flow accumulation iterations for hydraulic erosion. Zero disables it")] public int HydraulicPasses { get; private set; } = 48;
+    [field: SerializeField, Foldout("Relief"), MinValue(1f), Tooltip("Metres per flow cell. Valleys are a large-scale feature, so this is deliberately coarser than HeightCellSize")] public float HydraulicCellSize { get; private set; } = 8f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0f), Tooltip("Metres cut at reference flow on a 45 degree slope")] public float HydraulicStrength { get; private set; } = 16f;
+    [field: SerializeField, Foldout("Relief"), Range(0.1f, 1f)] public float HydraulicFlowExponent { get; private set; } = 0.55f;
+    [field: SerializeField, Foldout("Relief"), MinValue(0f)] public float MaxHydraulicCut { get; private set; } = 34f;
+
+    [field: SerializeField, Foldout("Water"), MinValue(0f), Tooltip("Sea level in metres. Everything below it floods. Zero disables water")] public float SeaLevel { get; private set; } = 145f;
+    [field: SerializeField, Foldout("Water"), MinValue(0f), Tooltip("Metres of dry ground kept above the water before a hub, road or building may stand there")] public float ShoreMargin { get; private set; } = 6f;
 
     [field: SerializeField, Foldout("Erosion"), Range(10f, 60f)]
     [field: Tooltip("Angle of repose. Slopes gentler than this are left alone, steeper ones are worn down toward it, so this is the steepest loose slope the world will hold.")]
@@ -50,11 +60,11 @@ public class WorldGenerationConfig : ScriptableObject
     [field: Tooltip("Share of the excess moved in one pass. Half is the stable ceiling for a four-neighbour scheme; lower values need more passes for the same result.")]
     public float ErosionStrength { get; private set; } = 0.5f;
 
-    [field: SerializeField, Foldout("Hubs"), MinValue(2)] public int HubCount { get; private set; } = 12;
+    [field: SerializeField, Foldout("Hubs"), MinValue(2)] public int HubCount { get; private set; } = 81;
     [field: SerializeField, Foldout("Hubs"), MinValue(8f)] public float HubCandidateStep { get; private set; } = 64f;
     [field: SerializeField, Foldout("Hubs"), MinValue(8f)] public float HubSampleRadius { get; private set; } = 110f;
-    [field: SerializeField, Foldout("Hubs"), MinValue(0f)] public float MinHubDistance { get; private set; } = 700f;
-    [field: SerializeField, Foldout("Hubs"), MinValue(0f)] public float HubEdgeMargin { get; private set; } = 500f;
+    [field: SerializeField, Foldout("Hubs"), MinValue(0f)] public float MinHubDistance { get; private set; } = 460f;
+    [field: SerializeField, Foldout("Hubs"), MinValue(0f)] public float HubEdgeMargin { get; private set; } = 400f;
     [field: SerializeField, Foldout("Hubs"), MinValue(1f)] public float MaxHubRelief { get; private set; } = 45f;
     [field: SerializeField, Foldout("Hubs"), MinValue(16f)] public float MinHubRadius { get; private set; } = 150f;
     [field: SerializeField, Foldout("Hubs"), MinValue(16f)] public float MaxHubRadius { get; private set; } = 220f;
@@ -66,14 +76,14 @@ public class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Roads"), MinValue(0f)] public float RoadSlopePenalty { get; private set; } = 20f;
     [field: SerializeField, Foldout("Roads"), MinValue(0f)] public float RoadCrossSlopePenalty { get; private set; } = 16f;
     [field: SerializeField, Foldout("Roads"), Range(0.05f, 1f)] public float RoadReuseDiscount { get; private set; } = 0.35f;
-    [field: SerializeField, Foldout("Roads"), Range(0, 12)] public int RoadExtraEdges { get; private set; } = 5;
+    [field: SerializeField, Foldout("Roads"), Range(0, 128)] public int RoadExtraEdges { get; private set; } = 60;
     [field: SerializeField, Foldout("Roads"), MinValue(1f)] public float RoadHalfWidth { get; private set; } = 5f;
     [field: SerializeField, Foldout("Roads"), MinValue(1f)] public float RoadShoulder { get; private set; } = 11f;
     [field: SerializeField, Foldout("Roads"), Range(0.1f, 1f)] public float RoadSurfaceFraction { get; private set; } = 0.35f;
-    [field: SerializeField, Foldout("Roads"), Range(0, 40)] public int RoadProfileSmoothing { get; private set; } = 12;
+    [field: SerializeField, Foldout("Roads"), Range(0, 40)] public int RoadProfileSmoothing { get; private set; } = 24;
     [field: SerializeField, Foldout("Roads"), MinValue(0f)] public float MaxRoadFill { get; private set; } = 5f;
     [field: SerializeField, Foldout("Roads"), MinValue(0f)] public float MaxRoadCut { get; private set; } = 14f;
-    [field: SerializeField, Foldout("Roads"), MinValue(0f)] public float RoadEmbankmentSlope { get; private set; } = 3.5f;
+    [field: SerializeField, Foldout("Roads"), MinValue(0f)] public float RoadEmbankmentSlope { get; private set; } = 5f;
 
     [field: SerializeField, Foldout("Road shape"), MinValue(0f)]
     [field: Tooltip("Metres of cost per radian of turn in the A* search. Zero brings back the old zig-zag roads, 40 to 80 hold long straights and sweeping curves.")]
@@ -111,8 +121,8 @@ public class WorldGenerationConfig : ScriptableObject
     [field: Tooltip("Fillet radius on street corners. Streets are filleted rather than smoothed because their polylines carry exact junction points that connectivity and lot cutting rely on. Zero turns it off.")]
     public float StreetCornerRadius { get; private set; } = 9f;
 
-    [field: SerializeField, Foldout("Settlements"), MinValue(0)] public int CityCount { get; private set; } = 2;
-    [field: SerializeField, Foldout("Settlements"), MinValue(0)] public int TownCount { get; private set; } = 3;
+    [field: SerializeField, Foldout("Settlements"), MinValue(0)] public int CityCount { get; private set; } = 4;
+    [field: SerializeField, Foldout("Settlements"), MinValue(0)] public int TownCount { get; private set; } = 12;
     [field: SerializeField, Foldout("Settlements"), Range(1, 8)]
     [field: Tooltip("How many times the street layer of one settlement is regrown while its composition stays unsatisfied. The best attempt is kept, so raising this only costs planning time.")]
     public int SettlementPlanAttempts { get; private set; } = 3;

@@ -40,7 +40,7 @@ public class VoxelColliderQueue : IDisposable
     private JobHandle _handle;
     private bool _inFlight;
 
-    public int Waiting => _queue.Count;
+    public int Waiting => _queue.Count + _baking.Count;
 
     public VoxelColliderQueue(int batch)
     {

@@ -211,8 +211,8 @@ MonoBehaviour:
     <Footprint>k__BackingField: 3
     <BendFactor>k__BackingField: 0
     <RoadClearance>k__BackingField: 3
-  <BaseHeight>k__BackingField: 0.24
-  <HillAmplitude>k__BackingField: 0.06
-  <RidgeAmplitude>k__BackingField: 0.02
-  <DuneAmplitude>k__BackingField: 0.08
+  <BaseHeight>k__BackingField: 0.20
+  <HillAmplitude>k__BackingField: 0.07
+  <RidgeAmplitude>k__BackingField: 0.03
+  <DuneAmplitude>k__BackingField: 0.11
   <DetailAmplitude>k__BackingField: 0.008

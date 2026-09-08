@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class BiomeWeightField
 {
+    private const int PASSES = 3;
+
     private readonly float[][] _weights;
 
     public int Resolution { get; }
     public int BiomeCount { get; }
 
-    public BiomeWeightField(BiomeMap map, int biomeCount, int blurPasses)
+    public BiomeWeightField(BiomeMap map, int biomeCount, float blendRadius)
     {
         Resolution = map.Resolution;
         BiomeCount = biomeCount;
@@ -25,11 +27,18 @@ public class BiomeWeightField
             _weights[cells[i]][i] = 1f;
 
         int resolution = Resolution;
+        int radius = BoxRadius(blendRadius / map.CellSize);
+
+        if (radius <= 0)
+        {
+            Normalize();
+            return;
+        }
 
         Parallel.For(0, biomeCount, () => new float[cells.Length], (biome, state, buffer) =>
         {
-            for (int pass = 0; pass < blurPasses; pass++)
-                Blur(_weights[biome], buffer, resolution);
+            for (int pass = 0; pass < PASSES; pass++)
+                Blur(_weights[biome], buffer, resolution, radius);
 
             return buffer;
         }, _ => { });
@@ -37,15 +46,25 @@ public class BiomeWeightField
         Normalize();
     }
 
+    private static int BoxRadius(float sigmaCells)
+    {
+        if (sigmaCells <= 0f)
+            return 0;
+
+        float exact = 0.5f * (Mathf.Sqrt(1f + 4f * sigmaCells * sigmaCells) - 1f);
+
+        return Mathf.Max(1, Mathf.RoundToInt(exact));
+    }
+
     public float Coverage(int biome)
     {
         float[] weights = _weights[biome];
-        float sum = 0f;
+        double sum = 0;
 
         for (int i = 0; i < weights.Length; i++)
             sum += weights[i];
 
-        return sum / weights.Length;
+        return (float)(sum / weights.Length);
     }
 
     public NativeArray<float> ToNativeArray(Allocator allocator)
@@ -132,34 +151,40 @@ public class BiomeWeightField
         });
     }
 
-    private static void Blur(float[] values, float[] buffer, int resolution)
+    private static void Blur(float[] values, float[] buffer, int resolution, int radius)
     {
-        const int RADIUS = 2;
-        const float TAPS = RADIUS * 2 + 1;
+        float scale = 1f / (radius * 2 + 1);
 
         for (int y = 0; y < resolution; y++)
         {
+            int row = y * resolution;
+            float sum = values[row] * (radius + 1);
+
+            for (int offset = 1; offset <= radius; offset++)
+                sum += values[row + Mathf.Min(offset, resolution - 1)];
+
             for (int x = 0; x < resolution; x++)
             {
-                float sum = 0f;
+                buffer[row + x] = sum * scale;
 
-                for (int offset = -RADIUS; offset <= RADIUS; offset++)
-                    sum += values[y * resolution + Mathf.Clamp(x + offset, 0, resolution - 1)];
-
-                buffer[y * resolution + x] = sum / TAPS;
+                sum += values[row + Mathf.Min(x + radius + 1, resolution - 1)]
+                       - values[row + Mathf.Max(x - radius, 0)];
             }
         }
 
-        for (int y = 0; y < resolution; y++)
+        for (int x = 0; x < resolution; x++)
         {
-            for (int x = 0; x < resolution; x++)
+            float sum = buffer[x] * (radius + 1);
+
+            for (int offset = 1; offset <= radius; offset++)
+                sum += buffer[Mathf.Min(offset, resolution - 1) * resolution + x];
+
+            for (int y = 0; y < resolution; y++)
             {
-                float sum = 0f;
+                values[y * resolution + x] = sum * scale;
 
-                for (int offset = -RADIUS; offset <= RADIUS; offset++)
-                    sum += buffer[Mathf.Clamp(y + offset, 0, resolution - 1) * resolution + x];
-
-                values[y * resolution + x] = sum / TAPS;
+                sum += buffer[Mathf.Min(y + radius + 1, resolution - 1) * resolution + x]
+                       - buffer[Mathf.Max(y - radius, 0) * resolution + x];
             }
         }
     }

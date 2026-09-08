@@ -108,11 +108,11 @@ public class BiomeDatabase : ScriptableObject
 
         _biomes.Clear();
 
-        Add(folder, BiomeType.PineForest, new Color32(0, 64, 0, 255), 1.2f, 0.30f, 0.18f, 0.06f, 0f, 0.020f);
-        Add(folder, BiomeType.BurntForest, new Color32(186, 0, 255, 255), 1f, 0.30f, 0.15f, 0.04f, 0f, 0.020f);
-        Add(folder, BiomeType.Desert, new Color32(255, 228, 119, 255), 1f, 0.26f, 0.04f, 0f, 0.09f, 0.010f);
-        Add(folder, BiomeType.Snow, new Color32(255, 255, 255, 255), 1f, 0.34f, 0.10f, 0.42f, 0f, 0.030f);
-        Add(folder, BiomeType.Wasteland, new Color32(255, 168, 0, 255), 1f, 0.26f, 0.05f, 0.02f, 0f, 0.030f);
+        Add(folder, BiomeType.PineForest, new Color32(0, 64, 0, 255), 1.9f, 0.34f, 0.30f, 0.24f, 0f, 0.012f);
+        Add(folder, BiomeType.BurntForest, new Color32(186, 0, 255, 255), 1f, 0.30f, 0.24f, 0.18f, 0f, 0.012f);
+        Add(folder, BiomeType.Desert, new Color32(255, 228, 119, 255), 0.95f, 0.20f, 0.07f, 0.03f, 0.11f, 0.008f);
+        Add(folder, BiomeType.Snow, new Color32(255, 255, 255, 255), 0.95f, 0.34f, 0.10f, 0.42f, 0f, 0.030f);
+        Add(folder, BiomeType.Wasteland, new Color32(255, 168, 0, 255), 1f, 0.24f, 0.14f, 0.13f, 0f, 0.020f);
 
         UnityEditor.EditorUtility.SetDirty(this);
         UnityEditor.AssetDatabase.SaveAssets();

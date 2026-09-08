@@ -63,6 +63,6 @@ public class SettlementProfile
 
     public static SettlementProfile DefaultVillage()
     {
-        return new SettlementProfile("Village", 0.42f, 48f, 64f, 1, 0f, 0f, 0f, DistrictType.Rural, 6f);
+        return new SettlementProfile("Village", 0.25f, 48f, 64f, 1, 0f, 0f, 0f, DistrictType.Rural, 6f);
     }
 }

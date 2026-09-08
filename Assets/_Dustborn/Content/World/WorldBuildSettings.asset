@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d93d558815fe4b3fafa6a572389b2cb8, type: 3}
+  m_Name: WorldBuildSettings
+  m_EditorClassIdentifier: Assembly-CSharp::WorldBuildSettings
+  <Config>k__BackingField: {fileID: 11400000, guid: daa9a98b29dc1014f857e00a4cdfe223, type: 2}
+  <Biomes>k__BackingField: {fileID: 11400000, guid: 749ec2e32d137254994a3a3ef219a012, type: 2}
+  <Pois>k__BackingField: {fileID: 11400000, guid: 2f732fced9168ef43867cbbf889f0dc5, type: 2}
+  <Voxels>k__BackingField: {fileID: 11400000, guid: edc31c52e91f6c948aa37f4f4342a49b, type: 2}
+  <SpawnDecor>k__BackingField: 1
+  <GrassDensity>k__BackingField: 1
+  <PreviewCenter>k__BackingField: {x: 2036.4932, y: 4577.53}
+  <PreviewColliders>k__BackingField: 1
+  <MemoryBudget>k__BackingField: 512
+  <LodCount>k__BackingField: 5
+  <NearDistance>k__BackingField: 96
+  <ControlResolution>k__BackingField: 2048
+  <BatchVertexBudget>k__BackingField: 48000
+  <ShowLoadingScreen>k__BackingField: 1
+  <MeshWorkers>k__BackingField: 8
+  <LoadingBudget>k__BackingField: 60
+  <DecorBudget>k__BackingField: 6
+  <PoisPerFrame>k__BackingField: 16

@@ -46,6 +46,16 @@ public struct VoxelDensitySampler
         return weight <= 0f ? Surface(x, z) : math.lerp(Surface(x, z), Coarse(x, z, step), weight);
     }
 
+    public static float MorphAt(int sample, int size)
+    {
+        return (sample - 1) / math.max(1f, size - 1);
+    }
+
+    public static float MorphSpan(int size, float voxelSize)
+    {
+        return math.max(1f, size - 1) * voxelSize;
+    }
+
     private static float Weight(int morph, float u, float v)
     {
         float weight = 0f;
@@ -130,7 +140,6 @@ public struct VoxelDensitySampler
         float highest = float.MinValue;
 
         float step = voxelSize * 2f;
-        float span = math.max(1f, size);
 
         for (int z = 0; z < samples; z++)
         {
@@ -143,7 +152,7 @@ public struct VoxelDensitySampler
 
                 if (morph != 0)
                 {
-                    float weight = Weight(morph, (x - 1) / span, (z - 1) / span);
+                    float weight = Weight(morph, MorphAt(x, size), MorphAt(z, size));
 
                     if (weight > 0f)
                         surface = math.lerp(surface, Coarse(worldX, worldZ, step), weight);

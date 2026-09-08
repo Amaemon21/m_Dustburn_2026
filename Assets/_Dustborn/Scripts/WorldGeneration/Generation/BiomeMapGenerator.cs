@@ -53,7 +53,10 @@ public class BiomeMapGenerator
 
     private void PlaceSeeds(ref Random random)
     {
-        int count = _biomes.Count;
+        int biomeCount = _biomes.Count;
+        int perBiome = math.max(1, _config.SeedsPerBiome);
+        int count = biomeCount * perBiome;
+
         int columns = (int)math.ceil(math.sqrt(count));
         int rows = (int)math.ceil((float)count / columns);
 
@@ -77,6 +80,7 @@ public class BiomeMapGenerator
         for (int i = 0; i < count; i++)
         {
             int slot = slots[i];
+            int biome = i % biomeCount;
 
             float2 center = new(
                 (slot % columns + 0.5f) / columns,
@@ -85,13 +89,13 @@ public class BiomeMapGenerator
             float2 jitterRange = new(0.5f / columns, 0.5f / rows);
             float2 jitter = random.NextFloat2(-1f, 1f) * jitterRange * _config.SeedJitter;
 
-            float weight = math.max(0.05f, _biomes.Get(i).RegionWeight);
+            float weight = math.max(0.05f, _biomes.Get(biome).RegionWeight);
 
             _seeds[i] = new BiomeSeed
             {
                 Position = center + jitter,
                 InverseWeightSqr = 1f / (weight * weight),
-                Biome = (byte)i
+                Biome = (byte)biome
             };
         }
     }

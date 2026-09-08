@@ -178,7 +178,9 @@ public class VoxelTerrainStreamer : MonoBehaviour
     [ShowNativeProperty]
     public bool Ready => _ready;
 
-    public float Progress => _wantedAtStart <= 0
+    public bool Initialized => _plan != null;
+
+    public float Progress => _wantedAtStart <= 0 || _queue == null
         ? 0f
         : Mathf.Clamp01(1f - (_pending.Count + _queue.InFlight + _decorQueue.Count) / (float)(_wantedAtStart + _decorAtStart));
 
@@ -200,7 +202,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!Validate())
+        if (!Application.isPlaying || !Validate())
             return;
 
         HeightMap map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
@@ -222,6 +224,29 @@ public class VoxelTerrainStreamer : MonoBehaviour
         _decorAtStart = 0;
     }
 
+    public void Configure(WorldBuildSettings settings, BakedWorld world, Transform viewer)
+    {
+        _config = world.Config;
+        _voxels = settings.Voxels;
+        _heightMap = world.HeightMap;
+        _material = world.Material;
+        _biomes = world.Biomes;
+        _biomeMap = world.BiomeMap;
+        _roadMask = world.RoadMask;
+        _poiPlacement = world.Placement;
+        _viewer = viewer;
+        _spawnDecor = settings.SpawnDecor;
+        _grassDensity = settings.GrassDensity;
+        _batchVertexBudget = settings.BatchVertexBudget;
+        _lodCount = settings.LodCount;
+        _nearDistance = settings.NearDistance;
+        _meshWorkers = settings.MeshWorkers;
+        _colliderMaxLod = Mathf.Max(0, settings.LodCount - 1);
+        _decorBudget = settings.DecorBudget;
+        _preload = true;
+        _preloadBudget = settings.LoadingBudget;
+    }
+
     private VoxelDecorSpawner CreateDecor(HeightMap map)
     {
         if (!_spawnDecor || _biomes == null || !_biomes.IsValid() || _biomeMap == null)
@@ -232,7 +257,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
         if (biomeMap == null)
             return null;
 
-        var weights = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendPasses);
+        var weights = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendRadius);
 
         float[] roadMask = _roadMask == null ? null : MaskTexture.Read(_roadMask);
         int roadResolution = roadMask == null ? 0 : _roadMask.width;
@@ -265,9 +290,10 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
     private void OnDisable()
     {
+        _colliders?.Dispose();
+        _colliders = null;
         Unload();
 
-        _colliders?.Dispose();
         _queue?.Dispose();
         _field?.Dispose();
         _decor?.Dispose();
@@ -280,6 +306,8 @@ public class VoxelTerrainStreamer : MonoBehaviour
         _decor = null;
         _plan = null;
         _field = null;
+        _ready = false;
+        _wantedAtStart = 0;
     }
 
     private void Update()
@@ -358,7 +386,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
         if (_decorAtStart == 0)
             _decorAtStart = _decorQueue.Count;
 
-        if (_pending.Count > 0 || _queue.InFlight > 0 || _decorQueue.Count > 0 || _colliders.Waiting > 0)
+        if (_hasActive || _pending.Count > 0 || _queue.InFlight > 0 || _decorQueue.Count > 0 || _colliders.Waiting > 0)
             return;
 
         _ready = true;
@@ -507,7 +535,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
             while (_hasActive && _queue.Free > 0)
             {
-                if (!_queue.TrySchedule(_active.Lod, _active.X, _activeY, _active.Z, _active.Trim, _active.Morph))
+                if (!_queue.TrySchedule(_active.Lod, _active.X, _activeY, _active.Z, _active.Seams, _active.Morph))
                     break;
 
                 _inFlight.Add(new PendingChunk(_active, _activeY));
@@ -638,7 +666,9 @@ public class VoxelTerrainStreamer : MonoBehaviour
     {
         float span = _plan.ChunkMetres(column.Lod);
 
-        return new DecorSurface(new Vector2(column.X * span, column.Z * span), span, _plan.VoxelSize(column.Lod), column.Morph);
+        return new DecorSurface(new Vector2(column.X * span, column.Z * span),
+            VoxelDensitySampler.MorphSpan(_voxels.ChunkSize, _plan.VoxelSize(column.Lod)),
+            _plan.VoxelSize(column.Lod), column.Morph);
     }
 
     private static float SqrRange(Vector2Int cell, float size, Vector2 point)

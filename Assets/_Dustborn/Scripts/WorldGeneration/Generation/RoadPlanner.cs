@@ -9,6 +9,7 @@ public class RoadPlanner
     private const int HEADINGS = 16;
     private const int FREE_HEADING = HEADINGS;
     private const int STATES = HEADINGS + 1;
+    private const float FORD_PENALTY = 8f;
 
     private readonly WorldGenerationConfig _config;
     private readonly HeightMap _map;
@@ -271,6 +272,9 @@ public class RoadPlanner
         float cross = CrossSlope(fromX, fromY, toX, toY, deltaX, deltaY, distance);
 
         float cost = distance * (1f + _config.RoadSlopePenalty * grade * grade + _config.RoadCrossSlopePenalty * cross * cross);
+
+        if (_config.SeaLevel > 0f && toHeight < _config.SeaLevel + _config.ShoreMargin)
+            cost *= FORD_PENALTY;
 
         if (reused)
             cost *= _config.RoadReuseDiscount;

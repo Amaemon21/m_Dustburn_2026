@@ -17,8 +17,7 @@ public struct VoxelMeshJob : IJob
     public int Size;
     public float VoxelSize;
     public float SkirtDepth;
-    public int Trim;
-    public int SkirtFaces;
+    public int Seams;
     public int Morph;
 
     public NativeArray<float> Columns;
@@ -57,13 +56,13 @@ public struct VoxelMeshJob : IJob
 
     private void BuildSkirt()
     {
-        if (SkirtDepth <= 0f || SkirtFaces == 0)
+        if (SkirtDepth <= 0f || Seams == 0)
             return;
 
-        bool minX = (SkirtFaces & VoxelColumnKey.FACE_MIN_X) != 0;
-        bool maxX = (SkirtFaces & VoxelColumnKey.FACE_MAX_X) != 0;
-        bool minZ = (SkirtFaces & VoxelColumnKey.FACE_MIN_Z) != 0;
-        bool maxZ = (SkirtFaces & VoxelColumnKey.FACE_MAX_Z) != 0;
+        bool minX = (Seams & VoxelColumnKey.FACE_MIN_X) != 0;
+        bool maxX = (Seams & VoxelColumnKey.FACE_MAX_X) != 0;
+        bool minZ = (Seams & VoxelColumnKey.FACE_MIN_Z) != 0;
+        bool maxZ = (Seams & VoxelColumnKey.FACE_MAX_Z) != 0;
 
         for (int step = 0; step < Size; step++)
         {
@@ -184,7 +183,7 @@ public struct VoxelMeshJob : IJob
 
         Vertices.Add(position);
         Normals.Add(Field.Normal(position.x, position.y, position.z, scale, Morph,
-            origin.x, origin.z, Size * scale, scale * 2f));
+            origin.x, origin.z, VoxelDensitySampler.MorphSpan(Size, scale), scale * 2f));
         Uv.Add(new Vector2(position.x / world, position.z / world));
 
         return Vertices.Length - 1;
@@ -192,19 +191,61 @@ public struct VoxelMeshJob : IJob
 
     private void Stitch(ref Vector3 position, Vector3 origin, float scale, int slotX, int slotZ)
     {
-        bool alongX = slotX == 0 && (Trim & VoxelColumnKey.TRIM_X) != 0;
-        bool alongZ = slotZ == 0 && (Trim & VoxelColumnKey.TRIM_Z) != 0;
+        bool minX = slotX == 0 && (Seams & VoxelColumnKey.FACE_MIN_X) != 0;
+        bool maxX = slotX == Size && (Seams & VoxelColumnKey.FACE_MAX_X) != 0;
+        bool minZ = slotZ == 0 && (Seams & VoxelColumnKey.FACE_MIN_Z) != 0;
+        bool maxZ = slotZ == Size && (Seams & VoxelColumnKey.FACE_MAX_Z) != 0;
 
-        if (!alongX && !alongZ)
+        if (!minX && !maxX && !minZ && !maxZ)
             return;
 
-        if (alongX)
+        float span = Size * scale;
+
+        bool coarser = false;
+
+        if (minX)
+        {
             position.x = origin.x - Neighbour(scale, VoxelColumnKey.MORPH_MIN_X) * 0.5f;
+            coarser |= (Morph & VoxelColumnKey.MORPH_MIN_X) != 0;
+        }
 
-        if (alongZ)
+        if (maxX)
+        {
+            position.x = origin.x + span - scale * 0.5f;
+            coarser |= (Morph & VoxelColumnKey.MORPH_MAX_X) != 0;
+        }
+
+        if (minZ)
+        {
             position.z = origin.z - Neighbour(scale, VoxelColumnKey.MORPH_MIN_Z) * 0.5f;
+            coarser |= (Morph & VoxelColumnKey.MORPH_MIN_Z) != 0;
+        }
 
-        position.y = Field.Height(position.x, position.z, scale, Morph, origin.x, origin.z, Size * scale, scale * 2f);
+        if (maxZ)
+        {
+            position.z = origin.z + span - scale * 0.5f;
+            coarser |= (Morph & VoxelColumnKey.MORPH_MAX_Z) != 0;
+        }
+
+        if (!minZ && !maxZ)
+            position.z = Lattice(position.z, Weld(scale, minX ? VoxelColumnKey.MORPH_MIN_X : VoxelColumnKey.MORPH_MAX_X));
+
+        if (!minX && !maxX)
+            position.x = Lattice(position.x, Weld(scale, minZ ? VoxelColumnKey.MORPH_MIN_Z : VoxelColumnKey.MORPH_MAX_Z));
+
+        position.y = coarser
+            ? Field.Coarse(position.x, position.z, scale * 2f)
+            : Field.Height(position.x, position.z, scale, 0, 0f, 0f, 0f, 0f);
+    }
+
+    private static float Lattice(float value, float step)
+    {
+        return (math.floor(value / step) + 0.5f) * step;
+    }
+
+    private float Weld(float scale, int morph)
+    {
+        return (Morph & morph) != 0 ? scale * 2f : scale;
     }
 
     private float Neighbour(float scale, int morph)
