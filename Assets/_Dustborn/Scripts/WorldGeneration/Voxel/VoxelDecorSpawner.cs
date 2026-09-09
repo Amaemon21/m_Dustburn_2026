@@ -49,6 +49,8 @@ public class VoxelDecorSpawner : IDisposable
 
     public int Step(VoxelDecorBuild build, int budget)
     {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.DecorStep);
+
         int spent = 0;
 
         while (!build.Done)
@@ -107,7 +109,10 @@ public class VoxelDecorSpawner : IDisposable
 
         if (!build.Placed)
         {
-            int cells = _placer.Place(build.Layer, build.Origin, build.Span, build.Instances, build.Frame);
+            int cells;
+
+            using (WorldGenProbe.Measure(WorldGenStage.DecorPlace))
+                cells = _placer.Place(build.Layer, build.Origin, build.Span, build.Instances, build.Frame);
 
             build.Placed = true;
 
@@ -151,12 +156,16 @@ public class VoxelDecorSpawner : IDisposable
         switch (verdict)
         {
             case CombineVerdict.Combine:
-                Batches += combiner.Combine(build.Instances, _vertexBudget, build.Parent, decor.Name, Shadows(decor));
+                using (WorldGenProbe.Measure(WorldGenStage.DecorCombine))
+                    Batches += combiner.Combine(build.Instances, _vertexBudget, build.Parent, decor.Name, Shadows(decor));
+
                 Combined += count;
                 break;
 
             case CombineVerdict.Instance:
-                Batches += combiner.Instance(build.Instances, build.Parent, decor.Name, Shadows(decor), DrawDistance(decor));
+                using (WorldGenProbe.Measure(WorldGenStage.DecorInstance))
+                    Batches += combiner.Instance(build.Instances, build.Parent, decor.Name, Shadows(decor), DrawDistance(decor));
+
                 Instanced += count;
 
                 build.NextLayer();
@@ -171,6 +180,8 @@ public class VoxelDecorSpawner : IDisposable
 
     private int Populate(VoxelDecorBuild build, VoxelDecorLayer decor)
     {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.DecorInstantiate);
+
         DecorInstance instance = build.Instances[build.Cursor];
 
         GameObject copy = UnityEngine.Object.Instantiate(decor.Prefab, instance.Position,

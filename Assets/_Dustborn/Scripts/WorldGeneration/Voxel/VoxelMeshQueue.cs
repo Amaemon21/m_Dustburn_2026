@@ -12,6 +12,9 @@ public class VoxelMeshQueue : IDisposable
     private readonly JobHandle[] _handles;
     private readonly int[] _chunkY;
 
+    private readonly int[] _work;
+    private readonly long[] _keys;
+
     private int _inFlight;
 
     public int Workers => _meshers.Length;
@@ -31,6 +34,8 @@ public class VoxelMeshQueue : IDisposable
         _meshes = new VoxelMesh[count];
         _handles = new JobHandle[count];
         _chunkY = new int[count];
+        _work = new int[count];
+        _keys = new long[count];
     }
 
     public bool TrySchedule(int lod, int chunkX, int chunkY, int chunkZ, int seams, int morph)
@@ -40,11 +45,19 @@ public class VoxelMeshQueue : IDisposable
 
         int slot = _inFlight++;
 
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.VoxelMeshSchedule);
+
         _meshers[slot] ??= new VoxelChunkMesher(_voxels, _field);
         _meshes[slot] ??= new VoxelMesh();
         _chunkY[slot] = chunkY;
+        _work[slot] = WorldGenProbe.NextWorkId();
+        _keys[slot] = WorldGenProbe.ColumnKey(lod, chunkX, chunkY, chunkZ, seams, morph);
+
+        WorldGenProbe.Queue(WorldGenQueueKind.TerrainChunk, WorldGenQueuePhase.Requested, _work[slot], _keys[slot], _inFlight);
 
         _handles[slot] = _meshers[slot].Schedule(lod, chunkX, chunkY, chunkZ, _meshes[slot], seams, morph);
+
+        WorldGenProbe.Queue(WorldGenQueueKind.TerrainChunk, WorldGenQueuePhase.Scheduled, _work[slot], _keys[slot], _inFlight);
 
         return true;
     }
@@ -57,8 +70,15 @@ public class VoxelMeshQueue : IDisposable
 
     public int Drain()
     {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.VoxelMeshDrain);
+
         for (int slot = 0; slot < _inFlight; slot++)
-            _handles[slot].Complete();
+        {
+            using (WorldGenProbe.Measure(WorldGenStage.VoxelMeshBlocking))
+                _handles[slot].Complete();
+
+            WorldGenProbe.Queue(WorldGenQueueKind.TerrainChunk, WorldGenQueuePhase.Observed, _work[slot], _keys[slot], _inFlight - slot);
+        }
 
         return _inFlight;
     }

@@ -503,3 +503,24 @@ namespace NaughtyAttributes
         public void Add(string name, T value) => Add(new KeyValuePair<string, T>(name, value));
     }
 }
+
+namespace Unity.Profiling
+{
+    public struct ProfilerMarker
+    {
+        public ProfilerMarker(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; }
+
+        public void Begin()
+        {
+        }
+
+        public void End()
+        {
+        }
+    }
+}

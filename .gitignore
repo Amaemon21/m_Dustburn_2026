@@ -107,6 +107,7 @@ InitTestScene*.unity*
 
 .idea/
 .claude/
+Promts/
 CLAUDE.md
 AGENTS.md
 /Assets/_Dustborn/Generated/
@@ -115,4 +116,18 @@ AGENTS.md
 !/Tools/HeadlessCheck/HeadlessCheck.csproj
 
 # Проверка компиляции против сборок Unity (Tools/UnityCompileCheck) — её csproj тоже нужен
-!/Tools/UnityCompileCheck/UnityCompileCheck.csproj
+!/Tools/UnityCompileCheck/UnityCompileCheck.Runtime.csproj
+!/Tools/UnityCompileCheck/UnityCompileCheck.Editor.csproj
+
+# Performance harness projects: their csproj files are part of the harness
+!/Tools/UnityTestCompileCheck/UnityTestCompileCheck.csproj
+!/Tools/WorldGenPerf/CatalogDump/CatalogDump.csproj
+
+# Performance harness output
+BenchmarkResults/
+Assets/WorldGenPerfTemp/
+Assets/WorldGenPerfTemp.meta
+
+# Build output of the harness tools outside Assets
+/Tools/**/bin/
+/Tools/**/obj/

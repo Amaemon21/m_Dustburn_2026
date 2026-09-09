@@ -42,37 +42,72 @@ public sealed class WorldMapPipeline
             cancellationToken.ThrowIfCancellationRequested();
         }
 
+        long total = WorldGenProbe.Now;
+
         Report("Карта биомов", 0.02f);
-        BiomeMap biomes = new BiomeMapGenerator(_config, _biomes).Generate();
+        BiomeMap biomes;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapBiomes))
+            biomes = new BiomeMapGenerator(_config, _biomes).Generate();
 
         Report("Рельеф и эрозия", 0.08f);
-        HeightMap heights = new HeightMapGenerator(_config, _biomes).Generate(biomes);
+        HeightMap heights;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapHeights))
+            heights = new HeightMapGenerator(_config, _biomes).Generate(biomes);
 
         Report("Поиск мест для поселений", 0.32f);
         var roads = new RoadNetwork();
-        roads.Hubs.AddRange(new HubPlacer(_config, heights).Place());
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapHubs))
+            roads.Hubs.AddRange(new HubPlacer(_config, heights).Place());
 
         Report("Дороги и выравнивание земли", 0.38f);
-        roads.Roads.AddRange(new RoadPlanner(_config, heights).Plan(roads.Hubs));
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapRoadPlan))
+            roads.Roads.AddRange(new RoadPlanner(_config, heights).Plan(roads.Hubs));
+
         var carver = new TerrainCarver(_config);
-        heights = carver.Carve(heights, roads, out float[] mask);
+        float[] mask;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapCarveTrunk))
+            heights = carver.Carve(heights, roads, out mask);
 
         Report("Улицы и участки под здания", 0.44f);
-        List<CityLayout> cities = new CityPlanner(_config, _pois, heights).Plan(roads.Hubs, roads.Roads);
+        List<CityLayout> cities;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapCities))
+            cities = new CityPlanner(_config, _pois, heights).Plan(roads.Hubs, roads.Roads);
 
         foreach (CityLayout city in cities)
             roads.Streets.AddRange(city.Streets);
 
-        heights = carver.CarveStreets(heights, cities, mask);
-        var proximity = new RoadProximity(roads.Roads, _config.WorldSize, _config.RoadCellSize);
-        proximity.AddRange(roads.Streets);
+        using (WorldGenProbe.Measure(WorldGenStage.MapCarveStreets))
+            heights = carver.CarveStreets(heights, cities, mask);
+
+        RoadProximity proximity;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapProximity))
+        {
+            proximity = new RoadProximity(roads.Roads, _config.WorldSize, _config.RoadCellSize);
+            proximity.AddRange(roads.Streets);
+        }
 
         Report("Здания и площадки POI", 0.49f);
         var placer = new PoiPlacer(_config, _pois, heights, proximity);
-        List<PoiPlacement> placements = placer.Place(cities, roads);
-        heights = carver.CarvePads(heights, placements);
-        placer.ApplyHeights(heights);
+        List<PoiPlacement> placements;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapPoiPlace))
+            placements = placer.Place(cities, roads);
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapCarvePads))
+            heights = carver.CarvePads(heights, placements);
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapApplyHeights))
+            placer.ApplyHeights(heights);
+
         Report("Карты готовы", 0.53f);
+        WorldGenProbe.Record(WorldGenStage.MapTotal, total, WorldGenProbe.Now, placements.Count);
 
         return new WorldMapResult(biomes, heights, roads, mask, placements);
     }

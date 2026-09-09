@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "World generation performance case result",
+  "type": "object",
+  "required": ["runId", "caseId", "catalogId", "executionMode", "result"],
+  "properties": {
+    "runId": { "type": "string" },
+    "caseId": { "type": "string" },
+    "catalogId": { "type": "string" },
+    "caseArgs": { "type": "string" },
+    "executionMode": { "enum": ["EditMode", "PlayMode", "Player"] },
+    "utc": { "type": "string", "format": "date-time" },
+    "result": {
+      "type": "object",
+      "required": ["op", "profile", "status"],
+      "properties": {
+        "op": { "type": "string" },
+        "profile": { "type": "string" },
+        "args": { "type": "string" },
+        "fixtureHash": { "type": ["string", "null"] },
+        "status": {
+          "enum": ["passed", "failed", "blocked_dependency", "blocked_resource", "not_run", "timeout", "inconclusive", "non_comparable"]
+        },
+        "error": { "type": ["string", "null"] },
+        "wallMs": { "$ref": "#/$defs/stats" },
+        "allocBytes": { "$ref": "#/$defs/stats" },
+        "samplesMs": { "type": "array", "items": { "type": ["number", "null"] } },
+        "stages": { "type": "object" },
+        "work": { "type": "object" },
+        "fingerprints": { "type": "object" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "stats": {
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer" },
+        "min": { "type": ["number", "null"] },
+        "p50": { "type": ["number", "null"] },
+        "p95": { "type": ["number", "null"] },
+        "p99": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] },
+        "mean": { "type": ["number", "null"] }
+      }
+    }
+  }
+}

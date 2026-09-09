@@ -21,6 +21,7 @@ public sealed class WorldGenerationBake
 
     public BakedWorld Generate()
     {
+        long total = WorldGenProbe.Now;
         ValidatePaths();
         WorldMapResult maps = new WorldMapPipeline(_config, _settings.Biomes, _settings.Pois).Generate(_progress);
         BiomeMap biomes = maps.Biomes;
@@ -36,24 +37,43 @@ public sealed class WorldGenerationBake
         }
 
         _progress("Сохранение карт", 0.54f);
+        using WorldGenProbe.Span save = WorldGenProbe.Measure(WorldGenStage.BakeMapsSave);
+
         BakedWorld world = LoadOrCreate<BakedWorld>(_settings.BakedWorldPath);
         world.EditorInvalidate();
         EditorUtility.SetDirty(world);
         AssetDatabase.SaveAssets();
 
-        SaveTexture(BiomeMapTexture.Create(biomes, _settings.Biomes), _config.BiomeMapAssetPath);
-        SaveTexture(HeightMapTexture.CreateHillshade(heights), _config.HeightMapPreviewPath);
-        GeneratedAssetFile.WriteAllBytes(_config.HeightMapAssetPath, heights.ToRaw16());
-        AssetDatabase.ImportAsset(_config.HeightMapAssetPath, ImportAssetOptions.ForceUpdate);
-        SaveTexture(MaskTexture.Create(mask, heights.Resolution, "RoadMask"), _config.RoadMaskAssetPath);
+        using (WorldGenProbe.Measure(WorldGenStage.BakeTextures))
+        {
+            SaveTexture(BiomeMapTexture.Create(biomes, _settings.Biomes), _config.BiomeMapAssetPath);
+            SaveTexture(HeightMapTexture.CreateHillshade(heights), _config.HeightMapPreviewPath);
+        }
 
-        RoadNetworkAsset network = LoadOrCreate<RoadNetworkAsset>(_config.RoadNetworkAssetPath);
-        network.EditorSetup(roads);
-        EditorUtility.SetDirty(network);
+        using (WorldGenProbe.Measure(WorldGenStage.BakeHeightRaw))
+            GeneratedAssetFile.WriteAllBytes(_config.HeightMapAssetPath, heights.ToRaw16());
 
-        PoiPlacementAsset placementAsset = LoadOrCreate<PoiPlacementAsset>(_config.PoiPlacementAssetPath);
-        placementAsset.EditorSetup(placements);
-        EditorUtility.SetDirty(placementAsset);
+        using (WorldGenProbe.Measure(WorldGenStage.BakeImport))
+            AssetDatabase.ImportAsset(_config.HeightMapAssetPath, ImportAssetOptions.ForceUpdate);
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakeTextures))
+            SaveTexture(MaskTexture.Create(mask, heights.Resolution, "RoadMask"), _config.RoadMaskAssetPath);
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakeRoadAsset))
+        {
+            RoadNetworkAsset network = LoadOrCreate<RoadNetworkAsset>(_config.RoadNetworkAssetPath);
+            network.EditorSetup(roads);
+            EditorUtility.SetDirty(network);
+        }
+
+        PoiPlacementAsset placementAsset;
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakePoiAsset))
+        {
+            placementAsset = LoadOrCreate<PoiPlacementAsset>(_config.PoiPlacementAssetPath);
+            placementAsset.EditorSetup(placements);
+            EditorUtility.SetDirty(placementAsset);
+        }
 
         var material = new VoxelGroundMaterial.Request
         {
@@ -68,7 +88,10 @@ public sealed class WorldGenerationBake
         };
 
         _progress("Текстуры поверхности", 0.6f);
-        string result = VoxelGroundMaterial.Bake(material, world);
+        string result;
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakeMaterial))
+            result = VoxelGroundMaterial.Bake(material, world);
 
         if (material.Material == null || !result.StartsWith("splatmap:", StringComparison.Ordinal))
             throw new InvalidOperationException($"The ground material was not baked: {result}");
@@ -92,10 +115,14 @@ public sealed class WorldGenerationBake
             material.BiomeMap, material.RoadMask, placementAsset, material.Material);
         EditorUtility.SetDirty(snapshot);
         EditorUtility.SetDirty(world);
-        AssetDatabase.SaveAssets();
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakeSaveAssets))
+            AssetDatabase.SaveAssets();
 
         if (!world.IsValid)
             throw new InvalidOperationException("The saved world has inconsistent maps. Check the output paths and resolutions.");
+
+        WorldGenProbe.Record(WorldGenStage.BakeTotal, total, WorldGenProbe.Now, placements.Count);
 
         return world;
     }

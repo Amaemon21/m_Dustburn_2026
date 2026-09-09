@@ -51,6 +51,9 @@ public class VoxelColliderQueue : IDisposable
     public void Add(GameObject holder, Mesh mesh)
     {
         _queue.Enqueue(new Pending(holder, mesh));
+
+        WorldGenProbe.Queue(WorldGenQueueKind.Collider, WorldGenQueuePhase.Requested,
+            WorldGenProbe.NextWorkId(), mesh == null ? 0L : mesh.GetInstanceID(), _queue.Count);
     }
 
     public void Collect()
@@ -58,7 +61,10 @@ public class VoxelColliderQueue : IDisposable
         if (!_inFlight)
             return;
 
-        _handle.Complete();
+        using (WorldGenProbe.Measure(WorldGenStage.ColliderBlocking))
+            _handle.Complete();
+
+        using WorldGenProbe.Span attach = WorldGenProbe.Measure(WorldGenStage.ColliderAttach);
 
         foreach (Pending pending in _baking)
         {
@@ -69,6 +75,9 @@ public class VoxelColliderQueue : IDisposable
 
             collider.cookingOptions = COOKING;
             collider.sharedMesh = pending.Mesh;
+
+            WorldGenProbe.Queue(WorldGenQueueKind.Collider, WorldGenQueuePhase.Applied, 0, pending.Mesh.GetInstanceID(), _baking.Count);
+            WorldGenProbe.Mark(WorldGenMilestone.FirstCollider);
         }
 
         _baking.Clear();
@@ -101,6 +110,12 @@ public class VoxelColliderQueue : IDisposable
 
         _handle = new BakeJob { Ids = _ids.GetSubArray(0, count) }.Schedule(count, 1);
         _inFlight = true;
+
+        foreach (Pending pending in _baking)
+        {
+            WorldGenProbe.Queue(WorldGenQueueKind.Collider, WorldGenQueuePhase.Scheduled, 0,
+                pending.Mesh == null ? 0L : pending.Mesh.GetInstanceID(), count);
+        }
 
         JobHandle.ScheduleBatchedJobs();
     }

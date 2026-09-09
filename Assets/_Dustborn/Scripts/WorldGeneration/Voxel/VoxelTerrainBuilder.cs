@@ -157,6 +157,7 @@ public class VoxelTerrainBuilder : MonoBehaviour
         plan.Around(_center, _columns);
 
         var clock = Stopwatch.StartNew();
+        long geometry = WorldGenProbe.Now;
 
         int triangles = 0;
         int attempted = 0;
@@ -192,9 +193,13 @@ public class VoxelTerrainBuilder : MonoBehaviour
         }
 
         clock.Stop();
+        WorldGenProbe.Record(WorldGenStage.PreviewGeometry, geometry, WorldGenProbe.Now, triangles);
 
         string splat = PaintSplatmap(map);
-        string decor = SpawnDecor(field, plan, progress);
+        string decor;
+
+        using (WorldGenProbe.Measure(WorldGenStage.PreviewDecor))
+            decor = SpawnDecor(field, plan, progress);
 
         Debug.Log($"Voxel terrain: the whole {_config.WorldSize} m world in {_columns.Count} columns, {_chunks.Count} chunks, "
             + $"{triangles} triangles, {attempted} chunks visited, {clock.ElapsedMilliseconds} ms. {splat}. {decor}", this);
@@ -342,6 +347,8 @@ public class VoxelTerrainBuilder : MonoBehaviour
     [Button("Clear Voxel Terrain")]
     public void Clear()
     {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.PreviewClear);
+
         _chunks.Clear();
         _roots.Clear();
 

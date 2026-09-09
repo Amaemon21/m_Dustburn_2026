@@ -18,6 +18,10 @@ public sealed class PoiInstanceBuilder
 
     public void BuildNext(int count)
     {
+        WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.PoiBatch);
+
+        WorldGenProbe.Mark(WorldGenMilestone.PoiStart);
+
         int end = Mathf.Min(_placements.Count, _next + Mathf.Max(1, count));
 
         while (_next < end)
@@ -32,6 +36,11 @@ public sealed class PoiInstanceBuilder
             instance.name = $"{placement.Prefab.name}_{placement.District}";
             _next++;
         }
+
+        span.Finish(end);
+
+        if (Ready)
+            WorldGenProbe.Mark(WorldGenMilestone.PoiReady);
     }
 
     private GameObject Create(GameObject prefab)

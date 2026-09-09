@@ -1,0 +1,1696 @@
+﻿{
+    "schemaVersion":  1,
+    "baseline":  "E:\\src\\m_Dustburn_2026\\BenchmarkResults\\baseline",
+    "candidate":  "E:\\src\\m_Dustburn_2026\\BenchmarkResults\\candidate",
+    "generatedUtc":  "2026-09-09T11:23:17.0804399Z",
+    "policy":  {
+                   "stagePercent":  10,
+                   "stageFloorMs":  0.5,
+                   "e2eFloorMs":  5,
+                   "minimumSamples":  5
+               },
+    "cases":  [
+                  {
+                      "caseId":  "BIO-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.668,
+                      "candidateMs":  0.5727,
+                      "deltaMs":  -0.095300000000000051,
+                      "deltaPct":  -14.26646706586827,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-02[seedsPerBiome=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.2374,
+                      "candidateMs":  0.29410000000000003,
+                      "deltaMs":  0.056700000000000028,
+                      "deltaPct":  23.8837405223252,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-02[seedsPerBiome=16]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.3766,
+                      "candidateMs":  0.3985,
+                      "deltaMs":  0.021900000000000031,
+                      "deltaPct":  5.8151885289431844,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-02[seedsPerBiome=4]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.2736,
+                      "candidateMs":  0.29550000000000004,
+                      "deltaMs":  0.021900000000000031,
+                      "deltaPct":  8.0043859649122915,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-02[warp=false]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0645,
+                      "candidateMs":  0.0625,
+                      "deltaMs":  -0.0020000000000000018,
+                      "deltaPct":  -3.1007751937984525,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-03[passes=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0,
+                      "candidateMs":  0,
+                      "deltaMs":  0,
+                      "deltaPct":  null,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-03[passes=1;shape=uniform]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.4211,
+                      "candidateMs":  0.1517,
+                      "deltaMs":  -0.2694,
+                      "deltaPct":  -63.975302778437424,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-03[passes=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1598,
+                      "candidateMs":  0.134,
+                      "deltaMs":  -0.02579999999999999,
+                      "deltaPct":  -16.145181476846052,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-03[passes=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.5984,
+                      "candidateMs":  0.4448,
+                      "deltaMs":  -0.15360000000000007,
+                      "deltaPct":  -25.668449197860973,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-04[shape=islands]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.2659,
+                      "candidateMs":  0.2326,
+                      "deltaMs":  -0.033300000000000024,
+                      "deltaPct":  -12.52350507709666,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-04[shape=uniform]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0722,
+                      "candidateMs":  0.0734,
+                      "deltaMs":  0.0012000000000000066,
+                      "deltaPct":  1.6620498614958541,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-05[radius=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1284,
+                      "candidateMs":  0.125,
+                      "deltaMs":  -0.0033999999999999864,
+                      "deltaPct":  -2.64797507788161,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-05[radius=14]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.4301,
+                      "candidateMs":  0.7504,
+                      "deltaMs":  0.3203,
+                      "deltaPct":  74.471053243431754,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-05[radius=28]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.6497,
+                      "candidateMs":  0.4655,
+                      "deltaMs":  -0.18420000000000003,
+                      "deltaPct":  -28.351546867785132,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-05[radius=56]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.549,
+                      "candidateMs":  0.3611,
+                      "deltaMs":  -0.18790000000000007,
+                      "deltaPct":  -34.225865209471777,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-06[points=100000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  21.1695,
+                      "candidateMs":  21.253,
+                      "deltaMs":  0.0835000000000008,
+                      "deltaPct":  0.3944353905382782,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-07",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0023,
+                      "candidateMs":  0.0024,
+                      "deltaMs":  9.9999999999999829E-05,
+                      "deltaPct":  4.3478260869565144,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-08[jitter=1;warp=1.5]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.6009,
+                      "candidateMs":  0.6632,
+                      "deltaMs":  0.062300000000000022,
+                      "deltaPct":  10.367781660842073,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-08[seed=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.4549,
+                      "candidateMs":  0.5566,
+                      "deltaMs":  0.10169999999999996,
+                      "deltaPct":  22.35656188173224,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-08[seed=-1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.6675,
+                      "candidateMs":  0.7126,
+                      "deltaMs":  0.045100000000000029,
+                      "deltaPct":  6.75655430711611,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "BIO-08[seed=2147483647]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.5956,
+                      "candidateMs":  0.8504,
+                      "deltaMs":  0.2548,
+                      "deltaPct":  42.780389523169916,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-01[kind=Grass]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  17.878600000000002,
+                      "candidateMs":  18.2112,
+                      "deltaMs":  0.33259999999999934,
+                      "deltaPct":  1.860324633919878,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-01[kind=Rock]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.2594,
+                      "candidateMs":  0.2387,
+                      "deltaMs":  -0.020700000000000024,
+                      "deltaPct":  -7.9799537393986215,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-01[kind=Tree]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.7969,
+                      "candidateMs":  0.7749,
+                      "deltaMs":  -0.02200000000000002,
+                      "deltaPct":  -2.7606977036014579,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-02[points=100000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  305.76390000000004,
+                      "candidateMs":  307.87420000000003,
+                      "deltaMs":  2.1102999999999952,
+                      "deltaPct":  0.69017303874001967,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-04[vertexBudget=12000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0043,
+                      "candidateMs":  0.0048,
+                      "deltaMs":  0.00049999999999999958,
+                      "deltaPct":  11.627906976744177,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-04[vertexBudget=48000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0039,
+                      "candidateMs":  0.0068000000000000005,
+                      "deltaMs":  0.0029000000000000007,
+                      "deltaPct":  74.358974358974379,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-04[vertexBudget=96000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0052000000000000006,
+                      "candidateMs":  0.004,
+                      "deltaMs":  -0.0012000000000000005,
+                      "deltaPct":  -23.076923076923084,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-10[grassDistance=192]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.59720000000000006,
+                      "candidateMs":  0.58010000000000006,
+                      "deltaMs":  -0.017100000000000004,
+                      "deltaPct":  -2.8633623576691232,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-10[grassDistance=48]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.55580000000000007,
+                      "candidateMs":  0.5682,
+                      "deltaMs":  0.012399999999999967,
+                      "deltaPct":  2.2310183519251465,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-10[grassDistance=96]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.555,
+                      "candidateMs":  0.60220000000000007,
+                      "deltaMs":  0.04720000000000002,
+                      "deltaPct":  8.5045045045045082,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-10[treeMaxLod=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.68090000000000006,
+                      "candidateMs":  0.5474,
+                      "deltaMs":  -0.13350000000000006,
+                      "deltaPct":  -19.606403289763556,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-10[treeMaxLod=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.5838,
+                      "candidateMs":  0.5968,
+                      "deltaMs":  0.013000000000000012,
+                      "deltaPct":  2.2267899965741713,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "DEC-11",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.9004000000000012,
+                      "candidateMs":  8.878400000000001,
+                      "deltaMs":  -0.022000000000000242,
+                      "deltaPct":  -0.24717990202687787,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.1149,
+                      "candidateMs":  9.1125,
+                      "deltaMs":  0.99760000000000026,
+                      "deltaPct":  12.293435532169221,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-02",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.2342,
+                      "candidateMs":  1.2202,
+                      "deltaMs":  -0.014000000000000012,
+                      "deltaPct":  -1.1343380327337558,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-03[passes=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0001,
+                      "candidateMs":  0.0001,
+                      "deltaMs":  0,
+                      "deltaPct":  0,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-03[passes=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.718300000000001,
+                      "candidateMs":  7.8792,
+                      "deltaMs":  -0.83910000000000107,
+                      "deltaPct":  -9.6245827741646988,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-03[passes=16]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  6.7818000000000005,
+                      "candidateMs":  7.5685,
+                      "deltaMs":  0.78669999999999973,
+                      "deltaPct":  11.600165147895835,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-03[passes=48]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  9.1515,
+                      "candidateMs":  7.8444,
+                      "deltaMs":  -1.3071000000000002,
+                      "deltaPct":  -14.282904441894772,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-04[coarse=16]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  6.5848,
+                      "candidateMs":  6.6689000000000007,
+                      "deltaMs":  0.084100000000000286,
+                      "deltaPct":  1.2771838172761554,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-04[coarse=4]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.4835000000000012,
+                      "candidateMs":  6.3568000000000007,
+                      "deltaMs":  -2.1267000000000005,
+                      "deltaPct":  -25.068662698178819,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-04[coarse=8]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  7.9017,
+                      "candidateMs":  7.7186,
+                      "deltaMs":  -0.1830999999999996,
+                      "deltaPct":  -2.31722287608995,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-05[passes=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0001,
+                      "candidateMs":  0,
+                      "deltaMs":  -0.0001,
+                      "deltaPct":  -100,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-05[passes=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.157,
+                      "candidateMs":  0.1348,
+                      "deltaMs":  -0.022199999999999998,
+                      "deltaPct":  -14.14012738853503,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-05[passes=32]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.8948,
+                      "candidateMs":  1.8551,
+                      "deltaMs":  -0.039700000000000069,
+                      "deltaPct":  -2.0952079375131976,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-05[passes=64]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  3.7981,
+                      "candidateMs":  3.5134000000000003,
+                      "deltaMs":  -0.28469999999999951,
+                      "deltaPct":  -7.4958531897527578,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-05[passes=8]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.5047,
+                      "candidateMs":  0.5174,
+                      "deltaMs":  0.012699999999999934,
+                      "deltaPct":  2.5163463443629746,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-06[thermal=1;hydraulic=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  5.3950000000000005,
+                      "candidateMs":  6.2592,
+                      "deltaMs":  0.86419999999999941,
+                      "deltaPct":  16.018535681186272,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-06[thermal=2;hydraulic=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  7.2058,
+                      "candidateMs":  6.3135,
+                      "deltaMs":  -0.89229999999999965,
+                      "deltaPct":  -12.383080296427872,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-06[thermal=3;hydraulic=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  7.664,
+                      "candidateMs":  7.8501,
+                      "deltaMs":  0.1861000000000006,
+                      "deltaPct":  2.4282359081419704,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-07[smooth=false]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  6.8839000000000006,
+                      "candidateMs":  7.8819,
+                      "deltaMs":  0.99799999999999933,
+                      "deltaPct":  14.497595839567675,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-07[smooth=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  13.7288,
+                      "candidateMs":  13.8401,
+                      "deltaMs":  0.11129999999999995,
+                      "deltaPct":  0.81070450439951025,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-08",
+                      "decision":  "non_comparable",
+                      "reason":  "work count \u0027managedBefore\u0027 moved from 932167680 to 943747072",
+                      "baselineMs":  7.9155000000000006,
+                      "candidateMs":  9.0699,
+                      "deltaPct":  null
+                  },
+                  {
+                      "caseId":  "HGT-09[world=1024;cell=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  11.8562,
+                      "candidateMs":  12.0114,
+                      "deltaMs":  0.15520000000000067,
+                      "deltaPct":  1.3090197533779853,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-09[world=2048;cell=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  170.5873,
+                      "candidateMs":  170.648,
+                      "deltaMs":  0.06069999999999709,
+                      "deltaPct":  0.035582953713434173,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-09[world=2048;cell=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  45.9121,
+                      "candidateMs":  45.9392,
+                      "deltaMs":  0.027099999999997237,
+                      "deltaPct":  0.0590258341482904,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-09[world=512;cell=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  3.2713,
+                      "candidateMs":  3.3108,
+                      "deltaMs":  0.039499999999999869,
+                      "deltaPct":  1.2074710359795759,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-10[shape=plane]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.3332,
+                      "candidateMs":  8.8617,
+                      "deltaMs":  0.52850000000000108,
+                      "deltaPct":  6.3421014736235914,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-10[shape=ridge]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.4942000000000011,
+                      "candidateMs":  8.1585,
+                      "deltaMs":  -0.335700000000001,
+                      "deltaPct":  -3.9521084975630543,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "HGT-10[shape=sea]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  8.4996000000000009,
+                      "candidateMs":  8.7192,
+                      "deltaMs":  0.2195999999999998,
+                      "deltaPct":  2.5836509953409545,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-01[direction=decode]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0849,
+                      "candidateMs":  0.113,
+                      "deltaMs":  0.0281,
+                      "deltaPct":  33.097762073027091,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-01[direction=encode]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.072500000000000023,
+                      "candidateMs":  0.0736,
+                      "deltaMs":  0.001099999999999976,
+                      "deltaPct":  1.5172413793103112,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-02",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.0369000000000002,
+                      "candidateMs":  1.0464,
+                      "deltaMs":  0.0094999999999998419,
+                      "deltaPct":  0.91619249686564186,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-03[kind=biomes]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0918,
+                      "candidateMs":  0.0776,
+                      "deltaMs":  -0.014200000000000004,
+                      "deltaPct":  -15.468409586056648,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-03[kind=hillshade]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.3638,
+                      "candidateMs":  0.3899,
+                      "deltaMs":  0.026100000000000012,
+                      "deltaPct":  7.1742715777899972,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-03[kind=mask]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.3847,
+                      "candidateMs":  0.3633,
+                      "deltaMs":  -0.021399999999999975,
+                      "deltaPct":  -5.5627761892383614,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "IO-04[megabytes=8;existing=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  39.1368,
+                      "candidateMs":  29.0212,
+                      "deltaMs":  -10.1156,
+                      "deltaPct":  -25.846773369309705,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "IO-04[megabytes=8]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  27.8637,
+                      "candidateMs":  26.4768,
+                      "deltaMs":  -1.3869000000000007,
+                      "deltaPct":  -4.9774437709277679,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "IO-05",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  331.0643,
+                      "candidateMs":  338.4356,
+                      "deltaMs":  7.3713000000000193,
+                      "deltaPct":  2.2265463234785567,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "IO-06",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  41.8333,
+                      "candidateMs":  33.925200000000004,
+                      "deltaMs":  -7.9080999999999975,
+                      "deltaPct":  -18.903839764015739,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "IO-07",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  172.0038,
+                      "candidateMs":  169.835,
+                      "deltaMs":  -2.1688000000000045,
+                      "deltaPct":  -1.2609023754126387,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "IO-08[allowSourceWrite=false]",
+                      "decision":  "non_comparable",
+                      "reason":  "status blocked_dependency against blocked_dependency",
+                      "baselineMs":  null,
+                      "candidateMs":  null,
+                      "deltaPct":  null
+                  },
+                  {
+                      "caseId":  "IO-09",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  2.8846000000000003,
+                      "candidateMs":  1.7184,
+                      "deltaMs":  -1.1662000000000003,
+                      "deltaPct":  -40.428482285238864,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "LIFE-01[stopAt=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0064,
+                      "candidateMs":  0.0055000000000000005,
+                      "deltaMs":  -0.00089999999999999976,
+                      "deltaPct":  -14.062499999999995,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "LIFE-01[stopAt=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.627,
+                      "candidateMs":  0.6493,
+                      "deltaMs":  0.022299999999999986,
+                      "deltaPct":  3.5566188197767126,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "LIFE-01[stopAt=4]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  10.9422,
+                      "candidateMs":  11.1332,
+                      "deltaMs":  0.19100000000000072,
+                      "deltaPct":  1.7455356326881315,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "LIFE-02[stopAt=4]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  14.0691,
+                      "candidateMs":  12.6797,
+                      "deltaMs":  -1.3894000000000002,
+                      "deltaPct":  -9.8755428563305419,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "LIFE-02[stopAt=6]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  19.3278,
+                      "candidateMs":  19.6807,
+                      "deltaMs":  0.35290000000000177,
+                      "deltaPct":  1.8258674034292666,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "LIFE-05",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.016,
+                      "candidateMs":  0.016300000000000002,
+                      "deltaMs":  0.00030000000000000165,
+                      "deltaPct":  1.8750000000000102,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "LIFE-06",
+                      "decision":  "non_comparable",
+                      "reason":  "status blocked_resource against blocked_resource",
+                      "baselineMs":  null,
+                      "candidateMs":  null,
+                      "deltaPct":  null
+                  },
+                  {
+                      "caseId":  "LIFE-06[allowFullPreview=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  4082.7267,
+                      "candidateMs":  4054.0703,
+                      "deltaMs":  -28.656400000000303,
+                      "deltaPct":  -0.70189366336963732,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "MAT-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0864,
+                      "candidateMs":  0.0685,
+                      "deltaMs":  -0.0179,
+                      "deltaPct":  -20.717592592592592,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-02[resolution=1024]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  37.8624,
+                      "candidateMs":  35.5826,
+                      "deltaMs":  -2.2798000000000016,
+                      "deltaPct":  -6.0212770453008835,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-02[resolution=2048]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  145.598,
+                      "candidateMs":  148.33350000000002,
+                      "deltaMs":  2.7355000000000018,
+                      "deltaPct":  1.8788032802648398,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-02[resolution=256]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  3.0494000000000003,
+                      "candidateMs":  2.7367,
+                      "deltaMs":  -0.31270000000000042,
+                      "deltaPct":  -10.2544762904178,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-02[resolution=512]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  9.601,
+                      "candidateMs":  9.2912,
+                      "deltaMs":  -0.30980000000000096,
+                      "deltaPct":  -3.2267472138319024,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-03[resolution=1024]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  14.758500000000002,
+                      "candidateMs":  14.9569,
+                      "deltaMs":  0.19839999999999769,
+                      "deltaPct":  1.3443100586102765,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-03[resolution=256]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.873,
+                      "candidateMs":  0.8577,
+                      "deltaMs":  -0.01529999999999998,
+                      "deltaPct":  -1.7525773195876266,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-03[resolution=512]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  3.2399,
+                      "candidateMs":  3.1955,
+                      "deltaMs":  -0.044399999999999995,
+                      "deltaPct":  -1.3704126670576251,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-04[resolution=256]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  4.9798,
+                      "candidateMs":  6.8766000000000007,
+                      "deltaMs":  1.8968000000000007,
+                      "deltaPct":  38.089883127836472,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-04[resolution=512]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  16.5831,
+                      "candidateMs":  17.0487,
+                      "deltaMs":  0.46559999999999846,
+                      "deltaPct":  2.807677695967572,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-05[resolution=256]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  970.5073,
+                      "candidateMs":  934.6982,
+                      "deltaMs":  -35.809099999999944,
+                      "deltaPct":  -3.6897301030090084,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "MAT-06[resolution=256]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  7553.7667,
+                      "candidateMs":  7592.5504,
+                      "deltaMs":  38.783699999999953,
+                      "deltaPct":  0.51343523754843989,
+                      "samples":  1
+                  },
+                  {
+                      "caseId":  "MAT-07[oneGround=false;noRoadMask=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0875,
+                      "candidateMs":  0.0802,
+                      "deltaMs":  -0.0073000000000000009,
+                      "deltaPct":  -8.3428571428571452,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-07[oneGround=false]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1055,
+                      "candidateMs":  0.0888,
+                      "deltaMs":  -0.016699999999999993,
+                      "deltaPct":  -15.829383886255918,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-07[oneGround=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0971,
+                      "candidateMs":  0.0711,
+                      "deltaMs":  -0.026000000000000009,
+                      "deltaPct":  -26.776519052523181,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "MAT-08",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  5.0036000000000005,
+                      "candidateMs":  7.2455,
+                      "deltaMs":  2.2418999999999993,
+                      "deltaPct":  44.805739867295529,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.546,
+                      "candidateMs":  0.5828,
+                      "deltaMs":  0.036799999999999944,
+                      "deltaPct":  6.7399267399267293,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-02[lots=200]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1131,
+                      "candidateMs":  0.13290000000000002,
+                      "deltaMs":  0.019800000000000012,
+                      "deltaPct":  17.50663129973476,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-02[lots=400]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1233,
+                      "candidateMs":  0.1153,
+                      "deltaMs":  -0.0080000000000000071,
+                      "deltaPct":  -6.4882400648824063,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-03",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0009,
+                      "candidateMs":  0.0009,
+                      "deltaMs":  0,
+                      "deltaPct":  0,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-03[ruralChance=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.001,
+                      "candidateMs":  0.001,
+                      "deltaMs":  0,
+                      "deltaPct":  0,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-03[ruralChance=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0009,
+                      "candidateMs":  0.0011,
+                      "deltaMs":  0.00020000000000000009,
+                      "deltaPct":  22.222222222222236,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-04",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.4909,
+                      "candidateMs":  0.4242,
+                      "deltaMs":  -0.066699999999999982,
+                      "deltaPct":  -13.58728865349358,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "POI-05[queries=200000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  16.1766,
+                      "candidateMs":  15.3132,
+                      "deltaMs":  -0.86340000000000039,
+                      "deltaPct":  -5.3373391194688642,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "PRE-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0042000000000000006,
+                      "candidateMs":  0.0037,
+                      "deltaMs":  -0.00050000000000000044,
+                      "deltaPct":  -11.904761904761914,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "PRE-02",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.6802,
+                      "candidateMs":  0.6731,
+                      "deltaMs":  -0.0070999999999999952,
+                      "deltaPct":  -1.0438106439282557,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "PRE-03",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0002,
+                      "candidateMs":  0.0001,
+                      "deltaMs":  -0.0001,
+                      "deltaPct":  -50,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "PRE-04[capture=false]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.9038,
+                      "candidateMs":  0.5966,
+                      "deltaMs":  -0.30720000000000003,
+                      "deltaPct":  -33.989820756804605,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "PRE-04[capture=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.0604,
+                      "candidateMs":  1.1965,
+                      "deltaMs":  0.13609999999999989,
+                      "deltaPct":  12.834779328555252,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "PRE-05",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.036000000000000004,
+                      "candidateMs":  0.0322,
+                      "deltaMs":  -0.0038000000000000048,
+                      "deltaPct":  -10.555555555555566,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.7919,
+                      "candidateMs":  0.9176,
+                      "deltaMs":  0.12569999999999992,
+                      "deltaPct":  15.873216315191302,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-02[shape=flooded]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.1644,
+                      "candidateMs":  1.2562,
+                      "deltaMs":  0.091799999999999882,
+                      "deltaPct":  7.8838886980419,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-02[shape=steep]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.2915,
+                      "candidateMs":  1.3147,
+                      "deltaMs":  0.023199999999999887,
+                      "deltaPct":  1.7963608207510557,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-03",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1656,
+                      "candidateMs":  0.1638,
+                      "deltaMs":  -0.001799999999999996,
+                      "deltaPct":  -1.0869565217391282,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-03[hubs=16]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1872,
+                      "candidateMs":  0.1667,
+                      "deltaMs":  -0.020500000000000018,
+                      "deltaPct":  -10.950854700854709,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-03[hubs=4]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.166,
+                      "candidateMs":  0.1642,
+                      "deltaMs":  -0.001799999999999996,
+                      "deltaPct":  -1.0843373493975879,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-04[extraEdges=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.00030000000000000003,
+                      "candidateMs":  0.0004,
+                      "deltaMs":  9.9999999999999991E-05,
+                      "deltaPct":  33.333333333333329,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-04[extraEdges=15]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0005,
+                      "candidateMs":  0.001,
+                      "deltaMs":  0.0005,
+                      "deltaPct":  100,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-04[extraEdges=60]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0004,
+                      "candidateMs":  0.0004,
+                      "deltaMs":  0,
+                      "deltaPct":  0,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-05[route=long]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0381,
+                      "candidateMs":  0.0352,
+                      "deltaMs":  -0.0029,
+                      "deltaPct":  -7.6115485564304457,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-05[route=short]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0349,
+                      "candidateMs":  0.0346,
+                      "deltaMs":  -0.00030000000000000165,
+                      "deltaPct":  -0.85959885386819956,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-06[jagged=false]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.29200000000000004,
+                      "candidateMs":  0.2029,
+                      "deltaMs":  -0.08910000000000004,
+                      "deltaPct":  -30.513698630136997,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-06[jagged=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.408,
+                      "candidateMs":  1.4436,
+                      "deltaMs":  0.035600000000000076,
+                      "deltaPct":  2.5284090909090966,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-06[points=1200]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.6576,
+                      "candidateMs":  2.6300000000000003,
+                      "deltaMs":  -0.027599999999999625,
+                      "deltaPct":  -1.0385310054184085,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-07",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.0122,
+                      "candidateMs":  1.1129,
+                      "deltaMs":  0.10070000000000001,
+                      "deltaPct":  9.9486267536060069,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-08",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  5.7846,
+                      "candidateMs":  5.5907,
+                      "deltaMs":  -0.19390000000000018,
+                      "deltaPct":  -3.3520035957542471,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-09[fillPasses=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0284,
+                      "candidateMs":  0.0261,
+                      "deltaMs":  -0.0023,
+                      "deltaPct":  -8.0985915492957741,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-09[fillPasses=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0481,
+                      "candidateMs":  0.057100000000000005,
+                      "deltaMs":  0.009000000000000008,
+                      "deltaPct":  18.711018711018728,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-09[spacing=0.55]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0781,
+                      "candidateMs":  0.0766,
+                      "deltaMs":  -0.0015000000000000013,
+                      "deltaPct":  -1.9206145966709363,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-10",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0031000000000000003,
+                      "candidateMs":  0.0029,
+                      "deltaMs":  -0.00020000000000000052,
+                      "deltaPct":  -6.4516129032258229,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-11",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1118,
+                      "candidateMs":  0.1277,
+                      "deltaMs":  0.015900000000000011,
+                      "deltaPct":  14.221824686940977,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-11[lotGap=12]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1059,
+                      "candidateMs":  0.0809,
+                      "deltaMs":  -0.024999999999999994,
+                      "deltaPct":  -23.607176581680829,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-12[attempts=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  4.6443,
+                      "candidateMs":  4.7774,
+                      "deltaMs":  0.13309999999999977,
+                      "deltaPct":  2.86587860388002,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-12[attempts=3;impossible=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  5.6488000000000005,
+                      "candidateMs":  5.7202,
+                      "deltaMs":  0.071399999999999686,
+                      "deltaPct":  1.2639852712080386,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-12[attempts=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  5.6922000000000006,
+                      "candidateMs":  5.2898000000000005,
+                      "deltaMs":  -0.40240000000000009,
+                      "deltaPct":  -7.0693229331365739,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-13[segments=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.5212,
+                      "candidateMs":  1.4327,
+                      "deltaMs":  -0.088500000000000023,
+                      "deltaPct":  -5.817775440441757,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-13[segments=1000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  336.0826,
+                      "candidateMs":  329.08590000000004,
+                      "deltaMs":  -6.9966999999999757,
+                      "deltaPct":  -2.0818394049557982,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-13[segments=10000]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  3287.2281000000003,
+                      "candidateMs":  3283.1709,
+                      "deltaMs":  -4.0572000000001935,
+                      "deltaPct":  -0.12342313574163573,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "SET-14",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.5694,
+                      "candidateMs":  0.5353,
+                      "deltaMs":  -0.034100000000000019,
+                      "deltaPct":  -5.9887600983491422,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-01",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.2718,
+                      "candidateMs":  0.2503,
+                      "deltaMs":  -0.021499999999999964,
+                      "deltaPct":  -7.9102281089035928,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-02[morph=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  73.8027,
+                      "candidateMs":  75.4239,
+                      "deltaMs":  1.6212000000000018,
+                      "deltaPct":  2.1966676015918138,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-02[morph=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  72.93610000000001,
+                      "candidateMs":  74.5122,
+                      "deltaMs":  1.5760999999999967,
+                      "deltaPct":  2.1609326520063403,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-03[lods=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1132,
+                      "candidateMs":  0.1568,
+                      "deltaMs":  0.0436,
+                      "deltaPct":  38.515901060070675,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-03[lods=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1021,
+                      "candidateMs":  0.127,
+                      "deltaMs":  0.024900000000000005,
+                      "deltaPct":  24.387855044074445,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-03[where=centre]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.1379,
+                      "candidateMs":  0.121,
+                      "deltaMs":  -0.0169,
+                      "deltaPct":  -12.255257432922408,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-03[where=corner]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.058300000000000005,
+                      "candidateMs":  0.0752,
+                      "deltaMs":  0.0169,
+                      "deltaPct":  28.987993138936531,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-03[where=edge]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.0911,
+                      "candidateMs":  0.0781,
+                      "deltaMs":  -0.012999999999999998,
+                      "deltaPct":  -14.270032930845224,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-04[columns=16]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.9237,
+                      "candidateMs":  3.2565,
+                      "deltaMs":  0.33279999999999976,
+                      "deltaPct":  11.382836816362818,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-04[columns=32]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  5.6767,
+                      "candidateMs":  5.6314,
+                      "deltaMs":  -0.045300000000000118,
+                      "deltaPct":  -0.79799883735268928,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-05[lod=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.8207,
+                      "candidateMs":  2.0263,
+                      "deltaMs":  0.2056,
+                      "deltaPct":  11.292360081287418,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-05[lod=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.9513,
+                      "candidateMs":  1.8551,
+                      "deltaMs":  -0.096200000000000063,
+                      "deltaPct":  -4.9300466355762858,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-05[lod=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.2789,
+                      "candidateMs":  1.954,
+                      "deltaMs":  -0.32490000000000019,
+                      "deltaPct":  -14.256878318486995,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-05[lod=3]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.8647,
+                      "candidateMs":  1.9824,
+                      "deltaMs":  0.11769999999999992,
+                      "deltaPct":  6.3120072933983975,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-06",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.5461,
+                      "candidateMs":  1.9307,
+                      "deltaMs":  -0.6154,
+                      "deltaPct":  -24.170299674011229,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-07[seams=1;morph=1;skirt=0]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.0347,
+                      "candidateMs":  2.0368,
+                      "deltaMs":  0.0020999999999999908,
+                      "deltaPct":  0.10320931832702565,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-07[seams=1;morph=1]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.1693,
+                      "candidateMs":  2.0668,
+                      "deltaMs":  -0.10249999999999959,
+                      "deltaPct":  -4.7250265062462358,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-07[seams=15;morph=15]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.1113,
+                      "candidateMs":  2.1401,
+                      "deltaMs":  0.028799999999999937,
+                      "deltaPct":  1.3640884762942234,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-07[seams=2;morph=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.468,
+                      "candidateMs":  2.1892,
+                      "deltaMs":  -0.27879999999999994,
+                      "deltaPct":  -11.296596434359804,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-07[seams=5;morph=5]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  2.1257,
+                      "candidateMs":  2.0854,
+                      "deltaMs":  -0.040300000000000225,
+                      "deltaPct":  -1.8958460742343803,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-08[chunkSize=16]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  0.32830000000000004,
+                      "candidateMs":  0.30460000000000004,
+                      "deltaMs":  -0.0237,
+                      "deltaPct":  -7.2190070057873887,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-08[chunkSize=32]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.9553,
+                      "candidateMs":  3.2107,
+                      "deltaMs":  1.2554,
+                      "deltaPct":  64.20498133278781,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-08[chunkSize=64]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  13.6546,
+                      "candidateMs":  14.262300000000002,
+                      "deltaMs":  0.60770000000000124,
+                      "deltaPct":  4.4505148448142107,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-08[voxelSize=0.5]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.9626,
+                      "candidateMs":  1.844,
+                      "deltaMs":  -0.11859999999999982,
+                      "deltaPct":  -6.0430041781310413,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-08[voxelSize=2]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 3 samples, the gate needs 5",
+                      "baselineMs":  1.9838,
+                      "candidateMs":  1.8123,
+                      "deltaMs":  -0.17149999999999999,
+                      "deltaPct":  -8.6450247000705716,
+                      "samples":  3
+                  },
+                  {
+                      "caseId":  "VOX-10",
+                      "decision":  "non_comparable",
+                      "reason":  "status blocked_resource against blocked_resource",
+                      "baselineMs":  null,
+                      "candidateMs":  null,
+                      "deltaPct":  null
+                  },
+                  {
+                      "caseId":  "VOX-10[allowFullPreview=true]",
+                      "decision":  "inconclusive",
+                      "reason":  "only 1 samples, the gate needs 5",
+                      "baselineMs":  4493.2754,
+                      "candidateMs":  4431.5122,
+                      "deltaMs":  -61.763200000000325,
+                      "deltaPct":  -1.3745696513505563,
+                      "samples":  1
+                  }
+              ],
+    "counts":  [
+                   {
+                       "decision":  "inconclusive",
+                       "count":  164
+                   },
+                   {
+                       "decision":  "non_comparable",
+                       "count":  4
+                   }
+               ]
+}

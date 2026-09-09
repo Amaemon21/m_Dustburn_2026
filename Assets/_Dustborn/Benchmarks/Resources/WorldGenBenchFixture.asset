@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b83e937eebac7a438cc37c13ac5c7c2, type: 3}
+  m_Name: WorldGenBenchFixture
+  m_EditorClassIdentifier: Assembly-CSharp::WorldGenBenchFixture
+  <Config>k__BackingField: {fileID: 11400000, guid: daa9a98b29dc1014f857e00a4cdfe223, type: 2}
+  <Biomes>k__BackingField: {fileID: 11400000, guid: 749ec2e32d137254994a3a3ef219a012, type: 2}
+  <Pois>k__BackingField: {fileID: 11400000, guid: 2f732fced9168ef43867cbbf889f0dc5, type: 2}
+  <Voxels>k__BackingField: {fileID: 11400000, guid: edc31c52e91f6c948aa37f4f4342a49b, type: 2}
+  <Settings>k__BackingField: {fileID: 11400000, guid: b0e5a311609546ec9cab600e1c245af0, type: 2}
+  <World>k__BackingField: {fileID: 11400000, guid: 2ceeae7b6b891714f808b15e477df0cc, type: 2}
+  <DecorProbePrefab>k__BackingField: {fileID: 0}

@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <Nullable>disable</Nullable>
+    <UnityEditorBuild Condition="'$(UnityEditorBuild)' == ''">true</UnityEditorBuild>
+    <DefineConstants>$(DefineConstants);UNITY_2021_3_OR_NEWER;UNITY_6000_3_OR_NEWER</DefineConstants>
+    <DefineConstants Condition="'$(UnityEditorBuild)' == 'true'">$(DefineConstants);UNITY_EDITOR</DefineConstants>
+    <NoWarn>CS0414;CS0169;CS0649;CS0108;CS0067</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>UnityCompileCheckEditor</AssemblyName>
+    <UnityManaged Condition="'$(UnityManaged)' == ''">E:\Unity\6000.3.20f1\Editor\Data\Managed</UnityManaged>
+    <ScriptAssemblies Condition="'$(ScriptAssemblies)' == ''">$(MSBuildThisFileDirectory)..\..\Library\ScriptAssemblies</ScriptAssemblies>
+    <WorldGeneration>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Scripts\WorldGeneration</WorldGeneration>
+    <SharedUtils>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Scripts\Utils</SharedUtils>
+    <Benchmarks>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Benchmarks</Benchmarks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(WorldGeneration)\**\Editor\**\*.cs" />
+    <Compile Include="$(Benchmarks)\**\Editor\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="UnityCompileCheck.Runtime.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.CoreModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.TerrainModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.TerrainPhysicsModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.PhysicsModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.IMGUIModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.ImageConversionModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEditor.CoreModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEditor.TerrainModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\NaughtyAttributes.Core.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\com.williamschack.Repetitionless.Runtime.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\com.williamschack.Repetitionless.Editor.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\Unity.Burst.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\Unity.Collections.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\Unity.Mathematics.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

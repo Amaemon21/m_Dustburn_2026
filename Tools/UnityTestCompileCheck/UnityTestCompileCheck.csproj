@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <Nullable>disable</Nullable>
+    <DefineConstants>$(DefineConstants);UNITY_2021_3_OR_NEWER;UNITY_6000_3_OR_NEWER;UNITY_EDITOR;UNITY_INCLUDE_TESTS</DefineConstants>
+    <NoWarn>CS0414;CS0169;CS0649;CS0108;CS0067;CS0436</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>UnityTestCompileCheck</AssemblyName>
+    <UnityManaged Condition="'$(UnityManaged)' == ''">E:\Unity\6000.3.20f1\Editor\Data\Managed</UnityManaged>
+    <ScriptAssemblies>$(MSBuildThisFileDirectory)..\..\Library\ScriptAssemblies</ScriptAssemblies>
+    <PackageCache>$(MSBuildThisFileDirectory)..\..\Library\PackageCache</PackageCache>
+    <Tests>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Tests</Tests>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(Tests)\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.CoreModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.PhysicsModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEditor.CoreModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\UnityEngine.TestRunner.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\UnityEditor.TestRunner.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\Unity.PerformanceTesting.dll"><Private>false</Private></Reference>
+    <Reference Include="$(PackageCache)\com.unity.ext.nunit@d8c07649098d\net40\unity-custom\nunit.framework.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

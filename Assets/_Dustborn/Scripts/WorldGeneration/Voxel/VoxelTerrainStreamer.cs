@@ -205,13 +205,26 @@ public class VoxelTerrainStreamer : MonoBehaviour
         if (!Application.isPlaying || !Validate())
             return;
 
-        HeightMap map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
+        long construct = WorldGenProbe.Now;
+        HeightMap map;
 
-        _field = new VoxelDensityField(map, _voxels, Lowest(map));
-        _queue = new VoxelMeshQueue(_voxels, _field, _meshWorkers);
-        _colliders = new VoxelColliderQueue(_collidersPerFrame);
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeDecodeHeights))
+            map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
 
-        _decor = CreateDecor(map);
+        float lowest;
+
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeLowest))
+            lowest = Lowest(map);
+
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeField))
+        {
+            _field = new VoxelDensityField(map, _voxels, lowest);
+            _queue = new VoxelMeshQueue(_voxels, _field, _meshWorkers);
+            _colliders = new VoxelColliderQueue(_collidersPerFrame);
+        }
+
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeDecorSetup))
+            _decor = CreateDecor(map);
 
         _byDistance = ByDistance;
         _plan = new VoxelStreamPlan(_voxels, _lodCount, _nearDistance, _config.WorldSize);
@@ -222,6 +235,9 @@ public class VoxelTerrainStreamer : MonoBehaviour
         _ready = false;
         _wantedAtStart = 0;
         _decorAtStart = 0;
+
+        WorldGenProbe.Record(WorldGenStage.RuntimeConstruct, construct, WorldGenProbe.Now, 0L);
+        WorldGenProbe.Mark(WorldGenMilestone.RuntimeConstructed);
     }
 
     public void Configure(WorldBuildSettings settings, BakedWorld world, Transform viewer)
@@ -318,27 +334,59 @@ public class VoxelTerrainStreamer : MonoBehaviour
         Vector3 position = _viewer.position;
         var ground = new Vector2(position.x, position.z);
 
-        _colliders.Collect();
+        using WorldGenProbe.Span tick = WorldGenProbe.Measure(WorldGenStage.RuntimeTick);
 
-        Collect();
+        using (WorldGenProbe.Measure(WorldGenStage.ColliderCollect))
+            _colliders.Collect();
+
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeCollect))
+            Collect();
 
         if (!_planned)
-            Plan(ground);
+        {
+            using (WorldGenProbe.Measure(WorldGenStage.RuntimePlan))
+                Plan(ground);
+
+            WorldGenProbe.Mark(WorldGenMilestone.Planned);
+        }
 
         if (_preload && !_ready)
-            Rush();
+        {
+            using (WorldGenProbe.Measure(WorldGenStage.RuntimeRush))
+                Rush();
+        }
         else
-            Dispatch();
+        {
+            using (WorldGenProbe.Measure(WorldGenStage.RuntimeDispatch))
+                Dispatch();
+        }
 
-        Sow(ground);
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeSow))
+            Sow(ground);
 
-        Decorate();
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeDecorate))
+            Decorate();
 
-        Settle();
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeSettle))
+            Settle();
 
-        Demolish();
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeDemolish))
+            Demolish();
 
-        _colliders.Dispatch();
+        using (WorldGenProbe.Measure(WorldGenStage.ColliderDispatch))
+            _colliders.Dispatch();
+
+        if (_pending.Count == 0 && !_hasActive && _queue.InFlight == 0)
+            WorldGenProbe.Mark(WorldGenMilestone.TerrainQueuesEmpty);
+
+        if (_colliders.Waiting == 0 && WorldGenProbe.Reached(WorldGenMilestone.FirstCollider))
+            WorldGenProbe.Mark(WorldGenMilestone.CollidersIdle);
+
+        if (_decorQueue.Count == 0 && _decorAtStart > 0)
+            WorldGenProbe.Mark(WorldGenMilestone.InitialDecor);
+
+        if (_decorQueue.Count == 0 && _demolishing.Count == 0 && _planned)
+            WorldGenProbe.Remark(WorldGenMilestone.DecorSettled);
     }
 
     private void Plan(Vector2 ground)
@@ -390,6 +438,8 @@ public class VoxelTerrainStreamer : MonoBehaviour
             return;
 
         _ready = true;
+
+        WorldGenProbe.Mark(WorldGenMilestone.TerrainReady);
 
         Debug.Log($"Voxel terrain: world built in {Time.timeSinceLevelLoad:0.0} s. {WorldStatus}", this);
     }
@@ -707,6 +757,8 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
     private void Spawn(VoxelMesh source, Transform parent, string name, bool collider)
     {
+        WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.VoxelSpawn);
+
         var holder = new GameObject(name);
 
         holder.transform.SetParent(parent, false);
@@ -716,11 +768,14 @@ public class VoxelTerrainStreamer : MonoBehaviour
         if (source.VertexCount > 65000)
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
-        mesh.SetVertices(source.Vertices.AsArray());
-        mesh.SetNormals(source.Normals.AsArray());
-        mesh.SetUVs(0, source.Uv.AsArray());
-        mesh.SetIndices(source.Triangles.AsArray(), MeshTopology.Triangles, 0);
-        mesh.RecalculateBounds();
+        using (WorldGenProbe.Measure(WorldGenStage.VoxelMeshUpload))
+        {
+            mesh.SetVertices(source.Vertices.AsArray());
+            mesh.SetNormals(source.Normals.AsArray());
+            mesh.SetUVs(0, source.Uv.AsArray());
+            mesh.SetIndices(source.Triangles.AsArray(), MeshTopology.Triangles, 0);
+            mesh.RecalculateBounds();
+        }
 
         holder.AddComponent<MeshFilter>().sharedMesh = mesh;
         holder.AddComponent<MeshRenderer>().sharedMaterial = _material;
@@ -729,6 +784,9 @@ public class VoxelTerrainStreamer : MonoBehaviour
             _colliders.Add(holder, mesh);
 
         GeneratedMesh.Own(holder);
+
+        WorldGenProbe.Mark(WorldGenMilestone.FirstTerrain);
+        span.Finish(source.TriangleCount);
     }
 
     private void VerticalRange(VoxelColumnKey key, float size, out int low, out int high)

@@ -20,7 +20,11 @@ public class HeightMapGenerator
     {
         var random = new Random(((uint)_config.Seed | 1u) * 747796405u + 1u);
 
-        var weightField = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendRadius);
+        BiomeWeightField weightField;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapWeights))
+            weightField = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendRadius);
+
         var map = new HeightMap(_config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
 
         NativeArray<float> weights = weightField.ToNativeArray(Allocator.TempJob);
@@ -46,10 +50,14 @@ public class HeightMapGenerator
                 MaskOffset = random.NextFloat2(-100f, 100f)
             };
 
-            job.Schedule(heights.Length, BATCH_SIZE).Complete();
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightNoise))
+                job.Schedule(heights.Length, BATCH_SIZE).Complete();
 
-            HydraulicErosion.Run(_config, heights, map.Resolution);
-            HeightMapErosion.Run(_config, heights, map.Resolution);
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightHydraulic))
+                HydraulicErosion.Run(_config, heights, map.Resolution);
+
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightThermal))
+                HeightMapErosion.Run(_config, heights, map.Resolution);
 
             heights.CopyTo(map.Heights);
         }

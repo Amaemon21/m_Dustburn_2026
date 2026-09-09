@@ -35,18 +35,24 @@ public class BiomeMapGenerator
 
         _warpOffset = random.NextFloat2(-100f, 100f);
 
-        PlaceSeeds(ref random);
+        using (WorldGenProbe.Measure(WorldGenStage.MapBiomeSeeds))
+            PlaceSeeds(ref random);
 
         var map = new BiomeMap(_config.BiomeMapResolution, _config.WorldSize);
 
-        Classify(map);
+        using (WorldGenProbe.Measure(WorldGenStage.MapBiomeClassify))
+            Classify(map);
 
         byte[] buffer = new byte[map.Cells.Length];
 
-        for (int pass = 0; pass < _config.SmoothingPasses; pass++)
-            Smooth(map, buffer);
+        using (WorldGenProbe.Measure(WorldGenStage.MapBiomeSmooth))
+        {
+            for (int pass = 0; pass < _config.SmoothingPasses; pass++)
+                Smooth(map, buffer);
+        }
 
-        RemoveSmallRegions(map);
+        using (WorldGenProbe.Measure(WorldGenStage.MapBiomeRegions))
+            RemoveSmallRegions(map);
 
         return map;
     }

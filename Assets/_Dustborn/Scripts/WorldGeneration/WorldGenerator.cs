@@ -74,6 +74,7 @@ public class WorldGenerator : MonoBehaviour
                 return;
 
             _completed = true;
+            WorldGenProbe.Mark(WorldGenMilestone.WorldReady);
             ResumeGameplay();
             WorldReady?.Invoke();
         }
