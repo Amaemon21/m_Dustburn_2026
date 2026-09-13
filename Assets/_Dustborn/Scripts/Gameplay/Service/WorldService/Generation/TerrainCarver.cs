@@ -8,8 +8,12 @@ public class TerrainCarver
     private const int APPLY_ROWS = 65536;
     private const int BLUR_PASSES = 3;
     private const float SQUARE_SLACK = 1.0001f;
-    private const float FAR = 1e9f;
-    private const float DIAGONAL = 1.41421356f;
+    private const int RELAX_PASSES = 16;
+    private const float GRADE_MARGIN = 0.9f;
+    private const float ANCHOR_MASK = 0.99f;
+    private const float RAMP_PROBE = 1f;
+    private const float OVERRUN_MARGIN = 1f;
+    private const float RAMP_EPSILON = 0.05f;
 
     private readonly WorldGenerationConfig _config;
 
@@ -20,6 +24,8 @@ public class TerrainCarver
 
     private HeightMap _source;
     private float _cellSize;
+
+    public List<(Road Road, Vector2[] Points, float[] Profile, bool[] Anchored)> Profiles { get; set; }
 
     public TerrainCarver(WorldGenerationConfig config)
     {
@@ -49,11 +55,13 @@ public class TerrainCarver
 
         if (layouts != null)
         {
+            var streets = new List<Road>();
+
             foreach (SettlementLayout layout in layouts)
-            {
-                foreach (Road street in layout.Streets)
-                    CarveRoad(street, _config.StreetHalfWidth, _config.StreetShoulder, _config.MaxStreetFill, _config.MaxStreetCut, _config.StreetProfileSmoothing);
-            }
+                streets.AddRange(layout.Streets);
+
+            foreach (Road street in Ordered(streets))
+                CarveRoad(street);
         }
 
         roadMask = _roadMask;
@@ -67,8 +75,8 @@ public class TerrainCarver
 
         _roadMask = roadMask ?? new float[source.Heights.Length];
 
-        foreach (Road road in roads)
-            CarveRoad(road, _config.RoadHalfWidth, _config.RoadShoulder, _config.MaxRoadFill, _config.MaxRoadCut, _config.RoadProfileSmoothing);
+        foreach (Road road in Ordered(roads))
+            CarveRoad(road);
 
         return Apply();
     }
@@ -117,7 +125,37 @@ public class TerrainCarver
                 heights[i] = source[i] + (target[i] - source[i]) * Mathf.Clamp01(weight[i]);
         });
 
+        _carveWeight = null;
+        _carveTarget = null;
+        _padDistance = null;
+        _roadMask = null;
+        _source = null;
+
         return result;
+    }
+
+    private List<Road> Ordered(IReadOnlyList<Road> roads)
+    {
+        var ordered = new List<Road>(roads.Count);
+
+        foreach (Road road in roads)
+        {
+            if (road?.Points != null && road.Points.Length >= 2)
+                ordered.Add(road);
+        }
+
+        var rank = new Dictionary<Road, int>(ordered.Count);
+
+        for (int i = 0; i < ordered.Count; i++)
+            rank[ordered[i]] = i;
+
+        ordered.Sort((left, right) =>
+        {
+            int compare = RoadKindProfile.For(_config, left.Kind).CarveOrder.CompareTo(RoadKindProfile.For(_config, right.Kind).CarveOrder);
+            return compare != 0 ? compare : rank[left].CompareTo(rank[right]);
+        });
+
+        return ordered;
     }
 
     private void CarveSettlement(SettlementLayout layout)
@@ -140,24 +178,27 @@ public class TerrainCarver
         if (width <= 0 || height <= 0)
             return;
 
-        float[] distance = DistanceToBlocks(layout, minX, minY, width, height);
         float[] level = SmoothGround(minX, minY, width, height, radius);
+        Dictionary<long, float> corners = CornerHeights(layout, level, minX, minY, width, height);
 
         float maxFill = _config.MaxHubFill / _source.MaxHeight;
         float maxCut = _config.MaxHubCut / _source.MaxHeight;
+        float tileSize = layout.TileSize;
 
         Parallel.For(0, height, row =>
         {
-            int line = (minY + row) * resolution + minX;
+            int y = minY + row;
+            int line = y * resolution + minX;
 
             for (int column = 0; column < width; column++)
             {
-                float metres = distance[row * width + column];
+                var point = new Vector2((minX + column) * _cellSize, y * _cellSize);
 
-                if (metres >= skirt)
+                layout.ToLocal(point, out float u, out float v);
+
+                if (!Surface(layout, corners, u, v, tileSize, skirt, out float target, out float weight))
                     continue;
 
-                float weight = Mathf.SmoothStep(0f, 1f, 1f - metres / skirt);
                 int index = line + column;
 
                 if (weight <= _carveWeight[index])
@@ -166,102 +207,198 @@ public class TerrainCarver
                 float ground = _source.Heights[index];
 
                 _carveWeight[index] = weight;
-                _carveTarget[index] = Mathf.Clamp(level[row * width + column], ground - maxCut, ground + maxFill);
+                _carveTarget[index] = Mathf.Clamp(target, ground - maxCut, ground + maxFill);
             }
         });
+
+        foreach (SettlementGateway gateway in layout.Gateways)
+            CarveGatewayRamp(layout, corners, gateway, skirt);
     }
 
-    private float[] DistanceToBlocks(SettlementLayout layout, int minX, int minY, int width, int height)
+    private void CarveGatewayRamp(SettlementLayout layout, Dictionary<long, float> corners, SettlementGateway gateway, float skirt)
     {
-        var distance = new float[width * height];
-        System.Array.Fill(distance, FAR);
+        layout.ToLocal(gateway.Port - gateway.Tangent * RAMP_PROBE, out float portU, out float portV);
 
-        foreach (Block block in layout.Blocks)
+        if (!Surface(layout, corners, portU, portV, layout.TileSize, skirt, out float pad, out _))
+            return;
+
+        float grade = _config.RoadMaxGrade * GRADE_MARGIN;
+        float length = (_config.MaxHubCut + _config.MaxHubFill) / Mathf.Max(grade, 1e-3f);
+        float halfWidth = _config.RoadHalfWidth + _config.RoadShoulder;
+        float reach = halfWidth + _config.RoadShoulder + _config.RoadEmbankmentSlope * Mathf.Max(_config.MaxHubCut, _config.MaxHubFill);
+        float maxFill = _config.MaxHubFill / _source.MaxHeight;
+        float maxCut = _config.MaxHubCut / _source.MaxHeight;
+        Vector2 tangent = gateway.Tangent;
+        Vector2 far = gateway.Port + tangent * length;
+        int resolution = _source.Resolution;
+
+        int minX = Mathf.Max(0, Mathf.FloorToInt((Mathf.Min(gateway.Port.x, far.x) - reach) / _cellSize));
+        int maxX = Mathf.Min(resolution - 1, Mathf.CeilToInt((Mathf.Max(gateway.Port.x, far.x) + reach) / _cellSize));
+        int minY = Mathf.Max(0, Mathf.FloorToInt((Mathf.Min(gateway.Port.y, far.y) - reach) / _cellSize));
+        int maxY = Mathf.Min(resolution - 1, Mathf.CeilToInt((Mathf.Max(gateway.Port.y, far.y) + reach) / _cellSize));
+
+        for (int y = minY; y <= maxY; y++)
         {
-            Vector2 low = block.Corners[0];
-            Vector2 high = low;
-
-            foreach (Vector2 corner in block.Corners)
+            for (int x = minX; x <= maxX; x++)
             {
-                low = Vector2.Min(low, corner);
-                high = Vector2.Max(high, corner);
-            }
+                Vector2 offset = new Vector2(x * _cellSize, y * _cellSize) - gateway.Port;
+                float along = Vector2.Dot(offset, tangent);
+                float across = Mathf.Abs(offset.x * tangent.y - offset.y * tangent.x);
 
-            int fromX = Mathf.Max(0, Mathf.FloorToInt(low.x / _cellSize) - minX);
-            int toX = Mathf.Min(width - 1, Mathf.CeilToInt(high.x / _cellSize) - minX);
-            int fromY = Mathf.Max(0, Mathf.FloorToInt(low.y / _cellSize) - minY);
-            int toY = Mathf.Min(height - 1, Mathf.CeilToInt(high.y / _cellSize) - minY);
+                if (along < 0f || along > length || across > reach)
+                    continue;
 
-            for (int row = fromY; row <= toY; row++)
-            {
-                for (int column = fromX; column <= toX; column++)
-                {
-                    var point = new Vector2((minX + column) * _cellSize, (minY + row) * _cellSize);
+                int index = y * resolution + x;
+                float ground = _source.Heights[index];
+                float allowed = grade * along / _source.MaxHeight;
+                float target = Mathf.Clamp(Mathf.Clamp(ground, pad - allowed, pad + allowed), ground - maxCut, ground + maxFill);
+                float moved = Mathf.Abs(target - ground) * _source.MaxHeight;
 
-                    if (block.Contains(point))
-                        distance[row * width + column] = 0f;
-                }
+                if (moved < RAMP_EPSILON)
+                    continue;
+
+                float outer = _config.RoadShoulder + moved * _config.RoadEmbankmentSlope;
+                float weight = across <= halfWidth ? 1f : Mathf.SmoothStep(0f, 1f, 1f - (across - halfWidth) / outer);
+
+                if (weight <= _carveWeight[index])
+                    continue;
+
+                _carveWeight[index] = weight;
+                _carveTarget[index] = target;
             }
         }
-
-        Chamfer(distance, width, height, _cellSize);
-
-        return distance;
     }
 
-    private static void Chamfer(float[] distance, int width, int height, float step)
+    private Dictionary<long, float> CornerHeights(SettlementLayout layout, float[] level, int minX, int minY, int width, int height)
     {
-        float diagonal = step * DIAGONAL;
+        var corners = new Dictionary<long, float>();
+        float half = layout.TileSize * 0.5f;
 
-        for (int y = 0; y < height; y++)
+        foreach (SettlementTile tile in layout.Tiles)
         {
-            for (int x = 0; x < width; x++)
+            for (int b = 0; b <= 1; b++)
             {
-                int i = y * width + x;
-                float value = distance[i];
-
-                if (x > 0)
-                    value = Mathf.Min(value, distance[i - 1] + step);
-
-                if (y > 0)
+                for (int a = 0; a <= 1; a++)
                 {
-                    value = Mathf.Min(value, distance[i - width] + step);
+                    long key = SettlementLayout.Key(tile.I + a, tile.J + b);
 
-                    if (x > 0)
-                        value = Mathf.Min(value, distance[i - width - 1] + diagonal);
+                    if (corners.ContainsKey(key))
+                        continue;
 
-                    if (x < width - 1)
-                        value = Mathf.Min(value, distance[i - width + 1] + diagonal);
+                    Vector2 corner = layout.LocalToWorld((tile.I + a) * layout.TileSize - half, (tile.J + b) * layout.TileSize - half);
+                    int column = Mathf.Clamp(Mathf.RoundToInt(corner.x / _cellSize) - minX, 0, width - 1);
+                    int row = Mathf.Clamp(Mathf.RoundToInt(corner.y / _cellSize) - minY, 0, height - 1);
+
+                    corners[key] = level[row * width + column];
                 }
-
-                distance[i] = value;
             }
         }
 
-        for (int y = height - 1; y >= 0; y--)
+        float limit = _config.MaxTileGrade * layout.TileSize / _source.MaxHeight;
+        var keys = new List<long>(corners.Keys);
+
+        keys.Sort();
+
+        for (int pass = 0; pass < RELAX_PASSES; pass++)
         {
-            for (int x = width - 1; x >= 0; x--)
+            bool changed = false;
+
+            foreach (long key in keys)
             {
-                int i = y * width + x;
-                float value = distance[i];
+                int i = (int)(key >> 32) - 32768;
+                int j = (int)(key & 0xffffffffL) - 32768;
 
-                if (x < width - 1)
-                    value = Mathf.Min(value, distance[i + 1] + step);
+                changed |= Limit(corners, key, SettlementLayout.Key(i + 1, j), limit);
+                changed |= Limit(corners, key, SettlementLayout.Key(i, j + 1), limit);
+            }
 
-                if (y < height - 1)
-                {
-                    value = Mathf.Min(value, distance[i + width] + step);
+            if (!changed)
+                break;
+        }
 
-                    if (x < width - 1)
-                        value = Mathf.Min(value, distance[i + width + 1] + diagonal);
+        return corners;
+    }
 
-                    if (x > 0)
-                        value = Mathf.Min(value, distance[i + width - 1] + diagonal);
-                }
+    private static bool Limit(Dictionary<long, float> corners, long key, long neighbour, float limit)
+    {
+        if (!corners.TryGetValue(neighbour, out float other))
+            return false;
 
-                distance[i] = value;
+        float own = corners[key];
+        float difference = own - other;
+
+        if (Mathf.Abs(difference) <= limit)
+            return false;
+
+        float excess = (Mathf.Abs(difference) - limit) * 0.5f * Mathf.Sign(difference);
+
+        corners[key] = own - excess;
+        corners[neighbour] = other + excess;
+
+        return true;
+    }
+
+    private static bool Surface(SettlementLayout layout, Dictionary<long, float> corners, float u, float v, float tileSize, float skirt,
+        out float target, out float weight)
+    {
+        target = 0f;
+        weight = 0f;
+
+        float half = tileSize * 0.5f;
+        int i = Mathf.FloorToInt(u / tileSize + 0.5f);
+        int j = Mathf.FloorToInt(v / tileSize + 0.5f);
+
+        if (layout.TileAt(i, j) != null)
+        {
+            target = Bilinear(corners, i, j, (u - i * tileSize + half) / tileSize, (v - j * tileSize + half) / tileSize);
+            weight = 1f;
+            return true;
+        }
+
+        float bestSqr = skirt * skirt;
+        int bestI = 0;
+        int bestJ = 0;
+        bool found = false;
+
+        for (int dj = -1; dj <= 1; dj++)
+        {
+            for (int di = -1; di <= 1; di++)
+            {
+                if (layout.TileAt(i + di, j + dj) == null)
+                    continue;
+
+                float outsideU = Mathf.Max(0f, Mathf.Abs(u - (i + di) * tileSize) - half);
+                float outsideV = Mathf.Max(0f, Mathf.Abs(v - (j + dj) * tileSize) - half);
+                float distanceSqr = outsideU * outsideU + outsideV * outsideV;
+
+                if (distanceSqr >= bestSqr)
+                    continue;
+
+                bestSqr = distanceSqr;
+                bestI = i + di;
+                bestJ = j + dj;
+                found = true;
             }
         }
+
+        if (!found)
+            return false;
+
+        float s = Mathf.Clamp01((u - bestI * tileSize + half) / tileSize);
+        float t = Mathf.Clamp01((v - bestJ * tileSize + half) / tileSize);
+
+        target = Bilinear(corners, bestI, bestJ, s, t);
+        weight = Mathf.SmoothStep(0f, 1f, 1f - Mathf.Sqrt(bestSqr) / skirt);
+
+        return weight > 0f;
+    }
+
+    private static float Bilinear(Dictionary<long, float> corners, int i, int j, float s, float t)
+    {
+        float bottom = Mathf.Lerp(corners[SettlementLayout.Key(i, j)], corners[SettlementLayout.Key(i + 1, j)], s);
+        float top = Mathf.Lerp(corners[SettlementLayout.Key(i, j + 1)], corners[SettlementLayout.Key(i + 1, j + 1)], s);
+
+        return Mathf.Lerp(bottom, top, t);
     }
 
     private float[] SmoothGround(int minX, int minY, int width, int height, int radius)
@@ -343,32 +480,49 @@ public class TerrainCarver
         });
     }
 
-    private void CarveRoad(Road road, float halfWidth, float shoulder, float maxFill, float maxCut, int smoothing)
+    private void CarveRoad(Road road)
     {
         if (road?.Points == null || road.Points.Length < 2)
             return;
 
+        RoadKindProfile kind = RoadKindProfile.For(_config, road.Kind);
+        float halfWidth = kind.HalfWidth;
+        float shoulder = kind.Shoulder;
+        float maxFill = kind.MaxFill;
+        float maxCut = kind.MaxCut;
+        int smoothing = kind.ProfileSmoothing;
+
         Vector2[] points = Densify(road.Points);
+        float[] distance = Cumulative(points);
 
-        float[] ground = SampleGround(points);
-        float[] profile = BuildProfile(ground, maxFill, maxCut, smoothing);
+        float[] original = SampleGround(points);
+        float[] surface = SampleSurface(points);
+        float[] profile = BuildProfile(original, maxFill, maxCut, smoothing);
+        bool[] anchored = LevelToExistingRoads(points, surface, profile);
 
-        LevelToExistingRoads(points, ground, profile);
+        RoadProfile.Fit(profile, original, distance, kind.MaxGrade * GRADE_MARGIN / _source.MaxHeight,
+            maxFill / _source.MaxHeight, maxCut / _source.MaxHeight, anchored, RoadProfile.EARTHWORK_OVERRUN);
+
+        Profiles?.Add((road, points, profile, anchored));
 
         float reach = halfWidth + shoulder * 0.5f;
         var skirts = new float[points.Length];
+        var fills = new float[points.Length];
+        var cuts = new float[points.Length];
 
         for (int i = 0; i < points.Length; i++)
         {
             float moved = LateralEarthworks(points, i, profile[i], reach);
 
             skirts[i] = shoulder + moved * _config.RoadEmbankmentSlope;
+            fills[i] = Mathf.Max(maxFill, (profile[i] - original[i]) * _source.MaxHeight + OVERRUN_MARGIN);
+            cuts[i] = Mathf.Max(maxCut, (original[i] - profile[i]) * _source.MaxHeight + OVERRUN_MARGIN);
         }
 
-        StampRoad(points, profile, skirts, halfWidth, maxFill, maxCut);
+        StampRoad(points, distance, profile, skirts, halfWidth, reach, fills, cuts);
     }
 
-    private void StampRoad(Vector2[] points, float[] profile, float[] skirts, float halfWidth, float maxFill, float maxCut)
+    private void StampRoad(Vector2[] points, float[] distance, float[] profile, float[] skirts, float halfWidth, float formation, float[] maxFill, float[] maxCut)
     {
         int resolution = _source.Resolution;
         float cellSize = _cellSize;
@@ -423,14 +577,16 @@ public class TerrainCarver
             int to = Mathf.Min(maxY, from + BAND_ROWS - 1);
 
             foreach (int i in bucket)
-                Stamp(points[i], profile[i], halfWidth, skirts[i], paintReach, maxFill, maxCut, from, to);
+                Stamp(points, distance, profile, i, halfWidth, formation, skirts[i], paintReach, maxFill[i], maxCut[i], from, to);
         });
     }
 
-    private void LevelToExistingRoads(Vector2[] points, float[] ground, float[] profile)
+    private bool[] LevelToExistingRoads(Vector2[] points, float[] ground, float[] profile)
     {
+        var anchored = new bool[points.Length];
+
         if (_roadMask == null)
-            return;
+            return anchored;
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -440,7 +596,20 @@ public class TerrainCarver
                 continue;
 
             profile[i] = Mathf.Lerp(profile[i], ground[i], mask);
+            anchored[i] = mask >= ANCHOR_MASK;
         }
+
+        return anchored;
+    }
+
+    private static float[] Cumulative(Vector2[] points)
+    {
+        var distance = new float[points.Length];
+
+        for (int i = 1; i < points.Length; i++)
+            distance[i] = distance[i - 1] + Vector2.Distance(points[i - 1], points[i]);
+
+        return distance;
     }
 
     private float LateralEarthworks(Vector2[] points, int index, float profile, float reach)
@@ -562,17 +731,27 @@ public class TerrainCarver
         return ground;
     }
 
+    private float[] SampleSurface(Vector2[] points)
+    {
+        var surface = new float[points.Length];
+        int resolution = _source.Resolution;
+
+        for (int i = 0; i < surface.Length; i++)
+        {
+            int cellX = Mathf.Clamp(Mathf.RoundToInt(points[i].x / _cellSize), 0, resolution - 1);
+            int cellY = Mathf.Clamp(Mathf.RoundToInt(points[i].y / _cellSize), 0, resolution - 1);
+            int cell = cellY * resolution + cellX;
+            float original = _source.Heights[cell];
+
+            surface[i] = original + (_carveTarget[cell] - original) * Mathf.Clamp01(_carveWeight[cell]);
+        }
+
+        return surface;
+    }
+
     private float[] BuildProfile(float[] ground, float maxFill, float maxCut, int smoothing)
     {
-        float[] profile = MovingAverage(ground, smoothing);
-
-        ClampEarthworks(profile, ground, maxFill, maxCut);
-
-        profile = MovingAverage(profile, Mathf.Max(1, smoothing / 3));
-
-        ClampEarthworks(profile, ground, maxFill, maxCut);
-
-        return profile;
+        return RoadProfile.Build(ground, maxFill / _source.MaxHeight, maxCut / _source.MaxHeight, smoothing);
     }
 
     private void ClampEarthworks(float[] profile, float[] ground, float maxFillMeters, float maxCutMeters)
@@ -586,29 +765,25 @@ public class TerrainCarver
 
     private static float[] MovingAverage(float[] values, int window)
     {
-        var result = new float[values.Length];
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            float sum = 0f;
-            int samples = 0;
-
-            for (int offset = -window; offset <= window; offset++)
-            {
-                sum += values[Mathf.Clamp(i + offset, 0, values.Length - 1)];
-                samples++;
-            }
-
-            result[i] = sum / samples;
-        }
-
-        return result;
+        return RoadProfile.MovingAverage(values, window);
     }
 
-    private void Stamp(Vector2 point, float normalizedHeight, float inner, float outer, float paintReach, float maxFillMeters, float maxCutMeters, int clipMinY, int clipMaxY)
+    private void Stamp(Vector2[] points, float[] distance, float[] profile, int index, float inner, float formation, float outer, float paintReach,
+        float maxFillMeters, float maxCutMeters, int clipMinY, int clipMaxY)
     {
+        Vector2 point = points[index];
         float radius = inner + outer;
         int resolution = _source.Resolution;
+        int last = points.Length - 1;
+        int back = Mathf.Max(0, index - 1);
+        int ahead = Mathf.Min(last, index + 1);
+        Vector2 chord = points[ahead] - points[back];
+        float span = distance[ahead] - distance[back];
+        Vector2 tangent = chord.sqrMagnitude > 1e-8f ? chord.normalized : Vector2.zero;
+        float slope = span > 1e-4f ? (profile[ahead] - profile[back]) / span : 0f;
+        float lowAlong = index == 0 ? 0f : -radius;
+        float highAlong = index == last ? 0f : radius;
+        float height = profile[index];
 
         float maxFill = maxFillMeters / _source.MaxHeight;
         float maxCut = maxCutMeters / _source.MaxHeight;
@@ -629,9 +804,9 @@ public class TerrainCarver
 
             for (int x = minX; x <= maxX; x++)
             {
-                int index = row + x;
+                int cell = row + x;
 
-                if (_carveWeight[index] >= 1f && (!paintsSurface || _roadMask[index] >= 1f))
+                if (_carveWeight[cell] >= 1f && (!paintsSurface || _roadMask[cell] >= 1f))
                     continue;
 
                 float deltaX = x * _cellSize - point.x;
@@ -640,31 +815,58 @@ public class TerrainCarver
                 if (distanceSq > rejectSq)
                     continue;
 
-                float distance = Mathf.Sqrt(distanceSq);
+                float offset = Mathf.Sqrt(distanceSq);
 
-                if (distance > radius)
+                if (offset > radius)
                     continue;
 
-                float weight = distance <= inner ? 1f : 1f - (distance - inner) / outer;
+                float weight = offset <= inner ? 1f : 1f - (offset - inner) / outer;
                 weight = Mathf.SmoothStep(0f, 1f, weight);
 
-                if (weight > _carveWeight[index])
+                if (weight > _carveWeight[cell])
                 {
-                    float ground = _source.Heights[index];
+                    float ground = _source.Heights[cell];
+                    float along = Mathf.Clamp(deltaX * tangent.x + deltaY * tangent.y, lowAlong, highAlong);
 
-                    _carveWeight[index] = weight;
-                    _carveTarget[index] = Mathf.Clamp(normalizedHeight, ground - maxCut, ground + maxFill);
+                    _carveWeight[cell] = weight;
+                    _carveTarget[cell] = offset <= formation
+                        ? ProfileAt(distance, profile, index, distance[index] + along)
+                        : Mathf.Clamp(height + slope * Mathf.Clamp(along, -formation, formation), ground - maxCut, ground + maxFill);
                 }
 
                 if (!paintsSurface)
                     continue;
 
-                float surface = distance <= inner ? 1f : Mathf.SmoothStep(0f, 1f, 1f - (distance - inner) / paintReach);
+                float surface = offset <= inner ? 1f : Mathf.SmoothStep(0f, 1f, 1f - (offset - inner) / paintReach);
 
-                if (surface > _roadMask[index])
-                    _roadMask[index] = Mathf.Clamp01(surface);
+                if (surface > _roadMask[cell])
+                    _roadMask[cell] = Mathf.Clamp01(surface);
             }
         }
+    }
+
+    private static float ProfileAt(float[] distance, float[] profile, int index, float target)
+    {
+        int last = distance.Length - 1;
+
+        if (target <= distance[0])
+            return profile[0];
+
+        if (target >= distance[last])
+            return profile[last];
+
+        int low = Mathf.Min(index, last - 1);
+
+        while (low > 0 && distance[low] > target)
+            low--;
+
+        while (low < last - 1 && distance[low + 1] < target)
+            low++;
+
+        float span = distance[low + 1] - distance[low];
+        float t = span > 1e-6f ? Mathf.Clamp01((target - distance[low]) / span) : 0f;
+
+        return Mathf.Lerp(profile[low], profile[low + 1], t);
     }
 
     private float SampleNormalized(float x, float y)

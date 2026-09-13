@@ -13,6 +13,8 @@ public sealed class WorldGenBenchFrozen
 
     public List<Hub> Hubs { get; private set; }
 
+    public List<RegionalLink> Plan { get; private set; }
+
     public List<(int From, int To)> Links { get; private set; }
 
     public List<SettlementLayout> Settlements { get; private set; }
@@ -102,7 +104,11 @@ public sealed class WorldGenBenchFrozen
             return;
 
         Hubs = new HubPlacer(config, RawHeights).Place();
-        Links = RoadGraph.Link(Hubs, config.RoadExtraEdges);
+        Plan = new RegionalGraphPlanner(config, RawHeights).Plan(Hubs);
+        Links = new List<(int From, int To)>();
+
+        foreach (RegionalLink link in Plan)
+            Links.Add((link.From, link.To));
 
         if (Reached("hubs"))
             return;
@@ -110,7 +116,7 @@ public sealed class WorldGenBenchFrozen
         var planner = new SettlementPlanner(config, _profile.Pois, RawHeights);
         var carver = new TerrainCarver(config);
 
-        Settlements = planner.Plan(Hubs, Links);
+        Settlements = planner.Plan(Hubs, Plan);
         PaddedHeights = carver.CarveSettlements(Copy(RawHeights), Settlements);
 
         if (Reached("settlements"))
@@ -118,12 +124,11 @@ public sealed class WorldGenBenchFrozen
 
         Roads = new RoadNetwork();
         Roads.Hubs.AddRange(Hubs);
-        Roads.Links.AddRange(Links);
-
-        foreach (SettlementLayout settlement in Settlements)
-            Roads.Streets.AddRange(settlement.Streets);
-
-        Roads.Roads.AddRange(new RoadPlanner(config, PaddedHeights).Plan(Hubs, Links, Settlements));
+        Roads.SetPlan(Plan);
+        Roads.Publish(config, Settlements);
+        Roads.Graph = new RoadPlanner(config, PaddedHeights).Plan(Hubs, Plan, Settlements);
+        Roads.RuralSites.AddRange(new DirtAccessPlanner(config, PaddedHeights).Plan(Roads.Graph, Settlements, Roads.Streets));
+        Roads.Publish(config, Settlements);
 
         if (Reached("roads"))
             return;

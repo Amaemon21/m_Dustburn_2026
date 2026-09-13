@@ -1,26 +1,39 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using UnityEngine;
 
 public static class WorldMapPipelineChecks
 {
-    public static void Run(WorldGenerationConfig config, BiomeDatabase biomes, PoiDatabase pois)
+    public static void Run(WorldGenerationConfig config, BiomeDatabase biomes, PoiDatabase pois, string problemDirectory)
     {
         Set(config, nameof(config.WorldSize), 512);
         Set(config, nameof(config.HeightCellSize), 4);
         Set(config, nameof(config.BiomeCellSize), 8);
         Set(config, nameof(config.Seed), 1337);
-        Set(config, nameof(config.HubCount), 4);
-        Set(config, nameof(config.MinHouses), 4);
-        Set(config, nameof(config.MaxHouses), 12);
-        Set(config, nameof(config.BlockSizeMin), 40f);
-        Set(config, nameof(config.BlockSizeMax), 52f);
+        Set(config, nameof(config.TileSize), 64f);
+        Profile(config.CityProfile, 0, 1, 1);
+        Profile(config.TownProfile, 1, 2, 3);
+        Profile(config.CountryTownProfile, 1, 1, 2);
+        Profile(config.GhostTownProfile, 1, 1, 2);
         Set(config, nameof(config.SettlementGap), 0f);
-        Set(config, nameof(config.MaxBlockRelief), 360f);
-        Set(config, nameof(config.HubEdgeMargin), 100f);
-        Set(config, nameof(config.MinHubDistance), 96f);
+        Set(config, nameof(config.HubEdgeMargin), 16f);
         Set(config, nameof(config.MaxHubRelief), 360f);
+        Set(config, nameof(config.MaxTileRelief), 360f);
+        Set(config, nameof(config.SiteBuildableShare), 0f);
+        Set(config, nameof(config.GatewayApproachLength), 40f);
+        Set(config, nameof(config.HighwaySettlementClearance), 12f);
+        Set(config, nameof(config.HighwayMinCurveRadius), 30f);
+        Set(config, nameof(config.RoadPointSpacing), 8f);
+        Set(config, nameof(config.CourtDepth), 20f);
+        Set(config, nameof(config.DirtSettlementClearance), 40f);
+        Set(config, nameof(config.DirtSpacing), 80f);
+        Set(config, nameof(config.DirtMinLength), 20f);
+        Set(config, nameof(config.DirtMaxLength), 50f);
+        Set(config, nameof(config.LoopSpacing), 100f);
+        Set(config, nameof(config.MaxLinkLength), 600f);
         Set(config, nameof(config.ErosionPasses), 1);
         Set(config, nameof(config.HydraulicPasses), 2);
         Set(config, nameof(config.ContinentAmplitude), 0.01f);
@@ -46,9 +59,9 @@ public static class WorldMapPipelineChecks
         Require(first.Heights.Heights.SequenceEqual(second.Heights.Heights), "Repeated generation must not carve the previous terrain again.");
         Require(first.RoadMask.SequenceEqual(second.RoadMask), "Repeated generation must preserve the road mask.");
         Require(first.Placements.Count == second.Placements.Count && first.Placements.Count > 0, "The single pipeline must generate POI.");
-        Require(first.Roads.Hubs.Count > 1 && first.Roads.Roads.Count > 0, "The single pipeline must generate settlements and roads.");
-        Require(first.Settlements.Exists(settlement => settlement.Blocks.Count > 0) && first.Roads.Streets.Count > 0, "Settlements must be laid out in blocks with streets.");
-        Require(first.Roads.Streets.Count == second.Roads.Streets.Count, "Repeated generation must lay out the same streets.");
+        Require(first.Roads.Hubs.Count > 1 && first.Roads.Roads.Exists(road => road.Kind == RoadKind.Highway), "The single pipeline must generate settlements and highways.");
+        Require(first.Settlements.Exists(settlement => settlement.Tiles.Count > 0) && first.Roads.Streets.Count > 0, "Settlements must be laid out in tiles with streets.");
+        Require(first.Roads.Streets.Count == second.Roads.Streets.Count && first.Roads.Roads.Count == second.Roads.Roads.Count, "Repeated generation must lay out the same roads and streets.");
         Require(first.Heights.Resolution == config.HeightMapResolution, "The final map must match the saved resolution.");
         Require(first.Heights.Heights.All(value => !float.IsNaN(value) && value >= 0f && value <= 1f), "Heights must remain finite and normalized.");
 
@@ -60,6 +73,22 @@ public static class WorldMapPipelineChecks
                 && expected.Position.y == actual.Position.y && expected.Position.z == actual.Position.z
                 && expected.Rotation == actual.Rotation, "POI transforms must be deterministic.");
         }
+
+        RoadNetworkReport report = RoadNetworkDiagnostics.Measure(config, first.Roads, first.Settlements, first.Placements, null, null);
+
+        if (report.Hard > 0 && problemDirectory != null)
+        {
+            Directory.CreateDirectory(problemDirectory);
+
+            for (int index = 0; index < Math.Min(8, report.Problems.Count); index++)
+            {
+                (Vector2 point, string kind) = report.Problems[index];
+                Draw.View(Path.Combine(problemDirectory, $"smoke_{index}_{kind}.png"), first.Heights, first.Roads, first.Settlements, first.Placements, point, 160f, 800, false, report);
+            }
+        }
+
+        Require(report.Hard == 0, "The pipeline road topology must have no hard violations:\n" + report.ToText()
+            + string.Join("\n", report.Problems.Take(12).Select(problem => $"  problem {problem.Kind} at ({problem.Point.x:F1}, {problem.Point.y:F1})")));
 
         using var cancellation = new CancellationTokenSource();
         int visited = 0;
@@ -84,7 +113,15 @@ public static class WorldMapPipelineChecks
         WorldMapResult otherSeed = pipeline.Generate();
         Require(!otherSeed.Heights.Heights.SequenceEqual(first.Heights.Heights), "Changing the seed must change the world.");
         CheckBudgets();
-        Console.WriteLine($"PASS: unified pipeline, deterministic regeneration, cancellation and seed changes; {first.Placements.Count} POI, {first.Roads.Roads.Count} roads.");
+        Console.WriteLine($"PASS: unified pipeline, deterministic regeneration, cancellation and seed changes; {first.Placements.Count} POI, {first.Roads.Roads.Count} regional roads, {first.Roads.Streets.Count} streets, 0 hard topology violations.");
+    }
+
+    private static void Profile(SettlementTypeProfile profile, int count, int minTiles, int maxTiles)
+    {
+        Set(profile, nameof(profile.Count), count);
+        Set(profile, nameof(profile.MinTiles), minTiles);
+        Set(profile, nameof(profile.MaxTiles), maxTiles);
+        Set(profile, nameof(profile.Spacing), 60f);
     }
 
     private static void CheckBudgets()

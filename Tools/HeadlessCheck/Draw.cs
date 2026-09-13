@@ -5,7 +5,7 @@ using UnityEngine;
 static class Draw
 {
     public static void View(string path, HeightMap map, RoadNetwork network, List<SettlementLayout> layouts, List<PoiPlacement> placements,
-        Vector2 center, float span, int size, bool drawLots)
+        Vector2 center, float span, int size, bool drawLots, RoadNetworkReport report = null)
     {
         var canvas = new Canvas(size, size);
 
@@ -13,6 +13,7 @@ static class Draw
         float originX = center.x - span * 0.5f;
         float originY = center.y - span * 0.5f;
         float cell = (float)map.WorldSize / (map.Resolution - 1);
+        bool detailed = span < 2000f;
 
         for (int py = 0; py < size; py++)
         for (int px = 0; px < size; px++)
@@ -32,22 +33,28 @@ static class Draw
             canvas.Set(px, py, v, (byte)(v * 0.97f), (byte)(v * 0.9f));
         }
 
-        if (span < 2000f)
+        foreach (SettlementLayout layout in layouts)
+        foreach (SettlementTile tile in layout.Tiles)
         {
-            foreach (SettlementLayout layout in layouts)
-            foreach (Block block in layout.Blocks)
-            {
-                (byte r, byte g, byte b) = ColorFor(block.District);
-                Outline(canvas, block.Corners, (byte)(r / 2), (byte)(g / 2), (byte)(b / 2));
-            }
+            (byte r, byte g, byte b) = ColorFor(tile.District);
+
+            if (detailed)
+                Polygon(canvas, tile.Corners, (byte)(r / 2), (byte)(g / 2), (byte)(b / 2), 1f);
+            else
+                Fill(canvas, tile.Center, layout.TileSize, layout.AxisU, (byte)(r / 2), (byte)(g / 2), (byte)(b / 2), 0.35f);
         }
 
         foreach (Road road in network.Roads)
-            Polyline(canvas, road.Points, 220, 60, 40, span < 2000f ? 3f : 1f);
+        {
+            (byte r, byte g, byte b, float thickness) = Style(road.Kind, detailed);
+            Polyline(canvas, road.Points, r, g, b, thickness);
+        }
 
-        foreach (SettlementLayout layout in layouts)
-        foreach (Road street in layout.Streets)
-            Polyline(canvas, street.Points, 250, 210, 60, span < 2000f ? 1f : 0f);
+        foreach (Road street in network.Streets)
+        {
+            (byte r, byte g, byte b, float thickness) = Style(street.Kind, detailed);
+            Polyline(canvas, street.Points, r, g, b, thickness);
+        }
 
         if (drawLots)
         {
@@ -63,16 +70,45 @@ static class Draw
         }
 
         foreach (Hub hub in network.Hubs)
-            Circle(canvas, hub.Position, Mathf.Max(hub.Radius, 20f), 60, 255, 200);
+        {
+            (byte r, byte g, byte b) = ColorFor(hub.Type);
+            Circle(canvas, hub.Position, Mathf.Max(hub.Radius, 20f), r, g, b, detailed ? 1f : 2f);
+        }
+
+        foreach (RoadJunction junction in network.Junctions)
+        {
+            float radius = Math.Max(detailed ? 3f : 12f, 2.5f / scale);
+
+            if (junction.Kind == RoadNodeKind.Junction && junction.Degree >= 3)
+                Square(canvas, junction.Position, radius, 60, 255, 255);
+            else if (junction.Kind == RoadNodeKind.Terminal)
+                Square(canvas, junction.Position, radius * 0.6f, 150, 100, 50);
+        }
 
         foreach (SettlementLayout layout in layouts)
-        foreach (Vector2 gate in layout.Gates)
-            Cross(canvas, gate, 255, 60, 255);
+        foreach (SettlementGateway gateway in layout.Gateways)
+        {
+            float arm = Math.Max(detailed ? 30f : 90f, 12f / scale);
+
+            Line(canvas, gateway.Port, gateway.Port + gateway.Tangent * arm, 255, 60, 255, detailed ? 3f : 2f);
+            Square(canvas, gateway.Port, Math.Max(detailed ? 4f : 14f, 3f / scale), 255, 60, 255);
+        }
+
+        if (report != null)
+        {
+            foreach ((Vector2 point, string _) in report.Problems)
+                Circle(canvas, point, Math.Max(detailed ? 10f : 40f, 6f / scale), 255, 0, 0, 2f);
+        }
 
         canvas.Save(path);
 
         float PixelX(float wx) => (wx - originX) * scale;
         float PixelY(float wy) => (wy - originY) * scale;
+
+        void Line(Canvas c, Vector2 from, Vector2 to, byte r, byte g, byte b, float thickness)
+        {
+            c.Line(PixelX(from.x), PixelY(from.y), PixelX(to.x), PixelY(to.y), r, g, b, thickness);
+        }
 
         void Polyline(Canvas c, Vector2[] points, byte r, byte g, byte b, float thickness)
         {
@@ -82,20 +118,37 @@ static class Draw
                 c.Line(PixelX(points[i].x), PixelY(points[i].y), PixelX(points[i + 1].x), PixelY(points[i + 1].y), r, g, b, thickness);
         }
 
-        void Outline(Canvas c, Vector2[] corners, byte r, byte g, byte b)
+        void Polygon(Canvas c, Vector2[] corners, byte r, byte g, byte b, float thickness)
         {
             for (int i = 0; i < corners.Length; i++)
             {
                 Vector2 a = corners[i], e = corners[(i + 1) % corners.Length];
-                c.Line(PixelX(a.x), PixelY(a.y), PixelX(e.x), PixelY(e.y), r, g, b);
+                c.Line(PixelX(a.x), PixelY(a.y), PixelX(e.x), PixelY(e.y), r, g, b, thickness);
             }
         }
 
-        void Cross(Canvas c, Vector2 middle, byte r, byte g, byte b)
+        void Fill(Canvas c, Vector2 middle, float side, Vector2 axisU, byte r, byte g, byte b, float alpha)
         {
-            float arm = Math.Max(4f, 6f / scale) ;
-            c.Line(PixelX(middle.x - arm), PixelY(middle.y - arm), PixelX(middle.x + arm), PixelY(middle.y + arm), r, g, b, 2f);
-            c.Line(PixelX(middle.x - arm), PixelY(middle.y + arm), PixelX(middle.x + arm), PixelY(middle.y - arm), r, g, b, 2f);
+            Vector2 axisV = new(-axisU.y, axisU.x);
+            int steps = (int)Math.Max(2f, side * scale);
+
+            for (int i = 0; i <= steps; i++)
+            for (int j = 0; j <= steps; j++)
+            {
+                Vector2 p = middle + axisU * ((i / (float)steps - 0.5f) * side) + axisV * ((j / (float)steps - 0.5f) * side);
+                c.Blend((int)PixelX(p.x), (int)PixelY(p.y), r, g, b, alpha);
+            }
+        }
+
+        void Square(Canvas c, Vector2 middle, float half, byte r, byte g, byte b)
+        {
+            int radius = (int)Math.Max(1f, half * scale);
+            int x = (int)PixelX(middle.x);
+            int y = (int)PixelY(middle.y);
+
+            for (int oy = -radius; oy <= radius; oy++)
+            for (int ox = -radius; ox <= radius; ox++)
+                c.Set(x + ox, y + oy, r, g, b);
         }
 
         void Rect(Canvas c, Vector2 middle, Vector2 sizeXY, Vector2 forward, byte r, byte g, byte b, bool fill)
@@ -137,15 +190,46 @@ static class Draw
             c.Line(PixelX(corners[3].x), PixelY(corners[3].y), PixelX(corners[2].x), PixelY(corners[2].y), 255, 255, 255);
         }
 
-        void Circle(Canvas c, Vector2 middle, float radius, byte r, byte g, byte b)
+        void Circle(Canvas c, Vector2 middle, float radius, byte r, byte g, byte b, float thickness)
         {
-            for (int i = 0; i < 360; i++)
+            for (int i = 0; i < 90; i++)
             {
-                float t0 = i / 360f * MathF.PI * 2f, t1 = (i + 1) / 360f * MathF.PI * 2f;
+                float t0 = i / 90f * MathF.PI * 2f, t1 = (i + 1) / 90f * MathF.PI * 2f;
                 c.Line(PixelX(middle.x + MathF.Cos(t0) * radius), PixelY(middle.y + MathF.Sin(t0) * radius),
-                       PixelX(middle.x + MathF.Cos(t1) * radius), PixelY(middle.y + MathF.Sin(t1) * radius), r, g, b);
+                       PixelX(middle.x + MathF.Cos(t1) * radius), PixelY(middle.y + MathF.Sin(t1) * radius), r, g, b, thickness);
             }
         }
+    }
+
+    public static void Mask(string path, float[] mask, int resolution, int size)
+    {
+        var pixels = new byte[size * size * 3];
+        float step = (resolution - 1) / (float)size;
+
+        for (int py = 0; py < size; py++)
+        {
+            for (int px = 0; px < size; px++)
+            {
+                int fromX = (int)(px * step);
+                int fromY = (int)(py * step);
+                int toX = Math.Min(resolution - 1, (int)((px + 1) * step));
+                int toY = Math.Min(resolution - 1, (int)((py + 1) * step));
+                float value = 0f;
+
+                for (int y = fromY; y <= toY; y++)
+                for (int x = fromX; x <= toX; x++)
+                    value = Math.Max(value, mask[y * resolution + x]);
+
+                byte tone = (byte)Math.Clamp(value * 255f, 0f, 255f);
+                int target = ((size - 1 - py) * size + px) * 3;
+
+                pixels[target] = tone;
+                pixels[target + 1] = tone;
+                pixels[target + 2] = tone;
+            }
+        }
+
+        Png.Write(path, pixels, size, size);
     }
 
     static float Sample(HeightMap map, float wx, float wy)
@@ -153,12 +237,29 @@ static class Draw
         return map.SampleWorld(new Vector3(wx, 0f, wy));
     }
 
+    static (byte, byte, byte, float) Style(RoadKind kind, bool detailed) => kind switch
+    {
+        RoadKind.Highway => ((byte)235, (byte)80, (byte)40, detailed ? 4f : 2f),
+        RoadKind.Arterial => ((byte)250, (byte)205, (byte)50, detailed ? 3f : 1f),
+        RoadKind.LocalStreet => ((byte)250, (byte)240, (byte)170, detailed ? 1.5f : 0f),
+        _ => ((byte)170, (byte)120, (byte)60, detailed ? 2f : 1f)
+    };
+
     static (byte, byte, byte) ColorFor(DistrictType district) => district switch
     {
         DistrictType.Downtown => ((byte)255, (byte)120, (byte)220),
+        DistrictType.Commercial => ((byte)90, (byte)170, (byte)255),
         DistrictType.Residential => ((byte)120, (byte)230, (byte)130),
         DistrictType.Industrial => ((byte)255, (byte)160, (byte)60),
         _ => ((byte)200, (byte)200, (byte)255)
+    };
+
+    static (byte, byte, byte) ColorFor(SettlementType type) => type switch
+    {
+        SettlementType.City => ((byte)255, (byte)60, (byte)60),
+        SettlementType.Town => ((byte)255, (byte)170, (byte)40),
+        SettlementType.CountryTown => ((byte)80, (byte)200, (byte)255),
+        _ => ((byte)190, (byte)190, (byte)190)
     };
 
     public static void Biomes(string path, BiomeMap map, BiomeDatabase biomes)

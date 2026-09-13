@@ -47,36 +47,52 @@ public class Lot
     }
 }
 
-public class Block
+public sealed class SettlementTile
 {
-    public Vector2[] Corners { get; }
+    public int I { get; }
+    public int J { get; }
     public Vector2 Center { get; }
-    public DistrictType District { get; private set; } = DistrictType.Residential;
+    public Vector2[] Corners { get; }
+    public TilePorts Ports { get; set; }
+    public TilePorts ArterialPorts { get; set; }
+    public TilePorts GatewayPorts { get; set; }
+    public DistrictType District { get; set; } = DistrictType.Residential;
+    public int Hops { get; set; }
 
-    public Block(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+    public SettlementTile(int i, int j, Vector2 center, Vector2[] corners)
     {
-        Corners = new[] { a, b, c, d };
-        Center = (a + b + c + d) * 0.25f;
+        I = i;
+        J = j;
+        Center = center;
+        Corners = corners;
     }
 
-    public void Zone(DistrictType district)
+    public TileShape Shape => TilePortRules.ShapeOf(Ports);
+
+    public bool IsGateway => GatewayPorts != TilePorts.None;
+
+    public bool IsArterial => ArterialPorts != TilePorts.None;
+}
+
+public sealed class SettlementGateway
+{
+    public int Index { get; }
+    public SettlementTile Tile { get; }
+    public TilePorts Side { get; }
+    public Vector2 Port { get; }
+    public Vector2 Tangent { get; }
+    public Vector2 Approach { get; }
+    public List<int> Neighbours { get; } = new();
+    public int Node { get; set; } = -1;
+
+    public SettlementGateway(int index, SettlementTile tile, TilePorts side, Vector2 port, Vector2 tangent, float approach)
     {
-        District = district;
-    }
-
-    public bool Contains(Vector2 point)
-    {
-        for (int i = 0; i < Corners.Length; i++)
-        {
-            Vector2 from = Corners[i];
-            Vector2 edge = Corners[(i + 1) % Corners.Length] - from;
-            Vector2 offset = point - from;
-
-            if (edge.x * offset.y - edge.y * offset.x < 0f)
-                return false;
-        }
-
-        return true;
+        Index = index;
+        Tile = tile;
+        Side = side;
+        Port = port;
+        Tangent = tangent;
+        Approach = port + tangent * approach;
     }
 }
 
@@ -86,63 +102,188 @@ public class Frontage
     public Vector2 To { get; }
     public Vector2 Normal { get; }
     public float HalfWidth { get; }
-    public Block Block { get; }
+    public DistrictType District { get; }
+    public float MaxDepth { get; }
+    public float Density { get; }
+    public RoadKind Kind { get; }
 
-    public Frontage(Vector2 from, Vector2 to, Vector2 normal, float halfWidth, Block block)
+    public Frontage(Vector2 from, Vector2 to, Vector2 normal, float halfWidth, DistrictType district, float maxDepth, float density, RoadKind kind)
     {
         From = from;
         To = to;
         Normal = normal;
         HalfWidth = halfWidth;
-        Block = block;
+        District = district;
+        MaxDepth = maxDepth;
+        Density = density;
+        Kind = kind;
     }
+
+    public float Length => Vector2.Distance(From, To);
 }
 
 public class SettlementLayout
 {
-    public Hub Hub { get; }
-    public float Angle { get; }
+    private readonly Dictionary<long, SettlementTile> _lookup = new();
 
-    public List<Block> Blocks { get; } = new();
+    public Hub Hub { get; }
+    public int Index { get; }
+    public float Angle { get; }
+    public float TileSize { get; }
+    public Vector2 Origin { get; }
+    public Vector2 AxisU { get; }
+    public Vector2 AxisV { get; }
+
+    public List<SettlementTile> Tiles { get; } = new();
+    public List<SettlementGateway> Gateways { get; } = new();
     public List<Road> Streets { get; } = new();
+    public List<Vector2> StreetNodes { get; } = new();
     public List<Frontage> Frontages { get; } = new();
     public List<Lot> Lots { get; } = new();
     public List<int> Neighbours { get; } = new();
-    public List<Vector2> Gates { get; } = new();
 
     public Vector2 Min { get; private set; }
     public Vector2 Max { get; private set; }
     public float Radius { get; private set; }
+    public int TopologyViolations { get; set; }
 
-    public SettlementLayout(Hub hub, float angle)
+    public SettlementLayout(Hub hub, int index, float angle, float tileSize)
     {
         Hub = hub;
+        Index = index;
         Angle = angle;
+        TileSize = tileSize;
+        Origin = hub.Position;
+        AxisU = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        AxisV = new Vector2(-AxisU.y, AxisU.x);
         Min = hub.Position;
         Max = hub.Position;
     }
 
-    public bool IsEmpty => Blocks.Count == 0;
+    public SettlementType Type => Hub.Type;
+
+    public bool IsEmpty => Tiles.Count == 0;
+
+    public static long Key(int i, int j)
+    {
+        return ((long)(i + 32768) << 32) | (uint)(j + 32768);
+    }
+
+    public Vector2 TileCenter(int i, int j)
+    {
+        return Origin + AxisU * (i * TileSize) + AxisV * (j * TileSize);
+    }
+
+    public Vector2 LocalToWorld(float u, float v)
+    {
+        return Origin + AxisU * u + AxisV * v;
+    }
+
+    public void ToLocal(Vector2 point, out float u, out float v)
+    {
+        Vector2 delta = point - Origin;
+
+        u = Vector2.Dot(delta, AxisU);
+        v = Vector2.Dot(delta, AxisV);
+    }
+
+    public SettlementTile TileAt(int i, int j)
+    {
+        return _lookup.TryGetValue(Key(i, j), out SettlementTile tile) ? tile : null;
+    }
+
+    public SettlementTile AddTile(int i, int j)
+    {
+        SettlementTile existing = TileAt(i, j);
+
+        if (existing != null)
+            return existing;
+
+        float half = TileSize * 0.5f;
+        Vector2 center = TileCenter(i, j);
+
+        var corners = new[]
+        {
+            center - AxisU * half - AxisV * half,
+            center + AxisU * half - AxisV * half,
+            center + AxisU * half + AxisV * half,
+            center - AxisU * half + AxisV * half
+        };
+
+        var tile = new SettlementTile(i, j, center, corners);
+
+        Tiles.Add(tile);
+        _lookup[Key(i, j)] = tile;
+
+        return tile;
+    }
+
+    public SettlementTile Neighbour(SettlementTile tile, TilePorts side)
+    {
+        return TileAt(tile.I + TilePortRules.StepI(side), tile.J + TilePortRules.StepJ(side));
+    }
+
+    public Vector2 PortPoint(SettlementTile tile, TilePorts side)
+    {
+        return tile.Center + TilePortRules.Direction(side, AxisU, AxisV) * (TileSize * 0.5f);
+    }
 
     public bool Contains(Vector2 point)
     {
         if (IsEmpty || point.x < Min.x || point.y < Min.y || point.x > Max.x || point.y > Max.y)
             return false;
 
-        foreach (Block block in Blocks)
-        {
-            if (block.Contains(point))
-                return true;
-        }
+        ToLocal(point, out float u, out float v);
 
-        return false;
+        return TileAt(Mathf.FloorToInt(u / TileSize + 0.5f), Mathf.FloorToInt(v / TileSize + 0.5f)) != null;
     }
 
-    public Vector2 GateToward(int neighbour)
+    public bool IsWithin(Vector2 point, float margin)
     {
-        int index = Neighbours.IndexOf(neighbour);
+        if (IsEmpty || point.x < Min.x - margin || point.y < Min.y - margin || point.x > Max.x + margin || point.y > Max.y + margin)
+            return false;
 
-        return index < 0 || index >= Gates.Count ? Hub.Position : Gates[index];
+        return DistanceSqrToTiles(point, margin) < margin * margin || Contains(point);
+    }
+
+    public float DistanceSqrToTiles(Vector2 point, float limit)
+    {
+        ToLocal(point, out float u, out float v);
+
+        int reach = Mathf.CeilToInt(limit / TileSize) + 1;
+        int centerI = Mathf.FloorToInt(u / TileSize + 0.5f);
+        int centerJ = Mathf.FloorToInt(v / TileSize + 0.5f);
+        float half = TileSize * 0.5f;
+        float best = limit * limit;
+
+        for (int j = centerJ - reach; j <= centerJ + reach; j++)
+        {
+            for (int i = centerI - reach; i <= centerI + reach; i++)
+            {
+                if (TileAt(i, j) == null)
+                    continue;
+
+                float outsideU = Mathf.Max(0f, Mathf.Abs(u - i * TileSize) - half);
+                float outsideV = Mathf.Max(0f, Mathf.Abs(v - j * TileSize) - half);
+                float distanceSqr = outsideU * outsideU + outsideV * outsideV;
+
+                if (distanceSqr < best)
+                    best = distanceSqr;
+            }
+        }
+
+        return best;
+    }
+
+    public SettlementGateway GatewayToward(int neighbour)
+    {
+        foreach (SettlementGateway gateway in Gateways)
+        {
+            if (gateway.Neighbours.Contains(neighbour))
+                return gateway;
+        }
+
+        return null;
     }
 
     public void Measure()
@@ -155,17 +296,17 @@ public class SettlementLayout
             return;
         }
 
-        Vector2 min = Blocks[0].Corners[0];
+        Vector2 min = Tiles[0].Corners[0];
         Vector2 max = min;
         float farthest = 0f;
 
-        foreach (Block block in Blocks)
+        foreach (SettlementTile tile in Tiles)
         {
-            foreach (Vector2 corner in block.Corners)
+            foreach (Vector2 corner in tile.Corners)
             {
                 min = Vector2.Min(min, corner);
                 max = Vector2.Max(max, corner);
-                farthest = Mathf.Max(farthest, (corner - Hub.Position).sqrMagnitude);
+                farthest = Mathf.Max(farthest, (corner - Origin).sqrMagnitude);
             }
         }
 

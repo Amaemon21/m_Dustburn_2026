@@ -6,6 +6,8 @@ public class PoiPlacer
 {
     private const int FIT_SAMPLES = 4;
     private const float ROAD_PROBE_STEP = 4f;
+    private const float RURAL_DEPTH_BUDGET = 16f;
+    private const float OVERLAP_SHRINK = 0.98f;
 
     private readonly WorldGenerationConfig _config;
     private readonly PoiDatabase _pois;
@@ -21,8 +23,10 @@ public class PoiPlacer
     private int _skippedSteep;
     private int _skippedNoFit;
     private int _skippedOnRoad;
-    private int _planned;
-    private int _short;
+    private int _lots;
+
+    public int EmptyRuralSites { get; private set; }
+    public int RuralPlaced { get; private set; }
 
     public PoiPlacer(WorldGenerationConfig config, PoiDatabase pois, HeightMap map, RoadProximity roads)
     {
@@ -44,16 +48,15 @@ public class PoiPlacer
         _skippedSteep = 0;
         _skippedNoFit = 0;
         _skippedOnRoad = 0;
-        _planned = 0;
-        _short = 0;
+        _lots = 0;
+        EmptyRuralSites = 0;
+        RuralPlaced = 0;
 
         var random = new Random(((uint)_config.Seed | 1u) * 2246822519u + 13u);
 
-        int lots = 0;
-
         foreach (SettlementLayout layout in layouts)
         {
-            lots += layout.Lots.Count;
+            _lots += layout.Lots.Count;
             PlaceSettlement(layout, ref random);
         }
 
@@ -61,9 +64,9 @@ public class PoiPlacer
 
         _settlement.Clear();
 
-        PlaceAlongRoads(network, ref random);
+        PlaceRural(network, ref random);
 
-        Report(lots, inSettlements);
+        Report(inSettlements);
 
         return _placements;
     }
@@ -82,20 +85,12 @@ public class PoiPlacer
     {
         _settlement.Clear();
 
-        Vector2 origin = layout.Hub.Position;
-        int houses = layout.Hub.Houses;
-        int placed = 0;
+        Vector2 origin = layout.Origin;
 
         layout.Lots.Sort((left, right) => (left.Center - origin).sqrMagnitude.CompareTo((right.Center - origin).sqrMagnitude));
 
         foreach (Lot lot in layout.Lots)
-        {
-            if (PlaceOnLot(lot, ref random))
-                placed++;
-        }
-
-        _planned += houses;
-        _short += Mathf.Max(0, houses - placed);
+            PlaceOnLot(lot, ref random);
     }
 
     private bool PlaceOnLot(Lot lot, ref Random random)
@@ -125,76 +120,67 @@ public class PoiPlacer
             return false;
         }
 
-        Add(definition, position, lot.Forward, lot.District);
+        Add(definition, position, lot.Forward, definition.District);
 
         return true;
     }
 
-    private void PlaceAlongRoads(RoadNetwork network, ref Random random)
+    private void PlaceRural(RoadNetwork network, ref Random random)
     {
-        if (!_pois.HasDistrict(DistrictType.Rural))
+        if (network == null || !_pois.HasDistrict(DistrictType.Rural))
             return;
 
-        foreach (Road road in network.Roads)
+        var index = new LotIndex(_config.WorldSize, 48f);
+
+        foreach (RuralSite site in network.RuralSites)
         {
-            if (road.Points == null || road.Points.Length < 2)
-                continue;
+            _settlement.Clear();
 
-            float travelled = 0f;
-            float nextAt = _config.RuralSpacing;
-            float side = 1f;
+            int placed = 0;
+            float street = SampleMeters(site.Anchor);
+            Vector2 arrival = -site.Forward;
+            float lateral = 0f;
 
-            for (int i = 0; i < road.Points.Length - 1; i++)
+            for (int building = 0; building < site.Buildings; building++)
             {
-                Vector2 from = road.Points[i];
-                Vector2 to = road.Points[i + 1];
-
-                float segment = Vector2.Distance(from, to);
-
-                if (segment <= Mathf.Epsilon)
-                    continue;
-
-                travelled += segment;
-
-                if (travelled < nextAt)
-                    continue;
-
-                nextAt = travelled + _config.RuralSpacing;
-                side = -side;
-
-                if (random.NextFloat() > _config.RuralChance)
-                    continue;
-
-                Vector2 direction = (to - from) / segment;
-                Vector2 normal = new(-direction.y, direction.x);
-
-                Vector2 position = to + normal * (_config.RuralOffset * side);
-
-                if (IsInsideSettlement(network, position))
-                    continue;
-
-                PoiDefinition definition = Pick(DistrictType.Rural, float.MaxValue, float.MaxValue, ref random);
+                PoiDefinition definition = Pick(DistrictType.Rural, float.MaxValue, RURAL_DEPTH_BUDGET, ref random);
 
                 if (definition == null)
+                    break;
+
+                float depthOffset = _config.DirtHalfWidth + _config.LotFrontGap + definition.FootprintDepth * 0.5f;
+                float side = building % 2 == 1 ? 1f : -1f;
+
+                if (building > 0)
+                    lateral = side * (Mathf.Abs(lateral) + definition.FootprintWidth + _config.LotGap);
+
+                Vector2 position = site.Anchor + arrival * depthOffset + site.Tangent * lateral;
+                var footprint = new Lot(position, definition.FootprintWidth + 2f * _config.LotMargin, definition.FootprintDepth + 2f * _config.LotMargin, site.Forward, DistrictType.Rural);
+
+                if (index.Overlaps(footprint, OVERLAP_SHRINK))
                     continue;
 
-                Vector2 forward = -normal * side;
-                float street = SampleMeters(to);
-
-                if (IsOnRoad(position, definition.Footprint, forward))
+                if (IsOnRoad(position, definition.Footprint, site.Forward))
                 {
                     _skippedOnRoad++;
                     continue;
                 }
 
-                if (!Fits(position, definition.Footprint, forward, street))
+                if (!Fits(position, definition.Footprint, site.Forward, street))
                 {
                     _skippedSteep++;
                     continue;
                 }
 
-                Add(definition, position, forward, DistrictType.Rural);
+                index.Add(footprint);
+                Add(definition, position, site.Forward, DistrictType.Rural);
+                placed++;
             }
+
+            RuralPlaced += placed;
+
+            if (placed == 0)
+                EmptyRuralSites++;
         }
     }
 
@@ -207,19 +193,6 @@ public class PoiPlacer
 
         _world.Add(definition);
         _settlement.Add(definition);
-    }
-
-    private bool IsInsideSettlement(RoadNetwork network, Vector2 position)
-    {
-        foreach (Hub hub in network.Hubs)
-        {
-            float radius = hub.Radius * _config.RuralClearance;
-
-            if ((position - hub.Position).sqrMagnitude < radius * radius)
-                return true;
-        }
-
-        return false;
     }
 
     private bool Fits(Vector2 center, Vector2 footprint, Vector2 forward, float street)
@@ -284,6 +257,19 @@ public class PoiPlacer
 
     private PoiDefinition Pick(DistrictType district, float maxWidth, float maxDepth, ref Random random)
     {
+        foreach (DistrictType candidate in LotSubdivider.Fallback(district))
+        {
+            PoiDefinition definition = PickExact(candidate, maxWidth, maxDepth, ref random);
+
+            if (definition != null)
+                return definition;
+        }
+
+        return null;
+    }
+
+    private PoiDefinition PickExact(DistrictType district, float maxWidth, float maxDepth, ref Random random)
+    {
         float total = 0f;
 
         foreach (PoiDefinition definition in _pois.Definitions)
@@ -342,25 +328,22 @@ public class PoiPlacer
         return _map.SampleWorld(new Vector3(position.x, 0f, position.y));
     }
 
-    private void Report(int lots, int inSettlements)
+    private void Report(int inSettlements)
     {
         if (_placements.Count == 0)
         {
-            Debug.LogWarning($"Not a single POI was placed across {lots} lots. Check the PoiDefinition footprints against BlockSizeMin and raise MaxPoiCut and MaxPoiFill");
+            Debug.LogWarning($"Not a single POI was placed across {_lots} lots. Check the PoiDefinition footprints against TileSize and raise MaxPoiCut and MaxPoiFill");
 
             return;
         }
 
-        Debug.Log($"POI: {_placements.Count} placed, {inSettlements} houses in settlements against {_planned} drawn, {_placements.Count - inSettlements} along roads");
-
-        if (_short > 0)
-            Debug.Log($"POI: settlements came {_short} houses short of their draw. A settlement boxed in by steep ground, water or a neighbour runs out of blocks — raise MaxBlockRelief or lower SettlementGap");
+        Debug.Log($"POI: {_placements.Count} placed, {inSettlements} on {_lots} settlement lots, {RuralPlaced} at the end of dirt access roads, {EmptyRuralSites} dirt spurs left without a building");
 
         if (_skippedNoFit > 0)
             Debug.Log($"POI: {_skippedNoFit} lots stayed empty, no prefab of the district fitted. Add a smaller PoiDefinition, lower LotMargin or raise MaxPerSettlement");
 
         if (_skippedSteep > 0)
-            Debug.Log($"POI: {_skippedSteep} lots dropped by the terrain. Raise MaxPoiCut and MaxPoiFill or SettlementSmoothing");
+            Debug.Log($"POI: {_skippedSteep} buildings dropped by the terrain. Raise MaxPoiCut and MaxPoiFill or SettlementSmoothing");
 
         if (_skippedOnRoad > 0)
             Debug.Log($"POI: {_skippedOnRoad} buildings dropped for landing on a road surface");

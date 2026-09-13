@@ -24,34 +24,72 @@ static class AssetReader
 
         Type type = target.GetType();
         int applied = 0;
+        object nested = null;
 
         foreach (string line in File.ReadAllLines(path))
         {
+            if (nested != null && line.StartsWith("    <") && !line.StartsWith("     "))
+            {
+                if (AssignLine(nested, line, 5))
+                    applied++;
+
+                continue;
+            }
+
             if (!line.StartsWith("  <") || line.StartsWith("   "))
+            {
+                if (!line.StartsWith("    "))
+                    nested = null;
+
                 continue;
+            }
 
-            int close = line.IndexOf(">k__BackingField: ", StringComparison.Ordinal);
+            nested = null;
 
-            if (close < 0)
+            int header = line.IndexOf(">k__BackingField:", StringComparison.Ordinal);
+
+            if (header > 0 && line.Substring(header + 17).Trim().Length == 0)
+            {
+                FieldInfo holder = type.GetField($"<{line.Substring(3, header - 3)}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (holder != null && holder.FieldType.IsClass && holder.FieldType != typeof(string))
+                {
+                    nested = holder.GetValue(target) ?? Activator.CreateInstance(holder.FieldType, true);
+                    holder.SetValue(target, nested);
+                }
+
                 continue;
+            }
 
-            string name = line.Substring(3, close - 3);
-            string value = line.Substring(close + 18).Trim();
-
-            if (value.Length == 0 || value[0] == '{')
-                continue;
-
-            FieldInfo field = type.GetField($"<{name}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (field == null || !TryParse(field.FieldType, value, out object parsed))
-                continue;
-
-            field.SetValue(target, parsed);
-            applied++;
+            if (AssignLine(target, line, 3))
+                applied++;
         }
 
         if (applied == 0)
             throw new InvalidOperationException($"из {path} не прочитано ни одного поля");
+    }
+
+    private static bool AssignLine(object target, string line, int prefix)
+    {
+        int close = line.IndexOf(">k__BackingField: ", StringComparison.Ordinal);
+
+        if (close < 0)
+            return false;
+
+        string name = line.Substring(prefix, close - prefix);
+        string value = line.Substring(close + 18).Trim();
+
+        if (value.Length == 0 || value[0] == '{')
+            return false;
+
+        FieldInfo field = target.GetType().GetField($"<{name}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (field == null || !TryParse(field.FieldType, value, out object parsed))
+            return false;
+
+        field.SetValue(target, parsed);
+
+        return true;
     }
 
     private static bool TryParse(Type type, string text, out object value)

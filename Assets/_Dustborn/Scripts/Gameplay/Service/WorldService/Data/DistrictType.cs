@@ -3,5 +3,6 @@ public enum DistrictType
     Downtown,
     Residential,
     Industrial,
-    Rural
+    Rural,
+    Commercial
 }

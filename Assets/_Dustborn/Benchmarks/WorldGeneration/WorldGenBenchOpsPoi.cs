@@ -147,13 +147,7 @@ public static class WorldGenBenchOpsPoi
             Setup = context =>
             {
                 frozen = WorldGenBenchFixtures.Frozen(context.Profile, "cities");
-                WorldGenBenchProfile.Assign(context.Profile.Config, "RuralChance",
-                    context.Args.Float("ruralChance", context.Profile.Config.RuralChance));
-
-                if (context.Args.Has("ruralSpacing"))
-                    WorldGenBenchProfile.Assign(context.Profile.Config, "RuralSpacing", context.Args.Float("ruralSpacing", 180f));
-
-                context.Count("ruralChance", context.Profile.Config.RuralChance);
+                context.Count("sites", frozen.Roads.RuralSites.Count);
                 context.Count("roads", frozen.Roads.Roads.Count);
             },
             Prepare = context =>
@@ -162,7 +156,7 @@ public static class WorldGenBenchOpsPoi
                 var proximity = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
                 proximity.AddRange(frozen.Roads.Streets);
                 placer = new PoiPlacer(config, context.Profile.Pois, frozen.CarvedHeights, proximity);
-                along = WorldGenBenchReflect.Bind<RoadStep>(placer, "PlaceAlongRoads");
+                along = WorldGenBenchReflect.Bind<RoadStep>(placer, "PlaceRural");
             },
             Verify = context =>
             {

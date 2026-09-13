@@ -52,57 +52,146 @@ MonoBehaviour:
   <ShoreMargin>k__BackingField: 6
   <ErosionTalusAngle>k__BackingField: 30
   <ErosionStrength>k__BackingField: 0.5
-  <HubCount>k__BackingField: 81
-  <HubCandidateStep>k__BackingField: 64
-  <HubSampleRadius>k__BackingField: 110
-  <MinHubDistance>k__BackingField: 460
-  <HubEdgeMargin>k__BackingField: 400
-  <MaxHubRelief>k__BackingField: 45
-  <MaxHubFill>k__BackingField: 12
-  <MaxHubCut>k__BackingField: 25
-  <MinHouses>k__BackingField: 6
-  <MaxHouses>k__BackingField: 120
-  <HouseCountBias>k__BackingField: 2.4
-  <BlockSizeMin>k__BackingField: 56
-  <BlockSizeMax>k__BackingField: 84
-  <BlockWarp>k__BackingField: 9
-  <BlockWarpPeriod>k__BackingField: 260
-  <MaxBlockRelief>k__BackingField: 16
-  <StreetLoopChance>k__BackingField: 0.8
-  <OuterFrontageChance>k__BackingField: 0.45
+  <CityProfile>k__BackingField:
+    <Count>k__BackingField: 3
+    <MinTiles>k__BackingField: 18
+    <MaxTiles>k__BackingField: 30
+    <Spacing>k__BackingField: 2200
+    <MaxLinks>k__BackingField: 5
+    <MaxGateways>k__BackingField: 6
+    <Importance>k__BackingField: 4
+    <ArmTiles>k__BackingField: 3
+    <LoopDensity>k__BackingField: 0.8
+    <Shape>k__BackingField: 0
+    <DowntownShare>k__BackingField: 0.15
+    <CommercialShare>k__BackingField: 0.2
+    <IndustrialShare>k__BackingField: 0.15
+    <RuralShare>k__BackingField: 0.1
+    <PoiDensity>k__BackingField: 1
+  <TownProfile>k__BackingField:
+    <Count>k__BackingField: 7
+    <MinTiles>k__BackingField: 8
+    <MaxTiles>k__BackingField: 14
+    <Spacing>k__BackingField: 1300
+    <MaxLinks>k__BackingField: 4
+    <MaxGateways>k__BackingField: 4
+    <Importance>k__BackingField: 2.5
+    <ArmTiles>k__BackingField: 2
+    <LoopDensity>k__BackingField: 0.55
+    <Shape>k__BackingField: 0
+    <DowntownShare>k__BackingField: 0
+    <CommercialShare>k__BackingField: 0.25
+    <IndustrialShare>k__BackingField: 0.1
+    <RuralShare>k__BackingField: 0.15
+    <PoiDensity>k__BackingField: 0.85
+  <CountryTownProfile>k__BackingField:
+    <Count>k__BackingField: 12
+    <MinTiles>k__BackingField: 3
+    <MaxTiles>k__BackingField: 6
+    <Spacing>k__BackingField: 800
+    <MaxLinks>k__BackingField: 3
+    <MaxGateways>k__BackingField: 3
+    <Importance>k__BackingField: 1.5
+    <ArmTiles>k__BackingField: 1
+    <LoopDensity>k__BackingField: 0.1
+    <Shape>k__BackingField: 1
+    <DowntownShare>k__BackingField: 0
+    <CommercialShare>k__BackingField: 0.2
+    <IndustrialShare>k__BackingField: 0
+    <RuralShare>k__BackingField: 0.3
+    <PoiDensity>k__BackingField: 0.6
+  <GhostTownProfile>k__BackingField:
+    <Count>k__BackingField: 16
+    <MinTiles>k__BackingField: 1
+    <MaxTiles>k__BackingField: 3
+    <Spacing>k__BackingField: 600
+    <MaxLinks>k__BackingField: 2
+    <MaxGateways>k__BackingField: 2
+    <Importance>k__BackingField: 1
+    <ArmTiles>k__BackingField: 1
+    <LoopDensity>k__BackingField: 0
+    <Shape>k__BackingField: 2
+    <DowntownShare>k__BackingField: 0
+    <CommercialShare>k__BackingField: 0
+    <IndustrialShare>k__BackingField: 0
+    <RuralShare>k__BackingField: 0.5
+    <PoiDensity>k__BackingField: 0.35
   <SettlementGap>k__BackingField: 140
-  <DowntownShare>k__BackingField: 0.2
-  <DowntownMinBlocks>k__BackingField: 5
-  <IndustrialShare>k__BackingField: 0.15
-  <IndustrialMinBlocks>k__BackingField: 8
-  <SettlementSmoothing>k__BackingField: 36
-  <SettlementPadSkirt>k__BackingField: 36
+  <HubEdgeMargin>k__BackingField: 160
+  <HubSampleRadius>k__BackingField: 110
+  <MaxHubRelief>k__BackingField: 45
+  <SiteBuildableShare>k__BackingField: 0.35
+  <TileSize>k__BackingField: 150
+  <MaxTileRelief>k__BackingField: 26
+  <MaxTileGrade>k__BackingField: 0.06
+  <DeadEndShare>k__BackingField: 0.25
+  <TopologyAttempts>k__BackingField: 4
+  <GatewayMergeAngle>k__BackingField: 40
+  <TargetLinkRatio>k__BackingField: 1.3
+  <MinLoopDetour>k__BackingField: 1.4
+  <MinLoopGain>k__BackingField: 0.2
+  <LoopSpacing>k__BackingField: 1500
+  <MinLinkAngle>k__BackingField: 38
+  <MaxLinkLength>k__BackingField: 3200
+  <LinkWaterPenalty>k__BackingField: 6
+  <LinkEarthworkWeight>k__BackingField: 0.08
   <RoadCellSize>k__BackingField: 32
   <RoadSlopePenalty>k__BackingField: 20
   <RoadCrossSlopePenalty>k__BackingField: 16
+  <RoadTurnPenalty>k__BackingField: 55
+  <RoadMaxGrade>k__BackingField: 0.12
+  <HighwayMaxCrossSlope>k__BackingField: 0.55
+  <ValleyPreference>k__BackingField: 0.5
+  <ValleyRadius>k__BackingField: 240
+  <JunctionPenalty>k__BackingField: 160
+  <JunctionAngle>k__BackingField: 40
+  <ParallelPenalty>k__BackingField: 12
   <RoadReuseDiscount>k__BackingField: 0.35
-  <RoadExtraEdges>k__BackingField: 60
-  <SettlementRoadPenalty>k__BackingField: 10
+  <GatewayApproachLength>k__BackingField: 120
+  <HighwaySettlementClearance>k__BackingField: 28
+  <HighwayMinCurveRadius>k__BackingField: 70
+  <RouteAttempts>k__BackingField: 3
+  <MaxWaterExposure>k__BackingField: 0.1
   <RoadHalfWidth>k__BackingField: 4
   <RoadShoulder>k__BackingField: 9
   <RoadProfileSmoothing>k__BackingField: 24
   <MaxRoadFill>k__BackingField: 5
   <MaxRoadCut>k__BackingField: 14
-  <RoadEmbankmentSlope>k__BackingField: 5
-  <RoadTurnPenalty>k__BackingField: 55
   <RoadSimplifyTolerance>k__BackingField: 14
   <RoadSmoothPasses>k__BackingField: 3
   <RoadRelaxPasses>k__BackingField: 24
   <RoadRelaxStrength>k__BackingField: 0.4
   <RoadCorridor>k__BackingField: 36
-  <RoadMaxGrade>k__BackingField: 0.1
   <RoadPointSpacing>k__BackingField: 12
-  <MaxStreetSlope>k__BackingField: 0.22
+  <ArterialHalfWidth>k__BackingField: 4
+  <ArterialShoulder>k__BackingField: 7
   <StreetHalfWidth>k__BackingField: 3
   <StreetShoulder>k__BackingField: 6
   <StreetProfileSmoothing>k__BackingField: 6
   <MaxStreetFill>k__BackingField: 2.5
   <MaxStreetCut>k__BackingField: 8
+  <MaxStreetSlope>k__BackingField: 0.22
+  <StreetCornerRadius>k__BackingField: 16
+  <CourtDepth>k__BackingField: 44
+  <DirtHalfWidth>k__BackingField: 2.5
+  <DirtShoulder>k__BackingField: 4
+  <DirtProfileSmoothing>k__BackingField: 8
+  <MaxDirtFill>k__BackingField: 2
+  <MaxDirtCut>k__BackingField: 5
+  <DirtMaxGrade>k__BackingField: 0.2
+  <DirtMaxCrossSlope>k__BackingField: 0.6
+  <DirtMinCurveRadius>k__BackingField: 20
+  <DirtSpacing>k__BackingField: 240
+  <DirtChance>k__BackingField: 0.6
+  <DirtMinLength>k__BackingField: 40
+  <DirtMaxLength>k__BackingField: 150
+  <DirtSettlementClearance>k__BackingField: 160
+  <FarmsteadChance>k__BackingField: 0.35
+  <MaxHubFill>k__BackingField: 12
+  <MaxHubCut>k__BackingField: 25
+  <SettlementSmoothing>k__BackingField: 36
+  <SettlementPadSkirt>k__BackingField: 36
+  <RoadEmbankmentSlope>k__BackingField: 5
   <LotMargin>k__BackingField: 2.5
   <LotSetback>k__BackingField: 3
   <LotFrontGap>k__BackingField: 2.5
@@ -112,10 +201,6 @@ MonoBehaviour:
   <MaxPoiCut>k__BackingField: 10
   <PoiPadMargin>k__BackingField: 2
   <PoiPadSkirt>k__BackingField: 5
-  <RuralSpacing>k__BackingField: 180
-  <RuralOffset>k__BackingField: 26
-  <RuralChance>k__BackingField: 0.6
-  <RuralClearance>k__BackingField: 1.25
   <MaxTerrainLayers>k__BackingField: 32
   <OneGroundPerBiome>k__BackingField: 0
   <CliffLayer>k__BackingField: {fileID: 19532598970000000, guid: 49eb438f157d54879454817b45f3cab1, type: 2}

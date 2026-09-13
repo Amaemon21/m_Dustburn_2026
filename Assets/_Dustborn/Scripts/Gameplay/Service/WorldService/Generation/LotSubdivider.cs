@@ -6,6 +6,12 @@ public class LotSubdivider
 {
     private const float OVERLAP_SHRINK = 0.94f;
 
+    private static readonly DistrictType[] DOWNTOWN_FALLBACK = { DistrictType.Downtown, DistrictType.Commercial, DistrictType.Residential };
+    private static readonly DistrictType[] COMMERCIAL_FALLBACK = { DistrictType.Commercial, DistrictType.Downtown, DistrictType.Residential };
+    private static readonly DistrictType[] INDUSTRIAL_FALLBACK = { DistrictType.Industrial, DistrictType.Residential };
+    private static readonly DistrictType[] RURAL_FALLBACK = { DistrictType.Rural, DistrictType.Residential };
+    private static readonly DistrictType[] RESIDENTIAL_FALLBACK = { DistrictType.Residential };
+
     private readonly WorldGenerationConfig _config;
     private readonly PoiDatabase _pois;
 
@@ -15,6 +21,8 @@ public class LotSubdivider
     public int SkippedOnRoad { get; private set; }
     public int SkippedOutside { get; private set; }
     public int SkippedNoPrefab { get; private set; }
+    public int SkippedDepth { get; private set; }
+    public int SkippedDensity { get; private set; }
 
     public LotSubdivider(WorldGenerationConfig config, PoiDatabase pois)
     {
@@ -23,10 +31,39 @@ public class LotSubdivider
         _lots = new LotIndex(config.WorldSize, 48f);
     }
 
+    public static IReadOnlyList<DistrictType> Fallback(DistrictType district)
+    {
+        return district switch
+        {
+            DistrictType.Downtown => DOWNTOWN_FALLBACK,
+            DistrictType.Commercial => COMMERCIAL_FALLBACK,
+            DistrictType.Industrial => INDUSTRIAL_FALLBACK,
+            DistrictType.Rural => RURAL_FALLBACK,
+            _ => RESIDENTIAL_FALLBACK
+        };
+    }
+
     public void Fill(SettlementLayout layout, RoadProximity roads, ref Random random)
     {
-        foreach (Frontage frontage in layout.Frontages)
+        var order = new List<Frontage>(layout.Frontages);
+        var rank = new Dictionary<Frontage, int>(order.Count);
+
+        for (int i = 0; i < order.Count; i++)
+            rank[order[i]] = i;
+
+        order.Sort((left, right) =>
+        {
+            int compare = Priority(left.Kind).CompareTo(Priority(right.Kind));
+            return compare != 0 ? compare : rank[left].CompareTo(rank[right]);
+        });
+
+        foreach (Frontage frontage in order)
             Walk(layout, frontage, roads, ref random);
+    }
+
+    private static int Priority(RoadKind kind)
+    {
+        return kind == RoadKind.Arterial ? 0 : 1;
     }
 
     private void Walk(SettlementLayout layout, Frontage frontage, RoadProximity roads, ref Random random)
@@ -44,7 +81,14 @@ public class LotSubdivider
         {
             Vector2 anchor = frontage.From + tangent * cursor;
 
-            if (TryLot(frontage, anchor, tangent, roads, ref random, out Lot lot, out float step))
+            if (random.NextFloat() > frontage.Density)
+            {
+                SkippedDensity++;
+                cursor += _config.LotProbeStep + _config.LotGap * random.NextFloat(1f, 3f);
+                continue;
+            }
+
+            if (TryLot(frontage, anchor, tangent, length - cursor, roads, ref random, out Lot lot, out float step))
             {
                 layout.Lots.Add(lot);
                 _lots.Add(lot);
@@ -54,52 +98,65 @@ public class LotSubdivider
         }
     }
 
-    private bool TryLot(Frontage frontage, Vector2 anchor, Vector2 tangent, RoadProximity roads, ref Random random, out Lot lot, out float step)
+    private bool TryLot(Frontage frontage, Vector2 anchor, Vector2 tangent, float remaining, RoadProximity roads, ref Random random, out Lot lot, out float step)
     {
         lot = null;
         step = _config.LotProbeStep;
 
-        DistrictType district = frontage.Block.District;
-        PoiDefinition definition = Sample(district, ref random);
+        PoiDefinition definition = null;
+        DistrictType district = frontage.District;
 
-        if (definition == null && district != DistrictType.Residential)
+        foreach (DistrictType candidate in Fallback(frontage.District))
         {
-            district = DistrictType.Residential;
-            definition = Sample(district, ref random);
+            definition = Sample(candidate, frontage.MaxDepth, ref random);
+
+            if (definition == null)
+                continue;
+
+            district = candidate;
+            break;
         }
 
         if (definition == null)
         {
-            SkippedNoPrefab++;
+            if (_pois.HasDistrict(frontage.District))
+                SkippedDepth++;
+            else
+                SkippedNoPrefab++;
+
             return false;
         }
 
         float width = definition.FootprintWidth + 2f * _config.LotMargin;
         float depth = definition.FootprintDepth + _config.LotSetback + _config.LotMargin;
+
+        if (width > remaining + _config.LotGap)
+            return false;
+
         float offset = frontage.HalfWidth + _config.LotFrontGap + depth * 0.5f;
 
         Vector2 center = anchor + tangent * (width * 0.5f) + frontage.Normal * offset;
-        var candidate = new Lot(center, width, depth, -frontage.Normal, district);
+        var candidateLot = new Lot(center, width, depth, -frontage.Normal, district);
 
-        if (!IsInsideWorld(candidate))
+        if (!IsInsideWorld(candidateLot))
         {
             SkippedOutside++;
             return false;
         }
 
-        if (roads != null && TouchesRoad(candidate, roads))
+        if (roads != null && TouchesRoad(candidateLot, roads))
         {
             SkippedOnRoad++;
             return false;
         }
 
-        if (_lots.Overlaps(candidate, OVERLAP_SHRINK))
+        if (_lots.Overlaps(candidateLot, OVERLAP_SHRINK))
         {
             SkippedOverlap++;
             return false;
         }
 
-        lot = candidate;
+        lot = candidateLot;
         step = width + _config.LotGap * random.NextFloat(0.5f, 2f);
 
         return true;
@@ -145,13 +202,13 @@ public class LotSubdivider
         return true;
     }
 
-    private PoiDefinition Sample(DistrictType district, ref Random random)
+    private PoiDefinition Sample(DistrictType district, float maxDepth, ref Random random)
     {
         float total = 0f;
 
         foreach (PoiDefinition definition in _pois.Definitions)
         {
-            if (definition != null && definition.District == district)
+            if (Fits(definition, district, maxDepth))
                 total += definition.Weight;
         }
 
@@ -162,7 +219,7 @@ public class LotSubdivider
 
         foreach (PoiDefinition definition in _pois.Definitions)
         {
-            if (definition == null || definition.District != district)
+            if (!Fits(definition, district, maxDepth))
                 continue;
 
             roll -= definition.Weight;
@@ -172,5 +229,11 @@ public class LotSubdivider
         }
 
         return null;
+    }
+
+    private bool Fits(PoiDefinition definition, DistrictType district, float maxDepth)
+    {
+        return definition != null && definition.District == district
+            && definition.FootprintDepth + _config.LotSetback + _config.LotMargin <= maxDepth;
     }
 }

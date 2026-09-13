@@ -63,19 +63,18 @@ public sealed class WorldMapPipeline
         var roads = new RoadNetwork();
 
         using (WorldGenProbe.Measure(WorldGenStage.MapHubs))
-        {
             roads.Hubs.AddRange(new HubPlacer(_config, heights).Place());
-            roads.Links.AddRange(RoadGraph.Link(roads.Hubs, _config.RoadExtraEdges));
-        }
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapRegionalPlan))
+            roads.SetPlan(new RegionalGraphPlanner(_config, heights).Plan(roads.Hubs));
 
         var planner = new SettlementPlanner(_config, _pois, heights);
         List<SettlementLayout> settlements;
 
         using (WorldGenProbe.Measure(WorldGenStage.MapCities))
-            settlements = planner.Plan(roads.Hubs, roads.Links);
+            settlements = planner.Plan(roads.Hubs, roads.RegionalLinks);
 
-        foreach (SettlementLayout settlement in settlements)
-            roads.Streets.AddRange(settlement.Streets);
+        roads.Publish(_config, settlements);
 
         Report("Дороги между поселениями", 0.38f);
         var carver = new TerrainCarver(_config);
@@ -84,7 +83,12 @@ public sealed class WorldMapPipeline
             heights = carver.CarveSettlements(heights, settlements);
 
         using (WorldGenProbe.Measure(WorldGenStage.MapRoadPlan))
-            roads.Roads.AddRange(new RoadPlanner(_config, heights).Plan(roads.Hubs, roads.Links, settlements));
+            roads.Graph = new RoadPlanner(_config, heights).Plan(roads.Hubs, roads.RegionalLinks, settlements);
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapDirtAccess))
+            roads.RuralSites.AddRange(new DirtAccessPlanner(_config, heights).Plan(roads.Graph, settlements, roads.Streets));
+
+        roads.Publish(_config, settlements);
 
         Report("Врезка дорог и улиц", 0.42f);
         float[] mask;

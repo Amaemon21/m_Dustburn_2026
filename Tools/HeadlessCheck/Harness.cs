@@ -94,6 +94,12 @@ static class Harness
             return;
         }
 
+        if (Array.IndexOf(args, "--road-audit") >= 0)
+        {
+            RoadAudit.Run(ArgumentAfter(args, "--road-audit") ?? "../../Assets/_Dustborn/Generated/RoadNetwork.asset");
+            return;
+        }
+
         const string CONTENT = "../../Assets/_Dustborn/Content/World";
 
         _config = AssetReader.Load<WorldGenerationConfig>($"{CONTENT}/WorldGenerationConfig.asset");
@@ -105,7 +111,13 @@ static class Harness
 
         if (Array.IndexOf(args, "--pipeline-smoke") >= 0)
         {
-            WorldMapPipelineChecks.Run(_config, biomes, pois);
+            WorldMapPipelineChecks.Run(_config, biomes, pois, ArgumentAfter(args, "--problem-dir"));
+            return;
+        }
+
+        if (Array.IndexOf(args, "--road-topology") >= 0)
+        {
+            RoadTopologyChecks.Run(pois, ArgumentAfter(args, "--problem-dir"));
             return;
         }
 
@@ -122,7 +134,7 @@ static class Harness
                 Tune(parts[0], float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture));
         }
 
-        Console.WriteLine($"конфиг: seed {_config.Seed}, мир {_config.WorldSize}, MaxHeight {_config.MaxHeight}, ReliefScale {_config.ReliefScale}, хабов {_config.HubCount}");
+        Console.WriteLine($"конфиг: seed {_config.Seed}, мир {_config.WorldSize}, MaxHeight {_config.MaxHeight}, ReliefScale {_config.ReliefScale}, {_config.SettlementMix}");
 
         BiomeMap biomeMap = Stage("биомы", () => new BiomeMapGenerator(_config, biomes).Generate());
 
@@ -142,34 +154,38 @@ static class Harness
         }
 
         var network = new RoadNetwork();
-        network.Hubs.AddRange(Stage("поселения", () => new HubPlacer(_config, raw).Place()));
-        network.Links.AddRange(RoadGraph.Link(network.Hubs, _config.RoadExtraEdges));
+        network.Hubs.AddRange(Stage("sites", () => new HubPlacer(_config, raw).Place()));
+        network.SetPlan(Stage("regional plan", () => new RegionalGraphPlanner(_config, raw).Plan(network.Hubs)));
 
         var planner = new SettlementPlanner(_config, pois, raw);
-        List<SettlementLayout> layouts = Stage("кварталы", () => planner.Plan(network.Hubs, network.Links));
+        List<SettlementLayout> layouts = Stage("tile topology", () => planner.Plan(network.Hubs, network.RegionalLinks));
+        network.Publish(_config, layouts);
 
-        foreach (SettlementLayout layout in layouts)
-            network.Streets.AddRange(layout.Streets);
+        var carver = new TerrainCarver(_config) { Profiles = new List<(Road Road, Vector2[] Points, float[] Profile, bool[] Anchored)>() };
+        HeightMap padded = Stage("settlement terrain", () => carver.CarveSettlements(raw, layouts));
+        var roadPlanner = new RoadPlanner(_config, padded);
+        network.Graph = Stage("highways", () => roadPlanner.Plan(network.Hubs, network.RegionalLinks, layouts));
+        network.RuralSites.AddRange(Stage("dirt access", () => new DirtAccessPlanner(_config, padded).Plan(network.Graph, layouts, network.Streets)));
+        network.Publish(_config, layouts);
 
-        var carver = new TerrainCarver(_config);
-        HeightMap padded = Stage("выравнивание", () => carver.CarveSettlements(raw, layouts));
-        network.Roads.AddRange(Stage("дороги", () => new RoadPlanner(_config, padded).Plan(network.Hubs, network.Links, layouts)));
-
-        Console.WriteLine($"hubs={network.Hubs.Count} links={network.Links.Count} roads={network.Roads.Count} streets={network.Streets.Count}");
+        Console.WriteLine($"hubs={network.Hubs.Count} links={network.Links.Count} roads={network.Roads.Count} streets={network.Streets.Count} ruralSites={network.RuralSites.Count}");
 
         float[] roadMask = null;
-        HeightMap withStreets = Stage("врезка улиц", () => carver.CarveStreets(padded, layouts, out roadMask));
-        HeightMap roadsMap = Stage("врезка дорог", () => carver.CarveHighways(withStreets, network.Roads, roadMask));
+        HeightMap withStreets = Stage("carve streets", () => carver.CarveStreets(padded, layouts, out roadMask));
+        HeightMap roadsMap = Stage("carve roads", () => carver.CarveHighways(withStreets, network.Roads, roadMask));
 
         var roads = new RoadProximity(network.Roads, _config.WorldSize, _config.RoadCellSize);
         roads.AddRange(network.Streets);
-        Stage("участки", () => planner.CutLots(layouts, roads));
+        Stage("lots", () => planner.CutLots(layouts, roads));
 
         var placer = new PoiPlacer(_config, pois, roadsMap, roads);
         List<PoiPlacement> placements = Stage("POI", () => placer.Place(layouts, network));
 
-        HeightMap final = Stage("врезка площадок", () => carver.CarvePads(roadsMap, placements));
+        HeightMap final = Stage("pads", () => carver.CarvePads(roadsMap, placements));
         placer.ApplyHeights(final);
+
+        List<Road> highways = network.Roads.FindAll(road => road.Kind == RoadKind.Highway);
+        List<Road> dirt = network.Roads.FindAll(road => road.Kind == RoadKind.DirtAccess);
 
         Report(layouts, placements);
         ReportSettlements(layouts, placements);
@@ -178,17 +194,75 @@ static class Harness
         CheckSpacing(network);
         CheckConnectivity(network);
         CheckHighwaysInSettlements(network, layouts);
-        CheckShoulders("трассы", network.Roads, roadsMap, _config.RoadHalfWidth, _config.RoadShoulder);
-        CheckShoulders("улицы", network.Streets, roadsMap, _config.StreetHalfWidth, _config.StreetShoulder);
-        CheckShoulders("улицы с домами", network.Streets, final, _config.StreetHalfWidth, _config.StreetShoulder);
-        CheckCurvature("трассы", network.Roads);
-        CheckCurvature("улицы", network.Streets);
+        CheckShoulders("highways", highways, roadsMap, _config.RoadHalfWidth, _config.RoadShoulder);
+        CheckShoulders("dirt roads", dirt, roadsMap, _config.DirtHalfWidth, _config.DirtShoulder);
+        CheckShoulders("streets", network.Streets, roadsMap, _config.StreetHalfWidth, _config.StreetShoulder);
+        CheckShoulders("streets with buildings", network.Streets, final, _config.StreetHalfWidth, _config.StreetShoulder);
+        CheckCurvature("highways", highways);
+        CheckCurvature("streets", network.Streets);
 
-        Draw.View("unity_world.png", final, network, layouts, placements,
-            new Vector2(_config.WorldSize * 0.5f, _config.WorldSize * 0.5f), _config.WorldSize, 1024, false);
+        RoadNetworkReport report = Stage("diagnostics", () => RoadNetworkDiagnostics.Measure(_config, network, layouts, placements, padded, roadsMap));
+
+        Console.WriteLine("road network diagnostics:");
+        Console.Write(report.ToText());
+        Console.WriteLine($"hard violations: {report.Hard}");
+        ClassifyGrades(report, padded, roadsMap, network);
+        ClassifyProblems(report, network, RoadNetworkDiagnostics.GRADE);
+        ClassifyProblems(report, network, RoadNetworkDiagnostics.CURVE_RADIUS);
+        ClassifyProblems(report, network, RoadNetworkDiagnostics.CROSS_SLOPE);
+
+        var shown = new Dictionary<string, int>();
+
+        foreach ((Vector2 point, string kind) in report.Problems)
+        {
+            shown.TryGetValue(kind, out int count);
+
+            if (count >= 6)
+                continue;
+
+            shown[kind] = count + 1;
+            Console.WriteLine($"  problem {kind} at ({point.x:F0}, {point.y:F0})");
+
+            string problemDirectory = ArgumentAfter(args, "--problem-dir");
+
+            if (problemDirectory == null || count >= 2)
+                continue;
+
+            if (kind == RoadNetworkDiagnostics.ORPHAN_ROADS)
+                DescribeOrphan(network, point);
+
+            if (kind == RoadNetworkDiagnostics.GATEWAY_MISALIGNED || kind == RoadNetworkDiagnostics.UNUSED_GATEWAYS)
+                DescribeGateway(network, layouts, point);
+
+            if (kind == RoadNetworkDiagnostics.GATEWAY_MISALIGNED || kind == RoadNetworkDiagnostics.HIGHWAY_IN_SETTLEMENT
+                || kind == RoadNetworkDiagnostics.UNEXPLAINED_CROSSINGS || kind == RoadNetworkDiagnostics.CURVE_RADIUS
+                || kind == RoadNetworkDiagnostics.CROSS_SLOPE || kind == RoadNetworkDiagnostics.GRADE)
+                DescribeRoute(network, roadPlanner, point);
+
+            if (kind == RoadNetworkDiagnostics.GRADE)
+                TraceGrade(carver.Profiles, withStreets, roadsMap, point);
+
+            if (kind == RoadNetworkDiagnostics.UNEXPLAINED_CROSSINGS)
+                DescribeCrossing(network, layouts, point);
+
+            if (kind == RoadNetworkDiagnostics.CURVE_RADIUS)
+                TraceCurve(network, point);
+
+            Directory.CreateDirectory(problemDirectory);
+            Draw.View(Path.Combine(problemDirectory, $"{kind}_{count}.png"), final, network, layouts, placements, point, 360f, 800, false, report);
+        }
+
+        Console.WriteLine("geometric audit, comparable with --road-audit on the old RoadNetwork.asset:");
+        RoadAudit.Print(RoadAudit.Measure(network.Roads, network.Streets, layouts.FindAll(layout => !layout.IsEmpty).Count));
+
+        var worldCenter = new Vector2(_config.WorldSize * 0.5f, _config.WorldSize * 0.5f);
+
+        Draw.View("unity_world.png", final, network, layouts, placements, worldCenter, _config.WorldSize, 1024, false);
+        Draw.View("road_topology.png", final, network, layouts, placements, worldCenter, _config.WorldSize, 2048, false, report);
+        Draw.Mask("road_mask_preview.png", roadMask, final.Resolution, 2048);
 
         List<SettlementLayout> ranked = layouts.FindAll(layout => !layout.IsEmpty);
-        ranked.Sort((left, right) => right.Hub.Houses.CompareTo(left.Hub.Houses));
+        ranked.Sort((left, right) => right.Tiles.Count.CompareTo(left.Tiles.Count));
 
         if (ranked.Count > 0)
         {
@@ -197,7 +271,8 @@ static class Harness
             DrawSettlement("unity_settlement_small.png", ranked[^1], final, network, layouts, placements);
         }
 
-        Draw.View("unity_zoom.png", final, network, layouts, placements, network.Hubs[0].Position, 300f, 1000, true);
+        if (network.Hubs.Count > 0)
+            Draw.View("unity_zoom.png", final, network, layouts, placements, network.Hubs[0].Position, 300f, 1000, true, report);
 
         if (settlementsOnly)
         {
@@ -211,7 +286,8 @@ static class Harness
         CheckDecor(raw, biomeMap, biomes);
         ReportStages();
 
-        Draw.View("unity_bare.png", final, new RoadNetwork(), new List<SettlementLayout>(), new List<PoiPlacement>(), network.Hubs[0].Position, 700f, 1000, false);
+        if (network.Hubs.Count > 0)
+            Draw.View("unity_bare.png", final, new RoadNetwork(), new List<SettlementLayout>(), new List<PoiPlacement>(), network.Hubs[0].Position, 700f, 1000, false);
     }
 
     static string ArgumentAfter(string[] args, string flag)
@@ -1677,23 +1753,367 @@ static class Harness
         return (x << 42) | (y << 21) | z;
     }
 
-    static void ReportSettlements(List<SettlementLayout> layouts, List<PoiPlacement> placements)
+    static void ClassifyGrades(RoadNetworkReport report, HeightMap prepared, HeightMap carved, RoadNetwork network)
     {
-        int drawn = 0, built = 0, blocks = 0, streets = 0, empty = 0;
-        var classes = new int[4];
+        int cutLimited = 0, fillLimited = 0, free = 0, nearNode = 0;
+
+        foreach ((Vector2 point, string kind) in report.Problems)
+        {
+            if (kind != RoadNetworkDiagnostics.GRADE)
+                continue;
+
+            float delta = carved.SampleWorldSmooth(point.x, point.y) - prepared.SampleWorldSmooth(point.x, point.y);
+
+            if (delta <= -_config.MaxRoadCut + 0.5f)
+                cutLimited++;
+            else if (delta >= _config.MaxRoadFill - 0.5f)
+                fillLimited++;
+            else
+                free++;
+
+            foreach (RoadNode node in network.Graph.Nodes)
+            {
+                if (node.Edges.Count == 0 || (node.Position - point).sqrMagnitude > 3600f)
+                    continue;
+
+                nearNode++;
+                break;
+            }
+        }
+
+        Console.WriteLine($"grade problems: {cutLimited} at the cut limit, {fillLimited} at the fill limit, {free} within earthwork limits, {nearNode} within 60 m of a graph node");
+    }
+
+    internal static void DescribeRoute(RoadNetwork network, RoadPlanner planner, Vector2 point)
+    {
+        RoadEdge best = null;
+        float bestSqr = 36f;
+
+        foreach (RoadEdge edge in network.Graph.Edges)
+        {
+            if (!edge.Alive || edge.Kind != RoadKind.Highway)
+                continue;
+
+            for (int i = 0; i < edge.Points.Length - 1; i++)
+            {
+                Vector2 from = edge.Points[i];
+                Vector2 delta = edge.Points[i + 1] - from;
+                float t = delta.sqrMagnitude > 0f ? Mathf.Clamp01(Vector2.Dot(point - from, delta) / delta.sqrMagnitude) : 0f;
+                float distanceSqr = (from + delta * t - point).sqrMagnitude;
+
+                if (distanceSqr >= bestSqr)
+                    continue;
+
+                bestSqr = distanceSqr;
+                best = edge;
+            }
+        }
+
+        if (best == null)
+            return;
+
+        RoadNode fromNode = network.Graph.Nodes[best.From];
+        RoadNode toNode = network.Graph.Nodes[best.To];
+
+        Console.WriteLine($"    nearest highway edge {best.Id} of route {best.Route}, {best.Length:F0} m, from {fromNode.Kind} ({fromNode.Position.x:F0}, {fromNode.Position.y:F0}) to {toNode.Kind} ({toNode.Position.x:F0}, {toNode.Position.y:F0})");
+
+        foreach (RoadPlanner.RouteRecord record in planner.Records)
+        {
+            if (record.Route == best.Route)
+                Console.WriteLine($"    built as {record.Shape}, from gateway {record.FromGateway}, to gateway {record.ToGateway}, level {record.Level}, relaxed endpoints {record.Relaxed}, hard {record.Hard}");
+        }
+    }
+
+    static (Road Road, int Segment) NearestHighway(RoadNetwork network, Vector2 point)
+    {
+        Road best = null;
+        int bestSegment = -1;
+        float bestSqr = 36f;
+
+        foreach (Road road in network.Roads)
+        {
+            if (road.Kind != RoadKind.Highway)
+                continue;
+
+            for (int i = 0; i < road.Points.Length - 1; i++)
+            {
+                Vector2 from = road.Points[i];
+                Vector2 delta = road.Points[i + 1] - from;
+                float t = delta.sqrMagnitude > 0f ? Mathf.Clamp01(Vector2.Dot(point - from, delta) / delta.sqrMagnitude) : 0f;
+                float distanceSqr = (from + delta * t - point).sqrMagnitude;
+
+                if (distanceSqr >= bestSqr)
+                    continue;
+
+                bestSqr = distanceSqr;
+                best = road;
+                bestSegment = i;
+            }
+        }
+
+        return (best, bestSegment);
+    }
+
+    internal static void TraceGrade(List<(Road Road, Vector2[] Points, float[] Profile, bool[] Anchored)> profiles, HeightMap before, HeightMap after, Vector2 point)
+    {
+        if (profiles == null)
+            return;
+
+        float cell = before.WorldSize / (float)(before.Resolution - 1);
+        int last = before.Resolution - 1;
+
+        for (int order = 0; order < profiles.Count; order++)
+        {
+            (Road road, Vector2[] points, float[] profile, bool[] anchored) = profiles[order];
+            int nearest = -1;
+            float nearestSqr = 36f;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                float distanceSqr = (points[i] - point).sqrMagnitude;
+
+                if (distanceSqr >= nearestSqr)
+                    continue;
+
+                nearestSqr = distanceSqr;
+                nearest = i;
+            }
+
+            if (nearest < 0)
+                continue;
+
+            var along = new float[points.Length];
+            int anchors = 0;
+
+            for (int i = 1; i < points.Length; i++)
+                along[i] = along[i - 1] + Vector2.Distance(points[i - 1], points[i]);
+
+            foreach (bool flag in anchored)
+                anchors += flag ? 1 : 0;
+
+            Console.WriteLine($"    carve order {order}: {road.Kind} of {along[^1]:F0} m from ({points[0].x:F0}, {points[0].y:F0}) to ({points[^1].x:F0}, {points[^1].y:F0}), {anchors} anchored samples, problem {along[nearest]:F0} m along");
+
+            for (int offset = -32; offset <= 32; offset += 4)
+            {
+                int i = IndexAt(along, along[nearest] + offset);
+
+                if (i < 0)
+                    continue;
+
+                int back = IndexAt(along, Mathf.Max(0f, along[i] - 24f));
+                float span = along[i] - along[back];
+                float ground = before.Get(Mathf.Clamp(Mathf.RoundToInt(points[i].x / cell), 0, last), Mathf.Clamp(Mathf.RoundToInt(points[i].y / cell), 0, last)) * before.MaxHeight;
+                float carved = after.SampleWorldSmooth(points[i].x, points[i].y);
+                float carvedBack = after.SampleWorldSmooth(points[back].x, points[back].y);
+                string grade = span < 4f ? "-" : (Mathf.Abs(carved - carvedBack) / span).ToString("F3");
+
+                Console.WriteLine($"      {along[i] - along[nearest],6:F1} m at {along[i],6:F1}  ground {ground,7:F2}  profile {profile[i] * before.MaxHeight,7:F2}  anchored {(anchored[i] ? "yes" : "no ")}  carved {carved,7:F2}  grade {grade}");
+            }
+        }
+    }
+
+    static int IndexAt(float[] along, float value)
+    {
+        if (value < along[0] - 0.01f || value > along[^1] + 0.01f)
+            return -1;
+
+        int index = Array.BinarySearch(along, value);
+
+        return index >= 0 ? index : Math.Min(along.Length - 1, ~index);
+    }
+
+    internal static void DescribeCrossing(RoadNetwork network, List<SettlementLayout> layouts, Vector2 point)
+    {
+        List<Road> paved = network.Paved();
+
+        Console.WriteLine($"    crossing at ({point.x:F2}, {point.y:F2})");
+
+        for (int r = 0; r < paved.Count; r++)
+        {
+            Vector2[] points = paved[r].Points;
+
+            for (int i = 0; i < points.Length - 1; i++)
+            {
+                Vector2 delta = points[i + 1] - points[i];
+                float t = delta.sqrMagnitude > 0f ? Mathf.Clamp01(Vector2.Dot(point - points[i], delta) / delta.sqrMagnitude) : 0f;
+
+                if ((points[i] + delta * t - point).sqrMagnitude > 9f)
+                    continue;
+
+                Console.WriteLine($"      {paved[r].Kind} road {r} of {points.Length} points, segment {i}: ({points[i].x:F2}, {points[i].y:F2}) to ({points[i + 1].x:F2}, {points[i + 1].y:F2})");
+            }
+        }
+
+        foreach (RoadNode node in network.Graph.Nodes)
+        {
+            if (network.Graph.Degree(node.Id) > 0 && (node.Position - point).sqrMagnitude < 25f)
+                Console.WriteLine($"      graph node {node.Id} {node.Kind} of degree {network.Graph.Degree(node.Id)} at ({node.Position.x:F2}, {node.Position.y:F2})");
+        }
 
         foreach (SettlementLayout layout in layouts)
         {
-            int houses = layout.Hub.Houses;
+            foreach (Vector2 node in layout.StreetNodes)
+            {
+                if ((node - point).sqrMagnitude < 25f)
+                    Console.WriteLine($"      street node at ({node.x:F2}, {node.y:F2})");
+            }
 
-            drawn += houses;
-            blocks += layout.Blocks.Count;
-            streets += layout.Streets.Count;
+            foreach (SettlementGateway gateway in layout.Gateways)
+            {
+                if ((gateway.Port - point).sqrMagnitude < 25f)
+                    Console.WriteLine($"      gateway port at ({gateway.Port.x:F2}, {gateway.Port.y:F2}), node {gateway.Node}");
+            }
+        }
+    }
+    internal static void TraceCurve(RoadNetwork network, Vector2 point)
+    {
+        (Road road, int segment) = NearestHighway(network, point);
 
+        if (road == null)
+            return;
+
+        float gateway = float.MaxValue;
+
+        foreach (RoadNode node in network.Graph.Nodes)
+        {
+            if (node.Kind == RoadNodeKind.Gateway && network.Graph.Degree(node.Id) > 0)
+                gateway = Mathf.Min(gateway, Vector2.Distance(node.Position, point));
+        }
+
+        Console.WriteLine($"    curve trace on a highway of {road.Points.Length} points from ({road.Points[0].x:F0}, {road.Points[0].y:F0}) to ({road.Points[^1].x:F0}, {road.Points[^1].y:F0}), nearest used gateway {gateway:F0} m");
+
+        for (int i = Math.Max(1, segment - 5); i <= Math.Min(road.Points.Length - 2, segment + 6); i++)
+        {
+            Vector2 back = road.Points[i] - road.Points[i - 1];
+            Vector2 forward = road.Points[i + 1] - road.Points[i];
+            float turn = Mathf.Atan2(back.x * forward.y - back.y * forward.x, Vector2.Dot(back, forward)) * Mathf.Rad2Deg;
+            float radius = RoadSmoother.Circumradius(road.Points[i - 1], road.Points[i], road.Points[i + 1]);
+
+            Console.WriteLine($"      point {i} at ({road.Points[i].x:F1}, {road.Points[i].y:F1}), spacing {back.magnitude:F1} m, turn {turn:F1} degrees, radius {(radius >= float.MaxValue ? -1f : radius):F1} m");
+        }
+    }
+
+    static void ClassifyProblems(RoadNetworkReport report, RoadNetwork network, string kind)
+    {
+        int total = 0, nearGateway = 0, nearJunction = 0, nearTerminal = 0, elsewhere = 0;
+
+        foreach ((Vector2 point, string problem) in report.Problems)
+        {
+            if (problem != kind)
+                continue;
+
+            total++;
+
+            if (Near(network, point, RoadNodeKind.Gateway, 160f, 1))
+                nearGateway++;
+            else if (Near(network, point, RoadNodeKind.Junction, 60f, 3))
+                nearJunction++;
+            else if (Near(network, point, RoadNodeKind.Terminal, 60f, 1))
+                nearTerminal++;
+            else
+                elsewhere++;
+        }
+
+        Console.WriteLine($"{kind}: {total} problems, {nearGateway} within 160 m of a gateway, {nearJunction} within 60 m of a junction, {nearTerminal} within 60 m of a dirt terminal, {elsewhere} on open road");
+    }
+
+    static bool Near(RoadNetwork network, Vector2 point, RoadNodeKind kind, float reach, int minDegree)
+    {
+        foreach (RoadNode node in network.Graph.Nodes)
+        {
+            if (node.Kind != kind || network.Graph.Degree(node.Id) < minDegree)
+                continue;
+
+            if ((node.Position - point).sqrMagnitude <= reach * reach)
+                return true;
+        }
+
+        return false;
+    }
+
+    static void DescribeOrphan(RoadNetwork network, Vector2 point)
+    {
+        List<Road> paved = network.Paved();
+
+        foreach (Road road in paved)
+        {
+            if ((road.Points[0] - point).sqrMagnitude > 0.01f)
+                continue;
+
+            float startGap = Nearest(paved, road, road.Points[0], out _);
+            float endGap = Nearest(paved, road, road.Points[^1], out _);
+
+            Console.WriteLine($"    orphan {road.Kind} with {road.Points.Length} points from ({road.Points[0].x:F1}, {road.Points[0].y:F1}) to ({road.Points[^1].x:F1}, {road.Points[^1].y:F1}); nearest other road {startGap:F2} m from its start, {endGap:F2} m from its end");
+        }
+    }
+
+    internal static void DescribeGateway(RoadNetwork network, List<SettlementLayout> layouts, Vector2 point)
+    {
+        foreach (SettlementLayout layout in layouts)
+        foreach (SettlementGateway gateway in layout.Gateways)
+        {
+            if ((gateway.Port - point).sqrMagnitude > 0.01f || gateway.Node < 0)
+                continue;
+
+            RoadNode node = network.Graph.Nodes[gateway.Node];
+
+            Console.WriteLine($"    gateway of {layout.Type} on side {gateway.Side}, tangent ({gateway.Tangent.x:F2}, {gateway.Tangent.y:F2}), node degree {network.Graph.Degree(node.Id)}");
+
+            bool beyond = layout.TileAt(gateway.Tile.I + TilePortRules.StepI(gateway.Side), gateway.Tile.J + TilePortRules.StepJ(gateway.Side)) != null;
+
+            Console.WriteLine($"    tile ({gateway.Tile.I}, {gateway.Tile.J}) centre ({gateway.Tile.Center.x:F0}, {gateway.Tile.Center.y:F0}), approach ({gateway.Approach.x:F0}, {gateway.Approach.y:F0}), a tile beyond that side {beyond}, settlement origin ({layout.Origin.x:F0}, {layout.Origin.y:F0}) with {layout.Tiles.Count} tiles");
+
+            foreach (int id in node.Edges)
+            {
+                RoadEdge edge = network.Graph.Edges[id];
+                Vector2 direction = edge.DirectionFrom(node.Id, 12f);
+                float angle = Mathf.Acos(Mathf.Clamp(Vector2.Dot(direction, gateway.Tangent), -1f, 1f)) * Mathf.Rad2Deg;
+
+                Console.WriteLine($"      edge {id} {edge.Kind}, {edge.Length:F1} m over {edge.Points.Length} points, leaves at {angle:F1} degrees, nodes {edge.From} to {edge.To}, node position ({node.Position.x:F1}, {node.Position.y:F1})");
+
+                bool outward = edge.From == node.Id;
+
+                for (int k = 0; k < edge.Points.Length; k++)
+                {
+                    int index = outward ? k : edge.Points.Length - 1 - k;
+                    float along = outward ? edge.Distance[index] : edge.Length - edge.Distance[index];
+
+                    if (along > _config.GatewayApproachLength + 40f)
+                        break;
+
+                    int next = outward ? index + 1 : index - 1;
+                    float turn = 0f;
+
+                    if (next >= 0 && next < edge.Points.Length)
+                    {
+                        Vector2 segment = edge.Points[next] - edge.Points[index];
+                        turn = Mathf.Atan2(gateway.Tangent.x * segment.y - gateway.Tangent.y * segment.x, Vector2.Dot(gateway.Tangent, segment)) * Mathf.Rad2Deg;
+                    }
+
+                    Console.WriteLine($"        point {index} at ({edge.Points[index].x:F1}, {edge.Points[index].y:F1}), {along:F1} m from the gateway, next segment {turn:F1} degrees off the tangent");
+                }
+            }
+        }
+    }
+
+    static void ReportSettlements(List<SettlementLayout> layouts, List<PoiPlacement> placements)
+    {
+        var counts = new int[4];
+        var tiles = new int[4];
+        int streets = 0, lots = 0, empty = 0, built = 0;
+
+        foreach (SettlementLayout layout in layouts)
+        {
             if (layout.IsEmpty)
+            {
                 empty++;
+                continue;
+            }
 
-            classes[houses <= 15 ? 0 : houses <= 40 ? 1 : houses <= 80 ? 2 : 3]++;
+            counts[(int)layout.Type]++;
+            tiles[(int)layout.Type] += layout.Tiles.Count;
+            streets += layout.Streets.Count;
+            lots += layout.Lots.Count;
         }
 
         foreach (PoiPlacement placement in placements)
@@ -1702,25 +2122,17 @@ static class Harness
                 built++;
         }
 
-        Console.WriteLine($"поселения: {layouts.Count}, без единого квартала {empty}; до 15 домов {classes[0]}, 16-40 {classes[1]}, 41-80 {classes[2]}, больше 80 {classes[3]}");
-        Console.WriteLine($"  домов по жребию {drawn}, построено {built}; кварталов {blocks}, улиц {streets}");
+        Console.WriteLine($"settlements: {layouts.Count}, without a core {empty}; cities {counts[0]} ({tiles[0]} tiles), towns {counts[1]} ({tiles[1]}), country towns {counts[2]} ({tiles[2]}), ghost towns {counts[3]} ({tiles[3]})");
+        Console.WriteLine($"  streets {streets}, lots {lots}, buildings outside Rural {built}");
 
         var ranked = new List<SettlementLayout>(layouts);
-        ranked.Sort((left, right) => right.Hub.Houses.CompareTo(left.Hub.Houses));
+        ranked.Sort((left, right) => right.Tiles.Count.CompareTo(left.Tiles.Count));
 
-        for (int i = 0; i < Math.Min(5, ranked.Count); i++)
+        for (int i = 0; i < Math.Min(6, ranked.Count); i++)
         {
             SettlementLayout layout = ranked[i];
-            float reach = layout.Radius + 40f;
-            int here = 0;
 
-            foreach (PoiPlacement placement in placements)
-            {
-                if (placement.District != DistrictType.Rural && (placement.Ground - layout.Hub.Position).sqrMagnitude <= reach * reach)
-                    here++;
-            }
-
-            Console.WriteLine($"  {layout.Hub.Houses,4} по жребию, {here,4} построено, {layout.Blocks.Count,3} кварталов, {layout.Streets.Count,3} улиц, радиус {layout.Radius:F0} м, въездов {layout.Gates.Count}");
+            Console.WriteLine($"  {layout.Type,-11} {layout.Tiles.Count,3} tiles, {layout.Lots.Count,4} lots, {layout.Streets.Count,3} streets, {layout.Gateways.Count} gateways, radius {layout.Radius:F0} m, topology violations {layout.TopologyViolations}");
         }
     }
 
@@ -1845,7 +2257,7 @@ static class Harness
         int flagged = 0;
         float worst = float.MaxValue;
 
-        float grace = _config.StreetHalfWidth + _config.RoadHalfWidth + _config.BlockSizeMin * 0.25f;
+        float grace = _config.StreetHalfWidth + _config.RoadHalfWidth + _config.TileSize * 0.25f;
 
         foreach (Road street in tested)
         {

@@ -11,6 +11,7 @@ namespace UnityEngine
         public float magnitude => Mathf.Sqrt(x * x + y * y);
         public float sqrMagnitude => x * x + y * y;
         public static Vector2 zero => new(0, 0);
+        public static Vector2 one => new(1, 1);
         public static Vector2 operator +(Vector2 a, Vector2 b) => new(a.x + b.x, a.y + b.y);
         public static Vector2 operator -(Vector2 a, Vector2 b) => new(a.x - b.x, a.y - b.y);
         public static Vector2 operator -(Vector2 a) => new(-a.x, -a.y);
@@ -84,6 +85,7 @@ namespace UnityEngine
         public static float Sqrt(float v) => MathF.Sqrt(v);
         public static float Pow(float v, float p) => MathF.Pow(v, p);
         public static float Abs(float v) => MathF.Abs(v);
+        public static float Sign(float v) => v >= 0f ? 1f : -1f;
         public static int Abs(int v) => Math.Abs(v);
         public static float Min(float a, float b) => MathF.Min(a, b);
         public static float Min(float a, float b, float c) => MathF.Min(a, MathF.Min(b, c));
@@ -415,6 +417,7 @@ namespace UnityEditor
         public static void DrawWireDisc(Vector3 c, Vector3 n, float r) { }
         public static void DrawLine(Vector3 a, Vector3 b) { }
         public static void DrawAAPolyLine(float w, Vector3[] p) { }
+        public static void Label(Vector3 position, string text) { }
     }
 }
 

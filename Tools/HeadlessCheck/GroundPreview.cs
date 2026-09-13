@@ -418,11 +418,18 @@ static class GroundPreview
                 continue;
             }
 
+            if (body.StartsWith("<Kind>k__BackingField:", StringComparison.Ordinal) && roads.Count > 0)
+            {
+                Road last = roads[^1];
+                roads[^1] = new Road(last.Points, last.Width, (RoadKind)int.Parse(body.Substring(body.IndexOf(':') + 1).Trim(), culture));
+                continue;
+            }
+
             if (!body.StartsWith("<Width>k__BackingField:", StringComparison.Ordinal))
                 continue;
 
             if (points.Count >= 2)
-                roads.Add(new Road(points.ToArray(), float.Parse(body.Substring(body.IndexOf(':') + 1), culture)));
+                roads.Add(new Road(points.ToArray(), float.Parse(body.Substring(body.IndexOf(':') + 1), culture), RoadKind.Highway));
 
             points.Clear();
         }

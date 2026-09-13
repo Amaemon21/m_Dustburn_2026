@@ -5,9 +5,23 @@ using Random = Unity.Mathematics.Random;
 public class HubPlacer
 {
     private const int RELIEF_SAMPLES = 7;
+    private const int TILE_SAMPLES = 5;
+    private const float SCORE_JITTER = 0.08f;
+
+    private static readonly SettlementType[] ORDER =
+    {
+        SettlementType.City,
+        SettlementType.Town,
+        SettlementType.CountryTown,
+        SettlementType.GhostTown
+    };
 
     private readonly WorldGenerationConfig _config;
     private readonly HeightMap _map;
+
+    public int[] Requested { get; } = new int[ORDER.Length];
+    public int[] Placed { get; } = new int[ORDER.Length];
+    public int BuildableCells { get; private set; }
 
     public HubPlacer(WorldGenerationConfig config, HeightMap map)
     {
@@ -17,126 +31,203 @@ public class HubPlacer
 
     public List<Hub> Place()
     {
-        List<Hub> candidates = CollectSectorBest(true);
+        float step = Mathf.Max(8f, _config.TileSize * 0.5f);
+        int resolution = Mathf.Max(1, Mathf.FloorToInt(_config.WorldSize / step));
 
-        if (candidates.Count < 2)
-        {
-            Debug.LogWarning($"No site fits within MaxHubRelief {_config.MaxHubRelief} m. Taking the flattest spots as they are — raise MaxHubRelief or lower ReliefScale");
-
-            candidates = CollectSectorBest(false);
-        }
-
-        candidates.Sort((a, b) => a.Relief.CompareTo(b.Relief));
-
+        bool[] buildable = Buildable(step, resolution);
+        int[] summed = SummedArea(buildable, resolution);
         var hubs = new List<Hub>();
-        float minDistanceSqr = _config.MinHubDistance * _config.MinHubDistance;
 
-        foreach (Hub candidate in candidates)
-        {
-            if (hubs.Count >= _config.HubCount)
-                break;
+        foreach (SettlementType type in ORDER)
+            PlaceType(type, hubs, buildable, summed, step, resolution);
 
-            if (IsTooClose(hubs, candidate, minDistanceSqr))
-                continue;
-
-            hubs.Add(candidate);
-        }
-
-        AssignHouses(hubs);
-
-        if (hubs.Count < _config.HubCount)
-            Debug.Log($"{hubs.Count} settlements of the {_config.HubCount} requested. Candidates were culled by MinHubDistance {_config.MinHubDistance} m and by the world border, since a settlement has to fit inside the map. Lower MinHubDistance or MaxHouses");
+        Report(hubs);
 
         return hubs;
     }
 
-    private List<Hub> CollectSectorBest(bool respectMaxRelief)
+    private void PlaceType(SettlementType type, List<Hub> hubs, bool[] buildable, int[] summed, float step, int resolution)
     {
-        int sectors = Mathf.CeilToInt(Mathf.Sqrt(_config.HubCount));
-        float margin = EdgeMargin();
-        float sectorSize = (_config.WorldSize - 2f * margin) / sectors;
-        float step = _config.HubCandidateStep;
+        SettlementTypeProfile profile = _config.Profile(type);
+        int index = (int)type;
 
-        var best = new List<Hub>();
+        if (profile == null || profile.Count <= 0)
+            return;
 
-        for (int sectorY = 0; sectorY < sectors; sectorY++)
+        Requested[index] = profile.Count;
+
+        float radius = profile.EstimateRadius(_config.TileSize);
+        int reach = Mathf.Max(0, Mathf.CeilToInt((radius - _config.TileSize * 0.5f) / step));
+        var candidates = new List<(float Score, int Cell)>();
+
+        for (int y = 0; y < resolution; y++)
         {
-            for (int sectorX = 0; sectorX < sectors; sectorX++)
+            for (int x = 0; x < resolution; x++)
             {
-                Hub winner = null;
+                int cell = y * resolution + x;
 
-                float originX = margin + sectorX * sectorSize;
-                float originY = margin + sectorY * sectorSize;
+                if (!buildable[cell])
+                    continue;
 
-                for (float y = originY + step; y < originY + sectorSize; y += step)
-                {
-                    for (float x = originX + step; x < originX + sectorSize; x += step)
-                    {
-                        if (IsFlooded(x, y))
-                            continue;
+                var center = new Vector2((x + 0.5f) * step, (y + 0.5f) * step);
 
-                        float relief = MeasureRelief(x, y);
+                if (!InsideMargin(center, radius))
+                    continue;
 
-                        if (respectMaxRelief && relief > _config.MaxHubRelief)
-                            continue;
+                float share = Share(summed, resolution, x - reach, y - reach, x + reach, y + reach);
 
-                        if (winner != null && relief >= winner.Relief)
-                            continue;
+                if (share < _config.SiteBuildableShare)
+                    continue;
 
-                        winner = new Hub(new Vector2(x, y), 0f, relief, 0);
-                    }
-                }
-
-                if (winner != null)
-                    best.Add(winner);
+                candidates.Add((share + SCORE_JITTER * Noise(cell, type), cell));
             }
         }
 
-        return best;
+        candidates.Sort((left, right) =>
+        {
+            int compare = right.Score.CompareTo(left.Score);
+            return compare != 0 ? compare : left.Cell.CompareTo(right.Cell);
+        });
+
+        foreach ((float _, int cell) in candidates)
+        {
+            if (Placed[index] >= profile.Count)
+                break;
+
+            var center = new Vector2((cell % resolution + 0.5f) * step, (cell / resolution + 0.5f) * step);
+
+            if (!IsSpaced(hubs, center, radius, type, profile))
+                continue;
+
+            float relief = MeasureRelief(center.x, center.y);
+
+            if (relief > _config.MaxHubRelief)
+                continue;
+
+            hubs.Add(new Hub(center, radius, relief, 0, type));
+            Placed[index]++;
+        }
     }
 
-    private void AssignHouses(List<Hub> hubs)
+    private bool[] Buildable(float step, int resolution)
     {
-        if (hubs.Count == 0)
-            return;
+        var buildable = new bool[resolution * resolution];
+        float half = _config.TileSize * 0.5f;
+        int count = 0;
 
-        var random = new Random(((uint)_config.Seed | 1u) * 3266489917u + 5u);
-
-        int low = Mathf.Max(1, Mathf.Min(_config.MinHouses, _config.MaxHouses));
-        int high = Mathf.Max(low, Mathf.Max(_config.MinHouses, _config.MaxHouses));
-        float bias = Mathf.Max(0.01f, _config.HouseCountBias);
-
-        var sizes = new int[hubs.Count];
-
-        for (int i = 0; i < sizes.Length; i++)
-            sizes[i] = Mathf.RoundToInt(Mathf.Lerp(low, high, Mathf.Pow(random.NextFloat(), bias)));
-
-        System.Array.Sort(sizes);
-        System.Array.Reverse(sizes);
-
-        long total = 0;
-
-        for (int i = 0; i < hubs.Count; i++)
+        for (int y = 0; y < resolution; y++)
         {
-            hubs[i] = new Hub(hubs[i].Position, BlockLattice.EstimateRadius(_config, sizes[i]), hubs[i].Relief, sizes[i]);
-            total += sizes[i];
+            for (int x = 0; x < resolution; x++)
+            {
+                float centerX = (x + 0.5f) * step;
+                float centerY = (y + 0.5f) * step;
+
+                if (centerX < half || centerY < half || centerX > _config.WorldSize - half || centerY > _config.WorldSize - half)
+                    continue;
+
+                if (!IsBuildableSquare(centerX, centerY, half))
+                    continue;
+
+                buildable[y * resolution + x] = true;
+                count++;
+            }
         }
 
-        Debug.Log($"Settlements: {hubs.Count}, from {sizes[^1]} to {sizes[0]} houses each, {total} in all. The flattest site gets the largest settlement");
+        BuildableCells = count;
+
+        return buildable;
     }
 
-    private float EdgeMargin()
+    private bool IsBuildableSquare(float centerX, float centerY, float half)
     {
-        float reach = BlockLattice.EstimateRadius(_config, Mathf.Max(_config.MinHouses, _config.MaxHouses));
-        float margin = Mathf.Max(_config.HubEdgeMargin, reach);
-        float limit = (_config.WorldSize - _config.HubCandidateStep * 4f) * 0.5f;
+        float low = float.MaxValue;
+        float high = float.MinValue;
 
-        if (margin < limit)
-            return margin;
+        for (int j = 0; j < TILE_SAMPLES; j++)
+        {
+            for (int i = 0; i < TILE_SAMPLES; i++)
+            {
+                float x = centerX + (i / (TILE_SAMPLES - 1f) - 0.5f) * 2f * half;
+                float y = centerY + (j / (TILE_SAMPLES - 1f) - 0.5f) * 2f * half;
+                float height = _map.SampleWorldSmooth(x, y);
 
-        Debug.LogWarning($"HubEdgeMargin {margin:F0} m leaves no room in a {_config.WorldSize} m world. Using {limit:F0} m — lower HubEdgeMargin or MaxHouses");
+                low = Mathf.Min(low, height);
+                high = Mathf.Max(high, height);
+            }
+        }
 
-        return Mathf.Max(0f, limit);
+        if (_config.SeaLevel > 0f && low < _config.SeaLevel + _config.ShoreMargin)
+            return false;
+
+        return high - low <= _config.MaxTileRelief;
+    }
+
+    private static int[] SummedArea(bool[] cells, int resolution)
+    {
+        int side = resolution + 1;
+        var summed = new int[side * side];
+
+        for (int y = 0; y < resolution; y++)
+        {
+            int row = 0;
+
+            for (int x = 0; x < resolution; x++)
+            {
+                row += cells[y * resolution + x] ? 1 : 0;
+                summed[(y + 1) * side + x + 1] = summed[y * side + x + 1] + row;
+            }
+        }
+
+        return summed;
+    }
+
+    private static float Share(int[] summed, int resolution, int minX, int minY, int maxX, int maxY)
+    {
+        int side = resolution + 1;
+        int area = (maxX - minX + 1) * (maxY - minY + 1);
+
+        minX = Mathf.Clamp(minX, 0, resolution - 1);
+        minY = Mathf.Clamp(minY, 0, resolution - 1);
+        maxX = Mathf.Clamp(maxX, 0, resolution - 1);
+        maxY = Mathf.Clamp(maxY, 0, resolution - 1);
+
+        int total = summed[(maxY + 1) * side + maxX + 1] - summed[minY * side + maxX + 1]
+            - summed[(maxY + 1) * side + minX] + summed[minY * side + minX];
+
+        return area <= 0 ? 0f : total / (float)area;
+    }
+
+    private bool InsideMargin(Vector2 center, float radius)
+    {
+        float margin = Mathf.Min(radius + _config.HubEdgeMargin, _config.WorldSize * 0.5f);
+
+        return center.x >= margin && center.y >= margin && center.x <= _config.WorldSize - margin && center.y <= _config.WorldSize - margin;
+    }
+
+    private bool IsSpaced(List<Hub> hubs, Vector2 center, float radius, SettlementType type, SettlementTypeProfile profile)
+    {
+        foreach (Hub hub in hubs)
+        {
+            float required = radius + hub.Radius + _config.SettlementGap;
+
+            if (hub.Type == type)
+                required = Mathf.Max(required, profile.Spacing);
+
+            if ((hub.Position - center).sqrMagnitude < required * required)
+                return false;
+        }
+
+        return true;
+    }
+
+    private float Noise(int cell, SettlementType type)
+    {
+        uint hash = (uint)cell * 2654435761u ^ ((uint)_config.Seed * 2246822519u) ^ ((uint)type + 1u) * 3266489917u;
+        var random = new Random(hash | 1u);
+
+        random.NextUInt();
+
+        return random.NextFloat();
     }
 
     private float MeasureRelief(float centerX, float centerY)
@@ -151,36 +242,24 @@ public class HubPlacer
             {
                 float x = centerX + (i / (RELIEF_SAMPLES - 1f) - 0.5f) * 2f * radius;
                 float y = centerY + (j / (RELIEF_SAMPLES - 1f) - 0.5f) * 2f * radius;
+                float height = _map.SampleWorldSmooth(x, y);
 
-                float height = _map.SampleWorld(new Vector3(x, 0f, y));
-
-                if (height < min)
-                    min = height;
-
-                if (height > max)
-                    max = height;
+                min = Mathf.Min(min, height);
+                max = Mathf.Max(max, height);
             }
         }
 
         return max - min;
     }
 
-    private bool IsFlooded(float x, float y)
+    private void Report(List<Hub> hubs)
     {
-        if (_config.SeaLevel <= 0f)
-            return false;
+        Debug.Log($"Settlement sites: {hubs.Count} placed, {Placed[0]} of {Requested[0]} cities, {Placed[1]} of {Requested[1]} towns, {Placed[2]} of {Requested[2]} country towns, {Placed[3]} of {Requested[3]} ghost towns, over {BuildableCells} buildable tile cells");
 
-        return _map.SampleWorldSmooth(x, y) < _config.SeaLevel + _config.ShoreMargin;
-    }
-
-    private static bool IsTooClose(List<Hub> hubs, Hub candidate, float minDistanceSqr)
-    {
-        foreach (Hub hub in hubs)
+        for (int i = 0; i < ORDER.Length; i++)
         {
-            if ((hub.Position - candidate.Position).sqrMagnitude < minDistanceSqr)
-                return true;
+            if (Placed[i] < Requested[i])
+                Debug.Log($"{ORDER[i]}: only {Placed[i]} of {Requested[i]} sites found. Lower SiteBuildableShare, the profile Spacing or SettlementGap, or raise MaxTileRelief");
         }
-
-        return false;
     }
 }

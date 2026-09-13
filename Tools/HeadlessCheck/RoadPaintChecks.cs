@@ -48,7 +48,7 @@ static class RoadPaintChecks
             var direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
             var normal = new Vector2(-direction.y, direction.x);
             var origin = new Vector2(96.37f, 128.21f);
-            var road = new Road(new[] { origin, origin + direction * 300f }, halfWidth * 2f);
+            var road = new Road(new[] { origin, origin + direction * 300f }, halfWidth * 2f, RoadKind.Highway);
 
             using var painter = new GroundSplatPainter(config, database, field, new List<Road> { road });
             using var baked = painter.BakeWorld(RESOLUTION, new float[RESOLUTION * RESOLUTION], new float[RESOLUTION * RESOLUTION]);
@@ -113,8 +113,8 @@ static class RoadPaintChecks
 
     private static void CheckJunction(WorldGenerationConfig config, BiomeDatabase database, BiomeWeightField field, TerrainLayer carriage)
     {
-        var through = new Road(new[] { new Vector2(100f, 256f), new Vector2(412f, 256f) }, config.RoadHalfWidth * 2f);
-        var branch = new Road(new[] { new Vector2(256f, 256f), new Vector2(256f, 420f) }, config.StreetHalfWidth * 2f);
+        var through = new Road(new[] { new Vector2(100f, 256f), new Vector2(412f, 256f) }, config.RoadHalfWidth * 2f, RoadKind.Highway);
+        var branch = new Road(new[] { new Vector2(256f, 256f), new Vector2(256f, 420f) }, config.StreetHalfWidth * 2f, RoadKind.LocalStreet);
 
         using var painter = new GroundSplatPainter(config, database, field, new List<Road> { through, branch });
         using var baked = painter.BakeWorld(RESOLUTION, new float[RESOLUTION * RESOLUTION], new float[RESOLUTION * RESOLUTION]);

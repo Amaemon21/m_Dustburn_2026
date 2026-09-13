@@ -25,6 +25,8 @@
     <Compile Include="GroundAppearanceChecks.cs" />
     <Compile Include="GroundPreview.cs" />
     <Compile Include="RoadPaintChecks.cs" />
+    <Compile Include="RoadTopologyChecks.cs" />
+    <Compile Include="RoadAudit.cs" />
     <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
     <Compile Include="$(SharedUtils)/**/*.cs" />
     <Compile Include="$(WorldGeneration)/**/*.cs"

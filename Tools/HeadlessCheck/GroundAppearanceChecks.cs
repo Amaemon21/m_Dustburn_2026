@@ -37,7 +37,7 @@ static class GroundAppearanceChecks
         var map = new BiomeMap(8, 64);
         var field = new BiomeWeightField(map, 1, 0f);
 
-        var roads = new List<Road> { new Road(new[] { new Vector2(52f, 60f), new Vector2(68f, 60f) }, 40f) };
+        var roads = new List<Road> { new Road(new[] { new Vector2(52f, 60f), new Vector2(68f, 60f) }, 40f, RoadKind.Highway) };
 
         using var painter = new GroundSplatPainter(config, Database(biome), field, roads);
 

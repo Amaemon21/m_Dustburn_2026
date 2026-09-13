@@ -15,7 +15,7 @@ MonoBehaviour:
   <Prefab>k__BackingField: {fileID: 1730336916111372, guid: ae4ca41587e494f449be1ef5696d184c, type: 3}
   <GroundOffset>k__BackingField: 0.04215622
   <PivotOffset>k__BackingField: {x: 0, y: 0.2624774}
-  <District>k__BackingField: 0
+  <District>k__BackingField: 4
   <FootprintWidth>k__BackingField: 11.535074
   <FootprintDepth>k__BackingField: 7.812154
   <Weight>k__BackingField: 0.9

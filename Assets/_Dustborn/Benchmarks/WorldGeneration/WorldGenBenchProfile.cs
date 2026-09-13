@@ -105,15 +105,21 @@ public sealed class WorldGenBenchProfile
         Assign(config, nameof(config.HeightCellSize), 4);
         Assign(config, nameof(config.BiomeCellSize), 8);
         Assign(config, nameof(config.Seed), 1337);
-        Assign(config, nameof(config.HubCount), 4);
-        Assign(config, nameof(config.MinHouses), 4);
-        Assign(config, nameof(config.MaxHouses), 12);
-        Assign(config, nameof(config.HubEdgeMargin), 100f);
-        Assign(config, nameof(config.MinHubDistance), 96f);
-        Assign(config, nameof(config.BlockSizeMin), 40f);
-        Assign(config, nameof(config.BlockSizeMax), 52f);
+        ApplyMix(config, 64f, 0, 1, 1, 2, 0.1f);
+        Assign(config, nameof(config.HubEdgeMargin), 16f);
         Assign(config, nameof(config.SettlementGap), 0f);
         Assign(config, nameof(config.MaxHubRelief), 360f);
+        Assign(config, nameof(config.MaxTileRelief), 360f);
+        Assign(config, nameof(config.SiteBuildableShare), 0f);
+        Assign(config, nameof(config.GatewayApproachLength), 40f);
+        Assign(config, nameof(config.HighwaySettlementClearance), 12f);
+        Assign(config, nameof(config.CourtDepth), 20f);
+        Assign(config, nameof(config.DirtSettlementClearance), 40f);
+        Assign(config, nameof(config.DirtSpacing), 80f);
+        Assign(config, nameof(config.DirtMinLength), 20f);
+        Assign(config, nameof(config.DirtMaxLength), 50f);
+        Assign(config, nameof(config.LoopSpacing), 100f);
+        Assign(config, nameof(config.MaxLinkLength), 600f);
         Assign(config, nameof(config.ErosionPasses), 1);
         Assign(config, nameof(config.HydraulicPasses), 2);
         Assign(config, nameof(config.ContinentAmplitude), 0.01f);
@@ -138,10 +144,26 @@ public sealed class WorldGenBenchProfile
         Assign(config, nameof(config.WorldSize), 2048);
         Assign(config, nameof(config.HeightCellSize), 2);
         Assign(config, nameof(config.BiomeCellSize), 8);
-        Assign(config, nameof(config.HubCount), 9);
-        Assign(config, nameof(config.MaxHouses), 80);
-        Assign(config, nameof(config.MinHubDistance), 300f);
-        Assign(config, nameof(config.HubEdgeMargin), 320f);
+        ApplyMix(config, 150f, 0, 2, 2, 3, 0.35f);
+        Assign(config, nameof(config.HubEdgeMargin), 60f);
+        Assign(config, nameof(config.DirtSpacing), 200f);
+        Assign(config, nameof(config.LoopSpacing), 600f);
+        Assign(config, nameof(config.MaxLinkLength), 1600f);
+    }
+
+    private static void ApplyMix(WorldGenerationConfig config, float tileSize, int cities, int towns, int countryTowns, int ghostTowns, float spacingScale)
+    {
+        Assign(config, nameof(config.TileSize), tileSize);
+        ApplyCount(config.CityProfile, cities, spacingScale);
+        ApplyCount(config.TownProfile, towns, spacingScale);
+        ApplyCount(config.CountryTownProfile, countryTowns, spacingScale);
+        ApplyCount(config.GhostTownProfile, ghostTowns, spacingScale);
+    }
+
+    private static void ApplyCount(SettlementTypeProfile profile, int count, float spacingScale)
+    {
+        Assign(profile, nameof(profile.Count), count);
+        Assign(profile, nameof(profile.Spacing), profile.Spacing * spacingScale);
     }
 
     private static void ApplySynthetic(WorldGenerationConfig config, BiomeDatabase biomes)
@@ -203,6 +225,10 @@ public sealed class WorldGenBenchProfile
         var text = new StringBuilder();
         text.Append("profile=").Append(Id).Append('\n');
         Describe(text, "config", Config);
+        Describe(text, "config.city", Config.CityProfile);
+        Describe(text, "config.town", Config.TownProfile);
+        Describe(text, "config.countryTown", Config.CountryTownProfile);
+        Describe(text, "config.ghostTown", Config.GhostTownProfile);
         Describe(text, "voxels", Voxels);
         Describe(text, "settings", Settings);
 

@@ -335,9 +335,12 @@ public class WorldGenerationWindow : EditorWindow
             Property(config, "BiomeBlendRadius", "Плавность границ биомов, м");
             Property(config, "SeaLevel", "Уровень воды, м");
             Property(config, "HeightCellSize", "Шаг карты высот, м");
-            Property(config, "HubCount", "Всего поселений");
-            Property(config, "MinHouses", "Домов в поселении, от");
-            Property(config, "MaxHouses", "Домов в поселении, до");
+            Nested(config, "CityProfile", "Count", "Cities");
+            Nested(config, "TownProfile", "Count", "Towns");
+            Nested(config, "CountryTownProfile", "Count", "Country towns");
+            Nested(config, "GhostTownProfile", "Count", "Ghost towns");
+            Property(config, "TileSize", "Settlement tile size, m");
+            Property(config, "TargetLinkRatio", "Regional links per settlement");
             config.ApplyModifiedProperties();
         }
 
@@ -396,6 +399,16 @@ public class WorldGenerationWindow : EditorWindow
     private static void Property(SerializedObject target, string property, string label, string tooltip = null)
     {
         EditorGUILayout.PropertyField(Field(target, property), new GUIContent(label, tooltip));
+    }
+
+    private static void Nested(SerializedObject target, string property, string child, string label)
+    {
+        SerializedProperty holder = Field(target, property);
+
+        if (holder == null)
+            return;
+
+        EditorGUILayout.PropertyField(holder.FindPropertyRelative($"<{child}>k__BackingField"), new GUIContent(label));
     }
 
     private static void Metres(SerializedObject target, string property, string label, float height, float limit)
