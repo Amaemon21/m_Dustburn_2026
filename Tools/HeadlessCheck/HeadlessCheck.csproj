@@ -8,7 +8,7 @@
     <NoWarn>CS0414;CS0169;CS0649;CS0660;CS0661;CS0108;CS0067;CS8981</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <StartupObject>Harness</StartupObject>
-    <WorldGeneration>../../Assets/_Dustborn/Scripts/WorldGeneration</WorldGeneration>
+    <WorldGeneration>../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService</WorldGeneration>
     <SharedUtils>../../Assets/_Dustborn/Scripts/Utils</SharedUtils>
   </PropertyGroup>
   <ItemGroup>
@@ -22,6 +22,9 @@
     <Compile Include="Harness.cs" />
     <Compile Include="WorldMapPipelineChecks.cs" />
     <Compile Include="GeneratedAssetFileChecks.cs" />
+    <Compile Include="GroundAppearanceChecks.cs" />
+    <Compile Include="GroundPreview.cs" />
+    <Compile Include="RoadPaintChecks.cs" />
     <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
     <Compile Include="$(SharedUtils)/**/*.cs" />
     <Compile Include="$(WorldGeneration)/**/*.cs"

@@ -5,7 +5,7 @@ using Random = Unity.Mathematics.Random;
 
 public static class WorldGenBenchOpsPoi
 {
-    public delegate void LotStep(Lot lot, SettlementProfile profile, ref Random random);
+    public delegate bool LotStep(Lot lot, ref Random random);
 
     public delegate void RoadStep(RoadNetwork network, ref Random random);
 
@@ -29,36 +29,31 @@ public static class WorldGenBenchOpsPoi
         return new WorldGenBenchOp("poi.place", context =>
         {
             var placer = new PoiPlacer(context.Profile.Config, context.Profile.Pois, heights, proximity);
-            List<PoiPlacement> placements = placer.Place(frozen.Cities, frozen.Roads);
+            List<PoiPlacement> placements = placer.Place(frozen.Settlements, frozen.Roads);
             context.Put("placements", placements);
         })
         {
             Setup = context =>
             {
                 frozen = WorldGenBenchFixtures.Frozen(context.Profile, "cities");
-                context.Count("cities", frozen.Cities.Count);
+                context.Count("settlements", frozen.Settlements.Count);
 
                 int lots = 0;
-                int reserved = 0;
+                int houses = 0;
 
-                foreach (CityLayout city in frozen.Cities)
+                foreach (SettlementLayout settlement in frozen.Settlements)
                 {
-                    lots += city.Lots.Count;
-
-                    foreach (Lot lot in city.Lots)
-                    {
-                        if (lot.Reserved != null)
-                            reserved++;
-                    }
+                    lots += settlement.Lots.Count;
+                    houses += settlement.Hub.Houses;
                 }
 
                 context.Count("lots", lots);
-                context.Count("reservedLots", reserved);
+                context.Count("housesDrawn", houses);
             },
             Prepare = context =>
             {
                 WorldGenerationConfig config = context.Profile.Config;
-                heights = frozen.CopyStreets();
+                heights = frozen.CopyCarved();
                 proximity = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
                 proximity.AddRange(frozen.Roads.Streets);
             },
@@ -93,28 +88,25 @@ public static class WorldGenBenchOpsPoi
         PoiPlacer placer = null;
         LotStep place = null;
         List<Lot> lots = null;
-        SettlementProfile profile = null;
 
         return new WorldGenBenchOp("poi.lot", context =>
         {
             var random = new Random(191u);
 
             foreach (Lot lot in lots)
-                place(lot, profile, ref random);
+                place(lot, ref random);
         })
         {
             Setup = context =>
             {
                 frozen = WorldGenBenchFixtures.Frozen(context.Profile, "cities");
-                context.Require(frozen.Cities.Count > 0, "Lot placement needs a settlement.");
+                context.Require(frozen.Settlements.Count > 0, "Lot placement needs a settlement.");
 
                 lots = new List<Lot>();
 
-                foreach (CityLayout city in frozen.Cities)
+                foreach (SettlementLayout settlement in frozen.Settlements)
                 {
-                    profile ??= city.Profile;
-
-                    foreach (Lot lot in city.Lots)
+                    foreach (Lot lot in settlement.Lots)
                         lots.Add(lot);
 
                     if (lots.Count >= context.Args.Int("lots", 400))
@@ -128,7 +120,7 @@ public static class WorldGenBenchOpsPoi
                 WorldGenerationConfig config = context.Profile.Config;
                 var proximity = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
                 proximity.AddRange(frozen.Roads.Streets);
-                placer = new PoiPlacer(config, context.Profile.Pois, frozen.StreetHeights, proximity);
+                placer = new PoiPlacer(config, context.Profile.Pois, frozen.CarvedHeights, proximity);
                 place = WorldGenBenchReflect.Bind<LotStep>(placer, "PlaceOnLot");
             },
             Verify = context =>
@@ -169,7 +161,7 @@ public static class WorldGenBenchOpsPoi
                 WorldGenerationConfig config = context.Profile.Config;
                 var proximity = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
                 proximity.AddRange(frozen.Roads.Streets);
-                placer = new PoiPlacer(config, context.Profile.Pois, frozen.StreetHeights, proximity);
+                placer = new PoiPlacer(config, context.Profile.Pois, frozen.CarvedHeights, proximity);
                 along = WorldGenBenchReflect.Bind<RoadStep>(placer, "PlaceAlongRoads");
             },
             Verify = context =>
@@ -203,7 +195,7 @@ public static class WorldGenBenchOpsPoi
                 context.Require(frozen.Placements != null, "Pad carving needs placements.");
                 context.Count("placements", frozen.Placements.Count);
             },
-            Prepare = context => heights = frozen.CopyStreets(),
+            Prepare = context => heights = frozen.CopyCarved(),
             Verify = context =>
             {
                 var carved = context.Get<HeightMap>("carved");

@@ -5,10 +5,6 @@ using Random = Unity.Mathematics.Random;
 
 public static class WorldGenBenchOpsSet
 {
-    public delegate void LayoutStep(CityLayout layout, IReadOnlyList<Road> trunks, ref Random random);
-
-    public delegate void FillStep(CityLayout layout, RoadProximity roads, ref Random random);
-
     public static void Register(Dictionary<string, Func<WorldGenBenchOp>> registry)
     {
         registry["set.hubs"] = Hubs;
@@ -18,11 +14,11 @@ public static class WorldGenBenchOpsSet
         registry["set.path"] = Path;
         registry["set.smooth"] = Smooth;
         registry["set.carve"] = Carve;
-        registry["set.cities"] = Cities;
-        registry["set.streets"] = Streets;
-        registry["set.stitch"] = Stitch;
+        registry["set.settlements"] = Settlements;
+        registry["set.blocks"] = Blocks;
+        registry["set.pads"] = Pads;
         registry["set.lots"] = Lots;
-        registry["set.retry"] = Retry;
+        registry["set.houses"] = Houses;
         registry["set.index"] = Index;
         registry["set.carveStreets"] = CarveStreets;
     }
@@ -51,26 +47,23 @@ public static class WorldGenBenchOpsSet
                 var hubs = context.Get<List<Hub>>("hubs");
                 context.Count("hubs", hubs.Count);
 
-                int cities = 0;
-                int towns = 0;
-                int villages = 0;
+                int houses = 0;
+                int smallest = int.MaxValue;
+                int largest = 0;
 
                 foreach (Hub hub in hubs)
                 {
                     context.Require(hub.Position.x >= 0f && hub.Position.x <= map.WorldSize
-                        && hub.Position.y >= 0f && hub.Position.y <= map.WorldSize, "A hub must stand inside the world.");
+                        && hub.Position.y >= 0f && hub.Position.y <= map.WorldSize, "A settlement must stand inside the world.");
 
-                    if (hub.Tier == SettlementTier.City)
-                        cities++;
-                    else if (hub.Tier == SettlementTier.Town)
-                        towns++;
-                    else
-                        villages++;
+                    houses += hub.Houses;
+                    smallest = Math.Min(smallest, hub.Houses);
+                    largest = Math.Max(largest, hub.Houses);
                 }
 
-                context.Count("cities", cities);
-                context.Count("towns", towns);
-                context.Count("villages", villages);
+                context.Count("houses", houses);
+                context.Count("smallestHouses", hubs.Count == 0 ? 0 : smallest);
+                context.Count("largestHouses", largest);
                 context.Print("hubs", Fingerprint(hubs));
             }
         };
@@ -112,17 +105,18 @@ public static class WorldGenBenchOpsSet
             },
             Verify = context =>
             {
+                WorldGenerationConfig config = context.Profile.Config;
+
                 var hubs = context.Get<List<Hub>>("hubs");
                 context.Count("hubs", hubs.Count);
 
-                var network = new RoadNetwork();
-                network.Hubs.AddRange(hubs);
-                List<Road> roads = new RoadPlanner(context.Profile.Config, map).Plan(network.Hubs);
-                context.Count("roads", roads.Count);
+                List<(int From, int To)> links = RoadGraph.Link(hubs, config.RoadExtraEdges);
+                List<SettlementLayout> settlements = new SettlementPlanner(config, context.Profile.Pois, map).Plan(hubs, links);
+                List<Road> roads = new RoadPlanner(config, map).Plan(hubs, links, settlements);
 
-                List<CityLayout> cities = new CityPlanner(context.Profile.Config, context.Profile.Pois, map)
-                    .Plan(network.Hubs, roads);
-                context.Count("cities", cities.Count);
+                context.Count("links", links.Count);
+                context.Count("settlements", settlements.Count);
+                context.Count("roads", roads.Count);
             }
         };
     }
@@ -131,31 +125,36 @@ public static class WorldGenBenchOpsSet
     {
         HeightMap map = null;
         List<Hub> hubs = null;
+        List<(int From, int To)> links = null;
+        List<SettlementLayout> settlements = null;
 
         return new WorldGenBenchOp("set.roads", context =>
         {
-            List<Road> roads = new RoadPlanner(context.Profile.Config, map).Plan(hubs);
+            List<Road> roads = new RoadPlanner(context.Profile.Config, map).Plan(hubs, links, settlements);
             context.Put("roads", roads);
         })
         {
             Setup = context =>
             {
-                WorldGenBenchFrozen frozen = WorldGenBenchFixtures.Frozen(context.Profile, "hubs");
-                map = frozen.RawHeights;
-                hubs = new List<Hub>(frozen.Hubs);
+                WorldGenBenchFrozen frozen = WorldGenBenchFixtures.Frozen(context.Profile, "settlements");
+                map = frozen.PaddedHeights;
+                hubs = frozen.Hubs;
+                settlements = frozen.Settlements;
 
                 int limit = context.Args.Int("hubs", hubs.Count);
+                links = new List<(int From, int To)>();
 
-                if (limit < hubs.Count)
-                    hubs = hubs.GetRange(0, limit);
-
-                if (context.Args.Has("extraEdges"))
-                    WorldGenBenchProfile.Assign(context.Profile.Config, "RoadExtraEdges", context.Args.Int("extraEdges", 60));
+                foreach ((int from, int to) in frozen.Links)
+                {
+                    if (from < limit && to < limit)
+                        links.Add((from, to));
+                }
 
                 if (context.Args.Has("roadCell"))
                     WorldGenBenchProfile.Assign(context.Profile.Config, "RoadCellSize", context.Args.Float("roadCell", 32f));
 
-                context.Count("hubs", hubs.Count);
+                context.Count("hubs", Math.Min(limit, hubs.Count));
+                context.Count("links", links.Count);
                 context.Count("roadCellSize", context.Profile.Config.RoadCellSize);
             },
             Verify = context =>
@@ -183,39 +182,24 @@ public static class WorldGenBenchOpsSet
 
     private static WorldGenBenchOp Edges()
     {
-        HeightMap map = null;
         List<Hub> hubs = null;
-        RoadPlanner planner = null;
-        Func<List<Hub>, List<(int, int)>> build = null;
-        Action<List<Hub>, List<(int, int)>> extra = null;
-        List<(int, int)> edges = null;
+        List<(int From, int To)> links = null;
+        int extra = 60;
 
-        return new WorldGenBenchOp("set.edges", context =>
-        {
-            edges = build(hubs);
-            extra(hubs, edges);
-        })
+        return new WorldGenBenchOp("set.edges", context => links = RoadGraph.Link(hubs, extra))
         {
             Setup = context =>
             {
-                WorldGenBenchFrozen frozen = WorldGenBenchFixtures.Frozen(context.Profile, "hubs");
-                map = frozen.RawHeights;
-                hubs = new List<Hub>(frozen.Hubs);
-
-                WorldGenBenchProfile.Assign(context.Profile.Config, "RoadExtraEdges", context.Args.Int("extraEdges", 60));
-
-                planner = new RoadPlanner(context.Profile.Config, map);
-                build = WorldGenBenchReflect.Bind<Func<List<Hub>, List<(int, int)>>>(planner, "BuildEdges");
-                extra = WorldGenBenchReflect.Bind<Action<List<Hub>, List<(int, int)>>>(planner, "AddExtraEdges");
+                hubs = WorldGenBenchFixtures.Frozen(context.Profile, "hubs").Hubs;
+                extra = context.Args.Int("extraEdges", 60);
 
                 context.Count("hubs", hubs.Count);
-                context.Count("extraRequested", context.Profile.Config.RoadExtraEdges);
+                context.Count("extraRequested", extra);
             },
             Verify = context =>
             {
-                context.Count("edges", edges.Count);
-                context.Require(hubs.Count < 2 || edges.Count >= hubs.Count - 1,
-                    "The road graph must at least span every hub.");
+                context.Count("edges", links.Count);
+                context.Require(hubs.Count < 2 || links.Count >= hubs.Count - 1, "The road graph must at least span every settlement.");
             }
         };
     }
@@ -223,13 +207,13 @@ public static class WorldGenBenchOpsSet
     private static WorldGenBenchOp Path()
     {
         RoadPlanner planner = null;
-        Func<Hub, Hub, List<int>> find = null;
+        Func<Vector2, Vector2, List<int>> find = null;
         Hub from = null;
         Hub to = null;
 
         return new WorldGenBenchOp("set.path", context =>
         {
-            List<int> path = find(from, to);
+            List<int> path = find(from.Position, to.Position);
             context.Put("path", path);
         })
         {
@@ -237,14 +221,13 @@ public static class WorldGenBenchOpsSet
             {
                 WorldGenBenchFrozen frozen = WorldGenBenchFixtures.Frozen(context.Profile, "hubs");
                 planner = new RoadPlanner(context.Profile.Config, frozen.RawHeights);
-                find = WorldGenBenchReflect.Bind<Func<Hub, Hub, List<int>>>(planner, "FindPath");
+                find = WorldGenBenchReflect.Bind<Func<Vector2, Vector2, List<int>>>(planner, "FindPath");
 
                 List<Hub> hubs = frozen.Hubs;
-                context.Require(hubs.Count >= 2, "Path routing needs at least two hubs.");
+                context.Require(hubs.Count >= 2, "Path routing needs at least two settlements.");
 
-                string kind = context.Args.Text("route", "long");
                 from = hubs[0];
-                to = Pick(hubs, from, kind);
+                to = Pick(hubs, from, context.Args.Text("route", "long"));
 
                 context.Count("routeMetres", Vector2.Distance(from.Position, to.Position));
             },
@@ -319,7 +302,12 @@ public static class WorldGenBenchOpsSet
 
         return new WorldGenBenchOp("set.carve", context =>
         {
-            HeightMap carved = new TerrainCarver(context.Profile.Config).Carve(source, frozen.Roads, out float[] mask);
+            var carver = new TerrainCarver(context.Profile.Config);
+
+            HeightMap padded = carver.CarveSettlements(source, frozen.Settlements);
+            HeightMap streets = carver.CarveStreets(padded, frozen.Settlements, out float[] mask);
+            HeightMap carved = carver.CarveHighways(streets, frozen.Roads.Roads, mask);
+
             context.Put("carved", carved);
             context.Put("mask", mask);
         })
@@ -328,7 +316,8 @@ public static class WorldGenBenchOpsSet
             {
                 frozen = WorldGenBenchFixtures.Frozen(context.Profile, "roads");
                 context.Count("roads", frozen.Roads.Roads.Count);
-                context.Count("hubs", frozen.Roads.Hubs.Count);
+                context.Count("streets", frozen.Roads.Streets.Count);
+                context.Count("settlements", frozen.Settlements.Count);
                 context.Count("cells", (long)frozen.RawHeights.Resolution * frozen.RawHeights.Resolution);
             },
             Prepare = context => source = frozen.CopyRaw(),
@@ -355,166 +344,158 @@ public static class WorldGenBenchOpsSet
     {
         WorldGenBenchFrozen frozen = null;
         HeightMap source = null;
-        float[] mask = null;
 
         return new WorldGenBenchOp("set.carveStreets", context =>
         {
-            HeightMap carved = new TerrainCarver(context.Profile.Config).CarveStreets(source, frozen.Cities, mask);
+            HeightMap carved = new TerrainCarver(context.Profile.Config).CarveStreets(source, frozen.Settlements, out float[] mask);
+            context.Put("carved", carved);
+            context.Put("mask", mask);
+        })
+        {
+            Setup = context =>
+            {
+                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "roads");
+                context.Count("settlements", frozen.Settlements.Count);
+                context.Count("streets", frozen.Roads.Streets.Count);
+            },
+            Prepare = context => source = frozen.CopyPadded(),
+            Verify = context =>
+            {
+                WorldGenBenchOpsHgt.Inspect(context, context.Get<HeightMap>("carved"), "streets");
+                context.Print("streetMask", WorldGenBenchArgs.Hash((float[])context.State["mask"]));
+            }
+        };
+    }
+
+    private static WorldGenBenchOp Settlements()
+    {
+        WorldGenBenchFrozen frozen = null;
+        HeightMap heights = null;
+        List<Hub> hubs = null;
+
+        return new WorldGenBenchOp("set.settlements", context =>
+        {
+            List<SettlementLayout> settlements = new SettlementPlanner(context.Profile.Config, context.Profile.Pois, heights)
+                .Plan(hubs, frozen.Links);
+
+            context.Put("settlements", settlements);
+        })
+        {
+            Setup = context =>
+            {
+                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "hubs");
+                context.Count("hubs", frozen.Hubs.Count);
+            },
+            Prepare = context =>
+            {
+                heights = frozen.CopyRaw();
+                hubs = Clone(frozen.Hubs);
+            },
+            Verify = context =>
+            {
+                var settlements = context.Get<List<SettlementLayout>>("settlements");
+                int blocks = 0;
+                int streets = 0;
+                int frontages = 0;
+                int gates = 0;
+                int empty = 0;
+
+                foreach (SettlementLayout settlement in settlements)
+                {
+                    blocks += settlement.Blocks.Count;
+                    streets += settlement.Streets.Count;
+                    frontages += settlement.Frontages.Count;
+                    gates += settlement.Gates.Count;
+
+                    if (settlement.IsEmpty)
+                        empty++;
+                }
+
+                context.Count("settlements", settlements.Count);
+                context.Count("emptySettlements", empty);
+                context.Count("blocks", blocks);
+                context.Count("streets", streets);
+                context.Count("frontages", frontages);
+                context.Count("gates", gates);
+            }
+        };
+    }
+
+    private static WorldGenBenchOp Blocks()
+    {
+        WorldGenBenchFrozen frozen = null;
+        BlockLattice lattice = null;
+        List<Hub> hubs = null;
+        List<int> neighbours = null;
+        SettlementLayout layout = null;
+
+        return new WorldGenBenchOp("set.blocks", context =>
+        {
+            var random = new Random(77u);
+            layout = lattice.Build(hubs, 0, neighbours, 0.3f, ref random);
+        })
+        {
+            Setup = context =>
+            {
+                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "hubs");
+                context.Require(frozen.Hubs.Count > 0, "Block layout needs a settlement site.");
+
+                if (context.Args.Has("loopChance"))
+                    WorldGenBenchProfile.Assign(context.Profile.Config, "StreetLoopChance", context.Args.Float("loopChance", 0.8f));
+
+                context.Count("loopChance", context.Profile.Config.StreetLoopChance);
+            },
+            Prepare = context =>
+            {
+                hubs = Clone(frozen.Hubs);
+
+                if (context.Args.Has("houses"))
+                    hubs[0] = new Hub(hubs[0].Position, hubs[0].Radius, hubs[0].Relief, context.Args.Int("houses", 40));
+
+                lattice = new BlockLattice(context.Profile.Config, frozen.RawHeights, context.Profile.Pois);
+                neighbours = RoadGraph.Neighbours(hubs.Count, frozen.Links)[0];
+            },
+            Verify = context =>
+            {
+                context.Count("houses", hubs[0].Houses);
+                context.Count("blocks", layout.Blocks.Count);
+                context.Count("streets", layout.Streets.Count);
+                context.Count("frontages", layout.Frontages.Count);
+                context.Count("gates", layout.Gates.Count);
+                context.Count("droppedStreets", lattice.DroppedStreets);
+                context.Count("steepStreets", lattice.SteepStreets);
+                context.Count("refusedSteep", lattice.Steep);
+                context.Count("refusedCrowded", lattice.Crowded);
+                context.Count("radius", layout.Radius);
+            }
+        };
+    }
+
+    private static WorldGenBenchOp Pads()
+    {
+        WorldGenBenchFrozen frozen = null;
+        HeightMap source = null;
+
+        return new WorldGenBenchOp("set.pads", context =>
+        {
+            HeightMap carved = new TerrainCarver(context.Profile.Config).CarveSettlements(source, frozen.Settlements);
             context.Put("carved", carved);
         })
         {
             Setup = context =>
             {
-                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "cities");
-                context.Count("cities", frozen.Cities.Count);
-                context.Count("streets", frozen.Roads.Streets.Count);
+                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "settlements");
+
+                int blocks = 0;
+
+                foreach (SettlementLayout settlement in frozen.Settlements)
+                    blocks += settlement.Blocks.Count;
+
+                context.Count("settlements", frozen.Settlements.Count);
+                context.Count("blocks", blocks);
             },
-            Prepare = context =>
-            {
-                source = frozen.CopyCarved();
-                mask = frozen.CopyMask();
-            },
-            Verify = context =>
-            {
-                WorldGenBenchOpsHgt.Inspect(context, context.Get<HeightMap>("carved"), "streets");
-                context.Print("streetMask", WorldGenBenchArgs.Hash(mask));
-            }
-        };
-    }
-
-    private static WorldGenBenchOp Cities()
-    {
-        WorldGenBenchFrozen frozen = null;
-        HeightMap heights = null;
-
-        return new WorldGenBenchOp("set.cities", context =>
-        {
-            List<CityLayout> cities = new CityPlanner(context.Profile.Config, context.Profile.Pois, heights)
-                .Plan(frozen.Roads.Hubs, frozen.Roads.Roads);
-
-            context.Put("cities", cities);
-        })
-        {
-            Setup = context =>
-            {
-                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "carved");
-
-                if (context.Args.Has("attempts"))
-                    WorldGenBenchProfile.Assign(context.Profile.Config, "SettlementPlanAttempts", context.Args.Int("attempts", 3));
-
-                context.Count("hubs", frozen.Roads.Hubs.Count);
-                context.Count("attempts", context.Profile.Config.SettlementPlanAttempts);
-            },
-            Prepare = context => heights = frozen.CopyCarved(),
-            Verify = context =>
-            {
-                var cities = context.Get<List<CityLayout>>("cities");
-                int streets = 0;
-                int lots = 0;
-                int met = 0;
-                int planned = 0;
-
-                foreach (CityLayout city in cities)
-                {
-                    streets += city.Streets.Count;
-                    lots += city.Lots.Count;
-                    met += city.Composition.Met;
-                    planned += city.Composition.Planned;
-                }
-
-                context.Count("cities", cities.Count);
-                context.Count("streets", streets);
-                context.Count("lots", lots);
-                context.Count("compositionMet", met);
-                context.Count("compositionPlanned", planned);
-            }
-        };
-    }
-
-    private static WorldGenBenchOp Streets()
-    {
-        WorldGenBenchFrozen frozen = null;
-        StreetGrower grower = null;
-        LayoutStep grow = null;
-        CityLayout layout = null;
-        RoadProximity index = null;
-
-        return new WorldGenBenchOp("set.streets", context =>
-        {
-            var random = new Random(77u);
-            grow(layout, frozen.Roads.Roads, ref random);
-        })
-        {
-            Setup = context =>
-            {
-                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "carved");
-                WorldGenerationConfig config = context.Profile.Config;
-
-                if (context.Args.Has("fillPasses"))
-                    WorldGenBenchProfile.Assign(config, "StreetFillPasses", context.Args.Int("fillPasses", 3));
-
-                if (context.Args.Has("spacing"))
-                    WorldGenBenchProfile.Assign(config, "StreetSpacingFraction", context.Args.Float("spacing", 0.7f));
-
-                context.Require(frozen.Roads.Hubs.Count > 0, "Street growth needs a hub.");
-                context.Count("fillPasses", config.StreetFillPasses);
-            },
-            Prepare = context =>
-            {
-                WorldGenerationConfig config = context.Profile.Config;
-                index = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
-                grower = new StreetGrower(config, frozen.CarvedHeights, index);
-                grow = WorldGenBenchReflect.Bind<LayoutStep>(grower, "Grow");
-                layout = Layout(context, frozen.Roads.Hubs[0]);
-            },
-            Verify = context =>
-            {
-                context.Count("streets", layout.Streets.Count);
-                context.Count("seeded", grower.Seeded);
-                context.Count("crowded", grower.Crowded);
-                context.Count("tooShort", grower.TooShort);
-                context.Count("blocked", grower.Blocked);
-                context.Count("deadEnds", grower.DeadEnds);
-                context.Count("junctions", grower.Junctions);
-            }
-        };
-    }
-
-    private static WorldGenBenchOp Stitch()
-    {
-        WorldGenBenchFrozen frozen = null;
-        StreetStitcher stitcher = null;
-        CityLayout layout = null;
-
-        return new WorldGenBenchOp("set.stitch", context => stitcher.Connect(layout, frozen.Roads.Roads))
-        {
-            Setup = context =>
-            {
-                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "cities");
-                context.Require(frozen.Cities.Count > 0, "Stitching needs a planned settlement.");
-            },
-            Prepare = context =>
-            {
-                WorldGenerationConfig config = context.Profile.Config;
-                var index = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
-                stitcher = new StreetStitcher(config, frozen.CarvedHeights, index);
-
-                CityLayout source = frozen.Cities[0];
-                layout = Layout(context, source.Hub);
-
-                foreach (Road street in source.Streets)
-                {
-                    layout.Streets.Add(street);
-                    index.Add(street);
-                }
-            },
-            Verify = context =>
-            {
-                context.Count("islands", stitcher.Islands);
-                context.Count("linked", stitcher.Linked);
-                context.Count("dropped", stitcher.Dropped);
-                context.Count("streets", layout.Streets.Count);
-            }
+            Prepare = context => source = frozen.CopyRaw(),
+            Verify = context => WorldGenBenchOpsHgt.Inspect(context, context.Get<HeightMap>("carved"), "pads")
         };
     }
 
@@ -522,102 +503,73 @@ public static class WorldGenBenchOpsSet
     {
         WorldGenBenchFrozen frozen = null;
         LotSubdivider subdivider = null;
-        FillStep fill = null;
-        CityLayout layout = null;
-        RoadProximity index = null;
+        SettlementLayout layout = null;
 
         return new WorldGenBenchOp("set.lots", context =>
         {
             var random = new Random(303u);
-            fill(layout, index, ref random);
+            subdivider.Fill(layout, frozen.Proximity, ref random);
         })
         {
             Setup = context =>
             {
-                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "cities");
-                context.Require(frozen.Cities.Count > 0, "Lot subdivision needs a settlement.");
+                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "carved");
+                context.Require(frozen.Settlements.Exists(settlement => !settlement.IsEmpty), "Lot subdivision needs a settlement with blocks.");
 
                 if (context.Args.Has("lotGap"))
                     WorldGenBenchProfile.Assign(context.Profile.Config, "LotGap", context.Args.Float("lotGap", 6f));
             },
             Prepare = context =>
             {
-                WorldGenerationConfig config = context.Profile.Config;
-                subdivider = new LotSubdivider(config, context.Profile.Pois);
-                fill = WorldGenBenchReflect.Bind<FillStep>(subdivider, "Fill");
-
-                index = new RoadProximity(frozen.Roads.Roads, config.WorldSize, config.RoadCellSize);
-
-                CityLayout source = frozen.Cities[0];
-                layout = Layout(context, source.Hub);
-
-                foreach (Road street in source.Streets)
-                {
-                    layout.Streets.Add(street);
-                    index.Add(street);
-                }
-
-                foreach (Road frontage in source.Frontage)
-                    layout.Frontage.Add(frontage);
+                subdivider = new LotSubdivider(context.Profile.Config, context.Profile.Pois);
+                layout = Detach(frozen.Settlements.Find(settlement => !settlement.IsEmpty));
             },
             Verify = context =>
             {
+                context.Count("frontages", layout.Frontages.Count);
                 context.Count("lots", layout.Lots.Count);
                 context.Count("skippedOverlap", subdivider.SkippedOverlap);
                 context.Count("skippedOnRoad", subdivider.SkippedOnRoad);
                 context.Count("skippedOutside", subdivider.SkippedOutside);
-
-                int before = layout.Lots.Count;
-                subdivider.Rollback(layout);
-                context.Count("rolledBack", before - layout.Lots.Count);
+                context.Count("skippedNoPrefab", subdivider.SkippedNoPrefab);
             }
         };
     }
 
-    private static WorldGenBenchOp Retry()
+    private static WorldGenBenchOp Houses()
     {
-        WorldGenBenchFrozen frozen = null;
-        HeightMap heights = null;
+        HeightMap map = null;
 
-        return new WorldGenBenchOp("set.retry", context =>
+        return new WorldGenBenchOp("set.houses", context =>
         {
-            List<CityLayout> cities = new CityPlanner(context.Profile.Config, context.Profile.Pois, heights)
-                .Plan(frozen.Roads.Hubs, frozen.Roads.Roads);
-
-            context.Put("cities", cities);
+            List<Hub> hubs = new HubPlacer(context.Profile.Config, map).Place();
+            context.Put("hubs", hubs);
         })
         {
             Setup = context =>
             {
-                frozen = WorldGenBenchFixtures.Frozen(context.Profile, "carved");
-                WorldGenerationConfig config = context.Profile.Config;
-
-                WorldGenBenchProfile.Assign(config, "SettlementPlanAttempts", context.Args.Int("attempts", 3));
-
-                if (context.Args.Bool("impossible", false))
-                {
-                    WorldGenBenchProfile.Assign(config.CityProfile, "DowntownFraction", 0.001f);
-                    WorldGenBenchProfile.Assign(config.TownProfile, "DowntownFraction", 0.001f);
-                }
-
-                context.Count("attempts", config.SettlementPlanAttempts);
+                map = WorldGenBenchFixtures.Frozen(context.Profile, "heights").RawHeights;
+                WorldGenBenchProfile.Assign(context.Profile.Config, "HouseCountBias", context.Args.Float("bias", 2.4f));
+                context.Count("bias", context.Profile.Config.HouseCountBias);
             },
-            Prepare = context => heights = frozen.CopyCarved(),
             Verify = context =>
             {
-                var cities = context.Get<List<CityLayout>>("cities");
-                int met = 0;
-                int planned = 0;
+                var hubs = context.Get<List<Hub>>("hubs");
+                int houses = 0;
+                int large = 0;
 
-                foreach (CityLayout city in cities)
+                foreach (Hub hub in hubs)
                 {
-                    met += city.Composition.Met;
-                    planned += city.Composition.Planned;
+                    houses += hub.Houses;
+
+                    if (hub.Houses > context.Profile.Config.MaxHouses / 2)
+                        large++;
                 }
 
-                context.Count("compositionMet", met);
-                context.Count("compositionPlanned", planned);
-                context.Count("cities", cities.Count);
+                context.Count("settlements", hubs.Count);
+                context.Count("houses", houses);
+                context.Count("meanHouses", hubs.Count == 0 ? 0d : houses / (double)hubs.Count);
+                context.Count("overHalfOfMax", large);
             }
         };
     }
@@ -689,7 +641,7 @@ public static class WorldGenBenchOpsSet
                 for (int index = 0; index < segments; index++)
                 {
                     var center = new Vector2(random.NextFloat(0f, config.WorldSize), random.NextFloat(0f, config.WorldSize));
-                    lots.Add(new Lot(center, 12f, 14f, new Vector2(1f, 0f), DistrictType.Residential, null));
+                    lots.Add(new Lot(center, 12f, 14f, new Vector2(1f, 0f), DistrictType.Residential));
                 }
 
                 queries = new Vector2[10000];
@@ -704,14 +656,28 @@ public static class WorldGenBenchOpsSet
         };
     }
 
-    private static CityLayout Layout(WorldGenBenchContext context, Hub hub)
+    private static List<Hub> Clone(List<Hub> hubs)
     {
-        WorldGenerationConfig config = context.Profile.Config;
-        SettlementProfile profile = config.ProfileFor(hub.Tier);
-        var composition = new SettlementComposition(profile, new PoiCensus());
+        var copy = new List<Hub>(hubs.Count);
 
-        return new CityLayout(hub, 0f, hub.Radius * config.CityRadiusScale, profile, composition,
-            config.CityShapeJitter, 0.3f, 1.7f, 0.9f);
+        foreach (Hub hub in hubs)
+            copy.Add(new Hub(hub.Position, hub.Radius, hub.Relief, hub.Houses));
+
+        return copy;
+    }
+
+    private static SettlementLayout Detach(SettlementLayout source)
+    {
+        var copy = new SettlementLayout(source.Hub, source.Angle);
+
+        copy.Blocks.AddRange(source.Blocks);
+        copy.Streets.AddRange(source.Streets);
+        copy.Frontages.AddRange(source.Frontages);
+        copy.Neighbours.AddRange(source.Neighbours);
+        copy.Gates.AddRange(source.Gates);
+        copy.Measure();
+
+        return copy;
     }
 
     private static Hub Pick(List<Hub> hubs, Hub from, string kind)
@@ -741,7 +707,7 @@ public static class WorldGenBenchOpsSet
         var text = new System.Text.StringBuilder();
 
         foreach (Hub hub in hubs)
-            text.Append(hub.Position.x).Append(',').Append(hub.Position.y).Append(',').Append(hub.Radius).Append(';');
+            text.Append(hub.Position.x).Append(',').Append(hub.Position.y).Append(',').Append(hub.Houses).Append(';');
 
         return WorldGenBenchArgs.Hash(text.ToString());
     }

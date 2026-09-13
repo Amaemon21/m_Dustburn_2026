@@ -6,8 +6,8 @@
       "purpose": "smoke correctness, never a performance verdict",
       "overrides": {
         "WorldSize": 512, "HeightCellSize": 4, "BiomeCellSize": 8, "Seed": 1337,
-        "HubCount": 4, "CityCount": 0, "TownCount": 4,
-        "HubEdgeMargin": 100, "MinHubDistance": 96, "MinHubRadius": 64, "MaxHubRadius": 80,
+        "HubCount": 4, "MinHouses": 4, "MaxHouses": 12,
+        "HubEdgeMargin": 100, "MinHubDistance": 96, "BlockSizeMin": 40, "BlockSizeMax": 52, "SettlementGap": 0,
         "MaxHubRelief": 360, "ErosionPasses": 1, "HydraulicPasses": 2,
         "ContinentAmplitude": 0.01, "ReliefScale": 0.2, "SeaLevel": 0,
         "biome.BaseHeight": 0.3, "biome.HillAmplitude": 0.02, "biome.RidgeAmplitude": 0.001,
@@ -19,7 +19,7 @@
       "inherits": "P8192",
       "overrides": {
         "WorldSize": 2048, "HeightCellSize": 2, "BiomeCellSize": 8,
-        "HubCount": 9, "CityCount": 1, "TownCount": 3,
+        "HubCount": 9, "MaxHouses": 80,
         "MinHubDistance": 300, "HubEdgeMargin": 320
       }
     },

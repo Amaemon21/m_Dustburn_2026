@@ -23,10 +23,9 @@ public static class WorldGenBenchOpsMat
         BiomeWeightField weights = frozen.Weights ?? new BiomeWeightField(frozen.Biomes,
             context.Profile.Biomes.Count, context.Profile.Config.BiomeBlendRadius);
 
-        float[] mask = frozen.RoadMask;
-        int resolution = frozen.CarvedHeights?.Resolution ?? context.Profile.Config.HeightMapResolution;
+        List<Road> roads = context.Args.Bool("noRoads", false) ? null : frozen.Roads?.Paved();
 
-        return new GroundSplatPainter(context.Profile.Config, context.Profile.Biomes, weights, mask, resolution);
+        return new GroundSplatPainter(context.Profile.Config, context.Profile.Biomes, weights, roads);
     }
 
     private static WorldGenBenchOp Painter()
@@ -222,13 +221,10 @@ public static class WorldGenBenchOpsMat
             {
                 WorldGenBenchProfile.Assign(context.Profile.Config, "OneGroundPerBiome", context.Args.Bool("oneGround", true));
 
-                if (context.Args.Bool("noRoadMask", false))
-                    context.Note("road mask deliberately absent");
+                if (context.Args.Bool("noRoads", false))
+                    context.Note("road network deliberately absent");
 
                 frozen = WorldGenBenchFixtures.Frozen(context.Profile, "carved");
-
-                if (context.Args.Bool("noRoadMask", false))
-                    WorldGenBenchReflect.SetField(frozen, "<RoadMask>k__BackingField", null);
 
                 context.Count("oneGround", context.Profile.Config.OneGroundPerBiome ? 1 : 0);
             },
@@ -276,7 +272,7 @@ public static class WorldGenBenchOpsMat
                     Config = fixture.World.Config,
                     Biomes = fixture.World.Biomes,
                     BiomeMap = fixture.World.BiomeMap,
-                    RoadMask = fixture.World.RoadMask,
+                    Roads = fixture.World.Roads == null ? null : fixture.World.Roads.Paved(),
                     Map = frozen.CarvedHeights,
                     ControlResolution = context.Args.Int("resolution", 512),
                     UseRepetitionless = context.Args.Bool("repetitionless", false),
@@ -329,7 +325,7 @@ public static class WorldGenBenchOpsMat
                     Config = fixture.World.Config,
                     Biomes = fixture.World.Biomes,
                     BiomeMap = fixture.World.BiomeMap,
-                    RoadMask = fixture.World.RoadMask,
+                    Roads = fixture.World.Roads == null ? null : fixture.World.Roads.Paved(),
                     Map = frozen.CarvedHeights,
                     ControlResolution = context.Args.Int("resolution", 256),
                     UseRepetitionless = true,

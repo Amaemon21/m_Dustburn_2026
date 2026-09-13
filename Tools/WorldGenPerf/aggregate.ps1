@@ -122,7 +122,12 @@ $operations = foreach ($record in $records) {
         count     = $wall.count
     }
 
-    foreach ($workName in ($result.work | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name })) {
+    $workNames = @()
+    if ($null -ne $result.work) {
+        $workNames = @($result.work | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name })
+    }
+
+    foreach ($workName in $workNames) {
         [pscustomobject]@{
             runId     = $record.runId
             caseId    = $record.caseId

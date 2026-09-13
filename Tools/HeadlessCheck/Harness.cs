@@ -70,9 +70,27 @@ static class Harness
 
     static void Main(string[] args)
     {
+        if (Array.IndexOf(args, "--ground-preview") >= 0)
+        {
+            GroundPreview.Run(args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--ground-appearance") >= 0)
+        {
+            GroundAppearanceChecks.Run();
+            return;
+        }
+
         if (Array.IndexOf(args, "--asset-write-smoke") >= 0)
         {
             GeneratedAssetFileChecks.Run();
+            return;
+        }
+
+        if (Array.IndexOf(args, "--road-paint") >= 0)
+        {
+            RoadPaintChecks.Run();
             return;
         }
 
@@ -81,11 +99,9 @@ static class Harness
         _config = AssetReader.Load<WorldGenerationConfig>($"{CONTENT}/WorldGenerationConfig.asset");
 
         BiomeDatabase biomes = AssetReader.LoadBiomes($"{CONTENT}/Biomes",
-            "Biome_PineForest", "Biome_BurntForest", "Biome_Desert", "Biome_Wasteland");
+            "Biome_PineForest", "Biome_BurntForest", "Biome_Desert", "Biome_Wasteland", "Biome_Snow");
 
         PoiDatabase pois = BuildDatabase();
-
-        AssetReader.ApplyProfiles(_config, $"{CONTENT}/WorldGenerationConfig.asset");
 
         if (Array.IndexOf(args, "--pipeline-smoke") >= 0)
         {
@@ -113,46 +129,57 @@ static class Harness
         ReportBiomes(biomeMap, biomes);
         Draw.Biomes("unity_biomes.png", biomeMap, biomes);
 
-        HeightMap raw = Stage("рельеф", () => new HeightMapGenerator(_config, biomes).Generate(biomeMap));
+        HeightMap raw = RawHeights(ArgumentAfter(args, "--raw-cache"), biomes, biomeMap);
+        bool settlementsOnly = Array.IndexOf(args, "--settlements-only") >= 0;
 
-        ReportRelief(raw);
-        CheckVoxels(raw);
-        CheckVoxelSurface(raw);
-        ReportVoxelBudget(raw);
+        if (!settlementsOnly)
+        {
+            ReportRelief(raw);
+            ReportSightlines(raw);
+            CheckVoxels(raw);
+            CheckVoxelSurface(raw);
+            ReportVoxelBudget(raw);
+        }
 
         var network = new RoadNetwork();
-        network.Hubs.AddRange(Stage("хабы", () => new HubPlacer(_config, raw).Place()));
-        network.Roads.AddRange(Stage("дороги", () => new RoadPlanner(_config, raw).Plan(network.Hubs)));
+        network.Hubs.AddRange(Stage("поселения", () => new HubPlacer(_config, raw).Place()));
+        network.Links.AddRange(RoadGraph.Link(network.Hubs, _config.RoadExtraEdges));
 
-        Console.WriteLine($"hubs={network.Hubs.Count} roads={network.Roads.Count}");
+        var planner = new SettlementPlanner(_config, pois, raw);
+        List<SettlementLayout> layouts = Stage("кварталы", () => planner.Plan(network.Hubs, network.Links));
 
-        var carver = new TerrainCarver(_config);
-        float[] roadMask = null;
-        HeightMap roadsMap = Stage("врезка дорог", () => carver.Carve(raw, network, out roadMask));
-
-        List<CityLayout> layouts = Stage("города", () => new CityPlanner(_config, pois, roadsMap).Plan(network.Hubs, network.Roads));
-
-        foreach (CityLayout layout in layouts)
+        foreach (SettlementLayout layout in layouts)
             network.Streets.AddRange(layout.Streets);
 
-        HeightMap withStreets = Stage("врезка улиц", () => carver.CarveStreets(roadsMap, layouts, roadMask));
+        var carver = new TerrainCarver(_config);
+        HeightMap padded = Stage("выравнивание", () => carver.CarveSettlements(raw, layouts));
+        network.Roads.AddRange(Stage("дороги", () => new RoadPlanner(_config, padded).Plan(network.Hubs, network.Links, layouts)));
+
+        Console.WriteLine($"hubs={network.Hubs.Count} links={network.Links.Count} roads={network.Roads.Count} streets={network.Streets.Count}");
+
+        float[] roadMask = null;
+        HeightMap withStreets = Stage("врезка улиц", () => carver.CarveStreets(padded, layouts, out roadMask));
+        HeightMap roadsMap = Stage("врезка дорог", () => carver.CarveHighways(withStreets, network.Roads, roadMask));
 
         var roads = new RoadProximity(network.Roads, _config.WorldSize, _config.RoadCellSize);
         roads.AddRange(network.Streets);
-        var placer = new PoiPlacer(_config, pois, withStreets, roads);
+        Stage("участки", () => planner.CutLots(layouts, roads));
+
+        var placer = new PoiPlacer(_config, pois, roadsMap, roads);
         List<PoiPlacement> placements = Stage("POI", () => placer.Place(layouts, network));
 
-        HeightMap final = Stage("врезка площадок", () => carver.CarvePads(withStreets, placements));
+        HeightMap final = Stage("врезка площадок", () => carver.CarvePads(roadsMap, placements));
         placer.ApplyHeights(final);
 
         Report(layouts, placements);
-        ReportComposition(layouts);
+        ReportSettlements(layouts, placements);
         CheckHeights(placements, final, network);
         CheckRoads(placements, roads);
         CheckSpacing(network);
         CheckConnectivity(network);
-        CheckShoulders("трассы", network.Roads, withStreets, _config.RoadHalfWidth, _config.RoadShoulder);
-        CheckShoulders("улицы", network.Streets, withStreets, _config.StreetHalfWidth, _config.StreetShoulder);
+        CheckHighwaysInSettlements(network, layouts);
+        CheckShoulders("трассы", network.Roads, roadsMap, _config.RoadHalfWidth, _config.RoadShoulder);
+        CheckShoulders("улицы", network.Streets, roadsMap, _config.StreetHalfWidth, _config.StreetShoulder);
         CheckShoulders("улицы с домами", network.Streets, final, _config.StreetHalfWidth, _config.StreetShoulder);
         CheckCurvature("трассы", network.Roads);
         CheckCurvature("улицы", network.Streets);
@@ -160,33 +187,69 @@ static class Harness
         Draw.View("unity_world.png", final, network, layouts, placements,
             new Vector2(_config.WorldSize * 0.5f, _config.WorldSize * 0.5f), _config.WorldSize, 1024, false);
 
-        foreach (SettlementTier tier in Enum.GetValues(typeof(SettlementTier)))
+        List<SettlementLayout> ranked = layouts.FindAll(layout => !layout.IsEmpty);
+        ranked.Sort((left, right) => right.Hub.Houses.CompareTo(left.Hub.Houses));
+
+        if (ranked.Count > 0)
         {
-            Hub hub = network.Hubs.Find(h => h.Tier == tier);
-
-            if (hub == null)
-                continue;
-
-            float span = hub.Radius * _config.CityRadiusScale * 2.4f;
-
-            Draw.View($"unity_{tier}.png", final, network, layouts, placements, hub.Position, span, 1000, true);
+            DrawSettlement("unity_settlement_large.png", ranked[0], final, network, layouts, placements);
+            DrawSettlement("unity_settlement_medium.png", ranked[ranked.Count / 2], final, network, layouts, placements);
+            DrawSettlement("unity_settlement_small.png", ranked[^1], final, network, layouts, placements);
         }
 
         Draw.View("unity_zoom.png", final, network, layouts, placements, network.Hubs[0].Position, 300f, 1000, true);
+
+        if (settlementsOnly)
+        {
+            ReportStages();
+            return;
+        }
+
         CheckStreaming();
         CheckWorld();
         CheckLod(raw);
         CheckDecor(raw, biomeMap, biomes);
         ReportStages();
 
-        Draw.View("unity_bare.png", final, new RoadNetwork(), new List<CityLayout>(), new List<PoiPlacement>(), network.Hubs[0].Position, 700f, 1000, false);
+        Draw.View("unity_bare.png", final, new RoadNetwork(), new List<SettlementLayout>(), new List<PoiPlacement>(), network.Hubs[0].Position, 700f, 1000, false);
     }
 
-    static void Report(List<CityLayout> layouts, List<PoiPlacement> placements)
+    static string ArgumentAfter(string[] args, string flag)
+    {
+        int index = Array.IndexOf(args, flag);
+
+        return index >= 0 && index + 1 < args.Length ? args[index + 1] : null;
+    }
+
+    // Кеш сырой карты высот нужен только для быстрых прогонов поселений: он не знает, с какими
+    // настройками рельефа сделан, поэтому после правки рельефа файл надо удалить.
+    static HeightMap RawHeights(string cache, BiomeDatabase biomes, BiomeMap biomeMap)
+    {
+        if (cache != null && File.Exists(cache))
+        {
+            Console.WriteLine($"рельеф из кеша {cache}");
+
+            return HeightMap.FromRaw16(File.ReadAllBytes(cache), _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
+        }
+
+        HeightMap raw = Stage("рельеф", () => new HeightMapGenerator(_config, biomes).Generate(biomeMap));
+
+        if (cache != null)
+            File.WriteAllBytes(cache, raw.ToRaw16());
+
+        return raw;
+    }
+
+    static void DrawSettlement(string path, SettlementLayout layout, HeightMap map, RoadNetwork network, List<SettlementLayout> layouts, List<PoiPlacement> placements)
+    {
+        Draw.View(path, map, network, layouts, placements, layout.Hub.Position, Mathf.Max(240f, layout.Radius * 2.6f), 1000, true);
+    }
+
+    static void Report(List<SettlementLayout> layouts, List<PoiPlacement> placements)
     {
         int streets = 0, lots = 0;
 
-        foreach (CityLayout layout in layouts)
+        foreach (SettlementLayout layout in layouts)
         {
             streets += layout.Streets.Count;
             lots += layout.Lots.Count;
@@ -220,7 +283,7 @@ static class Harness
     static void CheckLod(HeightMap map)
     {
         var voxels = new VoxelConfig();
-        var plan = new VoxelStreamPlan(voxels, 5, 96f);
+        var plan = new VoxelStreamPlan(voxels, 6, 96f);
         var columns = new List<VoxelColumnKey>();
 
         plan.Around(new Vector2(2048f, 1792f), columns);
@@ -964,7 +1027,7 @@ static class Harness
     static void CheckStreaming()
     {
         var voxels = new VoxelConfig();
-        var plan = new VoxelStreamPlan(voxels, 5, 96f);
+        var plan = new VoxelStreamPlan(voxels, 6, 96f);
         var columns = new List<VoxelColumnKey>();
 
         var viewer = new Vector2(2048.3f, 1777.7f);
@@ -1039,7 +1102,7 @@ static class Harness
     static void CheckWorld()
     {
         var voxels = new VoxelConfig();
-        var plan = new VoxelStreamPlan(voxels, 5, 96f, _config.WorldSize);
+        var plan = new VoxelStreamPlan(voxels, 6, 96f, _config.WorldSize);
         var columns = new List<VoxelColumnKey>();
 
         var spawn = new Vector2(1024f, 1024f);
@@ -1181,7 +1244,7 @@ static class Harness
     // kind, filled with cells the size of the finest chunk. This is what the player carries around.
     static void CheckRingDecor(VoxelConfig voxels, VoxelDecorPlacer placer)
     {
-        var plan = new VoxelStreamPlan(voxels, 5, 96f, _config.WorldSize);
+        var plan = new VoxelStreamPlan(voxels, 6, 96f, _config.WorldSize);
         var instances = new List<DecorInstance>();
 
         var viewer = new Vector2(2048f, 1792f);
@@ -1614,26 +1677,96 @@ static class Harness
         return (x << 42) | (y << 21) | z;
     }
 
-    static void ReportComposition(List<CityLayout> layouts)
+    static void ReportSettlements(List<SettlementLayout> layouts, List<PoiPlacement> placements)
     {
-        int planned = 0, met = 0;
+        int drawn = 0, built = 0, blocks = 0, streets = 0, empty = 0;
+        var classes = new int[4];
 
-        Console.WriteLine("состав поселений:");
-
-        foreach (CityLayout layout in layouts)
+        foreach (SettlementLayout layout in layouts)
         {
-            SettlementComposition composition = layout.Composition;
+            int houses = layout.Hub.Houses;
 
-            planned += composition.Planned;
-            met += composition.Met;
+            drawn += houses;
+            blocks += layout.Blocks.Count;
+            streets += layout.Streets.Count;
 
-            string missing = composition.DescribeUnmet();
+            if (layout.IsEmpty)
+                empty++;
 
-            Console.WriteLine($"  {layout.Tier,-8} {layout.Lots.Count,4} участков, обязательных {composition.Met}/{composition.Planned}"
-                + (missing.Length == 0 ? "" : $", не хватило: {missing}"));
+            classes[houses <= 15 ? 0 : houses <= 40 ? 1 : houses <= 80 ? 2 : 3]++;
         }
 
-        Console.WriteLine($"  итого обязательных {met}/{planned}");
+        foreach (PoiPlacement placement in placements)
+        {
+            if (placement.District != DistrictType.Rural)
+                built++;
+        }
+
+        Console.WriteLine($"поселения: {layouts.Count}, без единого квартала {empty}; до 15 домов {classes[0]}, 16-40 {classes[1]}, 41-80 {classes[2]}, больше 80 {classes[3]}");
+        Console.WriteLine($"  домов по жребию {drawn}, построено {built}; кварталов {blocks}, улиц {streets}");
+
+        var ranked = new List<SettlementLayout>(layouts);
+        ranked.Sort((left, right) => right.Hub.Houses.CompareTo(left.Hub.Houses));
+
+        for (int i = 0; i < Math.Min(5, ranked.Count); i++)
+        {
+            SettlementLayout layout = ranked[i];
+            float reach = layout.Radius + 40f;
+            int here = 0;
+
+            foreach (PoiPlacement placement in placements)
+            {
+                if (placement.District != DistrictType.Rural && (placement.Ground - layout.Hub.Position).sqrMagnitude <= reach * reach)
+                    here++;
+            }
+
+            Console.WriteLine($"  {layout.Hub.Houses,4} по жребию, {here,4} построено, {layout.Blocks.Count,3} кварталов, {layout.Streets.Count,3} улиц, радиус {layout.Radius:F0} м, въездов {layout.Gates.Count}");
+        }
+    }
+
+    static void CheckHighwaysInSettlements(RoadNetwork network, List<SettlementLayout> layouts)
+    {
+        const float STEP = 8f;
+        const float APPROACH = 40f;
+
+        int samples = 0, inside = 0;
+
+        foreach (Road road in network.Roads)
+        {
+            float total = Length(road);
+            float travelled = 0f;
+
+            for (int i = 0; i < road.Points.Length - 1; i++)
+            {
+                float length = Vector2.Distance(road.Points[i], road.Points[i + 1]);
+                int steps = Mathf.Max(1, Mathf.CeilToInt(length / STEP));
+
+                for (int step = 0; step < steps; step++)
+                {
+                    float cursor = travelled + length * step / steps;
+
+                    if (cursor < APPROACH || total - cursor < APPROACH)
+                        continue;
+
+                    Vector2 point = Vector2.Lerp(road.Points[i], road.Points[i + 1], step / (float)steps);
+
+                    samples++;
+
+                    foreach (SettlementLayout layout in layouts)
+                    {
+                        if (!layout.Contains(point))
+                            continue;
+
+                        inside++;
+                        break;
+                    }
+                }
+
+                travelled += length;
+            }
+        }
+
+        Console.WriteLine($"трассы поверх кварталов: {inside} из {samples} замеров через {STEP:F0} м (без {APPROACH:F0} м у въездов)");
     }
 
     static void CheckHeights(List<PoiPlacement> placements, HeightMap map, RoadNetwork network)
@@ -1654,7 +1787,7 @@ static class Harness
 
         foreach (Hub hub in network.Hubs)
         {
-            float reach = hub.Radius * _config.CityRadiusScale * (1f + _config.CityShapeJitter);
+            float reach = hub.Radius;
             string flag = hub.Position.x < reach || hub.Position.y < reach
                 || hub.Position.x > _config.WorldSize - reach || hub.Position.y > _config.WorldSize - reach ? "  <-- у края" : "";
 
@@ -1697,6 +1830,14 @@ static class Harness
 
     static void CheckSpacing(RoadNetwork network)
     {
+        CheckSpacing("улиц", network.Streets, network);
+        CheckSpacing("трасс", network.Roads, network);
+    }
+
+    static void CheckSpacing(string label, List<Road> tested, RoadNetwork network)
+    {
+        const float MERGED = 1.5f;
+
         var all = new List<Road>(network.Roads);
         all.AddRange(network.Streets);
 
@@ -1704,9 +1845,9 @@ static class Harness
         int flagged = 0;
         float worst = float.MaxValue;
 
-        float grace = _config.StreetHalfWidth + _config.RoadHalfWidth + _config.StreetStepLength;
+        float grace = _config.StreetHalfWidth + _config.RoadHalfWidth + _config.BlockSizeMin * 0.25f;
 
-        foreach (Road street in network.Streets)
+        foreach (Road street in tested)
         {
             int samples = 0, close = 0;
             float total = Length(street);
@@ -1734,10 +1875,10 @@ static class Harness
 
                     samples++;
 
-                    if (nearest < alongside)
+                    if (nearest > MERGED && nearest < alongside)
                         close++;
 
-                    if (nearest < worst)
+                    if (nearest > MERGED && nearest < worst)
                         worst = nearest;
                 }
 
@@ -1748,7 +1889,7 @@ static class Harness
                 flagged++;
         }
 
-        Console.WriteLine($"улиц, идущих вплотную вдоль чужой дороги (ближе {alongside:F0} м на трети длины): {flagged} из {network.Streets.Count}, минимальный зазор {worst:F1} м");
+        Console.WriteLine($"{label}, идущих рядом с чужой дорогой, но не слитых с ней ({MERGED:F1}..{alongside:F0} м на трети длины): {flagged} из {tested.Count}, минимальный зазор {worst:F1} м");
     }
 
     static float Nearest(List<Road> roads, Road self, Vector2 point, out Vector2 direction)
@@ -2122,6 +2263,90 @@ static class Harness
 
             Console.WriteLine($"  {biomes.Get(i).name,-20} {share,5:F1}%  вес {biomes.Get(i).RegionWeight}");
         }
+    }
+
+    const float EYE_HEIGHT = 1.7f;
+    const float SIGHT_LIMIT = 2000f;
+    const float SIGHT_STEP = 8f;
+    const int SIGHT_POINTS = 24;
+    const int SIGHT_RAYS = 16;
+
+    static void ReportSightlines(HeightMap map)
+    {
+        float world = _config.WorldSize;
+        float margin = SIGHT_LIMIT * 0.25f;
+        var horizons = new List<float>();
+        int blocked = 0, open = 0, far = 0;
+
+        for (int py = 0; py < SIGHT_POINTS; py++)
+        {
+            float fx = (py % 6 + 0.5f) / 6f;
+            float fz = (py / 6 + 0.5f) / 4f;
+
+            float ox = margin + fx * (world - 2f * margin);
+            float oz = margin + fz * (world - 2f * margin);
+            float eye = map.SampleWorldSmooth(ox, oz) + EYE_HEIGHT;
+
+            if (eye - EYE_HEIGHT < _config.SeaLevel)
+                continue;
+
+            for (int ray = 0; ray < SIGHT_RAYS; ray++)
+            {
+                float angle = ray * 2f * MathF.PI / SIGHT_RAYS;
+                float dx = MathF.Cos(angle);
+                float dz = MathF.Sin(angle);
+
+                float highest = float.NegativeInfinity;
+                float horizon = 0f;
+
+                for (float d = SIGHT_STEP; d <= SIGHT_LIMIT; d += SIGHT_STEP)
+                {
+                    float x = ox + dx * d;
+                    float z = oz + dz * d;
+
+                    if (x < 0f || z < 0f || x > world || z > world)
+                        break;
+
+                    float elevation = (map.SampleWorldSmooth(x, z) - eye) / d;
+
+                    if (elevation < highest)
+                        continue;
+
+                    highest = elevation;
+                    horizon = d;
+                }
+
+                horizons.Add(horizon);
+
+                if (horizon < 300f)
+                    blocked++;
+
+                if (horizon > 1000f)
+                    far++;
+
+                if (horizon >= SIGHT_LIMIT - SIGHT_STEP)
+                    open++;
+            }
+        }
+
+        if (horizons.Count == 0)
+        {
+            Console.WriteLine("sightlines: no dry viewpoint found");
+            return;
+        }
+
+        horizons.Sort();
+
+        double mean = 0;
+
+        foreach (float h in horizons)
+            mean += h;
+
+        mean /= horizons.Count;
+
+        Console.WriteLine($"sightlines: horizon at eye height over {horizons.Count} rays — median {horizons[horizons.Count / 2]:F0} m, "
+            + $"90th percentile {horizons[horizons.Count * 9 / 10]:F0} m, mean {mean:F0} m, "
+            + $"blocked under 300 m {100f * blocked / horizons.Count:F0}%, past 1 km {100f * far / horizons.Count:F0}%, open to {SIGHT_LIMIT:F0} m {100f * open / horizons.Count:F0}%");
     }
 
     static void ReportRelief(HeightMap map)

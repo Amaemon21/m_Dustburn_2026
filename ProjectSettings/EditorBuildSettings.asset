@@ -6,6 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Dustborn/Scenes/Boot.unity
+    guid: 510802096220ece419f442af1a7ca88f
+  - enabled: 1
+    path: Assets/_Dustborn/Scenes/MainMenu.unity
+    guid: 2ba0edc9056443d439c8a8f96e965f43
+  - enabled: 1
+    path: Assets/_Dustborn/Scenes/Gameplay.unity
+    guid: 47f222f0ac6e8fa48b92b8603e050120
+  - enabled: 1
     path: Assets/Scenes/Unit_System.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:

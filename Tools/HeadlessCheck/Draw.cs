@@ -4,7 +4,7 @@ using UnityEngine;
 
 static class Draw
 {
-    public static void View(string path, HeightMap map, RoadNetwork network, List<CityLayout> layouts, List<PoiPlacement> placements,
+    public static void View(string path, HeightMap map, RoadNetwork network, List<SettlementLayout> layouts, List<PoiPlacement> placements,
         Vector2 center, float span, int size, bool drawLots)
     {
         var canvas = new Canvas(size, size);
@@ -32,16 +32,26 @@ static class Draw
             canvas.Set(px, py, v, (byte)(v * 0.97f), (byte)(v * 0.9f));
         }
 
+        if (span < 2000f)
+        {
+            foreach (SettlementLayout layout in layouts)
+            foreach (Block block in layout.Blocks)
+            {
+                (byte r, byte g, byte b) = ColorFor(block.District);
+                Outline(canvas, block.Corners, (byte)(r / 2), (byte)(g / 2), (byte)(b / 2));
+            }
+        }
+
         foreach (Road road in network.Roads)
             Polyline(canvas, road.Points, 220, 60, 40, span < 2000f ? 3f : 1f);
 
-        foreach (CityLayout layout in layouts)
+        foreach (SettlementLayout layout in layouts)
         foreach (Road street in layout.Streets)
             Polyline(canvas, street.Points, 250, 210, 60, span < 2000f ? 1f : 0f);
 
         if (drawLots)
         {
-            foreach (CityLayout layout in layouts)
+            foreach (SettlementLayout layout in layouts)
             foreach (Lot lot in layout.Lots)
                 Rect(canvas, lot.Center, new Vector2(lot.Width, lot.Depth), lot.Forward, 90, 160, 255, false);
         }
@@ -53,7 +63,11 @@ static class Draw
         }
 
         foreach (Hub hub in network.Hubs)
-            { (byte tr, byte tg, byte tb) = TierColor(hub.Tier); Circle(canvas, hub.Position, hub.Radius * 1.35f, tr, tg, tb); }
+            Circle(canvas, hub.Position, Mathf.Max(hub.Radius, 20f), 60, 255, 200);
+
+        foreach (SettlementLayout layout in layouts)
+        foreach (Vector2 gate in layout.Gates)
+            Cross(canvas, gate, 255, 60, 255);
 
         canvas.Save(path);
 
@@ -66,6 +80,22 @@ static class Draw
 
             for (int i = 0; i < points.Length - 1; i++)
                 c.Line(PixelX(points[i].x), PixelY(points[i].y), PixelX(points[i + 1].x), PixelY(points[i + 1].y), r, g, b, thickness);
+        }
+
+        void Outline(Canvas c, Vector2[] corners, byte r, byte g, byte b)
+        {
+            for (int i = 0; i < corners.Length; i++)
+            {
+                Vector2 a = corners[i], e = corners[(i + 1) % corners.Length];
+                c.Line(PixelX(a.x), PixelY(a.y), PixelX(e.x), PixelY(e.y), r, g, b);
+            }
+        }
+
+        void Cross(Canvas c, Vector2 middle, byte r, byte g, byte b)
+        {
+            float arm = Math.Max(4f, 6f / scale) ;
+            c.Line(PixelX(middle.x - arm), PixelY(middle.y - arm), PixelX(middle.x + arm), PixelY(middle.y + arm), r, g, b, 2f);
+            c.Line(PixelX(middle.x - arm), PixelY(middle.y + arm), PixelX(middle.x + arm), PixelY(middle.y - arm), r, g, b, 2f);
         }
 
         void Rect(Canvas c, Vector2 middle, Vector2 sizeXY, Vector2 forward, byte r, byte g, byte b, bool fill)
@@ -122,13 +152,6 @@ static class Draw
     {
         return map.SampleWorld(new Vector3(wx, 0f, wy));
     }
-
-    static (byte, byte, byte) TierColor(SettlementTier tier) => tier switch
-    {
-        SettlementTier.City => ((byte)60, (byte)255, (byte)200),
-        SettlementTier.Town => ((byte)255, (byte)230, (byte)90),
-        _ => ((byte)255, (byte)140, (byte)255)
-    };
 
     static (byte, byte, byte) ColorFor(DistrictType district) => district switch
     {

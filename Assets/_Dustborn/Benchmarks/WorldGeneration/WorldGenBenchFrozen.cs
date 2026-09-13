@@ -13,15 +13,17 @@ public sealed class WorldGenBenchFrozen
 
     public List<Hub> Hubs { get; private set; }
 
+    public List<(int From, int To)> Links { get; private set; }
+
+    public List<SettlementLayout> Settlements { get; private set; }
+
+    public HeightMap PaddedHeights { get; private set; }
+
     public RoadNetwork Roads { get; private set; }
 
     public HeightMap CarvedHeights { get; private set; }
 
     public float[] RoadMask { get; private set; }
-
-    public List<CityLayout> Cities { get; private set; }
-
-    public HeightMap StreetHeights { get; private set; }
 
     public RoadProximity Proximity { get; private set; }
 
@@ -43,14 +45,14 @@ public sealed class WorldGenBenchFrozen
         return Copy(RawHeights);
     }
 
+    public HeightMap CopyPadded()
+    {
+        return Copy(PaddedHeights);
+    }
+
     public HeightMap CopyCarved()
     {
         return Copy(CarvedHeights);
-    }
-
-    public HeightMap CopyStreets()
-    {
-        return Copy(StreetHeights);
     }
 
     public HeightMap CopyFinal()
@@ -100,40 +102,51 @@ public sealed class WorldGenBenchFrozen
             return;
 
         Hubs = new HubPlacer(config, RawHeights).Place();
+        Links = RoadGraph.Link(Hubs, config.RoadExtraEdges);
 
         if (Reached("hubs"))
             return;
 
+        var planner = new SettlementPlanner(config, _profile.Pois, RawHeights);
+        var carver = new TerrainCarver(config);
+
+        Settlements = planner.Plan(Hubs, Links);
+        PaddedHeights = carver.CarveSettlements(Copy(RawHeights), Settlements);
+
+        if (Reached("settlements"))
+            return;
+
         Roads = new RoadNetwork();
         Roads.Hubs.AddRange(Hubs);
-        Roads.Roads.AddRange(new RoadPlanner(config, RawHeights).Plan(Roads.Hubs));
+        Roads.Links.AddRange(Links);
+
+        foreach (SettlementLayout settlement in Settlements)
+            Roads.Streets.AddRange(settlement.Streets);
+
+        Roads.Roads.AddRange(new RoadPlanner(config, PaddedHeights).Plan(Hubs, Links, Settlements));
 
         if (Reached("roads"))
             return;
 
-        var carver = new TerrainCarver(config);
-        CarvedHeights = carver.Carve(Copy(RawHeights), Roads, out float[] mask);
+        HeightMap streets = carver.CarveStreets(Copy(PaddedHeights), Settlements, out float[] mask);
+
+        CarvedHeights = carver.CarveHighways(streets, Roads.Roads, mask);
         RoadMask = mask;
-
-        if (Reached("carved"))
-            return;
-
-        Cities = new CityPlanner(config, _profile.Pois, CarvedHeights).Plan(Roads.Hubs, Roads.Roads);
-
-        foreach (CityLayout city in Cities)
-            Roads.Streets.AddRange(city.Streets);
-
-        StreetHeights = carver.CarveStreets(Copy(CarvedHeights), Cities, RoadMask);
 
         Proximity = new RoadProximity(Roads.Roads, config.WorldSize, config.RoadCellSize);
         Proximity.AddRange(Roads.Streets);
 
+        if (Reached("carved"))
+            return;
+
+        planner.CutLots(Settlements, Proximity);
+
         if (Reached("cities"))
             return;
 
-        var placer = new PoiPlacer(config, _profile.Pois, StreetHeights, Proximity);
-        Placements = placer.Place(Cities, Roads);
-        FinalHeights = carver.CarvePads(Copy(StreetHeights), Placements);
+        var placer = new PoiPlacer(config, _profile.Pois, CarvedHeights, Proximity);
+        Placements = placer.Place(Settlements, Roads);
+        FinalHeights = carver.CarvePads(Copy(CarvedHeights), Placements);
         placer.ApplyHeights(FinalHeights);
     }
 

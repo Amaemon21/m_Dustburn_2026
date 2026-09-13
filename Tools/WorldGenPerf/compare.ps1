@@ -93,7 +93,12 @@ foreach ($caseId in ($before.Keys + $after.Keys | Sort-Object -Unique)) {
     $workChanged = $false
     $workReason = ''
 
-    foreach ($name in ($left.result.work | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name })) {
+    $workNames = @()
+    if ($null -ne $left.result.work) {
+        $workNames = @($left.result.work | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name })
+    }
+
+    foreach ($name in $workNames) {
         $leftValue = $left.result.work.$name
         $rightValue = $right.result.work.$name
 

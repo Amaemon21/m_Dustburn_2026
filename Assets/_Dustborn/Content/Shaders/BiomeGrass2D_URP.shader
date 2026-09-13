@@ -1,6 +1,3 @@
-// Unity 6.0 / URP 17.0. Self-contained grass-card shader.
-// BaseMap: grayscale white shaded plant, alpha silhouette.
-// ColorMask: R foliage, G stems, B flowers/seed heads. Alpha ignored.
 Shader "BiomeGrass/2D Recolor Wind URP"
 {
     Properties
@@ -15,6 +12,8 @@ Shader "BiomeGrass/2D Recolor Wind URP"
         _Variation("Per Object Color Variation", Range(0,0.35)) = 0.08
         _TextureShading("White Texture Facet Shading", Range(0,1)) = 1
         _Cutoff("Alpha Cutoff", Range(0.01,0.95)) = 0.35
+        _FadeStart("Fade Start", Float) = 86.4
+        _FadeEnd("Fade End", Float) = 96
         [Toggle] _AlphaToCoverage("Alpha To Coverage (MSAA Only)", Float) = 0
         _SnowColor("Snow Color", Color) = (0.92,0.96,1,1)
         _SnowAmount("Snow Amount", Range(0,1)) = 0
@@ -49,7 +48,7 @@ Shader "BiomeGrass/2D Recolor Wind URP"
         float4 _BaseMap_ST, _BaseMap_TexelSize;
         half4 _LeafColor, _StemColor, _FlowerColor, _TipTint, _SnowColor;
         float4 _WindDirection;
-        float _WindStrength, _WindSpeed, _WindScale, _WindRoot, _WindExponent, _Flutter;
+        float _WindStrength, _WindSpeed, _WindScale, _WindRoot, _WindExponent, _Flutter, _FadeStart, _FadeEnd;
         half _RootDarkening, _Variation, _TextureShading, _Cutoff, _AlphaToCoverage;
         half _SnowAmount, _SnowStart, _Roundness, _NormalUp, _FacetRelief, _EnableFacetRelief;
         half _Translucency, _WrapLight, _AmbientStrength;
@@ -99,7 +98,6 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             o.positionWS = WindPosition(v, phase);
             o.positionCS = TransformWorldToHClip(o.positionWS);
             o.normalWS = TransformObjectToWorldNormal(v.normalOS);
-            // A standard Unity Quad has tangents. Fallback supports cards without them.
             float3 normalOS = normalize(v.normalOS);
             float3 fallbackAxis = abs(normalOS.y) < 0.99 ? float3(0,1,0) : float3(0,0,1);
             float3 tangentOS = dot(v.tangentOS.xyz, v.tangentOS.xyz) > 0.01 ? v.tangentOS.xyz : normalize(cross(fallbackAxis, normalOS));
@@ -114,14 +112,23 @@ Shader "BiomeGrass/2D Recolor Wind URP"
         {
             float2 uv = i.uv;
             float flutter = sin(uv.y * 13 + _Time.y * _WindSpeed * 2.1 + i.phaseFogVariation.x);
-            // WindStrength=0 disables both mesh sway and UV flutter.
             uv.x += flutter * _Flutter * saturate(_WindStrength * 20) * HeightWeight(uv.y);
             return TRANSFORM_TEX(uv, _BaseMap);
         }
-        half4 PlantBase(float2 uv)
+        float Dither(float2 screen)
+        {
+            return frac(dot(screen, float2(0.75487766624669276, 0.56984029099805327)));
+        }
+        float Coverage(float3 positionWS)
+        {
+            float range = distance(positionWS, GetCameraPositionWS());
+            return 1.0 - saturate((range - _FadeStart) / max(0.001, _FadeEnd - _FadeStart));
+        }
+        half4 PlantBase(float2 uv, float3 positionWS, float2 screen)
         {
             half4 b = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
             clip(b.a - _Cutoff);
+            clip(Coverage(positionWS) - Dither(screen));
             return b;
         }
         half3 PlantWeights(float2 uv)
@@ -135,17 +142,14 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             half3 n = normalize(i.normalWS) * faceSign;
             half3 t = normalize(i.tangentWS.xyz - n * dot(n, i.tangentWS.xyz));
             half3 b = normalize(cross(n, t)) * i.tangentWS.w * faceSign;
-            // Approximate a rounded leaf mass without changing the 2D silhouette.
             half2 slope = half2((i.uv.x - 0.5h) * 2 * _Roundness, _NormalUp);
             #if defined(_FACET_RELIEF)
-            // Use grayscale as a shallow bump field; requires no extra normal texture.
             float2 dx = float2(_BaseMap_TexelSize.x * 2, 0);
             float2 dy = float2(0, _BaseMap_TexelSize.y * 2);
             half4 l = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv - dx);
             half4 r = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv + dx);
             half4 d = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv - dy);
             half4 u = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv + dy);
-            // Suppress false relief along transparent contours.
             half valid = min(min(l.a, r.a), min(d.a, u.a));
             slope -= half2(r.r - l.r, u.r - d.r) * _FacetRelief * valid;
             #endif
@@ -162,7 +166,7 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             UNITY_SETUP_INSTANCE_ID(i);
             UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
             float2 uv = PlantUV(i);
-            half4 base = PlantBase(uv);
+            half4 base = PlantBase(uv, i.positionWS, i.positionCS.xy);
             half3 w = PlantWeights(uv);
             half3 tint = w.r * _LeafColor.rgb + w.g * _StemColor.rgb + w.b * _FlowerColor.rgb;
             tint *= lerp(half3(1,1,1), _TipTint.rgb, saturate(i.uv.y));
@@ -189,8 +193,8 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             #if defined(_ADDITIONAL_LIGHTS_VERTEX)
                 lighting += i.vertexLight;
             #endif
-            #if defined(_ADDITIONAL_LIGHTS) || USE_FORWARD_PLUS
-                #if USE_FORWARD_PLUS
+            #if defined(_ADDITIONAL_LIGHTS) || USE_CLUSTER_LIGHT_LOOP
+                #if USE_CLUSTER_LIGHT_LOOP
                 UNITY_LOOP for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
                 {
                     Light light = GetAdditionalLight(lightIndex, i.positionWS, half4(1,1,1,1));
@@ -209,7 +213,7 @@ Shader "BiomeGrass/2D Recolor Wind URP"
         {
             UNITY_SETUP_INSTANCE_ID(i);
             UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-            PlantBase(PlantUV(i));
+            PlantBase(PlantUV(i), i.positionWS, i.positionCS.xy);
             return 0;
         }
         half4 GrassNormals(Varyings i, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
@@ -217,7 +221,7 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             UNITY_SETUP_INSTANCE_ID(i);
             UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
             float2 uv = PlantUV(i);
-            PlantBase(uv);
+            PlantBase(uv, i.positionWS, i.positionCS.xy);
             float3 n = PlantNormal(i, uv, IS_FRONT_VFACE(face, 1.0h, -1.0h));
             #if defined(_GBUFFER_NORMALS_OCT)
                 float2 oct = PackNormalOctQuadEncode(n);
@@ -240,7 +244,7 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             #pragma multi_compile_fog
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             ENDHLSL

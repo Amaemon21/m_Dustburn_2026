@@ -15,7 +15,7 @@ public class WorldGenPlayModeTests
 
     public static IEnumerable<TestCaseData> RuntimeCases()
     {
-        return WorldGenPerfSettings.Cases("PL");
+        return WorldGenPerfSettings.CoroutineCases("PL");
     }
 
     [Test, Performance]

@@ -11,7 +11,7 @@
     <AssemblyName>UnityCompileCheckEditor</AssemblyName>
     <UnityManaged Condition="'$(UnityManaged)' == ''">E:\Unity\6000.3.20f1\Editor\Data\Managed</UnityManaged>
     <ScriptAssemblies Condition="'$(ScriptAssemblies)' == ''">$(MSBuildThisFileDirectory)..\..\Library\ScriptAssemblies</ScriptAssemblies>
-    <WorldGeneration>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Scripts\WorldGeneration</WorldGeneration>
+    <WorldGeneration>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Scripts\Gameplay\Service\WorldService</WorldGeneration>
     <SharedUtils>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Scripts\Utils</SharedUtils>
     <Benchmarks>$(MSBuildThisFileDirectory)..\..\Assets\_Dustborn\Benchmarks</Benchmarks>
   </PropertyGroup>

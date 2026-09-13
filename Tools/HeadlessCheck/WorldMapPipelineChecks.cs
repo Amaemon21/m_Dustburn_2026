@@ -12,12 +12,14 @@ public static class WorldMapPipelineChecks
         Set(config, nameof(config.BiomeCellSize), 8);
         Set(config, nameof(config.Seed), 1337);
         Set(config, nameof(config.HubCount), 4);
-        Set(config, nameof(config.CityCount), 0);
-        Set(config, nameof(config.TownCount), 4);
+        Set(config, nameof(config.MinHouses), 4);
+        Set(config, nameof(config.MaxHouses), 12);
+        Set(config, nameof(config.BlockSizeMin), 40f);
+        Set(config, nameof(config.BlockSizeMax), 52f);
+        Set(config, nameof(config.SettlementGap), 0f);
+        Set(config, nameof(config.MaxBlockRelief), 360f);
         Set(config, nameof(config.HubEdgeMargin), 100f);
         Set(config, nameof(config.MinHubDistance), 96f);
-        Set(config, nameof(config.MinHubRadius), 64f);
-        Set(config, nameof(config.MaxHubRadius), 80f);
         Set(config, nameof(config.MaxHubRelief), 360f);
         Set(config, nameof(config.ErosionPasses), 1);
         Set(config, nameof(config.HydraulicPasses), 2);
@@ -45,6 +47,8 @@ public static class WorldMapPipelineChecks
         Require(first.RoadMask.SequenceEqual(second.RoadMask), "Repeated generation must preserve the road mask.");
         Require(first.Placements.Count == second.Placements.Count && first.Placements.Count > 0, "The single pipeline must generate POI.");
         Require(first.Roads.Hubs.Count > 1 && first.Roads.Roads.Count > 0, "The single pipeline must generate settlements and roads.");
+        Require(first.Settlements.Exists(settlement => settlement.Blocks.Count > 0) && first.Roads.Streets.Count > 0, "Settlements must be laid out in blocks with streets.");
+        Require(first.Roads.Streets.Count == second.Roads.Streets.Count, "Repeated generation must lay out the same streets.");
         Require(first.Heights.Resolution == config.HeightMapResolution, "The final map must match the saved resolution.");
         Require(first.Heights.Heights.All(value => !float.IsNaN(value) && value >= 0f && value <= 1f), "Heights must remain finite and normalized.");
 

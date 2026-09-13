@@ -15,8 +15,8 @@ MonoBehaviour:
   <VoxelSize>k__BackingField: 1
   <ChunkSize>k__BackingField: 32
   <Bedrock>k__BackingField: 64
-  <GrassDistance>k__BackingField: 96
   <GrassMaxLod>k__BackingField: 0
+  <GrassDistance>k__BackingField: 150
   <RockMaxLod>k__BackingField: 1
   <TreeMaxLod>k__BackingField: 2
   <SkirtDepth>k__BackingField: 2

@@ -26,7 +26,7 @@ Category {
 
 			#include "UnityCG.cginc"
 	#if !SHADER_API_GLES3
-			#include "Assets/Enviro 3 - Sky and Weather/Resources/Shader/Includes/ParticlesInclude.cginc"
+			#include "Assets/Assets/Enviro 3 - Sky and Weather/Resources/Shader/Includes/ParticlesInclude.cginc"
 	#endif
 			sampler2D _MainTex;
 			fixed4 _TintColor;

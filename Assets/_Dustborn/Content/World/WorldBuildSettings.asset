@@ -21,11 +21,11 @@ MonoBehaviour:
   <PreviewCenter>k__BackingField: {x: 2036.4932, y: 4577.53}
   <PreviewColliders>k__BackingField: 1
   <MemoryBudget>k__BackingField: 512
-  <LodCount>k__BackingField: 5
+  <LodCount>k__BackingField: 6
   <NearDistance>k__BackingField: 96
-  <ControlResolution>k__BackingField: 2048
+  <ControlResolution>k__BackingField: 4096
   <BatchVertexBudget>k__BackingField: 48000
-  <ShowLoadingScreen>k__BackingField: 1
+  <ShowLoadingScreen>k__BackingField: 0
   <MeshWorkers>k__BackingField: 8
   <LoadingBudget>k__BackingField: 60
   <DecorBudget>k__BackingField: 6

@@ -17,77 +17,57 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294901946
   <RegionWeight>k__BackingField: 1
+  <CliffLayer>k__BackingField: {fileID: 19532598970000000, guid: 49eb438f157d54879454817b45f3cab1, type: 2}
   <Ground>k__BackingField:
-  - <Layer>k__BackingField: {fileID: 8574412962073106804, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a04, type: 2}
-    <Weight>k__BackingField: 1
-    <PatchFrequency>k__BackingField: 150
+  - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 8fc3950c3f865daa8fca8a3c0c9ab907, type: 2}
+    <Opacity>k__BackingField: 1
+    <PatchFrequency>k__BackingField: 100
     <PatchThreshold>k__BackingField: 0
-    <PatchFade>k__BackingField: 0.12
+    <PatchFade>k__BackingField: 0.06
     <MinSlope>k__BackingField: 0
     <MaxSlope>k__BackingField: 90
-    <SlopeFade>k__BackingField: 8
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <HeightFade>k__BackingField: 0.05
-  - <Layer>k__BackingField: {fileID: 8574412962073106801, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a01, type: 2}
-    <Weight>k__BackingField: 1.6
-    <PatchFrequency>k__BackingField: 115
-    <PatchThreshold>k__BackingField: 0.45
-    <PatchFade>k__BackingField: 0.16
-    <MinSlope>k__BackingField: 0
-    <MaxSlope>k__BackingField: 30
-    <SlopeFade>k__BackingField: 9
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <HeightFade>k__BackingField: 0.05
-  - <Layer>k__BackingField: {fileID: 8574412962073106807, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a07, type: 2}
-    <Weight>k__BackingField: 1.7
-    <PatchFrequency>k__BackingField: 88
-    <PatchThreshold>k__BackingField: 0.5
-    <PatchFade>k__BackingField: 0.14
-    <MinSlope>k__BackingField: 0
-    <MaxSlope>k__BackingField: 90
-    <SlopeFade>k__BackingField: 8
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <HeightFade>k__BackingField: 0.05
-  - <Layer>k__BackingField: {fileID: 8574412962073106934, guid: 2b8d5f1ca4e3b6c5d9f7a42e80516b03, type: 2}
-    <Weight>k__BackingField: 1.5
-    <PatchFrequency>k__BackingField: 210
-    <PatchThreshold>k__BackingField: 0.6
-    <PatchFade>k__BackingField: 0.16
-    <MinSlope>k__BackingField: 0
-    <MaxSlope>k__BackingField: 90
-    <SlopeFade>k__BackingField: 8
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <HeightFade>k__BackingField: 0.05
-  - <Layer>k__BackingField: {fileID: 8574412962073106802, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a02, type: 2}
-    <Weight>k__BackingField: 1
-    <PatchFrequency>k__BackingField: 70
-    <PatchThreshold>k__BackingField: 0.72
-    <PatchFade>k__BackingField: 0.1
-    <MinSlope>k__BackingField: 0
-    <MaxSlope>k__BackingField: 16
     <SlopeFade>k__BackingField: 6
     <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 0.5
-    <HeightFade>k__BackingField: 0.08
-  - <Layer>k__BackingField: {fileID: 8574412962073106810, guid: 2b7c4e0b93f2d5a4b8e6c31d7f405a10, type: 2}
-    <Weight>k__BackingField: 2.5
-    <PatchFrequency>k__BackingField: 140
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 2e509c0b7c1652c5b11b5c0b4d8f5c81, type: 2}
+    <Opacity>k__BackingField: 1
+    <PatchFrequency>k__BackingField: 150
+    <PatchThreshold>k__BackingField: 0.52
+    <PatchFade>k__BackingField: 0.08
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 90
+    <SlopeFade>k__BackingField: 6
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 49eb438f157d54879454817b45f3cab1, type: 2}
+    <Opacity>k__BackingField: 1
+    <PatchFrequency>k__BackingField: 88
+    <PatchThreshold>k__BackingField: 0.68
+    <PatchFade>k__BackingField: 0.05
+    <MinSlope>k__BackingField: 0
+    <MaxSlope>k__BackingField: 90
+    <SlopeFade>k__BackingField: 6
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+  - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 49eb438f157d54879454817b45f3cab1, type: 2}
+    <Opacity>k__BackingField: 1
+    <PatchFrequency>k__BackingField: 100
     <PatchThreshold>k__BackingField: 0
-    <PatchFade>k__BackingField: 0.12
+    <PatchFade>k__BackingField: 0.06
     <MinSlope>k__BackingField: 26
     <MaxSlope>k__BackingField: 90
-    <SlopeFade>k__BackingField: 10
+    <SlopeFade>k__BackingField: 6
     <MinHeight>k__BackingField: 0
     <MaxHeight>k__BackingField: 1
     <HeightFade>k__BackingField: 0.05
   <Grass>k__BackingField:
-  - <Card>k__BackingField: {fileID: 2800000, guid: 037a736e43c63e0418e257f2dfb0222b, type: 3}
-    <Prefab>k__BackingField: {fileID: 1904356791742696, guid: e85a5f270aefc744d86962e605a57bb3, type: 3}
-    <Density>k__BackingField: 0.054
+  - <Card>k__BackingField: {fileID: 2800000, guid: 9aa8a1b3eb730d94eb22531a0dde8fcd, type: 3}
+    <Mask>k__BackingField: {fileID: 2800000, guid: 899806e7eecef7e42a648ec23ba2a871, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Density>k__BackingField: 0.053
     <PatchFrequency>k__BackingField: 29
     <PatchThreshold>k__BackingField: 0.34
     <MaxSlope>k__BackingField: 32
@@ -95,48 +75,151 @@ MonoBehaviour:
     <MaxWidth>k__BackingField: 1.25
     <MinHeight>k__BackingField: 0.8
     <MaxHeight>k__BackingField: 1.25
-    <HealthyColor>k__BackingField: {r: 0.72, g: 0.66, b: 0.55, a: 1}
-    <DryColor>k__BackingField: {r: 0.58, g: 0.5, b: 0.4, a: 1}
-    <NoiseSpread>k__BackingField: 0.35
-  - <Card>k__BackingField: {fileID: 2800000, guid: eaf6dc06dc7226a45916c196c5f0c8ff, type: 3}
-    <Prefab>k__BackingField: {fileID: 1154606685033784, guid: 38a679cbf2c60174f878721348dc3381, type: 3}
-    <Density>k__BackingField: 0.0465
+    <LeavesColor>k__BackingField: {r: 0.333333, g: 0.290196, b: 0.243137, a: 1}
+    <StemsColor>k__BackingField: {r: 0.188235, g: 0.168627, b: 0.156863, a: 1}
+    <FlowersColor>k__BackingField: {r: 0.545098, g: 0.474510, b: 0.380392, a: 1}
+    <TipTint>k__BackingField: {r: 1.000000, g: 1.000000, b: 1.000000, a: 1}
+    <SnowAmount>k__BackingField: 0
+    <RootDarkening>k__BackingField: 0.32
+    <TextureShading>k__BackingField: 0.7
+    <Translucency>k__BackingField: 0.035
+    <WrapLight>k__BackingField: 0.24
+    <WindStrength>k__BackingField: 0.06
+    <WindSpeed>k__BackingField: 1.5
+    <Flutter>k__BackingField: 0.002
+    <Roundness>k__BackingField: 0.7
+    <NormalUp>k__BackingField: 0.3
+    <ColorVariation>k__BackingField: 0.055
+  - <Card>k__BackingField: {fileID: 2800000, guid: 525064c674378ba40861d494e58e2562, type: 3}
+    <Mask>k__BackingField: {fileID: 2800000, guid: 3c09894b8b266c14f9d58e0a22c2c849, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Density>k__BackingField: 0.044
     <PatchFrequency>k__BackingField: 37
     <PatchThreshold>k__BackingField: 0.36
     <MaxSlope>k__BackingField: 32
-    <MinWidth>k__BackingField: 0.85
-    <MaxWidth>k__BackingField: 1.2
-    <MinHeight>k__BackingField: 0.8
-    <MaxHeight>k__BackingField: 1.2
-    <HealthyColor>k__BackingField: {r: 0.72, g: 0.66, b: 0.55, a: 1}
-    <DryColor>k__BackingField: {r: 0.58, g: 0.5, b: 0.4, a: 1}
-    <NoiseSpread>k__BackingField: 0.35
-  - <Card>k__BackingField: {fileID: 2800000, guid: 7ed7f0e4becdc234b88c5316e935a6c0, type: 3}
-    <Prefab>k__BackingField: {fileID: 1406762892669528, guid: efed0d9bfc3a06841bdac6f14c559c13, type: 3}
-    <Density>k__BackingField: 0.039
-    <PatchFrequency>k__BackingField: 44
-    <PatchThreshold>k__BackingField: 0.38
-    <MaxSlope>k__BackingField: 31
     <MinWidth>k__BackingField: 0.8
     <MaxWidth>k__BackingField: 1.2
+    <MinHeight>k__BackingField: 0.75
+    <MaxHeight>k__BackingField: 1.15
+    <LeavesColor>k__BackingField: {r: 0.380392, g: 0.325490, b: 0.266667, a: 1}
+    <StemsColor>k__BackingField: {r: 0.188235, g: 0.168627, b: 0.156863, a: 1}
+    <FlowersColor>k__BackingField: {r: 0.592157, g: 0.505882, b: 0.407843, a: 1}
+    <TipTint>k__BackingField: {r: 1.000000, g: 1.000000, b: 1.000000, a: 1}
+    <SnowAmount>k__BackingField: 0
+    <RootDarkening>k__BackingField: 0.32
+    <TextureShading>k__BackingField: 0.7
+    <Translucency>k__BackingField: 0.035
+    <WrapLight>k__BackingField: 0.24
+    <WindStrength>k__BackingField: 0.09
+    <WindSpeed>k__BackingField: 1.4
+    <Flutter>k__BackingField: 0.0025
+    <Roundness>k__BackingField: 0.65
+    <NormalUp>k__BackingField: 0.3
+    <ColorVariation>k__BackingField: 0.055
+  - <Card>k__BackingField: {fileID: 2800000, guid: 10af1531144f3d941927f41dbbf6253c, type: 3}
+    <Mask>k__BackingField: {fileID: 2800000, guid: 2b12de2f987ef924c8091e243113153c, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Density>k__BackingField: 0.022
+    <PatchFrequency>k__BackingField: 58
+    <PatchThreshold>k__BackingField: 0.42
+    <MaxSlope>k__BackingField: 30
+    <MinWidth>k__BackingField: 1.1
+    <MaxWidth>k__BackingField: 1.65
+    <MinHeight>k__BackingField: 0.85
+    <MaxHeight>k__BackingField: 1.3
+    <LeavesColor>k__BackingField: {r: 0.298039, g: 0.274510, b: 0.250980, a: 1}
+    <StemsColor>k__BackingField: {r: 0.188235, g: 0.168627, b: 0.156863, a: 1}
+    <FlowersColor>k__BackingField: {r: 0.462745, g: 0.423529, b: 0.380392, a: 1}
+    <TipTint>k__BackingField: {r: 1.000000, g: 1.000000, b: 1.000000, a: 1}
+    <SnowAmount>k__BackingField: 0
+    <RootDarkening>k__BackingField: 0.32
+    <TextureShading>k__BackingField: 0.7
+    <Translucency>k__BackingField: 0.035
+    <WrapLight>k__BackingField: 0.24
+    <WindStrength>k__BackingField: 0.035
+    <WindSpeed>k__BackingField: 1.1
+    <Flutter>k__BackingField: 0.001
+    <Roundness>k__BackingField: 0.8
+    <NormalUp>k__BackingField: 0.25
+    <ColorVariation>k__BackingField: 0.055
+  - <Card>k__BackingField: {fileID: 2800000, guid: e844a4e9cf620e54b8f1706bc955e963, type: 3}
+    <Mask>k__BackingField: {fileID: 2800000, guid: 9b68731b24d7a364489fdf1b3f292aec, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Density>k__BackingField: 0.017
+    <PatchFrequency>k__BackingField: 72
+    <PatchThreshold>k__BackingField: 0.46
+    <MaxSlope>k__BackingField: 30
+    <MinWidth>k__BackingField: 1
+    <MaxWidth>k__BackingField: 1.5
     <MinHeight>k__BackingField: 0.8
     <MaxHeight>k__BackingField: 1.2
-    <HealthyColor>k__BackingField: {r: 0.72, g: 0.66, b: 0.55, a: 1}
-    <DryColor>k__BackingField: {r: 0.58, g: 0.5, b: 0.4, a: 1}
-    <NoiseSpread>k__BackingField: 0.4
-  - <Card>k__BackingField: {fileID: 2800000, guid: 1e3507b60537a794d92e0d7ebf9a0f7e, type: 3}
-    <Prefab>k__BackingField: {fileID: 1776397137903854, guid: d899f517447fbee45aec80b0bb020f60, type: 3}
-    <Density>k__BackingField: 0.0135
-    <PatchFrequency>k__BackingField: 106
+    <LeavesColor>k__BackingField: {r: 0.349020, g: 0.301961, b: 0.250980, a: 1}
+    <StemsColor>k__BackingField: {r: 0.188235, g: 0.168627, b: 0.156863, a: 1}
+    <FlowersColor>k__BackingField: {r: 0.533333, g: 0.458824, b: 0.368627, a: 1}
+    <TipTint>k__BackingField: {r: 1.000000, g: 1.000000, b: 1.000000, a: 1}
+    <SnowAmount>k__BackingField: 0
+    <RootDarkening>k__BackingField: 0.32
+    <TextureShading>k__BackingField: 0.7
+    <Translucency>k__BackingField: 0.035
+    <WrapLight>k__BackingField: 0.24
+    <WindStrength>k__BackingField: 0.045
+    <WindSpeed>k__BackingField: 1.2
+    <Flutter>k__BackingField: 0.001
+    <Roundness>k__BackingField: 0.75
+    <NormalUp>k__BackingField: 0.25
+    <ColorVariation>k__BackingField: 0.055
+  - <Card>k__BackingField: {fileID: 2800000, guid: af5ef558c4dcf3a49895bb84fb7cced7, type: 3}
+    <Mask>k__BackingField: {fileID: 2800000, guid: 3fee6e0d8276b4945bf87d5945c862bd, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Density>k__BackingField: 0.01
+    <PatchFrequency>k__BackingField: 94
     <PatchThreshold>k__BackingField: 0.5
     <MaxSlope>k__BackingField: 28
-    <MinWidth>k__BackingField: 0.85
-    <MaxWidth>k__BackingField: 1.25
-    <MinHeight>k__BackingField: 0.6
-    <MaxHeight>k__BackingField: 0.95
-    <HealthyColor>k__BackingField: {r: 0.72, g: 0.66, b: 0.55, a: 1}
-    <DryColor>k__BackingField: {r: 0.58, g: 0.5, b: 0.4, a: 1}
-    <NoiseSpread>k__BackingField: 0.45
+    <MinWidth>k__BackingField: 0.65
+    <MaxWidth>k__BackingField: 1
+    <MinHeight>k__BackingField: 0.8
+    <MaxHeight>k__BackingField: 1.25
+    <LeavesColor>k__BackingField: {r: 0.388235, g: 0.341176, b: 0.278431, a: 1}
+    <StemsColor>k__BackingField: {r: 0.188235, g: 0.168627, b: 0.156863, a: 1}
+    <FlowersColor>k__BackingField: {r: 0.592157, g: 0.513725, b: 0.407843, a: 1}
+    <TipTint>k__BackingField: {r: 1.000000, g: 1.000000, b: 1.000000, a: 1}
+    <SnowAmount>k__BackingField: 0
+    <RootDarkening>k__BackingField: 0.32
+    <TextureShading>k__BackingField: 0.7
+    <Translucency>k__BackingField: 0.035
+    <WrapLight>k__BackingField: 0.24
+    <WindStrength>k__BackingField: 0.05
+    <WindSpeed>k__BackingField: 1.3
+    <Flutter>k__BackingField: 0.0015
+    <Roundness>k__BackingField: 0.65
+    <NormalUp>k__BackingField: 0.3
+    <ColorVariation>k__BackingField: 0.055
+  - <Card>k__BackingField: {fileID: 2800000, guid: 8803da5e9de1d624b8d545456105e84c, type: 3}
+    <Mask>k__BackingField: {fileID: 2800000, guid: a517b744c857bbb4a86b9970c938a25a, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Density>k__BackingField: 0.007
+    <PatchFrequency>k__BackingField: 112
+    <PatchThreshold>k__BackingField: 0.54
+    <MaxSlope>k__BackingField: 27
+    <MinWidth>k__BackingField: 0.6
+    <MaxWidth>k__BackingField: 0.95
+    <MinHeight>k__BackingField: 0.7
+    <MaxHeight>k__BackingField: 1.1
+    <LeavesColor>k__BackingField: {r: 0.419608, g: 0.356863, b: 0.286275, a: 1}
+    <StemsColor>k__BackingField: {r: 0.188235, g: 0.168627, b: 0.156863, a: 1}
+    <FlowersColor>k__BackingField: {r: 0.631373, g: 0.545098, b: 0.439216, a: 1}
+    <TipTint>k__BackingField: {r: 1.000000, g: 1.000000, b: 1.000000, a: 1}
+    <SnowAmount>k__BackingField: 0
+    <RootDarkening>k__BackingField: 0.32
+    <TextureShading>k__BackingField: 0.7
+    <Translucency>k__BackingField: 0.035
+    <WrapLight>k__BackingField: 0.24
+    <WindStrength>k__BackingField: 0.06
+    <WindSpeed>k__BackingField: 1.25
+    <Flutter>k__BackingField: 0.0015
+    <Roundness>k__BackingField: 0.65
+    <NormalUp>k__BackingField: 0.3
+    <ColorVariation>k__BackingField: 0.055
   <Trees>k__BackingField:
   - <Prefab>k__BackingField: {fileID: 1814190282122440, guid: 33247b6aefb946246bc9f0c7346b4364, type: 3}
     <PerHectare>k__BackingField: 18.9
@@ -151,8 +234,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.14
     <Tint>k__BackingField: {r: 0.74, g: 0.7, b: 0.64, a: 1}
     <TintVariance>k__BackingField: 0.08
-    <Footprint>k__BackingField: 1.6
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 1.0560577
     <RoadClearance>k__BackingField: 4
   - <Prefab>k__BackingField: {fileID: 1844642596526496, guid: f597615a8abb43c40be4c01539ceb80b, type: 3}
     <PerHectare>k__BackingField: 15.3
@@ -167,8 +250,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.14
     <Tint>k__BackingField: {r: 0.74, g: 0.7, b: 0.64, a: 1}
     <TintVariance>k__BackingField: 0.08
-    <Footprint>k__BackingField: 1.6
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 0.88646066
     <RoadClearance>k__BackingField: 4
   - <Prefab>k__BackingField: {fileID: 1814772297973644, guid: 7b324b148b509104cb0f42a02b6b4b78, type: 3}
     <PerHectare>k__BackingField: 11.7
@@ -183,8 +266,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.14
     <Tint>k__BackingField: {r: 0.7, g: 0.66, b: 0.6, a: 1}
     <TintVariance>k__BackingField: 0.08
-    <Footprint>k__BackingField: 1.6
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 0.6685622
     <RoadClearance>k__BackingField: 4
   - <Prefab>k__BackingField: {fileID: 1560461424881576, guid: 11d0d688b29309541acbbbf9497b8b78, type: 3}
     <PerHectare>k__BackingField: 14.4
@@ -199,8 +282,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.14
     <Tint>k__BackingField: {r: 0.72, g: 0.68, b: 0.62, a: 1}
     <TintVariance>k__BackingField: 0.08
-    <Footprint>k__BackingField: 1.6
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 0.79087025
     <RoadClearance>k__BackingField: 4
   - <Prefab>k__BackingField: {fileID: 1832163050889860, guid: c6437f01ea9e6154f8bee15a6eec78d8, type: 3}
     <PerHectare>k__BackingField: 8.1
@@ -215,8 +298,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.12
     <Tint>k__BackingField: {r: 0.86, g: 0.84, b: 0.8, a: 1}
     <TintVariance>k__BackingField: 0.07
-    <Footprint>k__BackingField: 1.4
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 1.5856578
     <RoadClearance>k__BackingField: 4
   - <Prefab>k__BackingField: {fileID: 1357747242490952, guid: d8ab54d35fe81704b8af3b42616763a2, type: 3}
     <PerHectare>k__BackingField: 7.2
@@ -231,8 +314,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.08
     <Tint>k__BackingField: {r: 0.66, g: 0.62, b: 0.56, a: 1}
     <TintVariance>k__BackingField: 0.07
-    <Footprint>k__BackingField: 1
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 1.6715896
     <RoadClearance>k__BackingField: 3
   - <Prefab>k__BackingField: {fileID: 1209787234085090, guid: e4d35fc487ff62e45b34ae45f80c88fc, type: 3}
     <PerHectare>k__BackingField: 3.6
@@ -247,8 +330,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.08
     <Tint>k__BackingField: {r: 0.68, g: 0.64, b: 0.58, a: 1}
     <TintVariance>k__BackingField: 0.07
-    <Footprint>k__BackingField: 2.5
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 1.5651475
     <RoadClearance>k__BackingField: 3
   <Rocks>k__BackingField:
   - <Prefab>k__BackingField: {fileID: 1588324658806122, guid: 9d05e0cabe0f8c641b0a87ecc3a9017e, type: 3}
@@ -264,8 +347,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.18
     <Tint>k__BackingField: {r: 0.92, g: 0.9, b: 0.86, a: 1}
     <TintVariance>k__BackingField: 0.08
-    <Footprint>k__BackingField: 2.5
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 0.2800759
     <RoadClearance>k__BackingField: 2
   - <Prefab>k__BackingField: {fileID: 1219693987300432, guid: 2802a8bdb7ea3354a8b0be8bfb9e7ac9, type: 3}
     <PerHectare>k__BackingField: 22
@@ -280,8 +363,8 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.2
     <Tint>k__BackingField: {r: 0.92, g: 0.9, b: 0.86, a: 1}
     <TintVariance>k__BackingField: 0.08
-    <Footprint>k__BackingField: 1
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 0.33592638
     <RoadClearance>k__BackingField: 1
   - <Prefab>k__BackingField: {fileID: 1205270495780786, guid: bfe46d6e2f03af346a70ed16cbda3eee, type: 3}
     <PerHectare>k__BackingField: 5
@@ -296,11 +379,11 @@ MonoBehaviour:
     <Squash>k__BackingField: 0.12
     <Tint>k__BackingField: {r: 0.92, g: 0.9, b: 0.86, a: 1}
     <TintVariance>k__BackingField: 0.06
-    <Footprint>k__BackingField: 3
     <BendFactor>k__BackingField: 0
+    <Footprint>k__BackingField: 4.2767754
     <RoadClearance>k__BackingField: 3
-  <BaseHeight>k__BackingField: 0.30
-  <HillAmplitude>k__BackingField: 0.24
-  <RidgeAmplitude>k__BackingField: 0.18
+  <BaseHeight>k__BackingField: 0.2
+  <HillAmplitude>k__BackingField: 0.16
+  <RidgeAmplitude>k__BackingField: 0.3
   <DuneAmplitude>k__BackingField: 0
-  <DetailAmplitude>k__BackingField: 0.012
+  <DetailAmplitude>k__BackingField: 0.008

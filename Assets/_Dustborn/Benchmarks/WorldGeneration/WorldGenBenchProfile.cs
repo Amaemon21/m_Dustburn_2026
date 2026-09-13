@@ -106,12 +106,13 @@ public sealed class WorldGenBenchProfile
         Assign(config, nameof(config.BiomeCellSize), 8);
         Assign(config, nameof(config.Seed), 1337);
         Assign(config, nameof(config.HubCount), 4);
-        Assign(config, nameof(config.CityCount), 0);
-        Assign(config, nameof(config.TownCount), 4);
+        Assign(config, nameof(config.MinHouses), 4);
+        Assign(config, nameof(config.MaxHouses), 12);
         Assign(config, nameof(config.HubEdgeMargin), 100f);
         Assign(config, nameof(config.MinHubDistance), 96f);
-        Assign(config, nameof(config.MinHubRadius), 64f);
-        Assign(config, nameof(config.MaxHubRadius), 80f);
+        Assign(config, nameof(config.BlockSizeMin), 40f);
+        Assign(config, nameof(config.BlockSizeMax), 52f);
+        Assign(config, nameof(config.SettlementGap), 0f);
         Assign(config, nameof(config.MaxHubRelief), 360f);
         Assign(config, nameof(config.ErosionPasses), 1);
         Assign(config, nameof(config.HydraulicPasses), 2);
@@ -138,8 +139,7 @@ public sealed class WorldGenBenchProfile
         Assign(config, nameof(config.HeightCellSize), 2);
         Assign(config, nameof(config.BiomeCellSize), 8);
         Assign(config, nameof(config.HubCount), 9);
-        Assign(config, nameof(config.CityCount), 1);
-        Assign(config, nameof(config.TownCount), 3);
+        Assign(config, nameof(config.MaxHouses), 80);
         Assign(config, nameof(config.MinHubDistance), 300f);
         Assign(config, nameof(config.HubEdgeMargin), 320f);
     }
@@ -189,18 +189,6 @@ public sealed class WorldGenBenchProfile
                             AssignText(biome, member, pair.Value);
                     }
 
-                    break;
-
-                case "cityprofile":
-                    AssignText(config.CityProfile, member, pair.Value);
-                    break;
-
-                case "townprofile":
-                    AssignText(config.TownProfile, member, pair.Value);
-                    break;
-
-                case "villageprofile":
-                    AssignText(config.VillageProfile, member, pair.Value);
                     break;
 
                 default:

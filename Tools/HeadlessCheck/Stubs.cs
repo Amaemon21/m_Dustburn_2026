@@ -19,6 +19,8 @@ namespace UnityEngine
         public static Vector2 operator /(Vector2 a, float b) => new(a.x / b, a.y / b);
         public static float Distance(Vector2 a, Vector2 b) => (a - b).magnitude;
         public static Vector2 Lerp(Vector2 a, Vector2 b, float t) => new(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
+        public static Vector2 Min(Vector2 a, Vector2 b) => new(Math.Min(a.x, b.x), Math.Min(a.y, b.y));
+        public static Vector2 Max(Vector2 a, Vector2 b) => new(Math.Max(a.x, b.x), Math.Max(a.y, b.y));
         public static float Dot(Vector2 a, Vector2 b) => a.x * b.x + a.y * b.y;
         public Vector2 normalized { get { float m = magnitude; return m > 1E-05f ? new Vector2(x / m, y / m) : zero; } }
     }
@@ -92,6 +94,7 @@ namespace UnityEngine
         public static float Clamp(float v, float a, float b) => Math.Clamp(v, a, b);
         public static int Clamp(int v, int a, int b) => Math.Clamp(v, a, b);
         public static float Clamp01(float v) => Math.Clamp(v, 0f, 1f);
+        public static bool Approximately(float a, float b) => Math.Abs(b - a) < Math.Max(1e-6f * Math.Max(Math.Abs(a), Math.Abs(b)), float.Epsilon * 8f);
         public static float Lerp(float a, float b, float t) => a + (b - a) * Math.Clamp(t, 0f, 1f);
         public static float InverseLerp(float a, float b, float v) => a == b ? 0f : Math.Clamp((v - a) / (b - a), 0f, 1f);
         public static float SmoothStep(float a, float b, float t) { t = Math.Clamp((t - a) / (b - a), 0f, 1f); return t * t * (3f - 2f * t); }

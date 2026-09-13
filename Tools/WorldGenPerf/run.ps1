@@ -216,6 +216,12 @@ foreach ($entry in $plan) {
                 $failed = $true
             }
 
+            $broken = [int]$xml.'test-run'.failed
+            if ($broken -gt 0) {
+                Write-Warning "step $step reported $broken failed tests: that is a failure, not a pass"
+                $failed = $true
+            }
+
             Copy-Item $stepXml $xmlFile -Force
         }
     }

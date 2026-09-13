@@ -28,7 +28,7 @@ namespace Unity.Collections
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter)]
     public class WriteOnlyAttribute : Attribute { }
 
-    public struct NativeArray<T> where T : struct
+    public struct NativeArray<T> : IDisposable where T : struct
     {
         private T[] _values;
 
