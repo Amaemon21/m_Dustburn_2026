@@ -608,6 +608,10 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         GameObject root = NewColumn(key);
 
+#if UNITY_EDITOR
+        VoxelColumnDebug.Attach(root, key, size, _plan.VoxelSize(key.Lod), low, high);
+#endif
+
         root.SetActive(false);
 
         var column = new Column(key, root, high - low + 1);

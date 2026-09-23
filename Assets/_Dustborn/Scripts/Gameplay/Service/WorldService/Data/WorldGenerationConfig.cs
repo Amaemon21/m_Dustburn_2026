@@ -29,6 +29,7 @@ public class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float HillFrequency { get; private set; } = 5.6f;
     [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float RidgeFrequency { get; private set; } = 5f;
     [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float DuneFrequency { get; private set; } = 16f;
+    [field: SerializeField, Foldout("Relief"), Range(0f, 1f), Tooltip("How far dune crests are bent by a slow warp, in dune periods. Zero leaves them as straight parallel ridges")] public float DuneWarp { get; private set; } = 0.35f;
     [field: SerializeField, Foldout("Relief"), MinValue(0.1f)] public float DetailFrequency { get; private set; } = 52f;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int ContinentOctaves { get; private set; } = 4;
     [field: SerializeField, Foldout("Relief"), Range(1, 8)] public int HillOctaves { get; private set; } = 2;
@@ -369,6 +370,50 @@ public class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Terrain layers"), MinValue(4f)]
     [field: Tooltip("Metres per period of the border warp noise. Smaller gives a ragged edge, larger long sweeping bays.")]
     public float BiomeBorderWarpPeriod { get; private set; } = 120f;
+
+    [field: SerializeField, Foldout("Terrain layers"), Range(0f, 1.5f)]
+    [field: Tooltip("How far the two biomes interleave across the painted border. Zero gives one clean winding line; around 0.7 scatters islands of each ground into the other over roughly 20-30 m, an ecotone rather than a seam. Decor follows the same border.")]
+    public float BiomeBorderJitter { get; private set; } = 0.9f;
+
+    [field: SerializeField, Foldout("Ground variation"), MinValue(20f)]
+    [field: Tooltip("Metres per period of the shared macro field every ground layer can lean on through its MacroBias: large wetter and drier, greener and barer regions.")]
+    public float GroundMacroScale { get; private set; } = 260f;
+
+    [field: SerializeField, Foldout("Ground variation"), MinValue(4f)]
+    [field: Tooltip("Metres per period of the domain warp applied to every ground patch, so patch edges meander instead of tracing round noise blobs.")]
+    public float GroundWarpScale { get; private set; } = 70f;
+
+    [field: SerializeField, Foldout("Ground variation"), MinValue(0f)]
+    [field: Tooltip("Metres the ground patches are pushed around by the domain warp.")]
+    public float GroundWarpStrength { get; private set; } = 16f;
+
+    [field: SerializeField, Foldout("Ground variation"), MinValue(1f)]
+    [field: Tooltip("Metres per period of the fine noise that roughens patch, cliff and slope edges.")]
+    public float GroundDetailScale { get; private set; } = 10f;
+
+    [field: SerializeField, Foldout("Ground variation"), Range(0f, 0.3f)]
+    [field: Tooltip("How much the fine noise shifts patch thresholds. Small values only break up edges; past 0.1 it starts to read as noise.")]
+    public float GroundDetailStrength { get; private set; } = 0.05f;
+
+    [field: SerializeField, Foldout("Ground variation"), MinValue(2f)]
+    [field: Tooltip("Metres to the ring the ground height is compared against to tell ridges from hollows. A second ring at four times the radius adds the larger valleys and crests.")]
+    public float ReliefRadius { get; private set; } = 24f;
+
+    [field: SerializeField, Foldout("Ground variation"), MinValue(0.1f)]
+    [field: Tooltip("Metres above or below the ring mean that count as a full ridge or a full hollow at ReliefRadius. The large ring uses 4.5 times this.")]
+    public float ReliefRange { get; private set; } = 2f;
+
+    [field: SerializeField, Foldout("Ground variation"), Range(0f, 60f)]
+    [field: Tooltip("Slope in degrees that ground layers read as neutral through their SlopeBias: flatter pulls toward -1, steeper toward +1.")]
+    public float GroundSlopeMid { get; private set; } = 18f;
+
+    [field: SerializeField, Foldout("Ground variation"), Range(1f, 45f)]
+    [field: Tooltip("Degrees either side of GroundSlopeMid at which the slope signal saturates.")]
+    public float GroundSlopeSpan { get; private set; } = 14f;
+
+    [field: SerializeField, Foldout("Ground variation"), Range(0f, 15f)]
+    [field: Tooltip("Degrees the cliff threshold wanders with fine noise and relief, so rock breaks out earlier on ridges and the cliff edge is not a clean iso-slope contour.")]
+    public float CliffJitter { get; private set; } = 5f;
 
     [field: SerializeField, Foldout("Output")] public string BiomeMapAssetPath { get; private set; } = "Assets/_Dustborn/Generated/BiomeMap.png";
     [field: SerializeField, Foldout("Output")] public string HeightMapAssetPath { get; private set; } = "Assets/_Dustborn/Generated/HeightMap.bytes";

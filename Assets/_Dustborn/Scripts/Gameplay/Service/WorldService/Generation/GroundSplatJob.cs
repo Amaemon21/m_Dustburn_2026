@@ -9,6 +9,8 @@ public struct GroundRule
     public int Layer;
     public float Opacity;
     public float PatchFrequency;
+    public float2 PatchOffset;
+    public float2 PatchAxis;
     public float PatchThreshold;
     public float PatchFade;
     public float MinSlope;
@@ -17,6 +19,11 @@ public struct GroundRule
     public float MinHeight;
     public float MaxHeight;
     public float HeightFade;
+    public float MacroBias;
+    public float SlopeBias;
+    public float ReliefBias;
+    public float EdgeBias;
+    public float DetailSign;
 }
 
 [BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true)]
@@ -35,6 +42,7 @@ public struct GroundSplatJob : IJobParallelFor
     [ReadOnly] public NativeArray<int> RoadCellItems;
     [ReadOnly] public NativeArray<float> Steepness;
     [ReadOnly] public NativeArray<float> Height;
+    [ReadOnly] public NativeArray<float> Relief;
 
     [NativeDisableParallelForRestriction] public NativeArray<float> Alphamaps;
 
@@ -53,12 +61,12 @@ public struct GroundSplatJob : IJobParallelFor
     public float CliffSlopeFull;
 
     public BiomeBorder Border;
+    public GroundNoise Noise;
 
     public float TileSize;
     public float WorldSize;
     public float OriginX;
     public float OriginZ;
-    public float NoiseSeed;
 
     public void Execute(int index)
     {
@@ -67,11 +75,6 @@ public struct GroundSplatJob : IJobParallelFor
 
         float worldX = OriginX + (x + 0.5f) / Resolution * TileSize;
         float worldZ = OriginZ + (y + 0.5f) / Resolution * TileSize;
-
-        float steepness = Steepness[index];
-        float elevation = Height[index];
-
-        float cliff = CliffWeight(steepness);
 
         float surface = 0f;
         float verge = 0f;
@@ -87,7 +90,12 @@ public struct GroundSplatJob : IJobParallelFor
         float natural = 1f - surface - verge;
 
         if (natural > 0f)
-            PaintBiomes(origin, natural, cliff, steepness, elevation, worldX, worldZ);
+        {
+            float relief = Relief.IsCreated ? Relief[index] : 0f;
+            GroundSample ground = Noise.Sample(worldX, worldZ, Steepness[index], relief);
+
+            PaintBiomes(origin, natural, Steepness[index], Height[index], ground, worldX, worldZ);
+        }
 
         if (RoadLayer >= 0)
             Alphamaps[origin + RoadLayer] += surface;
@@ -110,8 +118,10 @@ public struct GroundSplatJob : IJobParallelFor
             Alphamaps[origin + layer] /= sum;
     }
 
-    private void PaintBiomes(int origin, float share, float cliff, float steepness, float elevation, float worldX, float worldZ)
+    private void PaintBiomes(int origin, float share, float steepness, float elevation, in GroundSample ground, float worldX, float worldZ)
     {
+        float cliff = CliffWeight(Noise.CliffSlope(steepness, ground));
+
         BiomeWeightSampler blend = BiomeWeightSampler.At(worldX / WorldSize, worldZ / WorldSize, WeightResolution);
 
         int dominant = 0;
@@ -126,11 +136,14 @@ public struct GroundSplatJob : IJobParallelFor
 
             strongest = weight;
             dominant = biome;
+
+            if (strongest >= BiomeBorder.PURE)
+                break;
         }
 
         if (strongest >= BiomeBorder.PURE)
         {
-            PaintBiome(origin, dominant, share, cliff, steepness, elevation, worldX, worldZ);
+            PaintBiome(origin, dominant, share, cliff, GroundNoise.Edge(strongest), steepness, elevation, ground);
             return;
         }
 
@@ -140,37 +153,39 @@ public struct GroundSplatJob : IJobParallelFor
         float total = 0f;
 
         for (int biome = 0; biome < BiomeCount; biome++)
-            total += Border.Contrast(border.Sample(BiomeWeights, biome, WeightResolution));
+            total += Border.Part(border.Sample(BiomeWeights, biome, WeightResolution), biome, shifted);
 
         if (total <= 0f)
         {
-            PaintBiome(origin, dominant, share, cliff, steepness, elevation, worldX, worldZ);
+            PaintBiome(origin, dominant, share, cliff, GroundNoise.Edge(strongest), steepness, elevation, ground);
             return;
         }
 
         for (int biome = 0; biome < BiomeCount; biome++)
         {
-            float part = Border.Contrast(border.Sample(BiomeWeights, biome, WeightResolution)) / total;
+            float part = Border.Part(border.Sample(BiomeWeights, biome, WeightResolution), biome, shifted) / total;
 
             if (part <= MIN_SHARE)
                 continue;
 
-            PaintBiome(origin, biome, share * part, cliff, steepness, elevation, worldX, worldZ);
+            float edge = GroundNoise.Edge(blend.Sample(BiomeWeights, biome, WeightResolution));
+
+            PaintBiome(origin, biome, share * part, cliff, edge, steepness, elevation, ground);
         }
     }
 
-    private void PaintBiome(int origin, int biome, float share, float cliff, float steepness, float elevation, float worldX, float worldZ)
+    private void PaintBiome(int origin, int biome, float share, float cliff, float edge, float steepness, float elevation, in GroundSample ground)
     {
         int biomeCliff = BiomeCliffs.IsCreated ? BiomeCliffs[biome] : CliffLayer;
         float exposed = biomeCliff >= 0 ? cliff : 0f;
 
-        Spread(origin, biome, share * (1f - exposed), steepness, elevation, worldX, worldZ);
+        Spread(origin, biome, share * (1f - exposed), edge, steepness, elevation, ground);
 
         if (biomeCliff >= 0)
             Alphamaps[origin + biomeCliff] += share * exposed;
     }
 
-    private void Spread(int origin, int biome, float share, float steepness, float elevation, float worldX, float worldZ)
+    private void Spread(int origin, int biome, float share, float edge, float steepness, float elevation, in GroundSample ground)
     {
         int start = RuleStart[biome];
         int count = RuleCount[biome];
@@ -183,7 +198,7 @@ public struct GroundSplatJob : IJobParallelFor
         for (int i = count - 1; i > 0 && remaining > COVERED; i--)
         {
             GroundRule rule = Rules[start + i];
-            float laid = remaining * Coverage(rule, steepness, elevation, worldX, worldZ);
+            float laid = remaining * Coverage(rule, edge, steepness, elevation, ground);
 
             Alphamaps[origin + rule.Layer] += laid;
             remaining -= laid;
@@ -192,7 +207,7 @@ public struct GroundSplatJob : IJobParallelFor
         Alphamaps[origin + Rules[start].Layer] += remaining;
     }
 
-    private float Coverage(GroundRule rule, float steepness, float elevation, float worldX, float worldZ)
+    private float Coverage(in GroundRule rule, float edge, float steepness, float elevation, in GroundSample ground)
     {
         float coverage = math.saturate(rule.Opacity) * Band(steepness, rule.MinSlope, rule.MaxSlope, rule.SlopeFade)
             * Band(elevation, rule.MinHeight, rule.MaxHeight, rule.HeightFade);
@@ -200,10 +215,7 @@ public struct GroundSplatJob : IJobParallelFor
         if (coverage <= COVERED || rule.PatchThreshold <= 0f)
             return coverage;
 
-        float patch = FractalNoise.Sample01(new float2(worldX, worldZ) / rule.PatchFrequency,
-            new float2(NoiseSeed, rule.PatchFrequency), 3, 2.1f, 0.5f);
-
-        return coverage * math.smoothstep(rule.PatchThreshold, rule.PatchThreshold + rule.PatchFade, patch);
+        return coverage * Noise.Patch(rule, ground, edge);
     }
 
     private static float Band(float value, float min, float max, float fade)
@@ -225,46 +237,75 @@ public struct GroundSplatJob : IJobParallelFor
 
 public struct BiomeWeightSampler
 {
-    private int _x0;
-    private int _y0;
-    private int _x1;
-    private int _y1;
-    private float _tx;
-    private float _ty;
+    private const float SIXTH = 1f / 6f;
+
+    private int4 _columns;
+    private int4 _rows;
+    private float4 _wx;
+    private float4 _wy;
 
     public static BiomeWeightSampler At(float u, float v, int resolution)
     {
         int last = resolution - 1;
 
-        float fx = math.clamp(u * resolution - 0.5f, 0f, last);
-        float fy = math.clamp(v * resolution - 0.5f, 0f, last);
+        float fx = u * resolution - 0.5f;
+        float fy = v * resolution - 0.5f;
 
-        var sampler = new BiomeWeightSampler
+        float cellX = math.floor(fx);
+        float cellY = math.floor(fy);
+
+        var taps = new int4(-1, 0, 1, 2);
+
+        return new BiomeWeightSampler
         {
-            _x0 = (int)fx,
-            _y0 = (int)fy
+            _columns = math.clamp((int)cellX + taps, 0, last),
+            _rows = math.clamp((int)cellY + taps, 0, last) * resolution,
+            _wx = Spline(fx - cellX),
+            _wy = Spline(fy - cellY)
         };
-
-        sampler._x1 = math.min(sampler._x0 + 1, last);
-        sampler._y1 = math.min(sampler._y0 + 1, last);
-        sampler._tx = Fade(fx - sampler._x0);
-        sampler._ty = Fade(fy - sampler._y0);
-
-        return sampler;
     }
 
     public float Sample(NativeArray<float> weights, int biome, int resolution)
     {
         int origin = biome * resolution * resolution;
+        float sum = 0f;
 
-        float bottom = math.lerp(weights[origin + _y0 * resolution + _x0], weights[origin + _y0 * resolution + _x1], _tx);
-        float top = math.lerp(weights[origin + _y1 * resolution + _x0], weights[origin + _y1 * resolution + _x1], _tx);
+        for (int j = 0; j < 4; j++)
+        {
+            int row = origin + _rows[j];
 
-        return math.lerp(bottom, top, _ty);
+            float line = weights[row + _columns.x] * _wx.x + weights[row + _columns.y] * _wx.y
+                         + weights[row + _columns.z] * _wx.z + weights[row + _columns.w] * _wx.w;
+
+            sum += line * _wy[j];
+        }
+
+        return sum;
     }
 
-    private static float Fade(float t)
+    public float Sample(float[] weights)
     {
-        return t * t * t * (t * (t * 6f - 15f) + 10f);
+        float sum = 0f;
+
+        for (int j = 0; j < 4; j++)
+        {
+            int row = _rows[j];
+
+            float line = weights[row + _columns.x] * _wx.x + weights[row + _columns.y] * _wx.y
+                         + weights[row + _columns.z] * _wx.z + weights[row + _columns.w] * _wx.w;
+
+            sum += line * _wy[j];
+        }
+
+        return sum;
+    }
+
+    public static float4 Spline(float t)
+    {
+        float s = 1f - t;
+        float t2 = t * t;
+        float t3 = t2 * t;
+
+        return new float4(s * s * s, 3f * t3 - 6f * t2 + 4f, -3f * t3 + 3f * t2 + 3f * t + 1f, t3) * SIXTH;
     }
 }

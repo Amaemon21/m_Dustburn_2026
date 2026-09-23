@@ -381,6 +381,10 @@ public class VoxelTerrainBuilder : MonoBehaviour
 
             Transform column = NewColumn(key);
 
+#if UNITY_EDITOR
+            VoxelColumnDebug.Attach(column.gameObject, key, size, plan.VoxelSize(key.Lod), low, high);
+#endif
+
             for (int y = low; y <= high; y++)
                 tasks.Add(new ChunkTask(key, column, y));
         }

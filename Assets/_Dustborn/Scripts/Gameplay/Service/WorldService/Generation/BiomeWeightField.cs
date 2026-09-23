@@ -80,49 +80,15 @@ public class BiomeWeightField
 
     public void Sample(float u, float v, float[] result)
     {
-        Taps(u, v, out int bottomLeft, out int bottomRight, out int topLeft, out int topRight, out float tx, out float ty);
+        BiomeWeightSampler sampler = BiomeWeightSampler.At(u, v, Resolution);
 
         for (int biome = 0; biome < BiomeCount; biome++)
-            result[biome] = Blend(_weights[biome], bottomLeft, bottomRight, topLeft, topRight, tx, ty);
+            result[biome] = sampler.Sample(_weights[biome]);
     }
 
     public float SampleOne(float u, float v, int biome)
     {
-        Taps(u, v, out int bottomLeft, out int bottomRight, out int topLeft, out int topRight, out float tx, out float ty);
-
-        return Blend(_weights[biome], bottomLeft, bottomRight, topLeft, topRight, tx, ty);
-    }
-
-    private void Taps(float u, float v, out int bottomLeft, out int bottomRight, out int topLeft, out int topRight, out float tx, out float ty)
-    {
-        int last = Resolution - 1;
-
-        float fx = Mathf.Clamp(u * Resolution - 0.5f, 0f, last);
-        float fy = Mathf.Clamp(v * Resolution - 0.5f, 0f, last);
-
-        int x0 = (int)fx;
-        int y0 = (int)fy;
-        int x1 = Mathf.Min(x0 + 1, last);
-        int y1 = Mathf.Min(y0 + 1, last);
-
-        int rowBottom = y0 * Resolution;
-        int rowTop = y1 * Resolution;
-
-        bottomLeft = rowBottom + x0;
-        bottomRight = rowBottom + x1;
-        topLeft = rowTop + x0;
-        topRight = rowTop + x1;
-
-        tx = Fade(fx - x0);
-        ty = Fade(fy - y0);
-    }
-
-    private static float Blend(float[] weights, int bottomLeft, int bottomRight, int topLeft, int topRight, float tx, float ty)
-    {
-        float bottom = Mathf.LerpUnclamped(weights[bottomLeft], weights[bottomRight], tx);
-        float top = Mathf.LerpUnclamped(weights[topLeft], weights[topRight], tx);
-
-        return Mathf.LerpUnclamped(bottom, top, ty);
+        return BiomeWeightSampler.At(u, v, Resolution).Sample(_weights[biome]);
     }
 
     private void Normalize()
@@ -187,10 +153,5 @@ public class BiomeWeightField
                        - buffer[Mathf.Max(y - radius, 0) * resolution + x];
             }
         }
-    }
-
-    private static float Fade(float t)
-    {
-        return t * t * t * (t * (t * 6f - 15f) + 10f);
     }
 }

@@ -40,11 +40,18 @@ namespace UnityEngine
         public static Vector3 operator /(Vector3 a, float b) => new(a.x / b, a.y / b, a.z / b);
         public override string ToString() => $"({x:0.##}, {y:0.##}, {z:0.##})";
         public static Vector3 Cross(Vector3 a, Vector3 b) => new(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+        public static Vector3 operator -(Vector3 a) => new(-a.x, -a.y, -a.z);
+        public static float Dot(Vector3 a, Vector3 b) => a.x * b.x + a.y * b.y + a.z * b.z;
+        public static Vector3 Lerp(Vector3 a, Vector3 b, float t) { t = t < 0f ? 0f : t > 1f ? 1f : t; return a + (b - a) * t; }
+        public float sqrMagnitude => x * x + y * y + z * z;
+        public float magnitude => (float)System.Math.Sqrt(sqrMagnitude);
+        public void Normalize() { float m = magnitude; if (m > 1e-5f) { x /= m; y /= m; z /= m; } else { x = y = z = 0f; } }
     }
 
     public struct Rect
     {
         public float x, y, width, height;
+        public Rect(float x, float y, float width, float height) { this.x = x; this.y = y; this.width = width; this.height = height; }
         public Vector2 center => new(x + width * 0.5f, y + height * 0.5f);
         public float xMin => x;
         public float yMin => y;
@@ -438,6 +445,24 @@ namespace Unity.Mathematics
         public static float2 zero => new(0, 0);
     }
 
+    public struct float4
+    {
+        public float x, y, z, w;
+        public float4(float x, float y, float z, float w) { this.x = x; this.y = y; this.z = z; this.w = w; }
+        public float this[int i] => i switch { 0 => x, 1 => y, 2 => z, _ => w };
+        public static float4 operator *(float4 a, float b) => new(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static float4 operator *(float a, float4 b) => b * a;
+    }
+
+    public struct int4
+    {
+        public int x, y, z, w;
+        public int4(int x, int y, int z, int w) { this.x = x; this.y = y; this.z = z; this.w = w; }
+        public int this[int i] => i switch { 0 => x, 1 => y, 2 => z, _ => w };
+        public static int4 operator +(int a, int4 b) => new(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static int4 operator *(int4 a, int b) => new(a.x * b, a.y * b, a.z * b, a.w * b);
+    }
+
     public static class math
     {
         public static float abs(float v) => MathF.Abs(v);
@@ -447,6 +472,12 @@ namespace Unity.Mathematics
         public static int max(int a, int b) => Math.Max(a, b);
         public static float clamp(float v, float a, float b) => Math.Clamp(v, a, b);
         public static int clamp(int v, int a, int b) => Math.Clamp(v, a, b);
+        public static int4 clamp(int4 v, int a, int b) => new(Math.Clamp(v.x, a, b), Math.Clamp(v.y, a, b), Math.Clamp(v.z, a, b), Math.Clamp(v.w, a, b));
+        public static float cos(float v) => MathF.Cos(v);
+        public static float exp(float v) => MathF.Exp(v);
+        public static float log(float v) => MathF.Log(v);
+        public const float PI = MathF.PI;
+        public static float sin(float v) => MathF.Sin(v);
         public static float saturate(float v) => Math.Clamp(v, 0f, 1f);
         public static float lerp(float a, float b, float t) => a + (b - a) * t;
         public static float unlerp(float a, float b, float v) => (v - a) / (b - a);

@@ -18,7 +18,7 @@ public class GroundLayer
     public float PatchFrequency { get; private set; } = 140f;
 
     [field: SerializeField, Range(0f, 1f)]
-    [field: Tooltip("Noise level below which the layer is absent. Zero lays it everywhere its slope and height allow and skips the noise, which is what makes a slope shelf cheap. Around 0.5 covers half the biome, 0.65 leaves rare islands.")]
+    [field: Tooltip("Noise level below which the layer is absent. Zero lays it everywhere its slope and height allow and skips the noise and the terrain response, which is what makes a slope shelf cheap. Around 0.5 covers half the biome, 0.65 leaves rare islands.")]
     public float PatchThreshold { get; private set; }
 
     [field: SerializeField, Range(0.01f, 1f)]
@@ -49,6 +49,22 @@ public class GroundLayer
     [field: Tooltip("Normalised height of the blend on both ends of the height band.")]
     public float HeightFade { get; private set; } = 0.05f;
 
+    [field: SerializeField, Header("Terrain response"), Range(-0.5f, 0.5f)]
+    [field: Tooltip("Shift of the patch noise by the shared macro field. Positive grows the layer in the macro field's high regions, negative in its low ones; the grounds of one biome that disagree in sign split the large regions between them.")]
+    public float MacroBias { get; private set; }
+
+    [field: SerializeField, Range(-0.5f, 0.5f)]
+    [field: Tooltip("Shift of the patch noise by slope. Positive gathers the layer on slopes steeper than GroundSlopeMid, negative on flats. Soft, unlike the slope band.")]
+    public float SlopeBias { get; private set; }
+
+    [field: SerializeField, Range(-0.5f, 0.5f)]
+    [field: Tooltip("Shift of the patch noise by relief. Positive gathers the layer on ridges and convex ground, negative in hollows and valley floors.")]
+    public float ReliefBias { get; private set; }
+
+    [field: SerializeField, Range(-0.5f, 0.5f)]
+    [field: Tooltip("Shift of the patch noise near the biome's own border. Positive makes this ground part of the transition to the neighbouring biome.")]
+    public float EdgeBias { get; private set; }
+
     public bool IsValid => Layer != null;
 
     public bool IsUnset => Opacity <= 0f && PatchFrequency <= 0f && MaxSlope <= 0f && MaxHeight <= 0f && SlopeFade <= 0f;
@@ -67,5 +83,9 @@ public class GroundLayer
         MinHeight = 0f;
         MaxHeight = 1f;
         HeightFade = 0.05f;
+        MacroBias = 0f;
+        SlopeBias = 0f;
+        ReliefBias = 0f;
+        EdgeBias = 0f;
     }
 }

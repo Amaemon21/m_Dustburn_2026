@@ -43,7 +43,7 @@ public class VoxelConfig : ScriptableObject
     }
 
     [field: SerializeField, BoxGroup("Streaming"), MinValue(0f)]
-    [field: Tooltip("Depth of the skirt hung from the border of a coarse chunk, in voxels of that level. It hides the crack where two levels of detail meet. Zero turns it off, the finest level never gets one because it has no coarser neighbour below it.")]
+    [field: Tooltip("Metres the skirt hangs below a join between two levels of detail, the same at every level. The join is watertight without it, so it is only insurance against rasterisation leaks; the finer side owns it, the coarser side never gets one. Zero turns it off.")]
     public float SkirtDepth { get; private set; } = 2f;
 
     [ShowNativeProperty] public float ChunkMetres => VoxelSize * ChunkSize;

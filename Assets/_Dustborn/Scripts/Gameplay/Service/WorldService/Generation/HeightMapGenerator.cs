@@ -47,7 +47,10 @@ public class HeightMapGenerator
                 RidgeOffset = random.NextFloat2(-100f, 100f),
                 DuneOffset = random.NextFloat2(-100f, 100f),
                 DetailOffset = random.NextFloat2(-100f, 100f),
-                MaskOffset = random.NextFloat2(-100f, 100f)
+                MaskOffset = random.NextFloat2(-100f, 100f),
+                DuneBendX = random.NextFloat2(-100f, 100f),
+                DuneBendZ = random.NextFloat2(-100f, 100f),
+                DuneAxis = Axis(random.NextFloat(0f, math.PI))
             };
 
             using (WorldGenProbe.Measure(WorldGenStage.MapHeightNoise))
@@ -92,6 +95,11 @@ public class HeightMapGenerator
         return profiles;
     }
 
+    private static float2 Axis(float angle)
+    {
+        return new float2(math.cos(angle), math.sin(angle));
+    }
+
     private HeightFieldSettings BuildSettings()
     {
         return new HeightFieldSettings
@@ -102,6 +110,7 @@ public class HeightMapGenerator
             HillFrequency = _config.HillFrequency,
             RidgeFrequency = _config.RidgeFrequency,
             DuneFrequency = _config.DuneFrequency,
+            DuneWarp = _config.DuneWarp,
             DetailFrequency = _config.DetailFrequency,
             ContinentOctaves = _config.ContinentOctaves,
             HillOctaves = _config.HillOctaves,

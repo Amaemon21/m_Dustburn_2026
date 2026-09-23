@@ -23,6 +23,8 @@
     <Compile Include="WorldMapPipelineChecks.cs" />
     <Compile Include="GeneratedAssetFileChecks.cs" />
     <Compile Include="GroundAppearanceChecks.cs" />
+    <Compile Include="SplatChecks.cs" />
+    <Compile Include="VoxelSeamChecks.cs" />
     <Compile Include="GroundPreview.cs" />
     <Compile Include="RoadPaintChecks.cs" />
     <Compile Include="RoadTopologyChecks.cs" />
@@ -45,6 +47,7 @@
                       $(WorldGeneration)/Voxel/VoxelDecorBuild.cs;
                       $(WorldGeneration)/Voxel/RepetitionlessVoxelSetup.cs;
                       $(WorldGeneration)/Voxel/VoxelGroundMaterial.cs;
+                      $(WorldGeneration)/Voxel/VoxelColumnDebug.cs;
                       $(WorldGeneration)/Generation/BiomeMapTexture.cs;
                       $(WorldGeneration)/Generation/HeightMapTexture.cs" />
   </ItemGroup>

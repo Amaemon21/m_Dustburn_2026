@@ -33,6 +33,7 @@ MonoBehaviour:
   <HillFrequency>k__BackingField: 5.6
   <RidgeFrequency>k__BackingField: 5
   <DuneFrequency>k__BackingField: 16
+  <DuneWarp>k__BackingField: 0.35
   <DetailFrequency>k__BackingField: 52
   <ContinentOctaves>k__BackingField: 4
   <HillOctaves>k__BackingField: 2
@@ -213,6 +214,17 @@ MonoBehaviour:
   <BiomeBorderWidth>k__BackingField: 6
   <BiomeBorderWarp>k__BackingField: 24
   <BiomeBorderWarpPeriod>k__BackingField: 120
+  <BiomeBorderJitter>k__BackingField: 0.9
+  <GroundMacroScale>k__BackingField: 260
+  <GroundWarpScale>k__BackingField: 70
+  <GroundWarpStrength>k__BackingField: 16
+  <GroundDetailScale>k__BackingField: 10
+  <GroundDetailStrength>k__BackingField: 0.05
+  <ReliefRadius>k__BackingField: 24
+  <ReliefRange>k__BackingField: 2
+  <GroundSlopeMid>k__BackingField: 18
+  <GroundSlopeSpan>k__BackingField: 14
+  <CliffJitter>k__BackingField: 5
   <BiomeMapAssetPath>k__BackingField: Assets/_Dustborn/Generated/BiomeMap.png
   <HeightMapAssetPath>k__BackingField: Assets/_Dustborn/Generated/HeightMap.bytes
   <HeightMapPreviewPath>k__BackingField: Assets/_Dustborn/Generated/HeightMapPreview.png

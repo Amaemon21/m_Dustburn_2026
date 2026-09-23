@@ -156,26 +156,36 @@ public struct HydraulicApplyJob : IJobParallelFor
 
     public void Execute(int row)
     {
-        float v = math.clamp(row / Step, 0f, CoarseResolution - 1.001f);
+        int last = CoarseResolution - 1;
+        var taps = new int4(-1, 0, 1, 2);
 
-        int y0 = (int)v;
-        int y1 = math.min(y0 + 1, CoarseResolution - 1);
-        float ty = v - y0;
+        float v = math.clamp(row / Step, 0f, last);
+        float cellY = math.floor(v);
+
+        int4 rows = math.clamp((int)cellY + taps, 0, last) * CoarseResolution;
+        float4 wy = BiomeWeightSampler.Spline(v - cellY);
 
         for (int x = 0; x < Resolution; x++)
         {
-            float u = math.clamp(x / Step, 0f, CoarseResolution - 1.001f);
+            float u = math.clamp(x / Step, 0f, last);
+            float cellX = math.floor(u);
 
-            int x0 = (int)u;
-            int x1 = math.min(x0 + 1, CoarseResolution - 1);
-            float tx = u - x0;
+            int4 columns = math.clamp((int)cellX + taps, 0, last);
+            float4 wx = BiomeWeightSampler.Spline(u - cellX);
 
-            float bottom = math.lerp(Cut[y0 * CoarseResolution + x0], Cut[y0 * CoarseResolution + x1], tx);
-            float top = math.lerp(Cut[y1 * CoarseResolution + x0], Cut[y1 * CoarseResolution + x1], tx);
+            float cut = 0f;
+
+            for (int j = 0; j < 4; j++)
+            {
+                int line = rows[j];
+
+                cut += wy[j] * (Cut[line + columns.x] * wx.x + Cut[line + columns.y] * wx.y
+                                + Cut[line + columns.z] * wx.z + Cut[line + columns.w] * wx.w);
+            }
 
             int index = row * Resolution + x;
 
-            Heights[index] = math.saturate(Heights[index] - math.lerp(bottom, top, ty));
+            Heights[index] = math.saturate(Heights[index] - cut);
         }
     }
 }

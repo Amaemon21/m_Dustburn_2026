@@ -21,6 +21,7 @@ public struct HeightFieldSettings
     public float HillFrequency;
     public float RidgeFrequency;
     public float DuneFrequency;
+    public float DuneWarp;
     public float DetailFrequency;
 
     public int ContinentOctaves;
@@ -37,6 +38,9 @@ public struct HeightFieldSettings
 [BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true)]
 public struct HeightMapJob : IJobParallelFor
 {
+    private const float DUNE_ABSENT = 1e-5f;
+    private const float DUNE_BEND_FREQUENCY = 0.5f;
+
     [ReadOnly] public NativeArray<float> BiomeWeights;
     [ReadOnly] public NativeArray<BiomeHeightProfile> Profiles;
 
@@ -54,6 +58,9 @@ public struct HeightMapJob : IJobParallelFor
     public float2 DuneOffset;
     public float2 DetailOffset;
     public float2 MaskOffset;
+    public float2 DuneBendX;
+    public float2 DuneBendZ;
+    public float2 DuneAxis;
 
     public void Execute(int index)
     {
@@ -70,8 +77,7 @@ public struct HeightMapJob : IJobParallelFor
         float ridge = FractalNoise.Ridged(uv * Settings.RidgeFrequency, RidgeOffset, Settings.RidgeOctaves, 2.1f, 0.45f);
         float detail = FractalNoise.Sample01(uv * Settings.DetailFrequency, DetailOffset, Settings.DetailOctaves, 2f, 0.5f);
 
-        float2 duneUv = new(uv.x * Settings.DuneFrequency * 0.35f, uv.y * Settings.DuneFrequency * 2.2f);
-        float dune = FractalNoise.Ridged(duneUv, DuneOffset, Settings.DuneOctaves, 2f, 0.5f);
+        float dune = blended.DuneAmplitude > DUNE_ABSENT ? Dune(uv) : 0f;
 
         float maskNoise = FractalNoise.Sample01(uv * Settings.MountainMaskFrequency, MaskOffset, 3, 2f, 0.5f);
         float mask = math.smoothstep(Settings.MountainMaskLow, Settings.MountainMaskHigh, maskNoise);
@@ -88,37 +94,26 @@ public struct HeightMapJob : IJobParallelFor
         Heights[index] = math.saturate(height);
     }
 
+    private float Dune(float2 uv)
+    {
+        float2 slow = uv * (Settings.DuneFrequency * DUNE_BEND_FREQUENCY);
+        float2 bend = new float2(noise.snoise(slow + DuneBendX), noise.snoise(slow + DuneBendZ)) * (Settings.DuneWarp / Settings.DuneFrequency);
+
+        float2 turned = FractalNoise.Turn(uv + bend, DuneAxis);
+        float2 duneUv = new(turned.x * Settings.DuneFrequency * 0.35f, turned.y * Settings.DuneFrequency * 2.2f);
+
+        return FractalNoise.Ridged(duneUv, DuneOffset, Settings.DuneOctaves, 2f, 0.5f);
+    }
+
     private void BlendProfiles(float2 uv, out BiomeHeightProfile blended)
     {
         blended = default;
 
-        int last = WeightResolution - 1;
-
-        float fx = math.clamp(uv.x * WeightResolution - 0.5f, 0f, last);
-        float fy = math.clamp(uv.y * WeightResolution - 0.5f, 0f, last);
-
-        int x0 = (int)fx;
-        int y0 = (int)fy;
-        int x1 = math.min(x0 + 1, last);
-        int y1 = math.min(y0 + 1, last);
-
-        float tx = Fade(fx - x0);
-        float ty = Fade(fy - y0);
-
-        int cellCount = WeightResolution * WeightResolution;
-
-        int bottomLeft = y0 * WeightResolution + x0;
-        int bottomRight = y0 * WeightResolution + x1;
-        int topLeft = y1 * WeightResolution + x0;
-        int topRight = y1 * WeightResolution + x1;
+        BiomeWeightSampler sampler = BiomeWeightSampler.At(uv.x, uv.y, WeightResolution);
 
         for (int biome = 0; biome < BiomeCount; biome++)
         {
-            int offset = biome * cellCount;
-
-            float bottom = math.lerp(BiomeWeights[offset + bottomLeft], BiomeWeights[offset + bottomRight], tx);
-            float top = math.lerp(BiomeWeights[offset + topLeft], BiomeWeights[offset + topRight], tx);
-            float weight = math.lerp(bottom, top, ty);
+            float weight = sampler.Sample(BiomeWeights, biome, WeightResolution);
 
             BiomeHeightProfile profile = Profiles[biome];
 
@@ -128,10 +123,5 @@ public struct HeightMapJob : IJobParallelFor
             blended.DuneAmplitude += weight * profile.DuneAmplitude;
             blended.DetailAmplitude += weight * profile.DetailAmplitude;
         }
-    }
-
-    private static float Fade(float t)
-    {
-        return t * t * t * (t * (t * 6f - 15f) + 10f);
     }
 }

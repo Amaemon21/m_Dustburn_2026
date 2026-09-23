@@ -30,39 +30,55 @@ MonoBehaviour:
     <MinHeight>k__BackingField: 0
     <MaxHeight>k__BackingField: 1
     <HeightFade>k__BackingField: 0.05
+    <MacroBias>k__BackingField: 0
+    <SlopeBias>k__BackingField: 0
+    <ReliefBias>k__BackingField: 0
+    <EdgeBias>k__BackingField: 0
   - <Layer>k__BackingField: {fileID: 19532598970000000, guid: bb416a5e4cfd5960805d047e1149abca, type: 2}
-    <Opacity>k__BackingField: 1
-    <PatchFrequency>k__BackingField: 133
+    <Opacity>k__BackingField: 0.8
+    <PatchFrequency>k__BackingField: 150
     <PatchThreshold>k__BackingField: 0.56
-    <PatchFade>k__BackingField: 0.05
+    <PatchFade>k__BackingField: 0.12
     <MinSlope>k__BackingField: 0
-    <MaxSlope>k__BackingField: 16
-    <SlopeFade>k__BackingField: 6
+    <MaxSlope>k__BackingField: 18
+    <SlopeFade>k__BackingField: 8
     <MinHeight>k__BackingField: 0
     <MaxHeight>k__BackingField: 1
     <HeightFade>k__BackingField: 0.05
+    <MacroBias>k__BackingField: 0.15
+    <SlopeBias>k__BackingField: -0.2
+    <ReliefBias>k__BackingField: -0.2
+    <EdgeBias>k__BackingField: 0
   - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 3fb4559cac2f5bae8086939852cb1de8, type: 2}
-    <Opacity>k__BackingField: 1
-    <PatchFrequency>k__BackingField: 84
-    <PatchThreshold>k__BackingField: 0.7
-    <PatchFade>k__BackingField: 0.05
-    <MinSlope>k__BackingField: 0
-    <MaxSlope>k__BackingField: 90
-    <SlopeFade>k__BackingField: 6
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <HeightFade>k__BackingField: 0.05
-  - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 3fb4559cac2f5bae8086939852cb1de8, type: 2}
-    <Opacity>k__BackingField: 1
+    <Opacity>k__BackingField: 0.85
     <PatchFrequency>k__BackingField: 100
-    <PatchThreshold>k__BackingField: 0
-    <PatchFade>k__BackingField: 0.06
-    <MinSlope>k__BackingField: 28
+    <PatchThreshold>k__BackingField: 0.66
+    <PatchFade>k__BackingField: 0.1
+    <MinSlope>k__BackingField: 0
     <MaxSlope>k__BackingField: 90
     <SlopeFade>k__BackingField: 6
     <MinHeight>k__BackingField: 0
     <MaxHeight>k__BackingField: 1
     <HeightFade>k__BackingField: 0.05
+    <MacroBias>k__BackingField: 0
+    <SlopeBias>k__BackingField: 0.15
+    <ReliefBias>k__BackingField: 0.25
+    <EdgeBias>k__BackingField: 0
+  - <Layer>k__BackingField: {fileID: 19532598970000000, guid: 3fb4559cac2f5bae8086939852cb1de8, type: 2}
+    <Opacity>k__BackingField: 0.95
+    <PatchFrequency>k__BackingField: 80
+    <PatchThreshold>k__BackingField: 0.52
+    <PatchFade>k__BackingField: 0.1
+    <MinSlope>k__BackingField: 14
+    <MaxSlope>k__BackingField: 90
+    <SlopeFade>k__BackingField: 10
+    <MinHeight>k__BackingField: 0
+    <MaxHeight>k__BackingField: 1
+    <HeightFade>k__BackingField: 0.05
+    <MacroBias>k__BackingField: 0
+    <SlopeBias>k__BackingField: 0.35
+    <ReliefBias>k__BackingField: 0.25
+    <EdgeBias>k__BackingField: 0
   <Grass>k__BackingField:
   - <Card>k__BackingField: {fileID: 2800000, guid: 84e5b81325735974a98c4ce3ef677bae, type: 3}
     <Mask>k__BackingField: {fileID: 2800000, guid: af56e15a18c5e914c90e67fd4f741ca5, type: 3}

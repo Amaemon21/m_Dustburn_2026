@@ -12,24 +12,38 @@ public struct BiomeBorder
     private const float PROFILE_SPAN = 2.56f;
     private const float MIN_WIDTH = 0.5f;
 
-    private const float WARP_X = 11.5f;
-    private const float WARP_Z = 73.25f;
+    private const int WARP_X = 1;
+    private const int WARP_Z = 2;
+    private const int JITTER_STREAM = 100;
+    private const float JITTER_PERIOD_SHARE = 0.3f;
+    private const float JITTER_GRADIENT = 0.82f;
 
     public float Warp;
     public float WarpPeriod;
     public float Exponent;
-    public float Seed;
+    public float2 SeedX;
+    public float2 SeedZ;
+    public float Jitter;
+    public float JitterPeriod;
+    public int Seed;
 
     public static BiomeBorder From(WorldGenerationConfig config)
     {
         float blend = math.max(0f, config.BiomeBlendRadius);
+        float jitter = math.max(0f, config.BiomeBorderJitter);
+        float jitterPeriod = math.max(1f, config.BiomeBorderWarpPeriod * JITTER_PERIOD_SHARE);
+        float steepening = 1f + JITTER_GRADIENT * jitter * blend / jitterPeriod;
 
         return new BiomeBorder
         {
             Warp = math.clamp(config.BiomeBorderWarp, 0f, blend),
             WarpPeriod = math.max(1f, config.BiomeBorderWarpPeriod),
-            Exponent = blend <= 0f ? 1f : math.max(1f, PROFILE_SPAN * blend / math.max(MIN_WIDTH, config.BiomeBorderWidth)),
-            Seed = (config.Seed >> 16) & 0xFFFF
+            Exponent = blend <= 0f ? 1f : math.max(1f, PROFILE_SPAN * blend / math.max(MIN_WIDTH, config.BiomeBorderWidth) / steepening),
+            SeedX = FractalNoise.Offset(config.Seed, WARP_X),
+            SeedZ = FractalNoise.Offset(config.Seed, WARP_Z),
+            Jitter = jitter,
+            JitterPeriod = jitterPeriod,
+            Seed = config.Seed
         };
     }
 
@@ -42,14 +56,22 @@ public struct BiomeBorder
 
         float2 scaled = point / WarpPeriod;
 
-        float dx = FractalNoise.Sample(scaled, new float2(Seed, WARP_X), OCTAVES, LACUNARITY, PERSISTENCE);
-        float dz = FractalNoise.Sample(scaled, new float2(Seed, WARP_Z), OCTAVES, LACUNARITY, PERSISTENCE);
+        float dx = FractalNoise.Sample(scaled, SeedX, OCTAVES, LACUNARITY, PERSISTENCE);
+        float dz = FractalNoise.Sample(scaled, SeedZ, OCTAVES, LACUNARITY, PERSISTENCE);
 
         return point + new float2(dx, dz) * Warp;
     }
 
-    public float Contrast(float weight)
+    public float Part(float weight, int biome, float2 displaced)
     {
-        return weight <= 0f ? 0f : math.pow(weight, Exponent);
+        if (weight <= 0f)
+            return 0f;
+
+        float level = math.log(weight);
+
+        if (Jitter > 0f)
+            level += Jitter * noise.snoise(displaced / JitterPeriod + FractalNoise.Offset(Seed, JITTER_STREAM + biome));
+
+        return math.exp(Exponent * level);
     }
 }

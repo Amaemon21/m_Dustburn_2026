@@ -8,6 +8,7 @@ public static class VoxelSplatBaker
 
     private const long TILE_WEIGHT_BUDGET = 32L << 20;
     private const int MIN_TILE = 256;
+    private const float DIAGONAL = 0.70710678f;
 
     public static Texture2D[] Bake(WorldGenerationConfig config, GroundSplatPainter painter, HeightMap map, int resolution)
     {
@@ -27,9 +28,9 @@ public static class VoxelSplatBaker
             {
                 int tileX = Mathf.Min(originX, resolution - tile);
 
-                Surface(config, map, resolution, tileX, tileY, tile, out float[] steepness, out float[] height);
+                Surface(config, map, resolution, tileX, tileY, tile, out float[] steepness, out float[] height, out float[] relief);
 
-                NativeArray<float> weights = painter.BakeTile(resolution, tile, tileX, tileY, steepness, height);
+                NativeArray<float> weights = painter.BakeTile(resolution, tile, tileX, tileY, steepness, height, relief);
 
                 try
                 {
@@ -53,10 +54,27 @@ public static class VoxelSplatBaker
     public static void Surface(WorldGenerationConfig config, HeightMap map, int resolution, int originX, int originY, int tile,
         out float[] steepness, out float[] height)
     {
+        Measure(config, map, resolution, originX, originY, tile, out steepness, out height, null);
+    }
+
+    public static void Surface(WorldGenerationConfig config, HeightMap map, int resolution, int originX, int originY, int tile,
+        out float[] steepness, out float[] height, out float[] relief)
+    {
+        relief = new float[tile * tile];
+        Measure(config, map, resolution, originX, originY, tile, out steepness, out height, relief);
+    }
+
+    private static void Measure(WorldGenerationConfig config, HeightMap map, int resolution, int originX, int originY, int tile,
+        out float[] steepness, out float[] height, float[] relief)
+    {
         var slope = new float[tile * tile];
         var elevation = new float[tile * tile];
 
         float step = (float)config.WorldSize / resolution;
+        float near = Mathf.Max(step, config.ReliefRadius);
+        float diagonal = near * DIAGONAL;
+        float far = near * GroundNoise.LARGE_RELIEF_RADIUS;
+        float range = Mathf.Max(0.01f, config.ReliefRange);
 
         Parallel.For(0, tile, y =>
         {
@@ -75,6 +93,19 @@ public static class VoxelSplatBaker
 
                 slope[y * tile + x] = Mathf.Atan(gradient) * Mathf.Rad2Deg;
                 elevation[y * tile + x] = here / config.MaxHeight;
+
+                if (relief == null)
+                    continue;
+
+                float nearRing = (map.SampleWorldSmooth(worldX + near, worldZ) + map.SampleWorldSmooth(worldX - near, worldZ)
+                                  + map.SampleWorldSmooth(worldX, worldZ + near) + map.SampleWorldSmooth(worldX, worldZ - near)
+                                  + map.SampleWorldSmooth(worldX + diagonal, worldZ + diagonal) + map.SampleWorldSmooth(worldX - diagonal, worldZ - diagonal)
+                                  + map.SampleWorldSmooth(worldX + diagonal, worldZ - diagonal) + map.SampleWorldSmooth(worldX - diagonal, worldZ + diagonal)) * 0.125f;
+
+                float farRing = (map.SampleWorldSmooth(worldX + far, worldZ) + map.SampleWorldSmooth(worldX - far, worldZ)
+                                 + map.SampleWorldSmooth(worldX, worldZ + far) + map.SampleWorldSmooth(worldX, worldZ - far)) * 0.25f;
+
+                relief[y * tile + x] = GroundNoise.ReliefSignal(here, nearRing, farRing, range);
             }
         });
 

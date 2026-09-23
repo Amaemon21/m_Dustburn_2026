@@ -68,8 +68,8 @@ public static class WorldGenBenchOpsMat
 
         return new WorldGenBenchOp("mat.surface", context =>
         {
-            VoxelSplatBaker.Surface(context.Profile.Config, frozen.CarvedHeights ?? frozen.RawHeights, resolution,
-                out float[] steepness, out float[] height);
+            VoxelSplatBaker.Surface(context.Profile.Config, frozen.CarvedHeights ?? frozen.RawHeights, resolution, 0, 0, resolution,
+                out float[] steepness, out float[] height, out float[] _);
 
             context.Put("steepness", steepness);
             context.Put("height", height);
@@ -114,6 +114,7 @@ public static class WorldGenBenchOpsMat
         GroundSplatPainter painter = null;
         float[] steepness = null;
         float[] height = null;
+        float[] relief = null;
         int resolution = 1024;
         NativeArray<float> weights = default;
 
@@ -122,7 +123,7 @@ public static class WorldGenBenchOpsMat
             if (weights.IsCreated)
                 weights.Dispose();
 
-            weights = painter.BakeWorld(resolution, steepness, height);
+            weights = painter.BakeWorld(resolution, steepness, height, relief);
         })
         {
             Setup = context =>
@@ -130,7 +131,7 @@ public static class WorldGenBenchOpsMat
                 frozen = WorldGenBenchFixtures.Frozen(context.Profile, "carved");
                 resolution = context.Args.Int("resolution", 1024);
                 painter = NewPainter(context, frozen);
-                VoxelSplatBaker.Surface(context.Profile.Config, frozen.CarvedHeights, resolution, out steepness, out height);
+                VoxelSplatBaker.Surface(context.Profile.Config, frozen.CarvedHeights, resolution, 0, 0, resolution, out steepness, out height, out relief);
 
                 context.Count("resolution", resolution);
                 context.Count("layers", painter.Layers.Length);

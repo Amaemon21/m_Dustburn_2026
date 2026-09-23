@@ -89,6 +89,7 @@ static class GroundAppearanceChecks
         Set(config, "BiomeBlendRadius", 48f);
         Set(config, "BiomeBorderWidth", 6f);
         Set(config, "BiomeBorderWarp", 0f);
+        Set(config, "BiomeBorderJitter", 0f);
 
         var left = new TerrainLayer { name = "left" };
         var right = new TerrainLayer { name = "right" };
@@ -115,6 +116,7 @@ static class GroundAppearanceChecks
         Require(surfaceWidth > 2f && surfaceWidth < 18f, $"A 6 m border must come out a few metres wide, got {surfaceWidth:0.0} m.");
 
         Set(config, "BiomeBorderWarp", 24f);
+        Set(config, "BiomeBorderJitter", 0.7f);
 
         var winding = new DecorFilter(config, field, 2, null, 0, null, 0f);
 
@@ -210,7 +212,7 @@ static class GroundAppearanceChecks
         return float.NaN;
     }
 
-    private static GroundLayer Ground(TerrainLayer layer, float opacity, float minSlope)
+    internal static GroundLayer Ground(TerrainLayer layer, float opacity, float minSlope)
     {
         var ground = new GroundLayer();
 
@@ -221,7 +223,7 @@ static class GroundAppearanceChecks
         return ground;
     }
 
-    private static BiomeDatabase Database(params BiomeDefinition[] biomes)
+    internal static BiomeDatabase Database(params BiomeDefinition[] biomes)
     {
         var database = new BiomeDatabase();
 
@@ -236,12 +238,12 @@ static class GroundAppearanceChecks
         return Math.Abs(value - expected) < 1e-4f;
     }
 
-    private static void Set(object target, string name, object value)
+    internal static void Set(object target, string name, object value)
     {
         target.GetType().GetField($"<{name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
     }
 
-    private static void Require(bool passed, string message)
+    internal static void Require(bool passed, string message)
     {
         if (!passed)
             throw new InvalidOperationException(message);

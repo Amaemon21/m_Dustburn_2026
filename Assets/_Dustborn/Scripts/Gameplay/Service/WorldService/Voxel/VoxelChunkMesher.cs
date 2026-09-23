@@ -52,7 +52,7 @@ public class VoxelChunkMesher : IDisposable
             ChunkZ = chunkZ,
             Size = _size,
             VoxelSize = _baseVoxelSize * scale,
-            SkirtDepth = _baseSkirtDepth * scale,
+            SkirtDepth = _baseSkirtDepth,
             Seams = seams,
             Morph = morph,
             Columns = _columns,

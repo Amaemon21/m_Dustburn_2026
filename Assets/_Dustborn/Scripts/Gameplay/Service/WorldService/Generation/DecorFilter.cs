@@ -64,7 +64,7 @@ public class DecorFilter
 
         for (int other = 0; other < _weights.BiomeCount; other++)
         {
-            float contrast = _border.Contrast(_weights.SampleOne(u, v, other));
+            float contrast = _border.Part(_weights.SampleOne(u, v, other), other, shifted);
 
             total += contrast;
 

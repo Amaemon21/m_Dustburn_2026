@@ -8,6 +8,7 @@ using UnityEngine;
 public struct VoxelMeshJob : IJob
 {
     private const int NONE = -1;
+    private const float SLIVER = 1e-4f;
 
     public VoxelDensitySampler Field;
 
@@ -51,74 +52,89 @@ public struct VoxelMeshJob : IJob
 
         BuildVertices(origin, scale);
         BuildQuads();
-        BuildSkirt();
+        BuildSkirt(origin, scale);
     }
 
-    private void BuildSkirt()
+    private void BuildSkirt(Vector3 origin, float scale)
     {
-        if (SkirtDepth <= 0f || Seams == 0)
+        int faces = Seams & Morph;
+
+        if (SkirtDepth <= 0f || faces == 0)
             return;
 
-        bool minX = (Seams & VoxelColumnKey.FACE_MIN_X) != 0;
-        bool maxX = (Seams & VoxelColumnKey.FACE_MAX_X) != 0;
-        bool minZ = (Seams & VoxelColumnKey.FACE_MIN_Z) != 0;
-        bool maxZ = (Seams & VoxelColumnKey.FACE_MAX_Z) != 0;
+        float bottom = origin.y;
+        float top = origin.y + Size * scale;
 
-        for (int step = 0; step < Size; step++)
+        for (int from = 0; from < Size; from += 2)
         {
-            if (minX)
-                Curtain(Ridge(0, step + 1), Ridge(0, step));
+            int to = math.min(from + 2, Size);
 
-            if (maxX)
-                Curtain(Ridge(Size, step), Ridge(Size, step + 1));
+            if ((faces & VoxelColumnKey.FACE_MIN_X) != 0)
+                Curtain(Border(origin, scale, 0, to), Border(origin, scale, 0, from), bottom, top);
 
-            if (minZ)
-                Curtain(Ridge(step, 0), Ridge(step + 1, 0));
+            if ((faces & VoxelColumnKey.FACE_MAX_X) != 0)
+                Curtain(Border(origin, scale, Size, from), Border(origin, scale, Size, to), bottom, top);
 
-            if (maxZ)
-                Curtain(Ridge(step + 1, Size), Ridge(step, Size));
+            if ((faces & VoxelColumnKey.FACE_MIN_Z) != 0)
+                Curtain(Border(origin, scale, from, 0), Border(origin, scale, to, 0), bottom, top);
+
+            if ((faces & VoxelColumnKey.FACE_MAX_Z) != 0)
+                Curtain(Border(origin, scale, to, Size), Border(origin, scale, from, Size), bottom, top);
         }
     }
 
-    private int Ridge(int slotX, int slotZ)
+    private Vector3 Border(Vector3 origin, float scale, int slotX, int slotZ)
     {
-        for (int y = Size; y >= 0; y--)
-        {
-            int vertex = VertexAt[Slot(slotX, y, slotZ)];
+        var position = new Vector3(origin.x + slotX * scale, 0f, origin.z + slotZ * scale);
 
-            if (vertex >= 0)
-                return vertex;
-        }
+        position.y = Surface(position.x, position.z, origin, scale);
 
-        return NONE;
+        return position;
     }
 
-    private void Curtain(int from, int to)
+    private void Curtain(Vector3 near, Vector3 far, float bottom, float top)
     {
-        if (from < 0 || to < 0)
+        float lowest = math.min(near.y, far.y);
+
+        if (lowest < bottom || lowest >= top)
             return;
 
-        Vector3 near = Vertices[from];
-        Vector3 far = Vertices[to];
+        float floor = lowest - SkirtDepth;
 
-        float bottom = math.min(near.y, far.y) - SkirtDepth;
-
-        int first = Add(near, from);
-        int second = Add(far, to);
-        int third = Add(new Vector3(far.x, bottom, far.z), to);
-        int fourth = Add(new Vector3(near.x, bottom, near.z), from);
+        int first = Add(near);
+        int second = Add(far);
+        int third = Add(new Vector3(far.x, floor, far.z), Normals[second]);
+        int fourth = Add(new Vector3(near.x, floor, near.z), Normals[first]);
 
         Triangle(first, second, third);
         Triangle(first, third, fourth);
     }
 
-    private int Add(Vector3 position, int source)
+    private int Add(Vector3 position)
     {
+        return Add(position, Shade(position));
+    }
+
+    private int Add(Vector3 position, Vector3 normal)
+    {
+        float world = Field.CellSize * (Field.Resolution - 1);
+
         Vertices.Add(position);
-        Normals.Add(Normals[source]);
-        Uv.Add(Uv[source]);
+        Normals.Add(normal);
+        Uv.Add(new Vector2(position.x / world, position.z / world));
 
         return Vertices.Length - 1;
+    }
+
+    private Vector3 Shade(Vector3 position)
+    {
+        return Field.Normal(position.x, position.y, position.z, VoxelSize, Morph,
+            ChunkX * Size * VoxelSize, ChunkZ * Size * VoxelSize, VoxelDensitySampler.MorphSpan(Size, VoxelSize), VoxelSize * 2f);
+    }
+
+    private float Surface(float x, float z, Vector3 origin, float scale)
+    {
+        return Field.Height(x, z, scale, Morph, origin.x, origin.z, VoxelDensitySampler.MorphSpan(Size, scale), scale * 2f);
     }
 
     private void BuildVertices(Vector3 origin, float scale)
@@ -138,119 +154,46 @@ public struct VoxelMeshJob : IJob
         if (!Straddles(slotX, slotY, slotZ))
             return NONE;
 
-        float sumX = 0f, sumY = 0f, sumZ = 0f;
-        int crossings = 0;
-
-        for (int edge = 0; edge < VoxelCellTables.EDGES; edge++)
-        {
-            int from = Cells.EdgeFrom[edge];
-            int to = Cells.EdgeTo[edge];
-
-            int fromX = Cells.CornerX[from];
-            int fromY = Cells.CornerY[from];
-            int fromZ = Cells.CornerZ[from];
-
-            int toX = Cells.CornerX[to];
-            int toY = Cells.CornerY[to];
-            int toZ = Cells.CornerZ[to];
-
-            float here = Density[Sample(slotX + fromX, slotY + fromY, slotZ + fromZ)];
-            float there = Density[Sample(slotX + toX, slotY + toY, slotZ + toZ)];
-
-            if (here > 0f == there > 0f)
-                continue;
-
-            float t = here / (here - there);
-
-            sumX += fromX + (toX - fromX) * t;
-            sumY += fromY + (toY - fromY) * t;
-            sumZ += fromZ + (toZ - fromZ) * t;
-
-            crossings++;
-        }
-
-        if (crossings == 0)
-            return NONE;
-
-        var position = new Vector3(
-            origin.x + (slotX - 1 + sumX / crossings) * scale,
-            origin.y + (slotY - 1 + sumY / crossings) * scale,
-            origin.z + (slotZ - 1 + sumZ / crossings) * scale);
+        var position = new Vector3(origin.x + (slotX - 0.5f) * scale, 0f, origin.z + (slotZ - 0.5f) * scale);
 
         Stitch(ref position, origin, scale, slotX, slotZ);
 
-        float world = Field.CellSize * (Field.Resolution - 1);
+        position.y = Surface(position.x, position.z, origin, scale);
 
-        Vertices.Add(position);
-        Normals.Add(Field.Normal(position.x, position.y, position.z, scale, Morph,
-            origin.x, origin.z, VoxelDensitySampler.MorphSpan(Size, scale), scale * 2f));
-        Uv.Add(new Vector2(position.x / world, position.z / world));
-
-        return Vertices.Length - 1;
+        return Add(position);
     }
 
     private void Stitch(ref Vector3 position, Vector3 origin, float scale, int slotX, int slotZ)
     {
-        bool minX = slotX == 0 && (Seams & VoxelColumnKey.FACE_MIN_X) != 0;
-        bool maxX = slotX == Size && (Seams & VoxelColumnKey.FACE_MAX_X) != 0;
-        bool minZ = slotZ == 0 && (Seams & VoxelColumnKey.FACE_MIN_Z) != 0;
-        bool maxZ = slotZ == Size && (Seams & VoxelColumnKey.FACE_MAX_Z) != 0;
+        bool edgeX = slotX == 0 || slotX == Size;
+        bool edgeZ = slotZ == 0 || slotZ == Size;
 
-        if (!minX && !maxX && !minZ && !maxZ)
+        if (!edgeX && !edgeZ)
             return;
 
-        float span = Size * scale;
-
-        bool coarser = false;
-
-        if (minX)
+        if (edgeX)
         {
-            position.x = origin.x - Neighbour(scale, VoxelColumnKey.MORPH_MIN_X) * 0.5f;
-            coarser |= (Morph & VoxelColumnKey.MORPH_MIN_X) != 0;
+            position.x = origin.x + slotX * scale;
+
+            if (!edgeZ)
+                position.z = Node(ChunkZ, slotZ, slotX == 0 ? VoxelColumnKey.MORPH_MIN_X : VoxelColumnKey.MORPH_MAX_X) * scale;
         }
 
-        if (maxX)
+        if (edgeZ)
         {
-            position.x = origin.x + span - scale * 0.5f;
-            coarser |= (Morph & VoxelColumnKey.MORPH_MAX_X) != 0;
+            position.z = origin.z + slotZ * scale;
+
+            if (!edgeX)
+                position.x = Node(ChunkX, slotX, slotZ == 0 ? VoxelColumnKey.MORPH_MIN_Z : VoxelColumnKey.MORPH_MAX_Z) * scale;
         }
 
-        if (minZ)
-        {
-            position.z = origin.z - Neighbour(scale, VoxelColumnKey.MORPH_MIN_Z) * 0.5f;
-            coarser |= (Morph & VoxelColumnKey.MORPH_MIN_Z) != 0;
-        }
-
-        if (maxZ)
-        {
-            position.z = origin.z + span - scale * 0.5f;
-            coarser |= (Morph & VoxelColumnKey.MORPH_MAX_Z) != 0;
-        }
-
-        if (!minZ && !maxZ)
-            position.z = Lattice(position.z, Weld(scale, minX ? VoxelColumnKey.MORPH_MIN_X : VoxelColumnKey.MORPH_MAX_X));
-
-        if (!minX && !maxX)
-            position.x = Lattice(position.x, Weld(scale, minZ ? VoxelColumnKey.MORPH_MIN_Z : VoxelColumnKey.MORPH_MAX_Z));
-
-        position.y = coarser
-            ? Field.Coarse(position.x, position.z, scale * 2f)
-            : Field.Height(position.x, position.z, scale, 0, 0f, 0f, 0f, 0f);
     }
 
-    private static float Lattice(float value, float step)
+    private int Node(int chunk, int slot, int morph)
     {
-        return (math.floor(value / step) + 0.5f) * step;
-    }
+        int node = chunk * Size + slot;
 
-    private float Weld(float scale, int morph)
-    {
-        return (Morph & morph) != 0 ? scale * 2f : scale;
-    }
-
-    private float Neighbour(float scale, int morph)
-    {
-        return (Morph & morph) != 0 ? scale * 2f : scale * 0.5f;
+        return (Morph & morph) != 0 ? node & ~1 : node;
     }
 
     private bool Straddles(int slotX, int slotY, int slotZ)
@@ -337,12 +280,23 @@ public struct VoxelMeshJob : IJob
     private bool Collapsed(int a, int b, int c)
     {
         Vector3 first = Vertices[a];
-        Vector3 normal = Vector3.Cross(Vertices[b] - first, Vertices[c] - first);
+        Vector3 second = Vertices[b] - first;
+        Vector3 third = Vertices[c] - first;
+        Vector3 across = Vertices[c] - Vertices[b];
 
-        float area = VoxelSize * VoxelSize * 1e-4f;
-        float doubled = normal.x * normal.x + normal.y * normal.y + normal.z * normal.z;
+        Vector3 normal = Vector3.Cross(second, third);
 
-        return doubled <= 4f * area * area;
+        float doubled = Square(normal);
+
+        float longest = math.max(Square(second), math.max(Square(third), Square(across)));
+        float width = VoxelSize * SLIVER;
+
+        return doubled <= width * width * longest;
+    }
+
+    private static float Square(Vector3 value)
+    {
+        return value.x * value.x + value.y * value.y + value.z * value.z;
     }
 
     private int Sample(int x, int y, int z)

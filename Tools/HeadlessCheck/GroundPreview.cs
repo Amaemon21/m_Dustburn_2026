@@ -70,7 +70,10 @@ static class GroundPreview
 
         var clock = System.Diagnostics.Stopwatch.StartNew();
 
-        HeightMap map = HeightMap.FromRaw16(File.ReadAllBytes(Path.Combine(_root, GENERATED, "HeightMap.bytes")),
+        int heights = Array.IndexOf(args, "--heights");
+        string heightPath = heights >= 0 ? args[heights + 1] : Path.Combine(_root, GENERATED, "HeightMap.bytes");
+
+        HeightMap map = HeightMap.FromRaw16(File.ReadAllBytes(heightPath),
             config.HeightMapResolution, config.WorldSize, config.MaxHeight);
         BiomeMap biomeMap = ReadBiomeMap(Path.Combine(_root, GENERATED, "BiomeMap.png"), biomes, config.WorldSize);
         float[] roads = ReadMask(Path.Combine(_root, GENERATED, "RoadMask.png"), out int roadResolution);
@@ -99,6 +102,14 @@ static class GroundPreview
             context.Tiles[i] = tile;
 
             Console.WriteLine($"  layer {i,2} {painter.Layers[i].name,-18} tile {tile,4:0.#} m  {Path.GetFileName(texture)}");
+        }
+
+        int dump = Array.IndexOf(args, "--dump");
+
+        if (dump >= 0)
+        {
+            DumpWindow(context, Path.Combine(output, "window.raw"), int.Parse(args[dump + 1]), int.Parse(args[dump + 2]), int.Parse(args[dump + 3]));
+            return;
         }
 
         ReportWorldShares(context, field);
@@ -150,9 +161,9 @@ static class GroundPreview
         int resolution = STAT_RESOLUTION;
         WorldGenerationConfig config = context.Config;
 
-        VoxelSplatBaker.Surface(config, context.Map, resolution, out float[] steepness, out float[] height);
+        VoxelSplatBaker.Surface(config, context.Map, resolution, 0, 0, resolution, out float[] steepness, out float[] height, out float[] relief);
 
-        var native = context.Painter.BakeWorld(resolution, steepness, height);
+        var native = context.Painter.BakeWorld(resolution, steepness, height, relief);
         int layers = context.Painter.Layers.Length;
         var weights = new float[resolution * resolution * layers];
         native.CopyTo(weights);
@@ -439,6 +450,31 @@ static class GroundPreview
         return roads;
     }
 
+    static void DumpWindow(Context context, string path, int centreX, int centreZ, int size)
+    {
+        int resolution = context.ControlResolution;
+        int tileX = Mathf.Clamp(centreX - size / 2, 0, resolution - size);
+        int tileZ = Mathf.Clamp(centreZ - size / 2, 0, resolution - size);
+
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+
+        VoxelSplatBaker.Surface(context.Config, context.Map, resolution, tileX, tileZ, size, out float[] steepness, out float[] height, out float[] relief);
+
+        long surface = clock.ElapsedMilliseconds;
+
+        var native = context.Painter.BakeTile(resolution, size, tileX, tileZ, steepness, height, relief);
+        int layers = context.Painter.Layers.Length;
+        var bytes = new byte[size * size * layers];
+
+        for (int i = 0; i < bytes.Length; i++)
+            bytes[i] = (byte)Mathf.Clamp(Mathf.RoundToInt(native[i] * 255f), 0, 255);
+
+        native.Dispose();
+        File.WriteAllBytes(path, bytes);
+
+        Console.WriteLine($"window {size} at ({tileX}, {tileZ}), {layers} layers: surface {surface} ms, paint {clock.ElapsedMilliseconds - surface} ms; layers {string.Join(",", Array.ConvertAll(context.Painter.Layers, l => l.name))}");
+    }
+
     static byte[] RenderGround(Context context, float originX, float originZ, float span, int pixels, out string shares)
     {
         WorldGenerationConfig config = context.Config;
@@ -449,9 +485,9 @@ static class GroundPreview
         int tileX = Mathf.Clamp(Mathf.FloorToInt(originX / texel) - 3, 0, resolution - tile);
         int tileZ = Mathf.Clamp(Mathf.FloorToInt(originZ / texel) - 3, 0, resolution - tile);
 
-        VoxelSplatBaker.Surface(config, context.Map, resolution, tileX, tileZ, tile, out float[] steepness, out float[] height);
+        VoxelSplatBaker.Surface(config, context.Map, resolution, tileX, tileZ, tile, out float[] steepness, out float[] height, out float[] relief);
 
-        var native = context.Painter.BakeTile(resolution, tile, tileX, tileZ, steepness, height);
+        var native = context.Painter.BakeTile(resolution, tile, tileX, tileZ, steepness, height, relief);
         int layers = context.Painter.Layers.Length;
         var weights = new float[tile * tile * layers];
         native.CopyTo(weights);

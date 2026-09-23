@@ -12,6 +12,7 @@ Compiles and runs the world generation layers without Unity.
 - `RoadTopologyChecks.cs` — road and settlement unit checks, then small and medium worlds over three seeds.
 - `RoadAudit.cs` — a geometric audit of a road network that reads the same for an exported `RoadNetwork.asset` and a generated world.
 - `RoadPaintChecks.cs`, `GroundAppearanceChecks.cs`, `GroundPreview.cs` — the ground paint contracts and the top-down preview.
+- `VoxelSeamChecks.cs` — `--voxel-seams`: meshes LOD pairs on all four sides, ring corners and whole six-ring sets on synthetic terrain, and fails on any crack, hole, overlap, stray vertex, spike, vertical wall, or a skirt that shows, sits on the coarse side or is doubled. Exit code 1 on failure.
 - `Draw.cs`, `Png.cs` — PNG rendering.
 
 `Assets/_Dustborn/Scripts/Utils/` is compiled too, and the files under `Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/` are referenced directly rather than copied, so the build catches compile errors in production code.
@@ -27,6 +28,8 @@ dotnet run -c Release -- --road-audit ../../Assets/_Dustborn/Generated/RoadNetwo
 dotnet run -c Release -- --road-paint
 dotnet run -c Release -- --ground-appearance
 dotnet run -c Release -- --ground-preview out
+dotnet run -c Release -- --voxel-seams
+dotnet run -c Release -- --voxel-seams --real 2036 4577
 ```
 
 - The default run generates the whole world and prints relief, sightlines, voxel, decor, settlement, road and POI metrics with per-stage timings. Read the timings as "where is it expensive at all", not as a Unity measurement: the stub runs jobs single-threaded and without Burst, so terrain and biomes are inflated.
