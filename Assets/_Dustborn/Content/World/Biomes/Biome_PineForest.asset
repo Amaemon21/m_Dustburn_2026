@@ -18,6 +18,7 @@ MonoBehaviour:
     rgba: 4278206464
   <RegionWeight>k__BackingField: 1.9
   <CliffLayer>k__BackingField: {fileID: 19532598970000000, guid: b8ecca31af935002a220f979c18cb21e, type: 2}
+  <ShoreLayer>k__BackingField: {fileID: 19532598970000000, guid: b5ae5c4263965cd4b996d7b6e9695dab, type: 2}
   <Ground>k__BackingField:
   - <Layer>k__BackingField: {fileID: 19532598970000000, guid: cb22ca2db6ab5b8aa05f6919e1ba1cd6, type: 2}
     <Opacity>k__BackingField: 1

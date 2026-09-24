@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26ffdf960964b2ba04df3be31475dd4, type: 3}
+  m_Name: TerrainStampDatabase
+  m_EditorClassIdentifier: 
+  _stamps:
+  - <Name>k__BackingField: 01_alpine_peak
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 47f9ea23c927496699f40e0763f2e454, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1200, y: 1200}
+    <RecommendedAmplitude>k__BackingField: 260
+    <Category>k__BackingField: 0
+    <PreferredBiomes>k__BackingField: 03000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 02_twin_peaks
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 1e49765dccd6478780f1be6fc1ce5498, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1600, y: 1600}
+    <RecommendedAmplitude>k__BackingField: 320
+    <Category>k__BackingField: 0
+    <PreferredBiomes>k__BackingField: 03000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 03_winding_ridge
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 8ed53f3e99bb4bedad80321f4d777e63, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1800, y: 1800}
+    <RecommendedAmplitude>k__BackingField: 280
+    <Category>k__BackingField: 1
+    <PreferredBiomes>k__BackingField: 0000000001000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 04_branching_ridge
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 98e64a844f3c4648b997340062678f74, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1800, y: 1800}
+    <RecommendedAmplitude>k__BackingField: 300
+    <Category>k__BackingField: 1
+    <PreferredBiomes>k__BackingField: 0000000001000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 05_mountain_chain
+    <HeightData>k__BackingField: {fileID: 4900000, guid: fbbd77a42c1e42e4ae488cac21407d3e, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 2400, y: 2400}
+    <RecommendedAmplitude>k__BackingField: 400
+    <Category>k__BackingField: 2
+    <PreferredBiomes>k__BackingField: 0300000000000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 06_alpine_massif
+    <HeightData>k__BackingField: {fileID: 4900000, guid: d1a800f7cb9d4c589346d8b1b2aa9566, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1800, y: 1800}
+    <RecommendedAmplitude>k__BackingField: 480
+    <Category>k__BackingField: 3
+    <PreferredBiomes>k__BackingField: 03000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 07_rounded_foothills
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 9ec1b538a9f04389bb6436593a1ca2da, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1400, y: 1400}
+    <RecommendedAmplitude>k__BackingField: 70
+    <Category>k__BackingField: 4
+    <PreferredBiomes>k__BackingField: 0000000001000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 08_mountain_pass
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 852ca84423d34b1785e1e6e38357d2a7, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1800, y: 1800}
+    <RecommendedAmplitude>k__BackingField: 300
+    <Category>k__BackingField: 5
+    <PreferredBiomes>k__BackingField: 00000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 09_mesa_plateau
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 98129dce35344155bd6689367b232990, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1200, y: 1200}
+    <RecommendedAmplitude>k__BackingField: 180
+    <Category>k__BackingField: 6
+    <PreferredBiomes>k__BackingField: 02000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 10_terraced_plateau
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 03bc4ef7f1b9415a8a082e02301d6da9, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1600, y: 1600}
+    <RecommendedAmplitude>k__BackingField: 240
+    <Category>k__BackingField: 6
+    <PreferredBiomes>k__BackingField: 02000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 11_stratovolcano
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 910803624698425ab419757c19a34dec, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1800, y: 1800}
+    <RecommendedAmplitude>k__BackingField: 360
+    <Category>k__BackingField: 7
+    <PreferredBiomes>k__BackingField: 0400000003000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 12_caldera
+    <HeightData>k__BackingField: {fileID: 4900000, guid: acbb7d966b83408485a435961a641c21, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 2200, y: 2200}
+    <RecommendedAmplitude>k__BackingField: 300
+    <Category>k__BackingField: 7
+    <PreferredBiomes>k__BackingField: 0400000003000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 13_horseshoe_cirque
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 73b1d9c6932148bebb348fed1c64bac1, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1400, y: 1400}
+    <RecommendedAmplitude>k__BackingField: 240
+    <Category>k__BackingField: 8
+    <PreferredBiomes>k__BackingField: 03000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 14_escarpment
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 237d0bd687c74bf880e104a12157bcdc, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1400, y: 1400}
+    <RecommendedAmplitude>k__BackingField: 180
+    <Category>k__BackingField: 9
+    <PreferredBiomes>k__BackingField: 02000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 15_river_valley
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 222f1922fa6948a5a191272746e43461, type: 3}
+    <Operation>k__BackingField: 1
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1800, y: 1800}
+    <RecommendedAmplitude>k__BackingField: 90
+    <Category>k__BackingField: 10
+    <PreferredBiomes>k__BackingField: 0000000001000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 16_meandering_canyon
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 5d0e5990f813468095bce00a50585426, type: 3}
+    <Operation>k__BackingField: 1
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1600, y: 1600}
+    <RecommendedAmplitude>k__BackingField: 140
+    <Category>k__BackingField: 11
+    <PreferredBiomes>k__BackingField: 04000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 17_branching_ravines
+    <HeightData>k__BackingField: {fileID: 4900000, guid: 10ddcc1bcbfa4cb28cd2d5bbf856d149, type: 3}
+    <Operation>k__BackingField: 1
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1600, y: 1600}
+    <RecommendedAmplitude>k__BackingField: 110
+    <Category>k__BackingField: 12
+    <PreferredBiomes>k__BackingField: 0400000001000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 18_erosion_basin
+    <HeightData>k__BackingField: {fileID: 4900000, guid: d6c51fee644c4b8fa5dcf0247dd2e86f, type: 3}
+    <Operation>k__BackingField: 1
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1400, y: 1400}
+    <RecommendedAmplitude>k__BackingField: 100
+    <Category>k__BackingField: 13
+    <PreferredBiomes>k__BackingField: 0400000001000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 19_dune_field
+    <HeightData>k__BackingField: {fileID: 4900000, guid: e3888d5bcf7c462c9788b4e29f4be0e0, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1200, y: 1200}
+    <RecommendedAmplitude>k__BackingField: 45
+    <Category>k__BackingField: 14
+    <PreferredBiomes>k__BackingField: 02000000
+    <Weight>k__BackingField: 1
+  - <Name>k__BackingField: 20_badlands
+    <HeightData>k__BackingField: {fileID: 4900000, guid: c904479a01814bd78623a045e297fdca, type: 3}
+    <Operation>k__BackingField: 0
+    <NativeResolution>k__BackingField: 1024
+    <RecommendedSize>k__BackingField: {x: 1600, y: 1600}
+    <RecommendedAmplitude>k__BackingField: 140
+    <Category>k__BackingField: 15
+    <PreferredBiomes>k__BackingField: 0200000004000000
+    <Weight>k__BackingField: 1

@@ -167,7 +167,7 @@ public sealed class DirtAccessPlanner
                 return false;
             }
 
-            if (_config.SeaLevel > 0f && _map.SampleWorldSmooth(point.x, point.y) < _config.SeaLevel + _config.ShoreMargin)
+            if (WaterMap.Wet(_config, _map, point.x, point.y, _map.SampleWorldSmooth(point.x, point.y)))
             {
                 RefusedWater++;
                 return false;
@@ -285,7 +285,7 @@ public sealed class DirtAccessPlanner
                 Vector2 point = center + right * u + forward * v;
                 float ground = _map.SampleWorldSmooth(point.x, point.y);
 
-                if (_config.SeaLevel > 0f && ground < _config.SeaLevel + _config.ShoreMargin)
+                if (WaterMap.Wet(_config, _map, point.x, point.y, ground))
                     return false;
 
                 if (ground - street > _config.MaxPoiCut || street - ground > _config.MaxPoiFill)

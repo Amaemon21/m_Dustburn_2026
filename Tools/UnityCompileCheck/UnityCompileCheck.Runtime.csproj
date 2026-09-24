@@ -17,7 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(WorldGeneration)\**\*.cs" Exclude="$(WorldGeneration)\**\Editor\**\*.cs" />
-    <Compile Include="$(SharedUtils)\**\*.cs" />
+    <Compile Include="$(SharedUtils)\**\*.cs" Exclude="$(SharedUtils)\UIWear\**\*.cs" />
     <Compile Include="$(Benchmarks)\**\*.cs" Exclude="$(Benchmarks)\**\Editor\**\*.cs" />
   </ItemGroup>
   <ItemGroup>

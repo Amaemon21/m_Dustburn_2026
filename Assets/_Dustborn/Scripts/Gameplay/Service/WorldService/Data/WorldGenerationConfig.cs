@@ -53,6 +53,14 @@ public class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Water"), MinValue(0f), Tooltip("Sea level in metres. Everything below it floods. Zero disables water")] public float SeaLevel { get; private set; } = 103f;
     [field: SerializeField, Foldout("Water"), MinValue(0f), Tooltip("Metres of dry ground kept above the water before a settlement, road or building may stand there")] public float ShoreMargin { get; private set; } = 6f;
 
+    [field: SerializeField, Foldout("Water")]
+    [field: Tooltip("Rivers, lakes and ponds from the drainage of the eroded terrain. The sea above stays the one global flood level.")]
+    public WaterGenerationSettings Water { get; private set; } = new();
+
+    [field: SerializeField, Foldout("Terrain stamps")]
+    [field: Tooltip("Hand-made relief features laid over the procedural height before erosion.")]
+    public TerrainStampSettings Stamps { get; private set; } = new();
+
     [field: SerializeField, Foldout("Erosion"), Range(10f, 60f)]
     [field: Tooltip("Angle of repose. Slopes gentler than this are left alone, steeper ones are worn down toward it, so this is the steepest loose slope the world will hold.")]
     public float ErosionTalusAngle { get; private set; } = 30f;
@@ -421,6 +429,7 @@ public class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Output")] public string RoadMaskAssetPath { get; private set; } = "Assets/_Dustborn/Generated/RoadMask.png";
     [field: SerializeField, Foldout("Output")] public string RoadNetworkAssetPath { get; private set; } = "Assets/_Dustborn/Generated/RoadNetwork.asset";
     [field: SerializeField, Foldout("Output")] public string PoiPlacementAssetPath { get; private set; } = "Assets/_Dustborn/Generated/PoiPlacement.asset";
+    [field: SerializeField, Foldout("Output")] public string WaterMapAssetPath { get; private set; } = "Assets/_Dustborn/Generated/WaterMap.bytes";
 
     [ShowNativeProperty] public string SettlementMix => $"{Count(CityProfile)} cities, {Count(TownProfile)} towns, {Count(CountryTownProfile)} country towns, {Count(GhostTownProfile)} ghost towns";
 

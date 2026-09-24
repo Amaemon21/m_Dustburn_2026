@@ -1,0 +1,306 @@
+{
+  "version": "2.0",
+  "space": "sRGB",
+  "format": "RRGGBBAA",
+  "tokens": [
+    {
+      "name": "BG_Base",
+      "hexRGB": "#141311",
+      "hexRGBA": "#141311FF",
+      "rgba": [
+        20,
+        19,
+        17,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Цвет под фоном"
+    },
+    {
+      "name": "Panel_Dark",
+      "hexRGB": "#100E0C",
+      "hexRGBA": "#100E0CD6",
+      "rgba": [
+        16,
+        14,
+        12,
+        214
+      ],
+      "alpha": 0.8392156862745098,
+      "usage": "Подложка центральной карточки"
+    },
+    {
+      "name": "Panel_Section",
+      "hexRGB": "#100E0C",
+      "hexRGBA": "#100E0C99",
+      "rgba": [
+        16,
+        14,
+        12,
+        153
+      ],
+      "alpha": 0.6,
+      "usage": "Подложка разделов"
+    },
+    {
+      "name": "Slot_Dark",
+      "hexRGB": "#0B0C0C",
+      "hexRGBA": "#0B0C0CCC",
+      "rgba": [
+        11,
+        12,
+        12,
+        204
+      ],
+      "alpha": 0.8,
+      "usage": "Подложка ячеек"
+    },
+    {
+      "name": "Line_Neutral",
+      "hexRGB": "#C2C1C1",
+      "hexRGBA": "#C2C1C1FF",
+      "rgba": [
+        194,
+        193,
+        193,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Уголки обычных слотов"
+    },
+    {
+      "name": "Line_Quiet",
+      "hexRGB": "#66605A",
+      "hexRGBA": "#66605ABE",
+      "rgba": [
+        102,
+        96,
+        90,
+        190
+      ],
+      "alpha": 0.7450980392156863,
+      "usage": "Разделители"
+    },
+    {
+      "name": "Text_Primary",
+      "hexRGB": "#EFEFEF",
+      "hexRGBA": "#EFEFEFFF",
+      "rgba": [
+        239,
+        239,
+        239,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Основной текст и значения"
+    },
+    {
+      "name": "Text_Secondary",
+      "hexRGB": "#ABABAD",
+      "hexRGBA": "#ABABADFF",
+      "rgba": [
+        171,
+        171,
+        173,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Подписи и описания"
+    },
+    {
+      "name": "Text_Dim",
+      "hexRGB": "#77736C",
+      "hexRGBA": "#77736CFF",
+      "rgba": [
+        119,
+        115,
+        108,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Недоступные действия"
+    },
+    {
+      "name": "Accent_Active",
+      "hexRGB": "#F9E25D",
+      "hexRGBA": "#F9E25DFF",
+      "rgba": [
+        249,
+        226,
+        93,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Активная вкладка, день, время, сортировка"
+    },
+    {
+      "name": "Accent_Selected",
+      "hexRGB": "#F9F0AB",
+      "hexRGBA": "#F9F0ABFF",
+      "rgba": [
+        249,
+        240,
+        171,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Выбранный слот и маркеры секций"
+    },
+    {
+      "name": "Accent_Hover",
+      "hexRGB": "#FFF8D1",
+      "hexRGBA": "#FFF8D1FF",
+      "rgba": [
+        255,
+        248,
+        209,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Наведение и фокус"
+    },
+    {
+      "name": "Accent_Pressed",
+      "hexRGB": "#CFB45D",
+      "hexRGBA": "#CFB45DFF",
+      "rgba": [
+        207,
+        180,
+        93,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Нажатие"
+    },
+    {
+      "name": "Health",
+      "hexRGB": "#D23C3B",
+      "hexRGBA": "#D23C3BFF",
+      "rgba": [
+        210,
+        60,
+        59,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Здоровье"
+    },
+    {
+      "name": "Stamina",
+      "hexRGB": "#88D79B",
+      "hexRGBA": "#88D79BFF",
+      "rgba": [
+        136,
+        215,
+        155,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Выносливость"
+    },
+    {
+      "name": "Hunger",
+      "hexRGB": "#FBC24D",
+      "hexRGBA": "#FBC24DFF",
+      "rgba": [
+        251,
+        194,
+        77,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Запас сытости"
+    },
+    {
+      "name": "Thirst",
+      "hexRGB": "#399BF9",
+      "hexRGBA": "#399BF9FF",
+      "rgba": [
+        57,
+        155,
+        249,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Запас воды"
+    },
+    {
+      "name": "Infection",
+      "hexRGB": "#8DD89F",
+      "hexRGBA": "#8DD89FFF",
+      "rgba": [
+        141,
+        216,
+        159,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Ранняя стадия заражения: заполнение"
+    },
+    {
+      "name": "Infection_Icon",
+      "hexRGB": "#F9E25D",
+      "hexRGBA": "#F9E25DFF",
+      "rgba": [
+        249,
+        226,
+        93,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Символ заражения"
+    },
+    {
+      "name": "Experience",
+      "hexRGB": "#F8C854",
+      "hexRGBA": "#F8C854FF",
+      "rgba": [
+        248,
+        200,
+        84,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Опыт и прочность"
+    },
+    {
+      "name": "Critical",
+      "hexRGB": "#F05245",
+      "hexRGBA": "#F05245FF",
+      "rgba": [
+        240,
+        82,
+        69,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Критическая опасность"
+    },
+    {
+      "name": "Bar_Track",
+      "hexRGB": "#2D2A28",
+      "hexRGBA": "#2D2A28FF",
+      "rgba": [
+        45,
+        42,
+        40,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Незаполненная часть шкалы"
+    },
+    {
+      "name": "Icon_Neutral",
+      "hexRGB": "#F4EBC7",
+      "hexRGBA": "#F4EBC7FF",
+      "rgba": [
+        244,
+        235,
+        199,
+        255
+      ],
+      "alpha": 1.0,
+      "usage": "Иконки характеристик"
+    }
+  ]
+}

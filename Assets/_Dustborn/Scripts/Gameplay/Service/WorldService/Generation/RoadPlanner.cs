@@ -1430,7 +1430,7 @@ public class RoadPlanner
 
                 samples++;
 
-                if (_config.SeaLevel > 0f && _map.SampleWorldSmooth(point.x, point.y) < _config.SeaLevel + _config.ShoreMargin)
+                if (WaterMap.Wet(_config, _map, point.x, point.y, _map.SampleWorldSmooth(point.x, point.y)))
                     wet++;
 
                 if (!nearEnd && IsInsideSettlement(point))
@@ -2313,8 +2313,31 @@ public class RoadPlanner
 
         cost = distance * (1f + _config.RoadSlopePenalty * grade * grade + _config.RoadCrossSlopePenalty * cross * cross + overshoot) * valley;
 
-        if (_config.SeaLevel > 0f && toHeight < _config.SeaLevel + _config.ShoreMargin)
-            cost *= FORD_PENALTY;
+        cost *= WaterCost(fromX, fromY, toX, toY, toHeight);
+    }
+
+    private float WaterCost(int fromX, int fromY, int toX, int toY, float toHeight)
+    {
+        var from = new Vector2((fromX + 0.5f) * _cellSize, (fromY + 0.5f) * _cellSize);
+        var to = new Vector2((toX + 0.5f) * _cellSize, (toY + 0.5f) * _cellSize);
+
+        WaterMap water = _map.Water;
+
+        if (water == null)
+            return _config.SeaLevel > 0f && toHeight < _config.SeaLevel + _config.ShoreMargin ? FORD_PENALTY : 1f;
+
+        WaterSample sample = water.Sample(to.x, to.y);
+
+        if (sample.IsWater && sample.Kind != WaterKind.River && toHeight < sample.Surface + _config.ShoreMargin)
+            return FORD_PENALTY;
+
+        if (!water.CrossesRiver(from, to, out float width, out Vector2 flow))
+            return 1f;
+
+        Vector2 step = (to - from).normalized;
+        float along = Mathf.Abs(Vector2.Dot(step, flow));
+
+        return 1f + _config.Water.RiverCrossingPenalty * width * 0.1f * (1f + 2f * along);
     }
 
     private float TurnCost(int heading, int step)

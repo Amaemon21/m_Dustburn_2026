@@ -45,6 +45,7 @@ public sealed class WorldGenerationBake
         Task<byte[]> hillshade = Task.Run(() => EncodeGray(HeightMapTexture.Hillshade(heights), resolution));
         Task<byte[]> roadMask = Task.Run(() => EncodeGray(MaskTexture.ToGray(mask), resolution));
         Task<byte[]> raw = Task.Run(heights.ToRaw16);
+        Task<byte[]> water = Task.Run(maps.Water.ToBytes);
 
         BakedWorld world = LoadOrCreate<BakedWorld>(_settings.BakedWorldPath);
         world.EditorInvalidate();
@@ -65,6 +66,12 @@ public sealed class WorldGenerationBake
 
         using (WorldGenProbe.Measure(WorldGenStage.BakeTextures))
             SavePng(roadMask.GetAwaiter().GetResult(), _config.RoadMaskAssetPath);
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakeWaterAsset))
+        {
+            GeneratedAssetFile.WriteAllBytes(_config.WaterMapAssetPath, water.GetAwaiter().GetResult());
+            AssetDatabase.ImportAsset(_config.WaterMapAssetPath, ImportAssetOptions.ForceUpdate);
+        }
 
         RoadNetworkAsset network;
 
@@ -91,6 +98,7 @@ public sealed class WorldGenerationBake
             BiomeMap = AssetDatabase.LoadAssetAtPath<Texture2D>(_config.BiomeMapAssetPath),
             Roads = roads.Paved(),
             Map = heights,
+            Water = maps.Water,
             ControlResolution = _settings.ControlResolution,
             MaterialPath = _settings.MaterialPath,
             UseRepetitionless = true
@@ -121,7 +129,8 @@ public sealed class WorldGenerationBake
 
         world.EditorSetup(snapshot, _settings.Biomes,
             AssetDatabase.LoadAssetAtPath<TextAsset>(_config.HeightMapAssetPath),
-            material.BiomeMap, AssetDatabase.LoadAssetAtPath<Texture2D>(_config.RoadMaskAssetPath), network, placementAsset, material.Material);
+            material.BiomeMap, AssetDatabase.LoadAssetAtPath<Texture2D>(_config.RoadMaskAssetPath), network, placementAsset, material.Material,
+            AssetDatabase.LoadAssetAtPath<TextAsset>(_config.WaterMapAssetPath), maps.Stamps);
         EditorUtility.SetDirty(snapshot);
         EditorUtility.SetDirty(world);
 
@@ -143,7 +152,7 @@ public sealed class WorldGenerationBake
 
         foreach (string path in new[] { _config.HeightMapAssetPath, _config.BiomeMapAssetPath,
             _config.HeightMapPreviewPath, _config.RoadMaskAssetPath, _config.RoadNetworkAssetPath,
-            _config.PoiPlacementAssetPath, _settings.MaterialPath, _settings.BakedWorldPath })
+            _config.PoiPlacementAssetPath, _config.WaterMapAssetPath, _settings.MaterialPath, _settings.BakedWorldPath })
         {
             if (string.IsNullOrWhiteSpace(path) || !path.StartsWith("Assets/", StringComparison.Ordinal)
                 || !Path.GetFullPath(path).StartsWith(root, StringComparison.OrdinalIgnoreCase) || !paths.Add(Path.GetFullPath(path)))

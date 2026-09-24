@@ -18,6 +18,7 @@ MonoBehaviour:
   <Voxels>k__BackingField: {fileID: 11400000, guid: edc31c52e91f6c948aa37f4f4342a49b, type: 2}
   <SpawnDecor>k__BackingField: 1
   <GrassDensity>k__BackingField: 1
+  <WaterMaterial>k__BackingField: {fileID: 2100000, guid: 4ccd9521bc19372458f9dda2e76fbce6, type: 2}
   <PreviewCenter>k__BackingField: {x: 4223.66, y: 2824.0847}
   <PreviewColliders>k__BackingField: 1
   <MemoryBudget>k__BackingField: 512

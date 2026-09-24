@@ -1,0 +1,53 @@
+﻿name,width,height,token,role,tintHex,imageType,borderLeft,borderBottom,borderRight,borderTop,pivotX,pivotY,x,y,unityY
+panel_card_fill,64,64,Panel_Dark,Подложка карточки,#100E0CD6,Sliced,2,2,2,2,0.5,0.5,8,8,952
+panel_section_fill,64,64,Panel_Section,Подложка раздела,#100E0C99,Sliced,2,2,2,2,0.5,0.5,80,8,952
+slot_fill,128,128,Slot_Dark,Фон ячейки,#0B0C0CCC,Sliced,2,2,2,2,0.5,0.5,152,8,888
+slot_frame_idle,128,128,Line_Neutral,Рамка инвентаря: idle,#C2C1C1FF,Sliced,22,22,22,22,0.5,0.5,288,8,888
+slot_frame_selected,128,128,Accent_Selected,Рамка инвентаря: selected,#F9F0ABFF,Sliced,22,22,22,22,0.5,0.5,424,8,888
+slot_frame_hover,128,128,Accent_Hover,Рамка инвентаря: hover,#FFF8D1FF,Sliced,22,22,22,22,0.5,0.5,560,8,888
+slot_frame_disabled,128,128,Line_Quiet,Рамка инвентаря: disabled,#66605ABE,Sliced,22,22,22,22,0.5,0.5,696,8,888
+quick_slot_fill,96,96,Slot_Dark,Подложка быстрого слота,#0B0C0CCC,Sliced,2,2,2,2,0.5,0.5,832,8,920
+quick_slot_frame_idle,96,96,Line_Neutral,Квадратный быстрый слот: idle,#C2C1C1FF,Sliced,18,18,18,18,0.5,0.5,8,144,784
+quick_slot_frame_selected,96,96,Accent_Selected,Квадратный быстрый слот: selected,#F9F0ABFF,Sliced,18,18,18,18,0.5,0.5,112,144,784
+quick_slot_frame_hover,96,96,Accent_Hover,Квадратный быстрый слот: hover,#FFF8D1FF,Sliced,18,18,18,18,0.5,0.5,216,144,784
+equipment_slot_frame,128,88,Line_Neutral,Ячейка снаряжения,#C2C1C1FF,Sliced,18,18,18,18,0.5,0.5,320,144,792
+empty_slot_cross,128,128,Line_Quiet,Пустая ячейка,#66605ABE,Simple,0,0,0,0,0.5,0.5,456,144,752
+divider_horizontal,256,2,Line_Quiet,Горизонтальный разделитель,#66605ABE,Sliced,4,0,4,0,0.5,0.5,592,144,878
+divider_vertical,2,256,Line_Quiet,Вертикальный разделитель,#66605ABE,Sliced,0,4,0,4,0.5,0.5,856,144,624
+section_rule,384,2,Line_Neutral,Линия заголовка,#C2C1C1FF,Sliced,4,0,4,0,0.5,0.5,8,408,614
+tab_underline,128,3,Accent_Active,Подчёркивание активной вкладки,#F9E25DFF,Sliced,4,0,4,0,0.5,0.5,400,408,613
+section_marker,4,40,Accent_Selected,Вертикальный маркер секции,#F9F0ABFF,Sliced,0,4,0,4,0.5,0.5,536,408,576
+card_accent_vertical,2,256,Accent_Selected,Левая линия центральной карточки,#F9F0ABFF,Sliced,0,4,0,4,0.5,0.5,548,408,360
+stat_track,256,10,Bar_Track,Фон полосы,#2D2A28FF,Sliced,2,2,2,2,0.5,0.5,558,408,606
+stat_fill_health,256,10,Health,Заполнение: health,#D23C3BFF,Filled,0,0,0,0,0.5,0.5,8,672,342
+stat_fill_stamina,256,10,Stamina,Заполнение: stamina,#88D79BFF,Filled,0,0,0,0,0.5,0.5,272,672,342
+stat_fill_hunger,256,10,Hunger,Заполнение: hunger,#FBC24DFF,Filled,0,0,0,0,0.5,0.5,536,672,342
+stat_fill_thirst,256,10,Thirst,Заполнение: thirst,#399BF9FF,Filled,0,0,0,0,0.5,0.5,8,690,324
+stat_fill_infection,256,10,Infection,Заполнение: infection,#8DD89FFF,Filled,0,0,0,0,0.5,0.5,272,690,324
+stat_fill_experience,256,10,Experience,Заполнение: experience,#F8C854FF,Filled,0,0,0,0,0.5,0.5,536,690,324
+stat_fill_critical,256,10,Critical,Заполнение: critical,#F05245FF,Filled,0,0,0,0,0.5,0.5,8,708,306
+durability_track,64,6,Bar_Track,Фон прочности,#2D2A28FF,Sliced,2,2,2,2,0.5,0.5,272,708,310
+durability_fill,64,6,Experience,Прочность,#F8C854FF,Filled,0,0,0,0,0.5,0.5,344,708,310
+keycap_frame,36,36,Line_Neutral,Рамка подсказки клавиши,#C2C1C1FF,Sliced,4,4,4,4,0.5,0.5,416,708,280
+quick_number_back,20,24,Text_Primary,Подложка цифры быстрого слота,#EFEFEFFF,Sliced,2,2,2,2,0.5,0.5,460,708,292
+button_frame,80,36,Line_Quiet,Компактная рамка действия,#66605ABE,Sliced,4,4,4,4,0.5,0.5,488,708,280
+quality_marker,4,16,Text_Primary,Метка качества: цвет задаётся игрой,#EFEFEFFF,Simple,0,0,0,0,0.5,0.5,576,708,300
+icon_sort,32,32,Accent_Active,Иконка: sort,#F9E25DFF,Simple,0,0,0,0,0.5,0.5,588,708,284
+icon_chevron_down,32,32,Text_Primary,Иконка: chevron_down,#EFEFEFFF,Simple,0,0,0,0,0.5,0.5,628,708,284
+icon_chevron_right,32,32,Text_Primary,Иконка: chevron_right,#EFEFEFFF,Simple,0,0,0,0,0.5,0.5,668,708,284
+icon_health,32,32,Health,Иконка: health,#D23C3BFF,Simple,0,0,0,0,0.5,0.5,708,708,284
+icon_stamina,32,32,Icon_Neutral,Иконка: stamina,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,748,708,284
+icon_hunger,32,32,Icon_Neutral,Иконка: hunger,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,788,708,284
+icon_thirst,32,32,Thirst,Иконка: thirst,#399BF9FF,Simple,0,0,0,0,0.5,0.5,828,708,284
+icon_infection,32,32,Infection_Icon,Иконка: infection,#F9E25DFF,Simple,0,0,0,0,0.5,0.5,868,708,284
+icon_level,32,32,Icon_Neutral,Иконка: level,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,908,708,284
+icon_armor,32,32,Icon_Neutral,Иконка: armor,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,948,708,284
+icon_cold,32,32,Icon_Neutral,Иконка: cold,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,8,752,240
+icon_heat,32,32,Icon_Neutral,Иконка: heat,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,48,752,240
+icon_speed,32,32,Icon_Neutral,Иконка: speed,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,88,752,240
+icon_noise,32,32,Icon_Neutral,Иконка: noise,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,128,752,240
+icon_clock,32,32,Icon_Neutral,Иконка: clock,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,168,752,240
+icon_weight,32,32,Icon_Neutral,Иконка: weight,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,208,752,240
+icon_medical,32,32,Icon_Neutral,Иконка: medical,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,248,752,240
+icon_drop,32,32,Icon_Neutral,Иконка: drop,#F4EBC7FF,Simple,0,0,0,0,0.5,0.5,288,752,240
+icon_close,32,32,Text_Secondary,Иконка: close,#ABABADFF,Simple,0,0,0,0,0.5,0.5,328,752,240

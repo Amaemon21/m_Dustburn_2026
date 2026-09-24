@@ -589,6 +589,7 @@ public class SettlementPlanner
         float margin = _config.HighwaySettlementClearance;
         float low = float.MaxValue;
         float high = float.MinValue;
+        bool wet = false;
 
         for (int b = 0; b < TILE_SAMPLES; b++)
         {
@@ -606,6 +607,7 @@ public class SettlementPlanner
 
                 float height = _map.SampleWorldSmooth(point.x, point.y);
 
+                wet |= WaterMap.Wet(_config, _map, point.x, point.y, height);
                 low = Mathf.Min(low, height);
                 high = Mathf.Max(high, height);
 
@@ -618,7 +620,7 @@ public class SettlementPlanner
             }
         }
 
-        if (_config.SeaLevel > 0f && low < _config.SeaLevel + _config.ShoreMargin)
+        if (wet)
         {
             RefusedFlooded++;
             return false;

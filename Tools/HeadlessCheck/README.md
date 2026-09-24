@@ -13,6 +13,8 @@ Compiles and runs the world generation layers without Unity.
 - `RoadAudit.cs` — a geometric audit of a road network that reads the same for an exported `RoadNetwork.asset` and a generated world.
 - `RoadPaintChecks.cs`, `GroundAppearanceChecks.cs`, `GroundPreview.cs` — the ground paint contracts and the top-down preview.
 - `VoxelSeamChecks.cs` — `--voxel-seams`: meshes LOD pairs on all four sides, ring corners and whole six-ring sets on synthetic terrain, and fails on any crack, hole, overlap, stray vertex, spike, vertical wall, or a skirt that shows, sits on the coarse side or is doubled. Exit code 1 on failure.
+- `WorldFeatureChecks.cs`, `WaterChecks.cs` — `--stamps` (RAW16 format, sampling, add/subtract, rotation, edges, ceiling, deterministic placement) and `--water` (monotone rivers, flow and width downstream, flat lakes with a bed, no NaN, determinism, serialization, meshes, queries); `--grass-density` lives in `Harness.cs`.
+- `WaterAudit.cs`, `WaterShoreChecks.cs`, `WaterView.cs` — `--water-audit`: artifact audit of the water mesh against the ground and the LOD rings, shoreline checks (fragments, holes, grid-aligned shoreline, waterline accuracy, spikes, mouth gaps, river cross-sections, T-junctions), debug maps and a software renderer for top-down and oblique views.
 - `Draw.cs`, `Png.cs` — PNG rendering.
 
 `Assets/_Dustborn/Scripts/Utils/` is compiled too, and the files under `Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/` are referenced directly rather than copied, so the build catches compile errors in production code.
@@ -30,6 +32,11 @@ dotnet run -c Release -- --ground-appearance
 dotnet run -c Release -- --ground-preview out
 dotnet run -c Release -- --voxel-seams
 dotnet run -c Release -- --voxel-seams --real 2036 4577
+dotnet run -c Release -- --stamps
+dotnet run -c Release -- --water
+dotnet run -c Release -- --water-audit --generate --raw-cache raw.bytes --profile
+dotnet run -c Release -- --water-audit --generate --raw-cache raw.bytes --water-debug out --view views [views/scenes.txt] [--view-lod 700] [Seed=123]
+dotnet run -c Release -- --grass-density
 ```
 
 - The default run generates the whole world and prints relief, sightlines, voxel, decor, settlement, road and POI metrics with per-stage timings. Read the timings as "where is it expensive at all", not as a Unity measurement: the stub runs jobs single-threaded and without Burst, so terrain and biomes are inflated.

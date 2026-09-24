@@ -30,6 +30,9 @@ public sealed class WorldRuntimeLoader : IDisposable
             _terrain.Configure(settings, world, viewer);
             _terrain.hideFlags = HideFlags.HideInInspector;
 
+            using (WorldGenProbe.Measure(WorldGenStage.RuntimeWater))
+                WaterSurfaceBuilder.Build(world.LoadWater(), settings.WaterMaterial, _root.transform);
+
             var buildings = new GameObject("POI");
             buildings.transform.SetParent(_root.transform, false);
             _pois = new PoiInstanceBuilder(world.Placement.Placements, buildings.transform);

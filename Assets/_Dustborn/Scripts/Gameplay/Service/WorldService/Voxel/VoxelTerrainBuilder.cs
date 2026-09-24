@@ -64,13 +64,19 @@ public class VoxelTerrainBuilder : MonoBehaviour
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), SerializeField]
     private PoiPlacementAsset _poiPlacement;
 
+    [SerializeField, HideInInspector] private TextAsset _water;
+    [SerializeField, HideInInspector] private Material _waterMaterial;
+    [SerializeField, HideInInspector] private List<TerrainStampPlacement> _stamps = new();
+
+    private WaterMap _waterMap;
+
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), MinValue(1024)]
     [Tooltip("Vertex budget of one combined batch. Bigger batches mean fewer draw calls but coarser culling, since a batch is culled as a whole.")]
     [SerializeField]
     private int _batchVertexBudget = 48000;
 
-    [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), Range(0f, 1f)]
-    [Tooltip("Fraction of the grass the biomes ask for. Grass reaches only as far as GrassMaxLod, the ring around the centre, so the whole world does not carry it.")]
+    [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), Range(0f, 4f)]
+    [Tooltip("Multiplier on the grass the biomes ask for; 2 to 4 tightens the grid for that many times more tufts. Grass reaches only as far as GrassMaxLod, the ring around the centre.")]
     [SerializeField]
     private float _grassDensity = 1f;
 
@@ -166,6 +172,7 @@ public class VoxelTerrainBuilder : MonoBehaviour
         Clear();
 
         HeightMap map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
+        _waterMap = WaterMap.Load(_water);
 
         using var field = new VoxelDensityField(map, _voxels, Lowest(map));
 
@@ -191,6 +198,12 @@ public class VoxelTerrainBuilder : MonoBehaviour
         using (WorldGenProbe.Measure(WorldGenStage.PreviewDecor))
             decor = SpawnDecor(field, plan, progress);
 
+        WaterSurfaceBuilder.Build(_waterMap, _waterMaterial, transform);
+
+#if UNITY_EDITOR
+        WorldFeatureGizmos.Attach(transform, _stamps, _water);
+#endif
+
         Debug.Log($"Voxel terrain: the whole {_config.WorldSize} m world in {_columns.Count} columns, {_chunks.Count} chunks, "
             + $"{triangles} triangles, {attempted} chunks visited, {clock.ElapsedMilliseconds} ms. {splat}. {decor}", this);
         progress?.Invoke("Ландшафт готов", 1f);
@@ -210,6 +223,9 @@ public class VoxelTerrainBuilder : MonoBehaviour
         _roadMask = world.RoadMask;
         _roads = world.Roads;
         _poiPlacement = world.Placement;
+        _water = world.Water;
+        _stamps = new List<TerrainStampPlacement>(world.Stamps);
+        _waterMaterial = settings.WaterMaterial;
         _spawnDecor = settings.SpawnDecor;
         _grassDensity = settings.GrassDensity;
         _batchVertexBudget = settings.BatchVertexBudget;
@@ -243,6 +259,8 @@ public class VoxelTerrainBuilder : MonoBehaviour
 
         var filter = new DecorFilter(_config, weightField, _biomes.Count, roadMask, roadMaskResolution,
             _poiPlacement == null ? null : _poiPlacement.Placements, WidestFootprint());
+
+        filter.Water = _waterMap;
 
         var placer = new VoxelDecorPlacer(_config, _biomes, field, filter, _grassDensity);
 

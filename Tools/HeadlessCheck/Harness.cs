@@ -52,6 +52,9 @@ static class Harness
 
         FieldInfo field = Field(target.GetType(), property);
 
+        if (field.FieldType == typeof(bool) && value is int flag)
+            value = flag != 0;
+
         if (field.FieldType == typeof(float) && value is int whole)
             value = (float)whole;
 
@@ -112,18 +115,61 @@ static class Harness
             return;
         }
 
+        if (Array.IndexOf(args, "--water-stamp-import") >= 0)
+        {
+            WaterStampChecks.RunImport();
+            return;
+        }
+
         const string CONTENT = "../../Assets/_Dustborn/Content/World";
 
         _config = AssetReader.Load<WorldGenerationConfig>($"{CONTENT}/WorldGenerationConfig.asset");
+        StampLoader.Attach(_config);
 
         BiomeDatabase biomes = AssetReader.LoadBiomes($"{CONTENT}/Biomes",
             "Biome_PineForest", "Biome_BurntForest", "Biome_Desert", "Biome_Wasteland", "Biome_Snow");
 
         PoiDatabase pois = BuildDatabase();
 
+        if (Array.IndexOf(args, "--stamped") >= 0)
+            WaterStampLoader.Attach(_config);
+
         if (Array.IndexOf(args, "--pipeline-smoke") >= 0)
         {
             WorldMapPipelineChecks.Run(_config, biomes, pois, ArgumentAfter(args, "--problem-dir"));
+            return;
+        }
+
+        if (Array.IndexOf(args, "--water-audit") >= 0)
+        {
+            Overrides(args);
+            WaterAudit.Run(args, _config, biomes, pois);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--stamps") >= 0)
+        {
+            StampChecks.Run(_config, biomes);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--water-stamps") >= 0)
+        {
+            WaterStampChecks.RunImport();
+            WaterStampChecks.RunValleys(_config, args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--water") >= 0)
+        {
+            WaterChecks.Run(_config);
+            WaterChecks.Run(_config, true);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--grass-density") >= 0)
+        {
+            CheckGrassDensity(biomes);
             return;
         }
 
@@ -133,18 +179,7 @@ static class Harness
             return;
         }
 
-        foreach (string arg in args)
-        {
-            if (!arg.Contains('='))
-                continue;
-
-            string[] parts = arg.Split('=');
-
-            if (int.TryParse(parts[1], out int whole))
-                Tune(parts[0], whole);
-            else
-                Tune(parts[0], float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture));
-        }
+        Overrides(args);
 
         Console.WriteLine($"конфиг: seed {_config.Seed}, мир {_config.WorldSize}, MaxHeight {_config.MaxHeight}, ReliefScale {_config.ReliefScale}, {_config.SettlementMix}");
 
@@ -154,6 +189,8 @@ static class Harness
         Draw.Biomes("unity_biomes.png", biomeMap, biomes);
 
         HeightMap raw = RawHeights(ArgumentAfter(args, "--raw-cache"), biomes, biomeMap);
+        raw = Stage("вода", () => WorldMapPipeline.Hydrate(_config, raw, out _));
+        ReportWater(raw.Water);
         bool settlementsOnly = Array.IndexOf(args, "--settlements-only") >= 0;
 
         if (!settlementsOnly)
@@ -179,6 +216,8 @@ static class Harness
         network.Graph = Stage("highways", () => roadPlanner.Plan(network.Hubs, network.RegionalLinks, layouts));
         network.RuralSites.AddRange(Stage("dirt access", () => new DirtAccessPlanner(_config, padded).Plan(network.Graph, layouts, network.Streets)));
         network.Publish(_config, layouts);
+
+        Console.WriteLine($"переправы через реки: {Stage("переправы", () => raw.Water.FindCrossings(network.Roads))}");
 
         Console.WriteLine($"hubs={network.Hubs.Count} links={network.Links.Count} roads={network.Roads.Count} streets={network.Streets.Count} ruralSites={network.RuralSites.Count}");
 
@@ -320,7 +359,27 @@ static class Harness
             return HeightMap.FromRaw16(File.ReadAllBytes(cache), _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
         }
 
-        HeightMap raw = Stage("рельеф", () => new HeightMapGenerator(_config, biomes).Generate(biomeMap));
+        var generator = new HeightMapGenerator(_config, biomes);
+        HeightMap raw = Stage("рельеф", () => generator.Generate(biomeMap));
+
+        Console.WriteLine($"штампы рельефа: {generator.Stamps.Count} поставлено, {generator.StampedCells} клеток высоты изменено");
+
+        foreach (TerrainStampPlacement stamp in generator.Stamps)
+            Console.WriteLine($"  {stamp.Name,-22} {stamp.Operation,-8} центр ({stamp.Center.x:0}, {stamp.Center.y:0}) {stamp.Size.x:0}x{stamp.Size.y:0} м, {stamp.Amplitude:0} м, поворот {stamp.Rotation:0}°");
+
+        if (generator.Stamps.Count > 0)
+        {
+            var shapes = new TerrainStampShape[_config.Stamps.Database.Count];
+
+            foreach (TerrainStampPlacement stamp in generator.Stamps)
+                shapes[stamp.StampIndex] ??= TerrainStampShape.From(_config.Stamps.Database.Get(stamp.StampIndex));
+
+            var copy = (float[])raw.Heights.Clone();
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+
+            TerrainStampApplier.Apply(copy, raw.Resolution, raw.WorldSize, raw.MaxHeight, generator.Stamps, shapes, _config.Stamps);
+            Console.WriteLine($"  наложение штампов на карту {raw.Resolution}²: {clock.ElapsedMilliseconds} мс");
+        }
 
         if (cache != null)
             File.WriteAllBytes(cache, raw.ToRaw16());
@@ -939,6 +998,182 @@ static class Harness
         SetField(layer, "RoadClearance", 3f);
 
         return layer;
+    }
+
+    static void Overrides(string[] args)
+    {
+        foreach (string arg in args)
+        {
+            if (!arg.Contains('='))
+                continue;
+
+            string[] parts = arg.Split('=');
+
+            if (int.TryParse(parts[1], out int whole))
+                Tune(parts[0], whole);
+            else
+                Tune(parts[0], float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+
+    static void ReportWater(WaterMap water)
+    {
+        float length = 0f, widest = 0f;
+
+        foreach (RiverPath river in water.Rivers)
+        {
+            length += river.Length;
+
+            foreach (RiverPoint point in river.Points)
+                widest = Mathf.Max(widest, point.Width);
+        }
+
+        int lakes = 0, ponds = 0;
+        float lakeArea = 0f;
+
+        foreach (WaterBody body in water.Bodies)
+        {
+            if (body.Kind == WaterKind.Lake)
+                lakes++;
+            else
+                ponds++;
+
+            lakeArea += body.Area;
+        }
+
+        int sea = 0;
+
+        foreach (byte kind in water.Kinds)
+        {
+            if (kind == (byte)WaterKind.Sea)
+                sea++;
+        }
+
+        Console.WriteLine($"вода: {water.Rivers.Count} рек на {length / 1000f:0.0} км, ширина до {widest:0.0} м; озёр {lakes}, прудов {ponds}, "
+            + $"{lakeArea / 1e6f:0.00} км² стоячей воды; море на {100.0 * sea / water.Kinds.Length:0.0}% клеток, сетка {water.Resolution}² по {water.CellSize:0} м");
+
+        var largest = new List<WaterBody>(water.Bodies);
+        largest.Sort((a, b) => b.Area.CompareTo(a.Area));
+
+        var names = new List<string>();
+
+        for (int i = 0; i < Math.Min(8, largest.Count); i++)
+            names.Add($"{largest[i].Area / 1e6f:0.00} км² глубиной {largest[i].Depth:0.0} м у ({largest[i].Center.x:0}, {largest[i].Center.y:0})");
+
+        Console.WriteLine($"  крупнейшие: {string.Join("; ", names)}");
+
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        List<WaterMeshPart> parts = WaterMeshes.Build(water);
+        int triangles = 0;
+
+        foreach (WaterMeshPart part in parts)
+            triangles += part.Triangles.Count / 3;
+
+        Console.WriteLine($"  меши воды: {parts.Count} частей, {triangles} треугольников за {clock.ElapsedMilliseconds} мс");
+    }
+
+    static void CheckGrassDensity(BiomeDatabase biomes)
+    {
+        const int WORLD = 1024;
+        const float SPAN = 384f;
+
+        var map = new HeightMap(WORLD + 1, WORLD, _config.MaxHeight);
+
+        for (int z = 0; z <= WORLD; z++)
+        {
+            for (int x = 0; x <= WORLD; x++)
+                map.Heights[z * (WORLD + 1) + x] = (180f + 2f * Mathf.Sin(x * 0.01f) * Mathf.Cos(z * 0.013f)) / _config.MaxHeight;
+        }
+
+        var biomeMap = new BiomeMap(WORLD / _config.BiomeCellSize, WORLD);
+
+        for (int biome = 0; biome < biomes.Count; biome++)
+        {
+            Inject(biomes.Get(biome), "Trees", new List<ScatterLayer>());
+            Inject(biomes.Get(biome), "Rocks", new List<ScatterLayer>());
+            Inject(biomes.Get(biome), "Grass", biome == 0 ? new List<GrassLayer> { Grass(0.52f, 32f) } : new List<GrassLayer>());
+        }
+
+        var config = new WorldGenerationConfig();
+        SetField(config, "WorldSize", WORLD);
+        SetField(config, "Seed", _config.Seed);
+
+        var weights = new BiomeWeightField(biomeMap, biomes.Count, config.BiomeBlendRadius);
+        var voxels = new VoxelConfig();
+
+        using var field = new VoxelDensityField(map, voxels, 100f);
+
+        var filter = new DecorFilter(config, weights, biomes.Count, null, 0, null, 0f);
+        var counts = new Dictionary<float, int>();
+        var positions = new Dictionary<float, List<DecorInstance>>();
+        int failures = 0;
+
+        foreach (float density in new[] { 0f, 0.5f, 1f, 2f, 3f, 4f })
+        {
+            var placer = new VoxelDecorPlacer(config, biomes, field, filter, density);
+            var instances = new List<DecorInstance>();
+
+            for (int layer = 0; layer < placer.Layers.Count; layer++)
+            {
+                for (float z = 256f; z < 256f + SPAN; z += 32f)
+                {
+                    for (float x = 256f; x < 256f + SPAN; x += 32f)
+                        placer.Place(layer, new Vector2(x, z), 32f, instances);
+                }
+            }
+
+            counts[density] = instances.Count;
+            positions[density] = instances;
+        }
+
+        var again = new List<DecorInstance>();
+        var repeat = new VoxelDecorPlacer(config, biomes, field, filter, 2f);
+
+        for (int layer = 0; layer < repeat.Layers.Count; layer++)
+        {
+            for (float z = 256f; z < 256f + SPAN; z += 32f)
+            {
+                for (float x = 256f; x < 256f + SPAN; x += 32f)
+                    repeat.Place(layer, new Vector2(x, z), 32f, again);
+            }
+        }
+
+        bool same = again.Count == positions[2f].Count;
+
+        for (int i = 0; same && i < again.Count; i++)
+            same = again[i].Position.x == positions[2f][i].Position.x && again[i].Position.z == positions[2f][i].Position.z;
+
+        float one = Mathf.Max(1, counts[1f]);
+
+        void Expect(bool condition, string message)
+        {
+            if (condition)
+                return;
+
+            failures++;
+            Console.WriteLine($"  ПРОВАЛ: {message}");
+        }
+
+        Expect(counts[0f] == 0, $"density 0 placed {counts[0f]}");
+        Expect(counts[0.5f] < counts[1f], $"density 0.5 placed {counts[0.5f]}, not fewer than {counts[1f]}");
+        Expect(Mathf.Abs(counts[0.5f] / one - 0.5f) < 0.06f, $"density 0.5 gives {counts[0.5f] / one:0.00}x");
+        Expect(Mathf.Abs(counts[2f] / one - 2f) < 0.15f, $"density 2 gives {counts[2f] / one:0.00}x");
+        Expect(Mathf.Abs(counts[3f] / one - 3f) < 0.22f, $"density 3 gives {counts[3f] / one:0.00}x");
+        Expect(Mathf.Abs(counts[4f] / one - 4f) < 0.3f, $"density 4 gives {counts[4f] / one:0.00}x");
+        Expect(same, "the same seed and density placed different grass");
+
+        Console.WriteLine($"GrassDensity на {SPAN:0}x{SPAN:0} м: 0 -> {counts[0f]}, 0.5 -> {counts[0.5f]} ({counts[0.5f] / one:0.00}x), 1 -> {counts[1f]}, "
+            + $"2 -> {counts[2f]} ({counts[2f] / one:0.00}x), 3 -> {counts[3f]} ({counts[3f] / one:0.00}x), 4 -> {counts[4f]} ({counts[4f] / one:0.00}x); "
+            + $"повтор с тем же seed {(same ? "совпадает" : "РАЗЛИЧАЕТСЯ")}");
+
+        if (failures > 0)
+        {
+            Console.WriteLine($"GrassDensity: {failures} проверок не прошли");
+            Environment.ExitCode = 1;
+            return;
+        }
+
+        Console.WriteLine("GrassDensity: всё в порядке — число пучков растёт линейно с множителем до 4, расстановка детерминирована.");
     }
 
     static GrassLayer Grass(float density, float patchFrequency)

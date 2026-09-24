@@ -54,6 +54,8 @@ namespace Unity.Collections
 
         public void CopyTo(T[] destination) => Array.Copy(_values, destination, _values.Length);
 
+        public void CopyFrom(T[] source) => Array.Copy(source, _values, _values.Length);
+
         public void CopyTo(NativeArray<T> destination) => Array.Copy(_values, destination._values, _values.Length);
 
         public void Dispose() => _values = null;

@@ -30,6 +30,7 @@
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.PhysicsModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.IMGUIModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.ImageConversionModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.JSONSerializeModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEditor.CoreModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEditor.TerrainModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(ScriptAssemblies)\NaughtyAttributes.Core.dll"><Private>false</Private></Reference>

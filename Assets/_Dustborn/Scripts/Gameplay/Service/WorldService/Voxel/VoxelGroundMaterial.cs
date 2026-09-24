@@ -12,6 +12,7 @@ public static class VoxelGroundMaterial
         public Texture2D BiomeMap;
         public IReadOnlyList<Road> Roads;
         public HeightMap Map;
+        public WaterMap Water;
         public int ControlResolution = 1024;
         public bool UseRepetitionless = true;
         public string MaterialPath;
@@ -36,7 +37,7 @@ public static class VoxelGroundMaterial
         if (!RoadPaintIndex.HasRoads(request.Roads))
             Debug.LogWarning("Roads will not be painted: no road network was passed in (Assets/_Dustborn/Generated/RoadNetwork.asset)", context);
 
-        var painter = new GroundSplatPainter(request.Config, request.Biomes, weightField, request.Roads);
+        var painter = new GroundSplatPainter(request.Config, request.Biomes, weightField, request.Roads) { Water = request.Water ?? request.Map.Water };
 
         try
         {
