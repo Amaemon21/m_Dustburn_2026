@@ -9,16 +9,18 @@ namespace Dustborn.UI.Editor
     {
         private void OnPreprocessTexture()
         {
-            if (assetPath == DustbornUIWearTools.Root + "/Textures/Wear_Grayscale.png")
+            if (assetPath == DustbornUIWearTools.WearTexturePath)
                 DustbornUIWearTools.SetTextureSettings((TextureImporter)assetImporter, false);
-            else if (assetPath == DustbornUIWearTools.Root + "/SampleSprites/Frame_Corners.png")
+            else if (assetPath == DustbornUIWearTools.FrameSpritePath)
                 DustbornUIWearTools.SetTextureSettings((TextureImporter)assetImporter, true);
         }
     }
 
     public static class DustbornUIWearTools
     {
-        public const string Root = "Assets/_Dustborn/UIWear";
+        public const string MaterialsRoot = "Assets/_Dustborn/Content/Material/UIWear";
+        public const string WearTexturePath = "Assets/_Dustborn/Content/Texture/UIWear/Wear_Grayscale.png";
+        public const string FrameSpritePath = "Assets/_Dustborn/Content/Sprites/DustbornUI/Sprites/Mask/slot_frame_idle.png";
 
         internal static void SetTextureSettings(TextureImporter importer, bool sprite)
         {
@@ -49,23 +51,28 @@ namespace Dustborn.UI.Editor
         [MenuItem("Tools/Dustborn/UI Wear/Configure bundled textures")]
         public static void ConfigureTextures()
         {
-            Configure(Root + "/Textures/Wear_Grayscale.png", false);
-            Configure(Root + "/SampleSprites/Frame_Corners.png", true);
+            Configure(WearTexturePath, false);
+            Configure(FrameSpritePath, true);
         }
 
         private static void Configure(string path, bool sprite)
         {
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer == null) return;
+            if (importer == null)
+            {
+                Debug.LogWarning("Не найдена текстура UI Wear: " + path);
+                return;
+            }
             SetTextureSettings(importer, sprite);
             importer.SaveAndReimport();
         }
 
         private static Material Preset(string name)
         {
-            var material = AssetDatabase.LoadAssetAtPath<Material>(Root + "/Materials/" + name + ".mat");
+            string path = MaterialsRoot + "/" + name + ".mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null || material.shader == null)
-                throw new InvalidOperationException("Dustborn preset missing: " + name + ". Copy the complete Assets folder first.");
+                throw new InvalidOperationException("Не найден материал UI Wear или его шейдер: " + path);
             if (ShaderUtil.ShaderHasError(material.shader))
                 throw new InvalidOperationException("Dustborn shader has compilation errors. Open Console before applying it.");
             return material;
@@ -119,8 +126,8 @@ namespace Dustborn.UI.Editor
             Material thin = Preset("Worn_ThinLine");
             Material frame = Preset("Worn_Frame");
             Material panel = Preset("Worn_Panel");
-            Sprite frameSprite = AssetDatabase.LoadAssetAtPath<Sprite>(Root + "/SampleSprites/Frame_Corners.png");
-            if (frameSprite == null) throw new InvalidOperationException("Sample sprite could not be imported.");
+            Sprite frameSprite = AssetDatabase.LoadAssetAtPath<Sprite>(FrameSpritePath);
+            if (frameSprite == null) throw new InvalidOperationException("Не удалось импортировать рамку UI Wear как Sprite: " + FrameSpritePath);
 
             var root = new GameObject("Dustborn UI Wear — Comparison", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
             Undo.RegisterCreatedObjectUndo(root, "Create Dustborn wear comparison");
