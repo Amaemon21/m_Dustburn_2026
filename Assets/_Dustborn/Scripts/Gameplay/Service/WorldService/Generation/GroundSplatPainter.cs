@@ -28,6 +28,7 @@ public class GroundSplatPainter : IDisposable
     private NativeArray<int> _ruleStart;
     private NativeArray<int> _ruleCount;
     private NativeArray<int> _biomeCliffs;
+    private NativeArray<int> _biomeShores;
 
     private RoadPaintIndex _paint;
     private float _paintTexel;
@@ -72,6 +73,19 @@ public class GroundSplatPainter : IDisposable
             cliffs[biome] = registered >= 0 ? registered : _cliffLayerIndex;
         }
 
+        var shores = new int[biomes.Count];
+
+        for (int biome = 0; biome < biomes.Count; biome++)
+        {
+            TerrainLayer shore = biomes.Get(biome).ShoreLayer;
+            int registered = shore == null ? -1 : layers.IndexOf(shore);
+
+            if (registered < 0 && shore != null && layers.Count < _config.MaxTerrainLayers)
+                registered = Register(layers, shore);
+
+            shores[biome] = registered;
+        }
+
         _layers = layers.ToArray();
 
         _weights = weightField.ToNativeArray(Allocator.Persistent);
@@ -79,6 +93,7 @@ public class GroundSplatPainter : IDisposable
         _ruleStart = new NativeArray<int>(starts, Allocator.Persistent);
         _ruleCount = new NativeArray<int>(counts, Allocator.Persistent);
         _biomeCliffs = new NativeArray<int>(cliffs, Allocator.Persistent);
+        _biomeShores = new NativeArray<int>(shores, Allocator.Persistent);
     }
 
     public NativeArray<float> BakeWorld(int resolution, float[] steepness, float[] height, float[] relief = null)
@@ -99,6 +114,7 @@ public class GroundSplatPainter : IDisposable
         var shape = relief != null
             ? new NativeArray<float>(relief, Allocator.TempJob)
             : new NativeArray<float>(cells, Allocator.TempJob);
+        var wetness = new NativeArray<float>(Wetness(tileResolution, tileX * texel, tileY * texel, texel, height), Allocator.TempJob);
         var alphamaps = new NativeArray<float>(cells * _layers.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 
         try
@@ -110,6 +126,8 @@ public class GroundSplatPainter : IDisposable
                 RuleStart = _ruleStart,
                 RuleCount = _ruleCount,
                 BiomeCliffs = _biomeCliffs,
+                BiomeShores = _biomeShores,
+                Wetness = wetness,
                 RoadSegments = paint.Segments,
                 RoadCellStart = paint.CellStart,
                 RoadCellItems = paint.CellItems,
@@ -149,7 +167,85 @@ public class GroundSplatPainter : IDisposable
             slope.Dispose();
             elevation.Dispose();
             shape.Dispose();
+            wetness.Dispose();
         }
+    }
+
+    public WaterMap Water { get; set; }
+
+    public float[] Wetness(int tileResolution, float originX, float originZ, float texel, float[] height)
+    {
+        const float RISE_START = 0.4f;
+        const float RISE_END = 2.5f;
+        const float CORE = 0.35f;
+
+        var wetness = new float[tileResolution * tileResolution];
+        WaterMap water = Water;
+        float width = _config.Water == null ? 0f : _config.Water.ShoreWidth;
+
+        if (water == null || width <= 0f || water.Resolution < 2)
+            return wetness;
+
+        float maxHeight = _config.MaxHeight;
+
+        System.Threading.Tasks.Parallel.For(0, tileResolution, row =>
+        {
+            for (int column = 0; column < tileResolution; column++)
+            {
+                int index = row * tileResolution + column;
+
+                float x = originX + (column + 0.5f) * texel;
+                float z = originZ + (row + 0.5f) * texel;
+
+                float distance = ShoreDistance(water, x, z);
+
+                if (distance >= width)
+                    continue;
+
+                float level = water.ShoreSurface[water.CellIndex(x, z)];
+                float above = height[index] * maxHeight - level;
+
+                float near = 1f - Smooth(CORE * width, width, distance);
+                float low = 1f - Smooth(RISE_START, RISE_END, above);
+
+                wetness[index] = near * low;
+            }
+        });
+
+        return wetness;
+    }
+
+    private static float ShoreDistance(WaterMap water, float x, float z)
+    {
+        float cell = water.CellSize;
+        int last = water.Resolution - 1;
+
+        float u = Mathf.Clamp(x / cell - 0.5f, 0f, last);
+        float v = Mathf.Clamp(z / cell - 0.5f, 0f, last);
+
+        int column = Mathf.Min((int)u, last - 1);
+        int row = Mathf.Min((int)v, last - 1);
+
+        float tx = u - column;
+        float ty = v - row;
+
+        float[] distance = water.ShoreDistance;
+        int origin = row * water.Resolution + column;
+
+        float a = distance[origin], b = distance[origin + 1];
+        float c = distance[origin + water.Resolution], d = distance[origin + water.Resolution + 1];
+
+        if (float.IsInfinity(a) || float.IsInfinity(b) || float.IsInfinity(c) || float.IsInfinity(d))
+            return Mathf.Min(Mathf.Min(a, b), Mathf.Min(c, d)) + cell;
+
+        return Mathf.Lerp(Mathf.Lerp(a, b, tx), Mathf.Lerp(c, d, tx), ty);
+    }
+
+    private static float Smooth(float edge0, float edge1, float value)
+    {
+        float t = Mathf.Clamp01((value - edge0) / (edge1 - edge0));
+
+        return t * t * (3f - 2f * t);
     }
 
     public GroundRule[] RulesOf(int biome)
@@ -169,6 +265,7 @@ public class GroundSplatPainter : IDisposable
         NativeBuffer.Release(ref _ruleStart);
         NativeBuffer.Release(ref _ruleCount);
         NativeBuffer.Release(ref _biomeCliffs);
+        NativeBuffer.Release(ref _biomeShores);
 
         _paint?.Dispose();
         _paint = null;

@@ -25,12 +25,21 @@
     <Compile Include="GroundAppearanceChecks.cs" />
     <Compile Include="SplatChecks.cs" />
     <Compile Include="VoxelSeamChecks.cs" />
+    <Compile Include="WorldFeatureChecks.cs" />
+    <Compile Include="WaterChecks.cs" />
+    <Compile Include="WaterAudit.cs" />
+    <Compile Include="WaterView.cs" />
+    <Compile Include="WaterShoreChecks.cs" />
+    <Compile Include="WaterStampLoader.cs" />
+    <Compile Include="WaterStampChecks.cs" />
+    <Compile Include="WaterStampReport.cs" />
+    <Compile Include="WaterStampWorlds.cs" />
     <Compile Include="GroundPreview.cs" />
     <Compile Include="RoadPaintChecks.cs" />
     <Compile Include="RoadTopologyChecks.cs" />
     <Compile Include="RoadAudit.cs" />
     <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
-    <Compile Include="$(SharedUtils)/**/*.cs" />
+    <Compile Include="$(SharedUtils)/**/*.cs" Exclude="$(SharedUtils)/UIWear/**/*.cs" />
     <Compile Include="$(WorldGeneration)/**/*.cs"
              Exclude="$(WorldGeneration)/Editor/**/*.cs;
                       $(WorldGeneration)/WorldGenerator.cs;
@@ -48,6 +57,8 @@
                       $(WorldGeneration)/Voxel/RepetitionlessVoxelSetup.cs;
                       $(WorldGeneration)/Voxel/VoxelGroundMaterial.cs;
                       $(WorldGeneration)/Voxel/VoxelColumnDebug.cs;
+                      $(WorldGeneration)/Voxel/WaterSurfaceBuilder.cs;
+                      $(WorldGeneration)/Voxel/WorldFeatureGizmos.cs;
                       $(WorldGeneration)/Generation/BiomeMapTexture.cs;
                       $(WorldGeneration)/Generation/HeightMapTexture.cs" />
   </ItemGroup>

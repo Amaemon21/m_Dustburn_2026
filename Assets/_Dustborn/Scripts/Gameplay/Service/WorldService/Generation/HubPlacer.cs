@@ -151,13 +151,13 @@ public class HubPlacer
                 float y = centerY + (j / (TILE_SAMPLES - 1f) - 0.5f) * 2f * half;
                 float height = _map.SampleWorldSmooth(x, y);
 
+                if (WaterMap.Wet(_config, _map, x, y, height))
+                    return false;
+
                 low = Mathf.Min(low, height);
                 high = Mathf.Max(high, height);
             }
         }
-
-        if (_config.SeaLevel > 0f && low < _config.SeaLevel + _config.ShoreMargin)
-            return false;
 
         return high - low <= _config.MaxTileRelief;
     }

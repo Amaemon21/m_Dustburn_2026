@@ -130,7 +130,7 @@ public sealed class RegionalGraphPlanner
 
             heights[i] = _map.SampleWorldSmooth(point.x, point.y);
 
-            if (_config.SeaLevel > 0f && heights[i] < _config.SeaLevel + _config.ShoreMargin)
+            if (WaterMap.Wet(_config, _map, point.x, point.y, heights[i]))
                 wet++;
         }
 

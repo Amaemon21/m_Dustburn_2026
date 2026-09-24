@@ -42,12 +42,13 @@ public class VoxelTerrainStreamer : MonoBehaviour
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), SerializeField] private Texture2D _roadMask;
     [BoxGroup("Decor"), SerializeField] private RoadNetworkAsset _roads;
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), SerializeField] private PoiPlacementAsset _poiPlacement;
+    [SerializeField, HideInInspector] private TextAsset _water;
 
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), MinValue(1024), SerializeField]
     private int _batchVertexBudget = 48000;
 
-    [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), Range(0f, 1f)]
-    [Tooltip("Fraction of the grass the biomes ask for. Grass only ever covers the GrassDistance circle around the viewer, so this can stay at one unless that circle is very dense.")]
+    [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), Range(0f, 4f)]
+    [Tooltip("Multiplier on the grass the biomes ask for; 2 to 4 tightens the grid for that many times more tufts. Grass only ever covers the GrassDistance circle around the viewer.")]
     [SerializeField]
     private float _grassDensity = 1f;
 
@@ -252,6 +253,7 @@ public class VoxelTerrainStreamer : MonoBehaviour
         _roadMask = world.RoadMask;
         _roads = world.Roads;
         _poiPlacement = world.Placement;
+        _water = world.Water;
         _viewer = viewer;
         _spawnDecor = settings.SpawnDecor;
         _grassDensity = settings.GrassDensity;
@@ -282,6 +284,8 @@ public class VoxelTerrainStreamer : MonoBehaviour
 
         var filter = new DecorFilter(_config, weights, _biomes.Count, roadMask, roadResolution,
             _poiPlacement == null ? null : _poiPlacement.Placements, WidestFootprint());
+
+        filter.Water = WaterMap.Load(_water);
 
         var placer = new VoxelDecorPlacer(_config, _biomes, _field, filter, _grassDensity);
 

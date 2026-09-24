@@ -18,7 +18,7 @@ public static class WorldMapPipelineChecks
         Profile(config.TownProfile, 1, 2, 3);
         Profile(config.CountryTownProfile, 1, 1, 2);
         Profile(config.GhostTownProfile, 1, 1, 2);
-        Set(config, nameof(config.SettlementGap), 0f);
+        Set(config, nameof(config.SettlementGap), 40f);
         Set(config, nameof(config.HubEdgeMargin), 16f);
         Set(config, nameof(config.MaxHubRelief), 360f);
         Set(config, nameof(config.MaxTileRelief), 360f);
@@ -39,6 +39,7 @@ public static class WorldMapPipelineChecks
         Set(config, nameof(config.ContinentAmplitude), 0.01f);
         Set(config, nameof(config.ReliefScale), 0.2f);
         Set(config, nameof(config.SeaLevel), 0f);
+        StampLoader.Set(config.Water, "RiverStartArea", 0.02f);
 
         foreach (BiomeDefinition biome in biomes.Biomes)
         {
@@ -54,7 +55,7 @@ public static class WorldMapPipelineChecks
         WorldMapResult first = pipeline.Generate((stage, fraction) => progress.Add(fraction));
         WorldMapResult second = pipeline.Generate();
 
-        Require(progress.Count == 7 && progress.SequenceEqual(progress.OrderBy(value => value)), "All stages must report increasing progress.");
+        Require(progress.Count == 8 && progress.SequenceEqual(progress.OrderBy(value => value)), "All stages must report increasing progress.");
         Require(first.Biomes.Cells.SequenceEqual(second.Biomes.Cells), "Repeated generation must preserve biome cells.");
         Require(first.Heights.Heights.SequenceEqual(second.Heights.Heights), "Repeated generation must not carve the previous terrain again.");
         Require(first.RoadMask.SequenceEqual(second.RoadMask), "Repeated generation must preserve the road mask.");
@@ -74,6 +75,8 @@ public static class WorldMapPipelineChecks
                 && expected.Rotation == actual.Rotation, "POI transforms must be deterministic.");
         }
 
+
+        CheckWater(config, first, second);
         RoadNetworkReport report = RoadNetworkDiagnostics.Measure(config, first.Roads, first.Settlements, first.Placements, null, null);
 
         if (report.Hard > 0 && problemDirectory != null)
@@ -114,6 +117,72 @@ public static class WorldMapPipelineChecks
         Require(!otherSeed.Heights.Heights.SequenceEqual(first.Heights.Heights), "Changing the seed must change the world.");
         CheckBudgets();
         Console.WriteLine($"PASS: unified pipeline, deterministic regeneration, cancellation and seed changes; {first.Placements.Count} POI, {first.Roads.Roads.Count} regional roads, {first.Roads.Streets.Count} streets, 0 hard topology violations.");
+    }
+
+    private static void CheckWater(WorldGenerationConfig config, WorldMapResult first, WorldMapResult second)
+    {
+        WaterMap water = first.Water;
+
+        Require(water != null && second.Water != null, "The pipeline must publish a water map.");
+        Require(water.ToBytes().SequenceEqual(second.Water.ToBytes()), "Repeated generation must produce the same water.");
+
+        int flooded = 0;
+
+        foreach (PoiPlacement placement in first.Placements)
+        {
+            float ground = first.Heights.SampleWorldSmooth(placement.Position.x, placement.Position.z);
+
+            if (water.IsWater(placement.Position.x, placement.Position.z, ground))
+                flooded++;
+        }
+
+        Require(flooded == 0, $"{flooded} POI stand in water.");
+
+        int wetTiles = 0;
+
+        foreach (SettlementLayout layout in first.Settlements)
+        {
+            foreach (SettlementTile tile in layout.Tiles)
+            {
+                Vector2 center = tile.Center;
+                float ground = first.Heights.SampleWorldSmooth(center.x, center.y);
+
+                if (water.IsWater(center.x, center.y, ground))
+                    wetTiles++;
+            }
+        }
+
+        Require(wetTiles == 0, $"{wetTiles} settlement tiles stand in water.");
+
+        int samples = 0, drowned = 0;
+
+        foreach (Road road in first.Roads.Roads)
+        {
+            if (road.Kind != RoadKind.Highway)
+                continue;
+
+            for (int i = 0; i + 1 < road.Points.Length; i++)
+            {
+                for (float t = 0f; t < 1f; t += 0.25f)
+                {
+                    Vector2 point = Vector2.Lerp(road.Points[i], road.Points[i + 1], t);
+                    WaterSample sample = water.Sample(point.x, point.y);
+                    float ground = first.Heights.SampleWorldSmooth(point.x, point.y);
+
+                    samples++;
+
+                    if (sample.IsWater && sample.Kind != WaterKind.River && ground < sample.Surface)
+                        drowned++;
+                }
+            }
+        }
+
+        float exposure = samples == 0 ? 0f : drowned / (float)samples;
+
+        Require(exposure <= config.MaxWaterExposure, $"Highways run through lakes or sea for {exposure:P1} of their length, over MaxWaterExposure {config.MaxWaterExposure:P0}.");
+
+        Console.WriteLine($"  water: {water.Rivers.Count} rivers, {water.Bodies.Count} lakes and ponds, {water.Crossings.Count} road crossings, "
+            + $"0 POI and 0 tiles in water, highways in standing water {exposure:P1}");
     }
 
     private static void Profile(SettlementTypeProfile profile, int count, int minTiles, int maxTiles)

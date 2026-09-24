@@ -7,9 +7,14 @@ public enum WorldGenStage
     MapBiomes,
     MapWeights,
     MapHeightNoise,
+    MapHeightStamps,
     MapHeightHydraulic,
     MapHeightThermal,
     MapHeights,
+    MapHydrology,
+    MapCarveRivers,
+    MapWaterShore,
+    MapWaterCrossings,
     MapHubs,
     MapRegionalPlan,
     MapRoadPlan,
@@ -30,6 +35,7 @@ public enum WorldGenStage
     BakeTextures,
     BakeImport,
     BakeRoadAsset,
+    BakeWaterAsset,
     BakePoiAsset,
     BakeSplat,
     BakeMaterial,
@@ -48,6 +54,7 @@ public enum WorldGenStage
     RuntimeLowest,
     RuntimeField,
     RuntimeDecorSetup,
+    RuntimeWater,
     RuntimePlan,
     RuntimeTick,
     RuntimeRush,
@@ -79,6 +86,10 @@ public enum WorldGenStage
 
     CleanupUnload,
     CleanupDispose,
+
+    MapWaterStamps,
+    MapWaterStampLakes,
+    MapWaterStampCarve,
 
     Count
 }

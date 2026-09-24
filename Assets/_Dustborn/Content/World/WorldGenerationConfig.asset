@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb408c6c278d089499556a57ba898ba9, type: 3}
   m_Name: WorldGenerationConfig
   m_EditorClassIdentifier: Assembly-CSharp::WorldGenerationConfig
-  <Seed>k__BackingField: -762286179
+  <Seed>k__BackingField: 2008962121
   <WorldSize>k__BackingField: 8192
   <BiomeCellSize>k__BackingField: 8
   <HeightCellSize>k__BackingField: 1
@@ -51,6 +51,53 @@ MonoBehaviour:
   <MaxHydraulicCut>k__BackingField: 34
   <SeaLevel>k__BackingField: 103
   <ShoreMargin>k__BackingField: 6
+  <Water>k__BackingField:
+    <Enabled>k__BackingField: 1
+    <CellSize>k__BackingField: 8
+    <RiverStartArea>k__BackingField: 0.8
+    <RiverWidthScale>k__BackingField: 1
+    <RiverDepthScale>k__BackingField: 1
+    <RiverBankWidth>k__BackingField: 10
+    <Meander>k__BackingField: 0.5
+    <LakeDensity>k__BackingField: 0.4
+    <PondDensity>k__BackingField: 0.15
+    <MinLakeArea>k__BackingField: 20000
+    <MaxLakeArea>k__BackingField: 2500000
+    <MinPondArea>k__BackingField: 800
+    <MinLakeDepth>k__BackingField: 2
+    <LakeSpacing>k__BackingField: 600
+    <OutletErosion>k__BackingField: 16
+    <ShoreReach>k__BackingField: 24
+    <ShoreWidth>k__BackingField: 10
+    <RiverCrossingPenalty>k__BackingField: 0.6
+    <Stamps>k__BackingField:
+      <Enabled>k__BackingField: 1
+      <Database>k__BackingField: {fileID: 11400000, guid: c41e1baeebe8bf54693a051c56b60f11, type: 2}
+      <RiverInfluence>k__BackingField: 1
+      <LakeInfluence>k__BackingField: 1
+      <ScaleVariation>k__BackingField: 0.35
+      <BlendDistance>k__BackingField: 60
+      <MaxTurnAdjustment>k__BackingField: 40
+      <MaxClimb>k__BackingField: 3
+      <MinLakeCoverage>k__BackingField: 0.55
+      <MaxLakeEarthworks>k__BackingField: 6
+      <AllowMirroring>k__BackingField: 1
+      <RecordRejections>k__BackingField: 0
+  <Stamps>k__BackingField:
+    <Enabled>k__BackingField: 1
+    <Database>k__BackingField: {fileID: 11400000, guid: 824a413f4c284fb98d5390fc0b8908ab, type: 2}
+    <Count>k__BackingField: 14
+    <AmplitudeScale>k__BackingField: 0.45
+    <ScaleVariation>k__BackingField: 0.25
+    <Stretch>k__BackingField: 0.15
+    <AmplitudeVariation>k__BackingField: 0.2
+    <MinSpacing>k__BackingField: 900
+    <MaxOverlap>k__BackingField: 0.2
+    <EdgeMargin>k__BackingField: 192
+    <OffBiomeWeight>k__BackingField: 0.12
+    <OverlapBlend>k__BackingField: 0.35
+    <Ceiling>k__BackingField: 0.9
+    <EdgeSoftness>k__BackingField: 0
   <ErosionTalusAngle>k__BackingField: 30
   <ErosionStrength>k__BackingField: 0.5
   <CityProfile>k__BackingField:
@@ -231,3 +278,4 @@ MonoBehaviour:
   <RoadMaskAssetPath>k__BackingField: Assets/_Dustborn/Generated/RoadMask.png
   <RoadNetworkAssetPath>k__BackingField: Assets/_Dustborn/Generated/RoadNetwork.asset
   <PoiPlacementAssetPath>k__BackingField: Assets/_Dustborn/Generated/PoiPlacement.asset
+  <WaterMapAssetPath>k__BackingField: Assets/_Dustborn/Generated/WaterMap.bytes

@@ -14,7 +14,9 @@ Material:
   m_ValidKeywords:
   - _RECEIVE_SHADOWS_OFF
   - _SURFACE_TYPE_TRANSPARENT
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _ALPHABLEND_ON
+  - _ZWRITE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -103,6 +105,7 @@ Material:
     - _Distortion_Speed: 0.2
     - _Distortion_Strength: 0.06
     - _DstBlend: 10
+    - _DstBlendAlpha: 0
     - _EdgePower: 0
     - _Enable_Animation: 1
     - _Enable_Caustics: 1
@@ -177,10 +180,11 @@ Material:
     - _Shore_Wave_Return_Amount: 0.519
     - _Shore_Wave_Speed: 0.144
     - _Shore_Wave_Thickness: 0.113
-    - _Smoothness: 0.776
+    - _Smoothness: 0.047
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _Surface: 1
     - _UVSec: 0
     - _UseVoronoiNoiseForCaustics: 0

@@ -33,7 +33,7 @@ public class VoxelDecorPlacer
         _config = config;
         _field = field;
         _filter = filter;
-        _grassScale = Mathf.Clamp01(grassScale);
+        _grassScale = Mathf.Max(0f, grassScale);
 
         for (int biome = 0; biome < biomes.Count; biome++)
         {
@@ -50,7 +50,10 @@ public class VoxelDecorPlacer
         VoxelDecorLayer layer = _layers[layerIndex];
 
         float spacing = layer.Spacing;
-        float chance = layer.Kind == DecorKind.Grass ? layer.Chance * _grassScale : layer.Chance;
+        float chance = layer.Chance;
+
+        if (layer.Kind == DecorKind.Grass)
+            GrassDensity(ref spacing, ref chance);
 
         float minCornerX = Mathf.Max(origin.x, 0f);
         float minCornerY = Mathf.Max(origin.y, 0f);
@@ -95,6 +98,17 @@ public class VoxelDecorPlacer
         return (maxX - minX + 1) * (maxY - minY + 1);
     }
 
+    private void GrassDensity(ref float spacing, ref float chance)
+    {
+        if (_grassScale <= 1f)
+        {
+            chance *= _grassScale;
+            return;
+        }
+
+        spacing /= Mathf.Sqrt(_grassScale);
+    }
+
     private bool InBiome(VoxelDecorLayer layer, Vector2 origin, float span)
     {
         int steps = Mathf.Clamp(Mathf.CeilToInt(span / BIOME_PROBE_STEP), 1, MAX_BIOME_PROBES);
@@ -124,6 +138,9 @@ public class VoxelDecorPlacer
             return false;
 
         surface = _field.Surface(point.x, point.y, frame);
+
+        if (!_filter.IsDry(point, surface))
+            return false;
 
         float elevation = surface / _config.MaxHeight;
 

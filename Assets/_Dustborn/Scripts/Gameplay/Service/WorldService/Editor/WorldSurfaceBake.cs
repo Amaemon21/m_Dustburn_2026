@@ -30,6 +30,7 @@ public static class WorldSurfaceBake
             Roads = world.Roads.Paved(),
             Map = HeightMap.FromRaw16(world.HeightMap.bytes, world.Config.HeightMapResolution,
                 world.Config.WorldSize, world.Config.MaxHeight),
+            Water = world.LoadWater(),
             ControlResolution = settings.ControlResolution,
             MaterialPath = settings.MaterialPath,
             Material = world.Material,
@@ -42,7 +43,7 @@ public static class WorldSurfaceBake
             throw new InvalidOperationException($"The surface could not be rebuilt: {result}");
 
         world.EditorSetup(world.Config, settings.Biomes, world.HeightMap, world.BiomeMap,
-            world.RoadMask, world.Roads, world.Placement, request.Material);
+            world.RoadMask, world.Roads, world.Placement, request.Material, world.Water, world.Stamps);
         EditorUtility.SetDirty(world);
         AssetDatabase.SaveAssetIfDirty(world);
         SceneView.RepaintAll();

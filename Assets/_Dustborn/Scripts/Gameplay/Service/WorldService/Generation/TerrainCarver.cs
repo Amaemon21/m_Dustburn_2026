@@ -108,7 +108,7 @@ public class TerrainCarver
 
     private HeightMap Apply()
     {
-        var result = new HeightMap(_source.Resolution, _source.WorldSize, _source.MaxHeight);
+        var result = new HeightMap(_source.Resolution, _source.WorldSize, _source.MaxHeight) { Water = _source.Water };
 
         float[] source = _source.Heights;
         float[] target = _carveTarget;

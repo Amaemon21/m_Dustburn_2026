@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -56,6 +57,9 @@ public class HeightMapGenerator
             using (WorldGenProbe.Measure(WorldGenStage.MapHeightNoise))
                 job.Schedule(heights.Length, BATCH_SIZE).Complete();
 
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightStamps))
+                ApplyStamps(biomeMap, map, heights);
+
             using (WorldGenProbe.Measure(WorldGenStage.MapHeightHydraulic))
                 HydraulicErosion.Run(_config, heights, map.Resolution);
 
@@ -72,6 +76,32 @@ public class HeightMapGenerator
         }
 
         return map;
+    }
+
+    public List<TerrainStampPlacement> Stamps { get; } = new();
+
+    public int StampedCells { get; private set; }
+
+    private void ApplyStamps(BiomeMap biomeMap, HeightMap map, NativeArray<float> heights)
+    {
+        TerrainStampSettings settings = _config.Stamps;
+
+        if (settings == null || !settings.Enabled || settings.Database == null || settings.Database.Count == 0)
+            return;
+
+        Stamps.AddRange(new TerrainStampPlacer(_config, settings, _biomes, biomeMap).Place());
+
+        if (Stamps.Count == 0)
+            return;
+
+        var shapes = new TerrainStampShape[settings.Database.Count];
+
+        foreach (TerrainStampPlacement placement in Stamps)
+            shapes[placement.StampIndex] ??= TerrainStampShape.From(settings.Database.Get(placement.StampIndex));
+
+        heights.CopyTo(map.Heights);
+        StampedCells = TerrainStampApplier.Apply(map.Heights, map.Resolution, map.WorldSize, map.MaxHeight, Stamps, shapes, settings);
+        heights.CopyFrom(map.Heights);
     }
 
     private NativeArray<BiomeHeightProfile> BuildProfiles(Allocator allocator)

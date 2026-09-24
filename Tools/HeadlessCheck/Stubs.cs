@@ -111,6 +111,9 @@ namespace UnityEngine
         public static int CeilToInt(float v) => (int)MathF.Ceiling(v);
         public static int RoundToInt(float v) => (int)MathF.Round(v);
         public static float Sin(float v) => MathF.Sin(v);
+        public static float Exp(float p) => (float)Math.Exp(p);
+        public static float Log(float v, float b) => MathF.Log(v) / MathF.Log(b);
+        public static float Log(float v) => MathF.Log(v);
         public static float Cos(float v) => MathF.Cos(v);
         public static float Atan2(float y, float x) => MathF.Atan2(y, x);
         public static float Atan(float v) => MathF.Atan(v);
@@ -237,6 +240,14 @@ namespace UnityEngine
     {
         public static GameObject Instantiate(GameObject o, Vector3 p, Quaternion r, Transform parent) => o;
         public static GameObject Instantiate(GameObject o, Transform parent) => o;
+    }
+
+    public class TextAsset : Object
+    {
+        public TextAsset() { }
+        public TextAsset(byte[] data) { bytes = data; }
+        public byte[] bytes;
+        public long dataSize => bytes == null ? 0 : bytes.Length;
     }
 
     public class ScriptableObject : Object

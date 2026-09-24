@@ -19,6 +19,7 @@
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.CoreModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.PhysicsModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.JSONSerializeModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEditor.CoreModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(ScriptAssemblies)\UnityEngine.TestRunner.dll"><Private>false</Private></Reference>
     <Reference Include="$(ScriptAssemblies)\UnityEditor.TestRunner.dll"><Private>false</Private></Reference>

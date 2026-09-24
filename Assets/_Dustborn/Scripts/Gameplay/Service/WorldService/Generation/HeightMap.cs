@@ -13,6 +13,8 @@ public class HeightMap
 
     public float[] Heights => _heights;
 
+    public WaterMap Water { get; set; }
+
     public HeightMap(int resolution, int worldSize, float maxHeight)
     {
         Resolution = resolution;

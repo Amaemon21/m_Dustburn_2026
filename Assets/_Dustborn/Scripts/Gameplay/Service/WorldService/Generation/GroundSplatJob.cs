@@ -37,6 +37,8 @@ public struct GroundSplatJob : IJobParallelFor
     [ReadOnly] public NativeArray<int> RuleStart;
     [ReadOnly] public NativeArray<int> RuleCount;
     [ReadOnly] public NativeArray<int> BiomeCliffs;
+    [ReadOnly] public NativeArray<int> BiomeShores;
+    [ReadOnly] public NativeArray<float> Wetness;
     [ReadOnly] public NativeArray<RoadPaintSegment> RoadSegments;
     [ReadOnly] public NativeArray<int> RoadCellStart;
     [ReadOnly] public NativeArray<int> RoadCellItems;
@@ -94,7 +96,9 @@ public struct GroundSplatJob : IJobParallelFor
             float relief = Relief.IsCreated ? Relief[index] : 0f;
             GroundSample ground = Noise.Sample(worldX, worldZ, Steepness[index], relief);
 
-            PaintBiomes(origin, natural, Steepness[index], Height[index], ground, worldX, worldZ);
+            float wet = Wetness.IsCreated ? Wetness[index] : 0f;
+
+            PaintBiomes(origin, natural, Steepness[index], Height[index], wet, ground, worldX, worldZ);
         }
 
         if (RoadLayer >= 0)
@@ -118,7 +122,7 @@ public struct GroundSplatJob : IJobParallelFor
             Alphamaps[origin + layer] /= sum;
     }
 
-    private void PaintBiomes(int origin, float share, float steepness, float elevation, in GroundSample ground, float worldX, float worldZ)
+    private void PaintBiomes(int origin, float share, float steepness, float elevation, float wet, in GroundSample ground, float worldX, float worldZ)
     {
         float cliff = CliffWeight(Noise.CliffSlope(steepness, ground));
 
@@ -143,7 +147,7 @@ public struct GroundSplatJob : IJobParallelFor
 
         if (strongest >= BiomeBorder.PURE)
         {
-            PaintBiome(origin, dominant, share, cliff, GroundNoise.Edge(strongest), steepness, elevation, ground);
+            PaintBiome(origin, dominant, share, cliff, GroundNoise.Edge(strongest), steepness, elevation, wet, ground);
             return;
         }
 
@@ -157,7 +161,7 @@ public struct GroundSplatJob : IJobParallelFor
 
         if (total <= 0f)
         {
-            PaintBiome(origin, dominant, share, cliff, GroundNoise.Edge(strongest), steepness, elevation, ground);
+            PaintBiome(origin, dominant, share, cliff, GroundNoise.Edge(strongest), steepness, elevation, wet, ground);
             return;
         }
 
@@ -170,16 +174,24 @@ public struct GroundSplatJob : IJobParallelFor
 
             float edge = GroundNoise.Edge(blend.Sample(BiomeWeights, biome, WeightResolution));
 
-            PaintBiome(origin, biome, share * part, cliff, edge, steepness, elevation, ground);
+            PaintBiome(origin, biome, share * part, cliff, edge, steepness, elevation, wet, ground);
         }
     }
 
-    private void PaintBiome(int origin, int biome, float share, float cliff, float edge, float steepness, float elevation, in GroundSample ground)
+    private void PaintBiome(int origin, int biome, float share, float cliff, float edge, float steepness, float elevation, float wet,
+        in GroundSample ground)
     {
         int biomeCliff = BiomeCliffs.IsCreated ? BiomeCliffs[biome] : CliffLayer;
         float exposed = biomeCliff >= 0 ? cliff : 0f;
 
-        Spread(origin, biome, share * (1f - exposed), edge, steepness, elevation, ground);
+        int shore = BiomeShores.IsCreated ? BiomeShores[biome] : -1;
+        float soaked = shore >= 0 ? math.saturate(wet) : 0f;
+        float open = share * (1f - exposed);
+
+        Spread(origin, biome, open * (1f - soaked), edge, steepness, elevation, ground);
+
+        if (soaked > 0f)
+            Alphamaps[origin + shore] += open * soaked;
 
         if (biomeCliff >= 0)
             Alphamaps[origin + biomeCliff] += share * exposed;

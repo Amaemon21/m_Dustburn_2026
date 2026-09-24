@@ -230,7 +230,7 @@ public class WorldGenerationWindow : EditorWindow
         EditorGUILayout.Space(8f);
         EditorGUILayout.LabelField("Растительность", EditorStyles.boldLabel);
         Property(settings, "SpawnDecor", "Трава, деревья и камни");
-        Property(settings, "GrassDensity", "Плотность травы", "Доля от плотности, заданной в биомах. Одинакова для редактора и игры.");
+        Property(settings, "GrassDensity", "Плотность травы", "Множитель плотности из биомов: 0 — без травы, 1 — как задано, 2–4 — во столько раз больше пучков. Выше 1 заметно растёт число вершин и нагрузка на CPU/GPU. Одинакова для редактора и игры.");
 
         var voxels = new SerializedObject(_settings.Voxels);
         Property(voxels, "GrassDistance", "Дальность травы в игре, м");
@@ -334,6 +334,16 @@ public class WorldGenerationWindow : EditorWindow
             Property(config, "ReliefScale", "Общий множитель рельефа");
             Property(config, "BiomeBlendRadius", "Плавность границ биомов, м");
             Property(config, "SeaLevel", "Уровень воды, м");
+            Nested(config, "Water", "Enabled", "Реки, озёра и пруды");
+            Nested(config, "Water", "RiverStartArea", "Водосбор начала реки, км²");
+            Nested(config, "Water", "RiverWidthScale", "Ширина рек, множитель");
+            Nested(config, "Water", "LakeDensity", "Доля котловин с озером");
+            Nested(config, "Water", "PondDensity", "Доля ямок с прудом");
+            Nested(config, "Stamps", "Enabled", "Штампы рельефа");
+            Nested(config, "Stamps", "Database", "База штампов");
+            Nested(config, "Stamps", "Count", "Число штампов");
+            Nested(config, "Stamps", "AmplitudeScale", "Высота штампов, множитель");
+            Property(settings, "WaterMaterial", "Материал воды");
             Property(config, "HeightCellSize", "Шаг карты высот, м");
             Nested(config, "CityProfile", "Count", "Cities");
             Nested(config, "TownProfile", "Count", "Towns");

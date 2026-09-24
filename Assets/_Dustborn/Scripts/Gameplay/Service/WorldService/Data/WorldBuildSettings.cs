@@ -11,7 +11,13 @@ public class WorldBuildSettings : ScriptableObject
     [field: SerializeField, Foldout("Sources")] public VoxelConfig Voxels { get; private set; }
 
     [field: SerializeField, BoxGroup("Decor")] public bool SpawnDecor { get; private set; } = true;
-    [field: SerializeField, BoxGroup("Decor"), Range(0f, 1f)] public float GrassDensity { get; private set; } = 1f;
+    [field: SerializeField, BoxGroup("Decor"), Range(0f, 4f)]
+    [field: Tooltip("Multiplier on every grass layer's density: 0 is none, 1 the density authored in the biomes, 2 to 4 that many times more tufts per square metre. Above 1 the placement grid tightens by its square root, so the count grows linearly. GrassDensity over 1 raises vertex count and CPU/GPU cost in proportion.")]
+    public float GrassDensity { get; private set; } = 1f;
+
+    [field: SerializeField, BoxGroup("Water")]
+    [field: Tooltip("Material for rivers, lakes, ponds and the sea. The river meshes carry UV v along the flow in metres over the width.")]
+    public Material WaterMaterial { get; private set; }
 
     [field: SerializeField, Foldout("Preview")] public Vector2 PreviewCenter { get; private set; } = new(1024f, 1024f);
     [field: SerializeField, Foldout("Preview")] public bool PreviewColliders { get; private set; } = true;

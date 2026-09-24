@@ -26,6 +26,18 @@ public class DecorFilter
             _pads = new PoiPadIndex(placements, config.WorldSize, 64f, config.PoiPadMargin, widestFootprint);
     }
 
+    public WaterMap Water { get; set; }
+
+    public bool IsDry(Vector2 point, float ground)
+    {
+        const float DRY_MARGIN = 0.2f;
+
+        if (Water != null)
+            return !Water.IsWater(point.x, point.y, ground + DRY_MARGIN);
+
+        return _config.SeaLevel <= 0f || ground >= _config.SeaLevel + DRY_MARGIN;
+    }
+
     public bool IsClear(Vector2 point, float footprint, float roadClearance)
     {
         if (IsNearRoad(point, Mathf.Max(roadClearance, footprint)))

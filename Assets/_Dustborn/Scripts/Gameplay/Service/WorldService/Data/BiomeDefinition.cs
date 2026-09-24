@@ -17,6 +17,10 @@ public class BiomeDefinition : ScriptableObject
     [field: Tooltip("Ground laid over everything else on slopes between CliffSlopeStart and CliffSlopeFull of the config. Uses the shared cliff layer when empty.")]
     public TerrainLayer CliffLayer { get; private set; }
 
+    [field: SerializeField, Foldout("Ground")]
+    [field: Tooltip("Ground laid along rivers, lakes and ponds, fading out over ShoreWidth of the water settings and within a couple of metres above the water. Empty leaves the shore to the ground stack.")]
+    public TerrainLayer ShoreLayer { get; private set; }
+
     [field: SerializeField, Foldout("Grass")]
     [field: Tooltip("Density in clumps per square metre. An empty list means a biome with no grass.")]
     public List<GrassLayer> Grass { get; private set; } = new();

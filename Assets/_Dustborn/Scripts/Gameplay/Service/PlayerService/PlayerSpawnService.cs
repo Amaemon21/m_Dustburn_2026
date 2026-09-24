@@ -81,6 +81,7 @@ public sealed class PlayerSpawnService : IDisposable
         float high = config.WorldSize - low;
 
         NativeArray<byte> raw = world.HeightMap.GetData<byte>();
+        WaterMap water = world.LoadWater();
 
         Vector3 highest = Vector3.zero;
         float highestGround = float.NegativeInfinity;
@@ -92,7 +93,7 @@ public sealed class PlayerSpawnService : IDisposable
             float ground = Sample(raw, resolution, cellSize, config.MaxHeight, x, z);
             var candidate = new Vector3(x, ground + GROUND_CLEARANCE, z);
 
-            if (ground >= dryGround)
+            if (ground >= dryGround && (water == null || !water.IsWet(x, z, ground, SHORE_MARGIN)))
                 return candidate;
 
             if (ground <= highestGround)
