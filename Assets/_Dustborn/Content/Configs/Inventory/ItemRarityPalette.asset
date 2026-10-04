@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cb805e850f9cb3489a4c42c27a5b1ca, type: 3}
+  m_Name: ItemRarityPalette
+  m_EditorClassIdentifier: Assembly-CSharp::ItemRarityPalette
+  _entries:
+  - Rarity: 0
+    Sprite: {fileID: 0}
+  - Rarity: 1
+    Sprite: {fileID: 21300000, guid: 49c918cede2221f4f8e5480dc4d31f64, type: 3}
+  - Rarity: 2
+    Sprite: {fileID: 21300000, guid: ef909849c1aa93b4cae94c4f90853ac8, type: 3}
+  - Rarity: 3
+    Sprite: {fileID: 21300000, guid: 940857212751c7f4aac3c5c42fb72fbd, type: 3}
+  - Rarity: 4
+    Sprite: {fileID: 21300000, guid: 5f09ff9ef13e03d43b7c590a99c95d58, type: 3}
+  - Rarity: 5
+    Sprite: {fileID: 21300000, guid: f8e1655f97718a9459ff92ab217443e6, type: 3}
+  - Rarity: 6
+    Sprite: {fileID: 21300000, guid: a4600814ec756da41a6ab9ecced5c4d0, type: 3}

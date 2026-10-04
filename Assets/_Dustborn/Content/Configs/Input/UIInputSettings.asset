@@ -27,3 +27,4 @@ MonoBehaviour:
   <UseItem>k__BackingField: {fileID: -9046177780987862689, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
   <DropItem>k__BackingField: {fileID: -7315090288785916905, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
   <TakeAll>k__BackingField: {fileID: 8129149869969444447, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <InteractClose>k__BackingField: {fileID: -2648981353019919509, guid: 6298fa93293cae4418393a2a54d27417, type: 3}

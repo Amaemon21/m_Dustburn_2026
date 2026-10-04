@@ -10,6 +10,7 @@ public sealed class UIInputService : InputService
     private readonly Subject<int> _hotbarSlotPressed = new();
     private readonly Subject<int> _scrolled = new();
     private readonly Subject<Unit> _takeAllPressed = new();
+    private readonly Subject<Unit> _interactClosePressed = new();
     private readonly Subject<Unit> _useItemPressed = new();
     private readonly Subject<Unit> _dropItemPressed = new();
     private readonly InputAction _quickTransfer;
@@ -21,6 +22,7 @@ public sealed class UIInputService : InputService
     public Observable<int> HotbarSlotPressed => _hotbarSlotPressed;
     public Observable<int> Scrolled => _scrolled;
     public Observable<Unit> TakeAllPressed => _takeAllPressed;
+    public Observable<Unit> InteractClosePressed => _interactClosePressed;
     public Observable<Unit> UseItemPressed => _useItemPressed;
     public Observable<Unit> DropItemPressed => _dropItemPressed;
     public string UseItemBinding => BindingOf(_useItem);
@@ -40,6 +42,8 @@ public sealed class UIInputService : InputService
             }));
         if (settings.TakeAll != null)
             Bindings.Add(ObservePerformed(settings.TakeAll).Subscribe(_ => _takeAllPressed.OnNext(Unit.Default)));
+        if (settings.InteractClose != null)
+            Bindings.Add(ObservePerformed(settings.InteractClose).Subscribe(_ => _interactClosePressed.OnNext(Unit.Default)));
         if (settings.UseItem != null)
         {
             _useItem = settings.UseItem.action;
@@ -71,6 +75,7 @@ public sealed class UIInputService : InputService
         _hotbarSlotPressed.Dispose();
         _scrolled.Dispose();
         _takeAllPressed.Dispose();
+        _interactClosePressed.Dispose();
         base.OnDisposed();
     }
 }

@@ -510,13 +510,14 @@ internal static partial class Harness
             ReferenceEquals(presenter.Bound, current) && !current.IsDisposed, "failed replacement restores previous window and view");
         windows.Register("other", new TestWindowPresenter());
         TestWindow other = new();
-        windows.Open("other", other);
-        Check(windows.CloseTop() && other.IsDisposed && current.IsOpen.CurrentValue, "close top respects opening order");
-        TestWindow focused = new();
-        windows.Open("other", focused);
-        windows.Focus("window");
-        Check(windows.CloseTop() && current.IsDisposed && focused.IsOpen.CurrentValue, "focused window becomes topmost");
-        windows.Close("other");
+        bool blockedThroughout = true;
+        using (windows.HasOpenWindows.Subscribe(open => blockedThroughout &= open))
+            windows.Open("other", other);
+        Check(current.IsDisposed && !windows.TryGet("window", out _) && other.IsOpen.CurrentValue,
+            "opening a window closes the other windows");
+        Check(blockedThroughout, "switching windows never reports gameplay unblocked");
+        Check(windows.CloseTop() && other.IsDisposed && !windows.CloseTop() && !windows.HasOpenWindows.CurrentValue,
+            "only one window is ever open");
         current = new TestWindow();
         windows.Open("window", current);
         windows.Register("reentrant", new TestWindowPresenter());

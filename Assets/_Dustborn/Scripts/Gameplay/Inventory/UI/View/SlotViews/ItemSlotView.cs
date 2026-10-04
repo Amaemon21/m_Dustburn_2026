@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,6 +6,10 @@ using UnityEngine.UI;
 public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
 {
     [SerializeField] private Image _icon;
+
+    [Space(10)]
+    [SerializeField, Required] private Image _rarityImage;
+    [SerializeField, Required] private ItemRarityPalette _rarityPalette;
 
     [Space(10)]
     [SerializeField] private Image _frameImage;
@@ -17,6 +22,7 @@ public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
     {
         bindings.Add(viewModel.Icon.Subscribe(_ => RefreshIcon(viewModel)));
         bindings.Add(viewModel.DraggedAmount.Subscribe(_ => RefreshIcon(viewModel)));
+        bindings.Add(viewModel.Rarity.Subscribe(_ => RefreshIcon(viewModel)));
         bindings.Add(viewModel.IsSelected.Subscribe(_ => RefreshFrame()));
 
         BindSlot(viewModel, bindings);
@@ -37,12 +43,21 @@ public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
     {
         _icon.sprite = viewModel.Icon.CurrentValue;
         _icon.enabled = viewModel.Icon.CurrentValue != null && viewModel.DisplayAmount > 0;
+        RefreshRarity(viewModel.Rarity.CurrentValue, viewModel.DisplayAmount > 0);
+    }
+
+    private void RefreshRarity(ItemRarity? rarity, bool visible)
+    {
+        Sprite sprite = rarity.HasValue ? _rarityPalette.SpriteOf(rarity.Value) : null;
+        _rarityImage.sprite = sprite;
+        _rarityImage.enabled = visible && sprite != null;
     }
 
     protected sealed override void OnUnbound()
     {
         _icon.sprite = null;
         _icon.enabled = false;
+        _rarityImage.enabled = false;
         RefreshFrame();
 
         UnbindSlot();

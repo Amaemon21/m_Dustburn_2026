@@ -105,14 +105,16 @@ internal static partial class Harness
         TestWindow second = new();
         windows.Open("first", first);
         windows.Open("second", second);
-        Check(windows.OpenWindows.Count == 2 && first.IsOpen.CurrentValue, "multiple open windows");
+        Check(windows.OpenWindows.Count == 1 && first.IsDisposed && second.IsOpen.CurrentValue, "windows are mutually exclusive");
         TestWindow replacement = new();
-        windows.Open("first", replacement);
-        Check(first.IsDisposed && replacement.IsOpen.CurrentValue, "replacement disposes previous model");
+        windows.Open("second", replacement);
+        Check(second.IsDisposed && replacement.IsOpen.CurrentValue, "replacement disposes previous model");
         replacement.Close.Execute(Unit.Default);
-        Check(replacement.IsDisposed && windows.OpenWindows.Count == 1, "close command");
+        Check(replacement.IsDisposed && windows.OpenWindows.Count == 0, "close command");
+        TestWindow last = new();
+        windows.Open("first", last);
         windows.CloseAll();
-        Check(second.IsDisposed && windows.OpenWindows.Count == 0, "all windows disposed");
+        Check(last.IsDisposed && windows.OpenWindows.Count == 0, "all windows disposed");
         Console.WriteLine($"PASS: {_checks} inventory, MVVM, proxy and save checks");
     }
 

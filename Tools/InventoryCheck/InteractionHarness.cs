@@ -34,15 +34,15 @@ internal static class InteractionHarness
         controller.PostLateTick();
         controller.PostLateTick();
         Check(first.ShowCount == 1, "outline applied only on target change");
-        Check(viewModel.ContextActionText.CurrentValue == $"[E] {first.InteractKey}" && viewModel.ContextActionAlpha.CurrentValue == 1f,
+        Check(viewModel.ContextActionText.CurrentValue == first.InteractKey && viewModel.BindingText.CurrentValue == "E" && viewModel.ContextActionAlpha.CurrentValue == 1f,
             "target prompt displays interaction binding");
         input.InteractBindingDisplayString = "F";
         controller.PostLateTick();
-        Check(viewModel.ContextActionText.CurrentValue == $"[F] {first.InteractKey}" && first.ShowCount == 1,
+        Check(viewModel.BindingText.CurrentValue == "F" && first.ShowCount == 1,
             "binding change updates prompt without changing target");
         input.InteractBindingDisplayString = string.Empty;
         controller.PostLateTick();
-        Check(viewModel.ContextActionText.CurrentValue == first.InteractKey, "unbound action leaves no empty key brackets");
+        Check(viewModel.ContextActionText.CurrentValue == first.InteractKey && viewModel.BindingText.CurrentValue == string.Empty, "unbound action shows the name without a key");
         input.InteractBindingDisplayString = "E";
 
         targets.Target = second;
@@ -133,28 +133,28 @@ internal static class InteractionHarness
         windows.Register("menu", new TestWindowPresenter());
         windows.Register("other", new TestWindowPresenter());
         ScreenService screen = new(windows);
-        PlayerSpawnService player = new();
+        PlayerCharacterController player = new();
         PlayerInputService input = new();
         using PlayerControlService control = new(player, screen, input);
-        Check(!input.Enabled && !player.ControlEnabled, "player input remains disabled before gameplay run");
+        Check(!input.Enabled && !player.InputEnabled, "player input remains disabled before gameplay run");
         control.Activate();
-        Check(input.Enabled && player.ControlEnabled, "player control enables gameplay input");
+        Check(input.Enabled && player.InputEnabled, "player control enables gameplay input");
         windows.Open("menu", new TestWindow());
-        Check(!input.Enabled && !player.ControlEnabled, "open window disables player input and movement");
+        Check(!input.Enabled && !player.InputEnabled, "open window disables player input and movement");
         windows.Open("other", new TestWindow());
         windows.Close("menu");
-        Check(!input.Enabled && !player.ControlEnabled, "remaining window keeps gameplay input disabled");
+        Check(!input.Enabled && !player.InputEnabled, "remaining window keeps gameplay input disabled");
         windows.Close("other");
-        Check(input.Enabled && player.ControlEnabled, "closing last window restores gameplay input");
+        Check(input.Enabled && player.InputEnabled, "closing last window restores gameplay input");
         control.Dispose();
-        Check(!input.Enabled && !player.ControlEnabled, "player control disposal disables gameplay input");
+        Check(!input.Enabled && !player.InputEnabled, "player control disposal disables gameplay input");
         windows.Open("menu", new TestWindow());
         windows.Close("menu");
         Check(!input.Enabled, "disposed player control no longer reacts to window changes");
         using PlayerControlService blocked = new(player, screen, input);
         windows.Open("menu", new TestWindow());
         blocked.Activate();
-        Check(!input.Enabled && !player.ControlEnabled, "initial open window prevents enabling gameplay input");
+        Check(!input.Enabled && !player.InputEnabled, "initial open window prevents enabling gameplay input");
     }
 
     private static void Check(bool value, string message)
@@ -197,6 +197,9 @@ internal static class InteractionHarness
             Received += accepted;
             return accepted;
         }
+
+        public string OpenedContainer { get; private set; }
+        public void OpenContainer(string containerId, ContainerConfig config) => OpenedContainer = containerId;
     }
 
     private sealed class TestObject : IInteractableObject

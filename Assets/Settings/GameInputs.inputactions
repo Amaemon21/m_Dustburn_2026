@@ -242,6 +242,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "InteractClose",
+                    "type": "Button",
+                    "id": "48dceb61-57f1-4f9b-adc9-a683db94a063",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "HotbarSlot_1",
                     "type": "Button",
                     "id": "aa33cea7-cf21-44de-9aea-e45b5a184a1e",
@@ -310,6 +319,17 @@
                     "name": "",
                     "id": "fa781db5-eda2-4338-ab7f-06ab28778d57",
                     "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Inventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "caa90feb-9c51-47b9-b439-3178d0aced69",
+                    "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -457,6 +477,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "DropItem",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "408d460e-3f08-4a11-87a3-4c485f8e9011",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InteractClose",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

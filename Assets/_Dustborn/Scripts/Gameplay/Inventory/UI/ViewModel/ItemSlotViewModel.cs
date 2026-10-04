@@ -6,12 +6,14 @@ public abstract class ItemSlotViewModel : ViewModel
 {
     private readonly ReactiveProperty<InventorySlotState> _state;
     private readonly ReactiveProperty<Sprite> _icon = new(null);
+    private readonly ReactiveProperty<ItemRarity?> _rarity = new(null);
     private readonly ReactiveProperty<bool> _selected = new(false);
     private readonly ReactiveProperty<bool> _dragging = new(false);
     private readonly ReactiveProperty<int> _draggedAmount = new(0);
 
     public ReadOnlyReactiveProperty<InventorySlotState> State => _state;
     public ReadOnlyReactiveProperty<Sprite> Icon => _icon;
+    public ReadOnlyReactiveProperty<ItemRarity?> Rarity => _rarity;
     public ReadOnlyReactiveProperty<bool> IsSelected => _selected;
     public ReadOnlyReactiveProperty<bool> IsDragging => _dragging;
     public ReadOnlyReactiveProperty<int> DraggedAmount => _draggedAmount;
@@ -25,7 +27,9 @@ public abstract class ItemSlotViewModel : ViewModel
         Disposables.Add(slot.State.Subscribe(state =>
         {
             _state.Value = state;
-            _icon.Value = catalog.GetIcon(state.ItemId);
+            InventoryItem item = catalog.GetItem(state.ItemId);
+            _icon.Value = item == null ? null : item.Icon;
+            _rarity.Value = item == null ? null : (ItemRarity?)item.Rarity;
         }));
     }
 
@@ -41,6 +45,7 @@ public abstract class ItemSlotViewModel : ViewModel
         Select.Dispose();
         _state.Dispose();
         _icon.Dispose();
+        _rarity.Dispose();
         _selected.Dispose();
         _dragging.Dispose();
         _draggedAmount.Dispose();

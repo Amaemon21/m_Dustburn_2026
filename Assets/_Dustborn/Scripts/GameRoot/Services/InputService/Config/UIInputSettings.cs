@@ -23,4 +23,6 @@ public sealed class UIInputSettings : InputSettings
     public InputActionReference DropItem { get; private set; }
     [field: SerializeField, BoxGroup("Container Actions"), HorizontalLine(2f, EColor.Blue)]
     public InputActionReference TakeAll { get; private set; }
+    [field: SerializeField, BoxGroup("Container Actions")]
+    public InputActionReference InteractClose { get; private set; }
 }

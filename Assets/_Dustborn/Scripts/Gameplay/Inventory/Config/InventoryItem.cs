@@ -8,6 +8,7 @@ public abstract class InventoryItem : ScriptableObject
     public string ItemId { get; private set; }
     [field: SerializeField, BoxGroup("Identity")] public string ItemName { get; private set; }
     [field: SerializeField, BoxGroup("Identity")] public ItemCategory Category { get; private set; } = ItemCategory.Misc;
+    [field: SerializeField, BoxGroup("Identity")] public ItemRarity Rarity { get; private set; } = ItemRarity.None;
     [field: SerializeField, BoxGroup("Identity"), TextArea(3, 8)] public string Description { get; private set; }
     [field: SerializeField, BoxGroup("Appearance"), HorizontalLine(2f, EColor.Green)]
     public Sprite Icon { get; private set; }

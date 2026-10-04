@@ -1,10 +1,14 @@
 using System;
 using R3;
 
-public sealed class PlayerSpawnService
+public sealed class PlayerCharacterController
 {
-    public bool ControlEnabled { get; private set; }
-    public void SetControlEnabled(bool enabled) => ControlEnabled = enabled;
+    public bool InputEnabled { get; private set; }
+    public void SetInputEnabled(bool enabled) => InputEnabled = enabled;
+}
+
+public sealed class ContainerConfig
+{
 }
 
 public sealed class PlayerInputService : IDisposable

@@ -34,6 +34,11 @@ public sealed class ContainerScreenView : WindowView
         _title.text = screen.Title;
         bindings.Add(_input.Scrolled.Subscribe(direction => screen.DragDrop.ChangeAmount(direction)));
         bindings.Add(_input.TakeAllPressed.Subscribe(_ => screen.TakeAll.Execute(Unit.Default)));
+
+        int openedFrame = Time.frameCount;
+        bindings.Add(_input.InteractClosePressed
+            .Where(_ => Time.frameCount > openedFrame)
+            .Subscribe(_ => screen.Close.Execute(Unit.Default)));
     }
 
     protected override void OnUnbound()

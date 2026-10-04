@@ -24,7 +24,13 @@ public sealed class PlayerMenuInputService : IGameplayActivatable, IDisposable
         _subscriptions.Clear();
         PlayerInventoryProxy player = _player.Proxy;
 
-        _subscriptions.Add(_input.PlayerMenuPressed.Subscribe(_ => _screen.TogglePlayerMenu(player.OwnerId)));
+        _subscriptions.Add(_input.PlayerMenuPressed.Subscribe(_ =>
+        {
+            if (_screenService.HasAnyWindowOpen())
+                _screenService.CloseAll();
+            else
+                _screen.OpenPlayerMenu(player.OwnerId);
+        }));
         _subscriptions.Add(_input.ClosePressed.Subscribe(_ => _screenService.CloseTop()));
         
         _subscriptions.Add(_input.HotbarSlotPressed.Subscribe(index =>

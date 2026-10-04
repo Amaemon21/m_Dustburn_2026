@@ -81,8 +81,18 @@ public sealed class WindowService : IDisposable
             _closed.OnNext(current);
             current.Dispose();
         }
+        CloseAllExcept(id);
         if (_windows.TryGetValue(id, out WindowViewModel opened) && ReferenceEquals(opened, viewModel))
             _opened.OnNext(viewModel);
+    }
+
+    private void CloseAllExcept(string id)
+    {
+        for (int i = _order.Count - 1; i >= 0; i--)
+        {
+            if (i < _order.Count && _order[i] != id)
+                Close(_order[i]);
+        }
     }
 
     public void Close(string id)

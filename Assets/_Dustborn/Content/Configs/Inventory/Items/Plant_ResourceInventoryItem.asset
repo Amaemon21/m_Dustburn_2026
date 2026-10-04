@@ -15,6 +15,7 @@ MonoBehaviour:
   <ItemId>k__BackingField: plant
   <ItemName>k__BackingField: "\u0412\u043E\u043B\u043E\u043A\u043D\u043E"
   <Category>k__BackingField: 1
+  <Rarity>k__BackingField: 1
   <Description>k__BackingField: "\u0416\u0451\u0441\u0442\u043A\u0438\u0435 \u0432\u043E\u043B\u043E\u043A\u043D\u0430,
     \u0441\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0435 \u0441 \u0442\u0440\u0430\u0432\u044B
     \u0438 \u043A\u0443\u0441\u0442\u0430\u0440\u043D\u0438\u043A\u043E\u0432. \u0418\u0437
@@ -23,6 +24,7 @@ MonoBehaviour:
     \u043E\u0434\u0435\u0436\u0434\u0443. \u0411\u0435\u0437 \u0432\u043E\u043B\u043E\u043A\u043D\u0430
     \u043D\u0435 \u043E\u0431\u043E\u0439\u0442\u0438\u0441\u044C \u0432 \u043F\u0435\u0440\u0432\u044B\u0435
     \u0434\u043D\u0438 \u0432\u044B\u0436\u0438\u0432\u0430\u043D\u0438\u044F."
-  <Icon>k__BackingField: {fileID: 21300000, guid: 0c698f421d595944ab72d8dde839c92c, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 3d4345420eda64b44a1a51daa24d6cd7, type: 3}
   <MaxStack>k__BackingField: 999
+  <Weight>k__BackingField: 0.1
   <ResourceCategory>k__BackingField: 0
