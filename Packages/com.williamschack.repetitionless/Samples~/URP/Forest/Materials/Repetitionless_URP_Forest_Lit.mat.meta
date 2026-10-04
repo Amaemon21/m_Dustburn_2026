@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f8e58aea898e29b16998f8f5e1d4fb6c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Forest/Materials/Repetitionless_URP_Forest_Lit.mat
+  uploadId: 985582

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 606ecfcce40fc9a70b47c70d16cf7729
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Forest/Trees/Repetitionless_URP_Forest_pine_large.prefab
+  uploadId: 985582

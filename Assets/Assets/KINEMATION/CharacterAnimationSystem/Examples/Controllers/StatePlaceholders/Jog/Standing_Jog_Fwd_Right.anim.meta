@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f5685e07b656b374287fcf8a94ba4900
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/StatePlaceholders/Jog/Standing_Jog_Fwd_Right.anim
+  uploadId: 998408

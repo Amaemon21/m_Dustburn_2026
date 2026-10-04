@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UseAppHost>false</UseAppHost>
+    <DefineConstants>DUSTBORN_HEADLESS_ADDRESSABLES</DefineConstants>
+    <NoWarn>CS0649</NoWarn>
+    <UnityManaged>E:\Unity\6000.3.20f1\Editor\Data\Managed\UnityEngine</UnityManaged>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AddressablesStubs.cs" />
+    <Compile Include="AssetHarness.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/IAssetService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/AddressableAsset.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/AddressableInstance.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/AddressableAssetService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/AssetScope.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/SceneAssetLoader.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/AssetService/ISceneAssetLoader.cs" />
+    <Reference Include="$(UnityManaged)/UnityEngine.CoreModule.dll" />
+    <Reference Include="../../Library/ScriptAssemblies/UniTask.dll" />
+    <Reference Include="../../Library/ScriptAssemblies/VContainer.dll" />
+  </ItemGroup>
+</Project>

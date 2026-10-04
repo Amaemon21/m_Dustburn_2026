@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4c36dcf6d8eeb6d44ab73ef966534b46
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/MotionWarping/Runtime/MotionWarping.Runtime.asmdef
+  uploadId: 998408

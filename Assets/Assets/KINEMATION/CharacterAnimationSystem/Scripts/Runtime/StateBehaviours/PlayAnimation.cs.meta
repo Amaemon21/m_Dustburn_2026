@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: b0bef959803f40b3b3388770c15b1edb
+timeCreated: 1754656249
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/StateBehaviours/PlayAnimation.cs
+  uploadId: 998408

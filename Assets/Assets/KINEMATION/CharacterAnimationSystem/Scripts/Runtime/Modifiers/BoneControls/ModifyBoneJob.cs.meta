@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 0a995a6a8aef42d1a4a3f4bc92478a13
+timeCreated: 1743503116
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/BoneControls/ModifyBoneJob.cs
+  uploadId: 998408

@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: afbe3b7eda564a1ea67f7d9f2e2f6ead
+timeCreated: 1742637258
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/Shared/PropertyBindings/Runtime/BoundRangeAttribute.cs
+  uploadId: 998408

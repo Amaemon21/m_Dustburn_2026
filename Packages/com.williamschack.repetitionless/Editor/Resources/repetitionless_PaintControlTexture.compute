@@ -1,0 +1,151 @@
+#pragma kernel CSMain
+
+#define EPSILON 1e-5
+
+RWTexture2D<float4> Control0;
+RWTexture2D<float4> Control1;
+RWTexture2D<float4> Control2;
+RWTexture2D<float4> Control3;
+RWTexture2D<float4> Control4;
+RWTexture2D<float4> Control5;
+RWTexture2D<float4> Control6;
+RWTexture2D<float4> Control7;
+Texture2D<float4> BrushTexture;
+Texture2D<float4> PositionMap;
+
+SamplerState sampler_LinearClamp;
+
+int TargetSlice;
+int TargetChannel;
+
+float4x4 ObjectToWorld;
+float3 HitWorldPos;
+float3 HitNormal;
+
+int BrushChannel;
+bool InvertBrush;
+
+float Radius;
+float Opacity;
+float Smoothness;
+float RotationRadians;
+
+float4 ReadControl(int index, uint2 xy)
+{
+    switch (index) {
+        case 0: return Control0[xy];
+        case 1: return Control1[xy];
+        case 2: return Control2[xy];
+        case 3: return Control3[xy];
+        case 4: return Control4[xy];
+        case 5: return Control5[xy];
+        case 6: return Control6[xy];
+        case 7: return Control7[xy];
+    }
+
+    return 0;
+}
+
+void WriteControl(int index, uint2 xy, float4 value)
+{
+    switch (index) {
+        case 0: Control0[xy] = value; break;
+        case 1: Control1[xy] = value; break;
+        case 2: Control2[xy] = value; break;
+        case 3: Control3[xy] = value; break;
+        case 4: Control4[xy] = value; break;
+        case 5: Control5[xy] = value; break;
+        case 6: Control6[xy] = value; break;
+        case 7: Control7[xy] = value; break;
+    }
+}
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 localPos = PositionMap[id.xy];
+    if (localPos.a < 0.5) return;
+
+    float3 worldPos = mul(ObjectToWorld, localPos).xyz;
+
+    float dist = distance(worldPos, HitWorldPos);
+    if (dist >= Radius)
+        return;
+    
+    // Smooths from inner circle to outer circle
+    float smoothEdgeStart = Radius * (1 - Smoothness);
+    float falloff = 1 - smoothstep(smoothEdgeStart, Radius, dist);
+
+    float brushSample = 1.0;
+    if (BrushChannel >= 0) {
+        // Sample texture relative to the hit normal
+        float3 normal = normalize(HitNormal);
+        float3 up = (abs(normal.y) < 0.999) ? float3(0, 1, 0) : float3(1, 0, 0);
+        float3 tangent = normalize(cross(up, normal));
+        float3 bitanged = cross(normal, tangent);
+
+        float3 offset = worldPos - HitWorldPos;
+        float2 brushUV = float2(dot(offset, tangent), dot(offset, bitanged)) / (Radius * 2) + 0.5;
+
+        // Rotate texture if required
+        if (RotationRadians != 0) {
+            float s = sin(RotationRadians);
+            float c = cos(RotationRadians);
+            float2 centered = brushUV - 0.5;
+            float2 rotated = float2(
+                centered.x * c - centered.y * s,
+                centered.x * s + centered.y * c
+            );
+            brushUV = rotated + 0.5;
+        }
+
+        brushSample = BrushTexture.SampleLevel(sampler_LinearClamp, brushUV, 0)[BrushChannel];
+        if (InvertBrush) brushSample = 1 - brushSample;
+    }
+
+    float brushValue = falloff * brushSample * Opacity;
+    if (brushValue <= 0.0)
+        return;
+    
+    // Add the brush value to the target control texture and channel
+    // Sample all the colours and scale them to a total value of 1 to avoid artifacting
+
+    float colours[8][4];
+    float sumOthers = 0;
+
+    [unroll]
+    for (int slice = 0; slice < 8; slice++) {
+        float4 colour = ReadControl(slice, id.xy);
+        colours[slice][0] = colour.r;
+        colours[slice][1] = colour.g;
+        colours[slice][2] = colour.b;
+        colours[slice][3] = colour.a;
+
+        [unroll]
+        for (int channel = 0; channel < 4; channel++) {
+            if (slice == TargetSlice && channel == TargetChannel)
+                continue;
+            
+                sumOthers += colours[slice][channel];
+        }
+    }
+
+    float targetOld = colours[TargetSlice][TargetChannel];
+    float targetNew = min(targetOld + brushValue, 1.0);
+    float valueAdded = targetNew - targetOld;
+    float scale = (sumOthers > 0) ? saturate((1.0 - targetNew) / sumOthers) : 0;
+
+    [unroll]
+    for (int slice = 0; slice < 8; slice++) {
+        [unroll]
+        for (int channel = 0; channel < 4; channel++) {
+            if (slice == TargetSlice && channel == TargetChannel)
+                colours[slice][channel] = targetNew;
+            else
+                colours[slice][channel] *= scale;
+        }
+
+        float4 colour = float4(colours[slice][0], colours[slice][1], colours[slice][2], colours[slice][3]);
+        WriteControl(slice, id.xy, colour);
+    }
+}

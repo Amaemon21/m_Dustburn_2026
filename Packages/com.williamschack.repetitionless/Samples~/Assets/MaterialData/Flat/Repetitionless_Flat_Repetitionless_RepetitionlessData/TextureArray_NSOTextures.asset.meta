@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 33d99aaf5ad1216e8971b7361f360d09
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 18700000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/MaterialData/Flat/Repetitionless_Flat_Repetitionless_RepetitionlessData/TextureArray_NSOTextures.asset
+  uploadId: 985582

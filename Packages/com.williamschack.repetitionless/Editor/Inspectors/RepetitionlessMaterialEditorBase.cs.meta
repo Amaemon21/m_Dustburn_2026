@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 42c87494dec31213d86d7b0824a0c3c6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Inspectors/RepetitionlessMaterialEditorBase.cs
+  uploadId: 985582

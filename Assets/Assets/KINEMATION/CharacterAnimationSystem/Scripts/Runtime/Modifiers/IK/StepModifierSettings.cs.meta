@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 31960828877a4b8d8d35452bdbb689c9
+timeCreated: 1754061446
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/IK/StepModifierSettings.cs
+  uploadId: 998408

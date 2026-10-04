@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 77ed31ca3aa85096896a4b1d7c5297dd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/Materials/Repetitionless_Samples_HDRI.mat
+  uploadId: 985582

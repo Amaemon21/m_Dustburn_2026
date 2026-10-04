@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c0eb8ecf1470290eebd897658f81923f
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Flat/README.txt
+  uploadId: 985582

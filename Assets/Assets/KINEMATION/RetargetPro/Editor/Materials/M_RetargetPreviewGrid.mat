@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_RetargetPreviewGrid
+  m_Shader: {fileID: 4800000, guid: 5c9bc9a6d8c1471dbd9aab61f4c0a1e2, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints:
+    - _SubChunkCount: 5
+    m_Floats:
+    - _ChunkSize: 1
+    - _FadeEnd: 25
+    - _FadeStart: 3
+    - _MajorLineWidth: 0.1
+    - _MinorLineWidth: 0.05
+    - _SubChunkCount: 10
+    m_Colors:
+    - _BaseColor: {r: 0.2981131, g: 0.29417577, b: 0.2981131, a: 1}
+    - _BaseColorAlt: {r: 0.2784314, g: 0.2784314, b: 0.2784314, a: 1}
+    - _FogColor: {r: 0.2603773, g: 0.25300813, b: 0.25300813, a: 1}
+    - _MajorLineColor: {r: 0.54358846, g: 0.5604735, b: 0.5773585, a: 1}
+    - _MinorLineColor: {r: 0.5169811, g: 0.48674262, b: 0.48674262, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

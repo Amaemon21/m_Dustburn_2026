@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7405c9c2574a434e8c3a5e3610359e68
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 200
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Core/CharacterAnimationComponent.cs
+  uploadId: 998408

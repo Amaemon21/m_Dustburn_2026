@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 0f147ca0c1b94ed89049c86703e9e0a1
+timeCreated: 1762261069
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Editor/Core/CharacterSkeletonEditor.cs
+  uploadId: 998408

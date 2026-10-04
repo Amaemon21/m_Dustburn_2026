@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 4cf310cc09944ccdaf70219bd49ba0eb
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/IK/FootWarpingModifierJob.cs
+  uploadId: 998408

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d4b8ef09200f984f9b44e0ce8a7e013, type: 3}
+  m_Name: Poi_Industrial_Medium
+  m_EditorClassIdentifier: Assembly-CSharp::PoiDefinition
+  <Prefab>k__BackingField: {fileID: 1475890670718598, guid: ea4c9df57c4270e4d998edf3e65b0738, type: 3}
+  <GroundOffset>k__BackingField: 0.24921036
+  <PivotOffset>k__BackingField: {x: -0.83906937, y: 1.0803175}
+  <District>k__BackingField: 2
+  <FootprintWidth>k__BackingField: 19.316196
+  <FootprintDepth>k__BackingField: 18.260038
+  <Weight>k__BackingField: 1
+  <MaxPerSettlement>k__BackingField: 0
+  <MaxPerWorld>k__BackingField: 0

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a64f603392e49f213a2f84ccd7b5d5d7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Forest/Materials/pine_tree/Repetitionless_HDRP_Forest_Terrain_Forest_branches.mat
+  uploadId: 985582

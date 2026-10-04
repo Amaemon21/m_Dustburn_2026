@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5d38067f66d56e4bf9d6ccb1f7bc6ae6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/MaterialData/Flat/Repetitionless_Flat_Repetitionless_RepetitionlessData/PropertiesTexture.asset
+  uploadId: 985582

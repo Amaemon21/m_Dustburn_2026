@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 414cc0ad11e54536b8b7fef331b582e7
+timeCreated: 1743503128
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/BoneControls/ModifyBoneSettings.cs
+  uploadId: 998408

@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: d6a5db94ac6542d9ba6ae518e2bf6e4d
+timeCreated: 1765485602
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/BoneControls/AimAtModifierJob.cs
+  uploadId: 998408

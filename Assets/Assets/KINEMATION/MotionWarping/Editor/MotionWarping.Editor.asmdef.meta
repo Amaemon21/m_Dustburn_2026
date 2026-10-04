@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6ac99bb1de1ddac4fbefd00ae5306a38
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/MotionWarping/Editor/MotionWarping.Editor.asmdef
+  uploadId: 998408

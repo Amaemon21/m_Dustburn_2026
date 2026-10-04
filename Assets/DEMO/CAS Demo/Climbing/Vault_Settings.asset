@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16c489fe43e24410b556466ad9c96890, type: 3}
+  m_Name: Vault_Settings
+  m_EditorClassIdentifier: 
+  vaultWarpingAsset: {fileID: 11400000, guid: 7cbf66196e4d4b24fb008e35f5dbe590, type: 2}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  characterCapsuleRadius: 0.3
+  maxObstacleLength: 2
+  minObstacleLength: 0.1
+  sphereEdgeCheckRadius: 0.05
+  maxAllowedStartLength: 1
+  maxAllowedStartHeight: 1.5
+  minAllowedStartHeight: 0.4
+  closeEdgeDeviation: 0.3
+  farEdgeOffset: 0.7
+  maxAllowedEndHeight: 1
+  minAllowedEndHeight: 0

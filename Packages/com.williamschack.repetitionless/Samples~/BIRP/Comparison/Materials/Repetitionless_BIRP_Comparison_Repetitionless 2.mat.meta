@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 72a2ea7261b49deb68f88982c7263594
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/BIRP/Comparison/Materials/Repetitionless_BIRP_Comparison_Repetitionless
+    2.mat
+  uploadId: 985582

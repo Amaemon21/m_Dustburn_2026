@@ -1,0 +1,23 @@
+{
+    "name": "CAS.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:11accb3f77969894f8bbe9a1772b2fd1",
+        "GUID:d8548a9d25a091541a1fcde53694c91a",
+        "GUID:2b3eec6472d6cb248b60138bebe1f26e",
+        "GUID:3b9c1e777897a454ab8f17fb7264c2af",
+        "GUID:2577e6028c568144585873bfaf0cbb03",
+        "GUID:531f2a4cbbef0164bb9afb778f9fb0c2"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

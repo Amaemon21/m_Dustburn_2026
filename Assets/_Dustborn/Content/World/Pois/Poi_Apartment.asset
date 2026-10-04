@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d4b8ef09200f984f9b44e0ce8a7e013, type: 3}
+  m_Name: Poi_Apartment
+  m_EditorClassIdentifier: Assembly-CSharp::PoiDefinition
+  <Prefab>k__BackingField: {fileID: 1484891345853528, guid: 0c045340be0090e43a49114a88f6597d, type: 3}
+  <GroundOffset>k__BackingField: -0
+  <PivotOffset>k__BackingField: {x: 0, y: -0.13275242}
+  <District>k__BackingField: 0
+  <FootprintWidth>k__BackingField: 10.312816
+  <FootprintDepth>k__BackingField: 9.570535
+  <Weight>k__BackingField: 0.6
+  <MaxPerSettlement>k__BackingField: 0
+  <MaxPerWorld>k__BackingField: 0

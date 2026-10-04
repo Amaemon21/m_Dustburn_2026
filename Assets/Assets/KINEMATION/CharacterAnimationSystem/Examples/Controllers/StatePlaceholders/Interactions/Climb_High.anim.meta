@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 41045ce4a3297ec49bbd368bac962fd7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/StatePlaceholders/Interactions/Climb_High.anim
+  uploadId: 998408

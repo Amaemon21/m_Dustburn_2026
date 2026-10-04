@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 12bf7103c07e57d41814d2d7402bc0af
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/BIRP/RepetitionlessLayeredLit.shader
+  uploadId: 985582

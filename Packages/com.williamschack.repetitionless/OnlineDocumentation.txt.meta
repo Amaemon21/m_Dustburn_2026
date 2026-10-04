@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b90899d463b871c6e91d6d3fed026119
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/OnlineDocumentation.txt
+  uploadId: 985582

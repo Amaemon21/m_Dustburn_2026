@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0e5fed3b27233274e8360acd5bb9c5ff
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/AC_CAS_Template.controller
+  uploadId: 998408

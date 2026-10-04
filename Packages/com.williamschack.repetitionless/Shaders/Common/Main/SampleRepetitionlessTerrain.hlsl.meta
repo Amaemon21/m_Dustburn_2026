@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e24d483a2646481eaad1d4335092cb39
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/Main/SampleRepetitionlessTerrain.hlsl
+  uploadId: 985582

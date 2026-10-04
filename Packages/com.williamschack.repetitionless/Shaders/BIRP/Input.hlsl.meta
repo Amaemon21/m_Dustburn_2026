@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b738dcb3836ea9bae9792cacc2d34b82
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/BIRP/Input.hlsl
+  uploadId: 985582

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 93db02dd8059dba8fae2f43161f1fdde
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Flat/Materials/Repetitionless_HDRP_Flat_Repetitionless.mat
+  uploadId: 985582

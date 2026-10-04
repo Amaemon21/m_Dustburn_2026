@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e0378b855d6cb95ed9e1c853b7b8c7c3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 15600000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/BIRP/Forest/TerrainData/Repetitionless_BIRP_Forest_Terrain3.asset
+  uploadId: 985582

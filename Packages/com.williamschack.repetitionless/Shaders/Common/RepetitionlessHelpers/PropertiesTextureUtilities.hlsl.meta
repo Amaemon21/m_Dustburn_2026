@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fa0b3170d4c1017f6a788fb6fff909c6
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/RepetitionlessHelpers/PropertiesTextureUtilities.hlsl
+  uploadId: 985582

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa0a45259843cef4d90f327e611447fc, type: 3}
+  m_Name: UIInputSettings
+  m_EditorClassIdentifier: Assembly-CSharp::UIInputSettings
+  <TogglePlayerMenu>k__BackingField: {fileID: -6515912041184546309, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <CloseWindow>k__BackingField: {fileID: 844738393015304814, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  _hotbarSlots:
+  - {fileID: 3535912082319549547, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  - {fileID: 7177554803642074544, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  - {fileID: -5413855120141206296, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  - {fileID: -4745385490284883356, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  - {fileID: -4706619998584933601, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  - {fileID: 8189993555700919822, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  - {fileID: 2305834901478963709, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <QuickTransfer>k__BackingField: {fileID: 7315374840116682332, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <Scroll>k__BackingField: {fileID: -1329284116697985374, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <UseItem>k__BackingField: {fileID: -9046177780987862689, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <DropItem>k__BackingField: {fileID: -7315090288785916905, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <TakeAll>k__BackingField: {fileID: 8129149869969444447, guid: 6298fa93293cae4418393a2a54d27417, type: 3}

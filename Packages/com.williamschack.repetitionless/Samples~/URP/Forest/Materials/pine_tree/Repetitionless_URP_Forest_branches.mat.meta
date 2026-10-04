@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 229083a7c29d74e92a564d2b86a6f836
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Forest/Materials/pine_tree/Repetitionless_URP_Forest_branches.mat
+  uploadId: 985582

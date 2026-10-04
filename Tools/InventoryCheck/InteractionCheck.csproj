@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UseAppHost>false</UseAppHost>
+    <NoWarn>CS0436</NoWarn>
+    <UnityManaged>E:\Unity\6000.3.20f1\Editor\Data\Managed\UnityEngine</UnityManaged>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="TestWindowPresenter.cs" />
+    <Compile Include="InteractionHarness.cs" />
+    <Compile Include="PlayerControlStubs.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Player/PlayerControlService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/IWindowPresenter.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Bootstrap/Preparation/IGameplayActivatable.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/SceneLoadStatus.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/ViewModel.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/ReactiveCommand.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/WindowViewModel.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/WindowService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/UI/Screens/IScreenService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/UI/Screens/ScreenService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractController.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Handler/InteractHandler.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Handler/IInteractionTargetProvider.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Handler/IInteractionContext.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/ItemPickup.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/IInteractableObject.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/ViewModels/InteractedViewModel.cs" />
+    <Reference Include="$(UnityManaged)/UnityEngine.CoreModule.dll" />
+    <Reference Include="../../Library/ScriptAssemblies/VContainer.dll" />
+    <Reference Include="../../Library/ScriptAssemblies/UniTask.dll" />
+    <Reference Include="../../Assets/Packages/R3.1.3.1/lib/netstandard2.1/R3.dll" />
+    <Reference Include="../../Assets/Packages/Microsoft.Bcl.TimeProvider.8.0.0/lib/netstandard2.0/Microsoft.Bcl.TimeProvider.dll" />
+  </ItemGroup>
+</Project>

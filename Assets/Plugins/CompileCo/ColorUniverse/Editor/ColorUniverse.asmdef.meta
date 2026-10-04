@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 954de8bd2ad0ce14487fcccb0c31c45d
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326013
+  packageName: '[ Color Universe ] - Multi Color Palettes'
+  packageVersion: 1.0
+  assetPath: Assets/Plugins/CompileCo/ColorUniverse/Editor/ColorUniverse.asmdef
+  uploadId: 771675

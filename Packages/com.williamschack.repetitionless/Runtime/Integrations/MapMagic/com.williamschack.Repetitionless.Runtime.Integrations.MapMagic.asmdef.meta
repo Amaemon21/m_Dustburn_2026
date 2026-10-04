@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7b4d755afc1fe7a62bde7ca49568c8be
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Runtime/Integrations/MapMagic/com.williamschack.Repetitionless.Runtime.Integrations.MapMagic.asmdef
+  uploadId: 985582

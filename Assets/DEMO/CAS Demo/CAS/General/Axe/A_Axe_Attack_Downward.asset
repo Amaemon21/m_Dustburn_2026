@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15b65962d404b18a8fbde00c6981655, type: 3}
+  m_Name: A_Axe_Attack_Downward
+  m_EditorClassIdentifier: 
+  clip: {fileID: -203655887218126122, guid: 945d13a24dc23054d8aa72964e423ada, type: 3}
+  mask: {fileID: 0}
+  blendTime:
+    easeMode:
+      easeFunc: 1
+      curve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    blendInTime: 0.2
+    blendOutTime: 0.2
+  playRate: 1
+  isAdditive: 0
+  autoBlendOut: 1
+  slot: 1
+  events:
+  - rid: 924609273995722825
+  eventStates:
+  - rid: 924609280333053952
+  references:
+    version: 2
+    RefIds:
+    - rid: 924609273995722825
+      type: {class: TestAnimationEvent, ns: KINEMATION.CharacterAnimationSystem.Examples.Scripts,
+        asm: CAS.Examples.Scripts}
+      data:
+        time: 0.5
+        weightThreshold: 0.131
+        message: Test event
+    - rid: 924609280333053952
+      type: {class: TestAnimationEventState, ns: KINEMATION.CharacterAnimationSystem.Examples.Scripts,
+        asm: CAS.Examples.Scripts}
+      data:
+        startTime: 0.46666667
+        endTime: 1.8666667
+        weightThreshold: 0.00001
+        message: Test event state
+        logTick: 0

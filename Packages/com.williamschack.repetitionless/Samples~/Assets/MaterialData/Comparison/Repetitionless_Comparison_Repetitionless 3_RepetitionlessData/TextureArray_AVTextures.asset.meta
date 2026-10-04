@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e8c0ea10205843650b7866ebffa4045e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 18700000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/MaterialData/Comparison/Repetitionless_Comparison_Repetitionless
+    3_RepetitionlessData/TextureArray_AVTextures.asset
+  uploadId: 985582

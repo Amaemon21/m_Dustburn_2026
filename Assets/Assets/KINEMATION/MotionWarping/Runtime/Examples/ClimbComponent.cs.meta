@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: b86a5418587f4d5c9107dabe449506cb
+timeCreated: 1695198402
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/MotionWarping/Runtime/Examples/ClimbComponent.cs
+  uploadId: 998408

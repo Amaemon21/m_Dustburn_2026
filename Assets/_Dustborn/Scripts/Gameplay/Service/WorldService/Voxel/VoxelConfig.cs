@@ -1,0 +1,55 @@
+using NaughtyAttributes;
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "VoxelConfig", menuName = "World/Voxel Config")]
+public class VoxelConfig : ScriptableObject
+{
+    [field: SerializeField, Quality, BoxGroup("Grid"), MinValue(0.25f)]
+    [field: Tooltip("Edge of one voxel in metres. This is the digging resolution: 7 Days to Die works at one metre.")]
+    public float VoxelSize { get; private set; } = 1f;
+
+    [field: SerializeField, Quality, BoxGroup("Grid"), MinValue(8)]
+    [field: Tooltip("Voxels per side of a chunk. The mesher rebuilds a whole chunk on every edit, so this is the unit of runtime cost.")]
+    public int ChunkSize { get; private set; } = 32;
+
+    [field: SerializeField, Quality, BoxGroup("Grid"), MinValue(0f)]
+    [field: Tooltip("Metres of solid rock kept below the lowest point of the terrain. Digging deeper than this hits the bottom of the world.")]
+    public float Bedrock { get; private set; } = 64f;
+
+    [field: SerializeField, Quality, BoxGroup("Decor"), Range(0, 5)]
+    [field: Tooltip("Coarsest ring that still gets grass in the editor preview. At runtime grass follows the viewer and its reach is GrassDistance instead, because the ground is built once and does not move with the player.")]
+    public int GrassMaxLod { get; private set; }
+
+    [field: SerializeField, Quality, BoxGroup("Decor"), MinValue(0f)]
+    [field: Tooltip("Metres around the viewer that grass is placed in, and the distance its shader dissolves it over. Grass is the densest decor by far, so this is the knob that decides how much of it reaches the screen. Zero falls back to the radius of the nearest ring.")]
+    public float GrassDistance { get; private set; } = 150f;
+
+    [field: SerializeField, Quality, BoxGroup("Decor"), Range(0, 5)]
+    [field: Tooltip("How far rocks reach around the viewer, in rings: the radius of that ring is what they cover. Two doubles the radius against one.")]
+    public int RockMaxLod { get; private set; } = 1;
+
+    [field: SerializeField, Quality, BoxGroup("Decor"), Range(0, 5)]
+    [field: Tooltip("How far trees reach around the viewer, in rings. They read as the silhouette of the landscape, so they reach further than grass and rocks; every step doubles the radius and quadruples the count.")]
+    public int TreeMaxLod { get; private set; } = 2;
+
+    public int MaxLod(DecorKind kind)
+    {
+        return kind switch
+        {
+            DecorKind.Grass => GrassMaxLod,
+            DecorKind.Rock => RockMaxLod,
+            _ => TreeMaxLod
+        };
+    }
+
+    [field: SerializeField, Quality, BoxGroup("Streaming"), MinValue(0f)]
+    [field: Tooltip("Metres the skirt hangs below a join between two levels of detail, the same at every level. The join is watertight without it, so it is only insurance against rasterisation leaks; the finer side owns it, the coarser side never gets one. Zero turns it off.")]
+    public float SkirtDepth { get; private set; } = 2f;
+
+    [ShowNativeProperty] public float ChunkMetres => VoxelSize * ChunkSize;
+
+    public int ChunksPerSide(int worldSize)
+    {
+        return Mathf.Max(1, Mathf.CeilToInt(worldSize / ChunkMetres));
+    }
+}

@@ -1,0 +1,759 @@
+{
+  "name": "Dustborn Water Stamps",
+  "version": 1,
+  "resolution": [
+    1024,
+    1024
+  ],
+  "channels": 1,
+  "bit_depth": 16,
+  "numeric_encoding": "unsigned integer, normalized by / 65535",
+  "color_space": "linear data, not color",
+  "png_format": "16-bit grayscale PNG; no alpha",
+  "raw_format": {
+    "extension": ".raw",
+    "sample_type": "uint16",
+    "byte_order": "little-endian",
+    "header_bytes": 0,
+    "row_order": "top row first",
+    "row_stride_bytes": 2048,
+    "file_size_bytes": 2097152
+  },
+  "mask_convention": "0 = no influence, 65535 = deepest/core influence. Mid-values form banks/shore blending.",
+  "coordinates": {
+    "u": "column / (width - 1), left = 0, right = 1",
+    "v": "row / (height - 1), top = 0, bottom = 1"
+  },
+  "stamps": [
+    {
+      "id": 1,
+      "name": "01_straight_river",
+      "category": "StraightRiver",
+      "kind": "river",
+      "mask_png16": "masks_png16/01_straight_river.png",
+      "mask_raw16": "masks_raw16/01_straight_river.raw",
+      "preview_only": "previews/01_straight_river_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.5
+      ],
+      "exit": [
+        1.0,
+        0.5
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "4901b63995bcddc12eb616401be24bee4a54f1e6a5abd9285a72c1dba4918a98"
+    },
+    {
+      "id": 2,
+      "name": "02_gentle_curve",
+      "category": "GentleCurve",
+      "kind": "river",
+      "mask_png16": "masks_png16/02_gentle_curve.png",
+      "mask_raw16": "masks_raw16/02_gentle_curve.raw",
+      "preview_only": "previews/02_gentle_curve_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.4
+      ],
+      "exit": [
+        1.0,
+        0.6
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "1e96433e02dd64ad352fea3988e6adf402c69b015dbc7a411e2191d5401ac95d"
+    },
+    {
+      "id": 3,
+      "name": "03_strong_curve",
+      "category": "StrongCurve",
+      "kind": "river",
+      "mask_png16": "masks_png16/03_strong_curve.png",
+      "mask_raw16": "masks_raw16/03_strong_curve.raw",
+      "preview_only": "previews/03_strong_curve_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.28
+      ],
+      "exit": [
+        1.0,
+        0.88
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "13021e7340943d8e0669476c2fbcedc8e15d7d3ca5557eeace5a598ae0b3cebb"
+    },
+    {
+      "id": 4,
+      "name": "04_s_meander",
+      "category": "SMeander",
+      "kind": "river",
+      "mask_png16": "masks_png16/04_s_meander.png",
+      "mask_raw16": "masks_raw16/04_s_meander.raw",
+      "preview_only": "previews/04_s_meander_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.4
+      ],
+      "exit": [
+        1.0,
+        0.56
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "70e5fc5ec4d1a0f52a61b7891f0c8c63b7cc4c9f0d8b10a905e7ae5355c9662a"
+    },
+    {
+      "id": 5,
+      "name": "05_wide_meander",
+      "category": "WideMeander",
+      "kind": "river",
+      "mask_png16": "masks_png16/05_wide_meander.png",
+      "mask_raw16": "masks_raw16/05_wide_meander.raw",
+      "preview_only": "previews/05_wide_meander_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 30.0,
+      "entry": [
+        0.0,
+        0.32
+      ],
+      "exit": [
+        1.0,
+        0.38
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "a7097330ee7371607e0872d5947f0531f0b18710419723ecd8ef2c51f43184ec"
+    },
+    {
+      "id": 6,
+      "name": "06_narrow_meander",
+      "category": "NarrowMeander",
+      "kind": "river",
+      "mask_png16": "masks_png16/06_narrow_meander.png",
+      "mask_raw16": "masks_raw16/06_narrow_meander.raw",
+      "preview_only": "previews/06_narrow_meander_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.52
+      ],
+      "exit": [
+        1.0,
+        0.52
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "54d9f5358f070fde16e3eae289760d5196165e6eec65a34bf4a5de75ff57dc1e"
+    },
+    {
+      "id": 7,
+      "name": "07_canyon_river",
+      "category": "CanyonRiver",
+      "kind": "river",
+      "mask_png16": "masks_png16/07_canyon_river.png",
+      "mask_raw16": "masks_raw16/07_canyon_river.raw",
+      "preview_only": "previews/07_canyon_river_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 5.0,
+      "recommended_bank_width_m": 16.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.48
+      ],
+      "exit": [
+        1.0,
+        0.52
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "160310fb33e95a0fa178173d6370048f2719a679ae26590000a273b8c2dcf1ac"
+    },
+    {
+      "id": 8,
+      "name": "08_river_source",
+      "category": "RiverSource",
+      "kind": "river",
+      "mask_png16": "masks_png16/08_river_source.png",
+      "mask_raw16": "masks_raw16/08_river_source.raw",
+      "preview_only": "previews/08_river_source_preview.png",
+      "recommended_footprint_m": [
+        700,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.18,
+        0.5
+      ],
+      "exit": [
+        1.0,
+        0.5
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "b1e475c9a7b669add69117ff6056c09238c644dde59cb0e7e31687176b2ffe18"
+    },
+    {
+      "id": 9,
+      "name": "09_river_mouth",
+      "category": "RiverMouth",
+      "kind": "river",
+      "mask_png16": "masks_png16/09_river_mouth.png",
+      "mask_raw16": "masks_raw16/09_river_mouth.raw",
+      "preview_only": "previews/09_river_mouth_preview.png",
+      "recommended_footprint_m": [
+        900,
+        1100
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 30.0,
+      "entry": [
+        0.0,
+        0.5
+      ],
+      "exit": [
+        1.0,
+        0.5
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "7818cc0cf5d718751f07f86ed0a2fd8c0314628dd61d71d016b891e903f393e0"
+    },
+    {
+      "id": 10,
+      "name": "10_lake_outlet",
+      "category": "LakeOutlet",
+      "kind": "river",
+      "mask_png16": "masks_png16/10_lake_outlet.png",
+      "mask_raw16": "masks_raw16/10_lake_outlet.raw",
+      "preview_only": "previews/10_lake_outlet_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.5
+      ],
+      "exit": [
+        1.0,
+        0.58
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "c12363c6657dc44dd4472fbfea098666adb2a4aff47eae143090a80339c143dd"
+    },
+    {
+      "id": 11,
+      "name": "11_tributary_join",
+      "category": "TributaryJoin",
+      "kind": "river",
+      "mask_png16": "masks_png16/11_tributary_join.png",
+      "mask_raw16": "masks_raw16/11_tributary_join.raw",
+      "preview_only": "previews/11_tributary_join_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.5
+      ],
+      "exit": [
+        1.0,
+        0.54
+      ],
+      "branches": [
+        {
+          "kind": "tributary_in",
+          "position": [
+            0.48,
+            0.0
+          ],
+          "direction": [
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "allow_mirror": false,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "94dcc9d2c86257babd058c781b66f5d2a9db78ee0591d376f7e0a7931517c474"
+    },
+    {
+      "id": 12,
+      "name": "12_river_fork",
+      "category": "RiverFork",
+      "kind": "river",
+      "mask_png16": "masks_png16/12_river_fork.png",
+      "mask_raw16": "masks_raw16/12_river_fork.raw",
+      "preview_only": "previews/12_river_fork_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.5
+      ],
+      "exit": [
+        1.0,
+        0.34
+      ],
+      "branches": [
+        {
+          "kind": "branch_out",
+          "position": [
+            1.0,
+            0.72
+          ],
+          "direction": [
+            1.0,
+            0.15
+          ]
+        }
+      ],
+      "allow_mirror": false,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "2b28655d43adabe40c20211cd164f6eaec36679172756cc13e0064f63bcdf543"
+    },
+    {
+      "id": 13,
+      "name": "13_long_curve",
+      "category": "GentleCurve",
+      "kind": "river",
+      "mask_png16": "masks_png16/13_long_curve.png",
+      "mask_raw16": "masks_raw16/13_long_curve.raw",
+      "preview_only": "previews/13_long_curve_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.65
+      ],
+      "exit": [
+        1.0,
+        0.34
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "1939858d82c0b405beb046360a69ed5beadc4ee7cf0af369dd7ef880e1a872c9"
+    },
+    {
+      "id": 14,
+      "name": "14_broad_sweep",
+      "category": "WideMeander",
+      "kind": "river",
+      "mask_png16": "masks_png16/14_broad_sweep.png",
+      "mask_raw16": "masks_raw16/14_broad_sweep.raw",
+      "preview_only": "previews/14_broad_sweep_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 30.0,
+      "entry": [
+        0.0,
+        0.25
+      ],
+      "exit": [
+        1.0,
+        0.76
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "151a1658bf25a235d9b9ddcc9e4d33793cd3b9449e6566690554ec6ca023267e"
+    },
+    {
+      "id": 15,
+      "name": "15_broken_meander",
+      "category": "SMeander",
+      "kind": "river",
+      "mask_png16": "masks_png16/15_broken_meander.png",
+      "mask_raw16": "masks_raw16/15_broken_meander.raw",
+      "preview_only": "previews/15_broken_meander_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.62
+      ],
+      "exit": [
+        1.0,
+        0.72
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "13a32b4fdeaeb4936393f9fb229ae333f3219d337782f24b2c6e54f55f452bac"
+    },
+    {
+      "id": 16,
+      "name": "16_shallow_bend",
+      "category": "GentleCurve",
+      "kind": "river",
+      "mask_png16": "masks_png16/16_shallow_bend.png",
+      "mask_raw16": "masks_raw16/16_shallow_bend.raw",
+      "preview_only": "previews/16_shallow_bend_preview.png",
+      "recommended_footprint_m": [
+        900,
+        900
+      ],
+      "recommended_depth_m": 2.2,
+      "recommended_bank_width_m": 22.0,
+      "nominal_channel_width_m": 18.0,
+      "entry": [
+        0.0,
+        0.55
+      ],
+      "exit": [
+        1.0,
+        0.43
+      ],
+      "branches": [],
+      "allow_mirror": true,
+      "min_scale": 0.75,
+      "max_scale": 1.35,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "77d8bc58e2fa18c752c537f860ff7cb7db1286b942087e43bf9d5669ccf64b3e"
+    },
+    {
+      "id": 17,
+      "name": "17_small_irregular_lake",
+      "category": "SmallIrregularLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/17_small_irregular_lake.png",
+      "mask_raw16": "masks_raw16/17_small_irregular_lake.raw",
+      "preview_only": "previews/17_small_irregular_lake_preview.png",
+      "recommended_footprint_m": [
+        650,
+        520
+      ],
+      "recommended_depth_m": 4.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "0741222a949d9c09f17e58a54a6570be6e71fcc09159f453d24621dfc3e99ead"
+    },
+    {
+      "id": 18,
+      "name": "18_medium_irregular_lake",
+      "category": "MediumIrregularLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/18_medium_irregular_lake.png",
+      "mask_raw16": "masks_raw16/18_medium_irregular_lake.raw",
+      "preview_only": "previews/18_medium_irregular_lake_preview.png",
+      "recommended_footprint_m": [
+        1100,
+        850
+      ],
+      "recommended_depth_m": 4.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "5b1d2536cbbdc68c63f1c91022c630a310493d40568b6d9b92e99df2e4e08446"
+    },
+    {
+      "id": 19,
+      "name": "19_large_irregular_lake",
+      "category": "LargeIrregularLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/19_large_irregular_lake.png",
+      "mask_raw16": "masks_raw16/19_large_irregular_lake.raw",
+      "preview_only": "previews/19_large_irregular_lake_preview.png",
+      "recommended_footprint_m": [
+        1800,
+        1450
+      ],
+      "recommended_depth_m": 6.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "d634addfc5b9c58f10f17359b149134cae7edf21dfc787bc06016c718e3a43f6"
+    },
+    {
+      "id": 20,
+      "name": "20_long_lake",
+      "category": "LongLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/20_long_lake.png",
+      "mask_raw16": "masks_raw16/20_long_lake.raw",
+      "preview_only": "previews/20_long_lake_preview.png",
+      "recommended_footprint_m": [
+        1700,
+        700
+      ],
+      "recommended_depth_m": 4.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "fc8092a9247fd3a6f679a209fdbbf5f746da0137762b3b42a21e9f81cfe0b8a5"
+    },
+    {
+      "id": 21,
+      "name": "21_crescent_lake",
+      "category": "CrescentLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/21_crescent_lake.png",
+      "mask_raw16": "masks_raw16/21_crescent_lake.raw",
+      "preview_only": "previews/21_crescent_lake_preview.png",
+      "recommended_footprint_m": [
+        1350,
+        1000
+      ],
+      "recommended_depth_m": 4.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "16f51bf4da39393c8ca9fd6f06ce4040e4ccf6312e76bfb3e29add0498973a03"
+    },
+    {
+      "id": 22,
+      "name": "22_branching_lake",
+      "category": "BranchingLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/22_branching_lake.png",
+      "mask_raw16": "masks_raw16/22_branching_lake.raw",
+      "preview_only": "previews/22_branching_lake_preview.png",
+      "recommended_footprint_m": [
+        1500,
+        1200
+      ],
+      "recommended_depth_m": 4.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "1fa5edd1a6e76ca1ccfdcd95eb44a436dc753a521b4cb3bb02231cebad0e3bd6"
+    },
+    {
+      "id": 23,
+      "name": "23_mountain_lake",
+      "category": "MountainLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/23_mountain_lake.png",
+      "mask_raw16": "masks_raw16/23_mountain_lake.raw",
+      "preview_only": "previews/23_mountain_lake_preview.png",
+      "recommended_footprint_m": [
+        800,
+        650
+      ],
+      "recommended_depth_m": 4.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "9dcd4794f2bb4f4be3627fbc1b7c0609f4f3bf2e344ff1a4c727535888e9e7c7"
+    },
+    {
+      "id": 24,
+      "name": "24_basin_lake",
+      "category": "BasinLake",
+      "kind": "lake",
+      "mask_png16": "masks_png16/24_basin_lake.png",
+      "mask_raw16": "masks_raw16/24_basin_lake.raw",
+      "preview_only": "previews/24_basin_lake_preview.png",
+      "recommended_footprint_m": [
+        1550,
+        1200
+      ],
+      "recommended_depth_m": 6.0,
+      "recommended_bank_width_m": 30.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "0d9a66f5e5ed487d90455a6485be4cb0d4929258a6037faca949f4e76e44b93e"
+    },
+    {
+      "id": 25,
+      "name": "25_pond",
+      "category": "Pond",
+      "kind": "pond",
+      "mask_png16": "masks_png16/25_pond.png",
+      "mask_raw16": "masks_raw16/25_pond.raw",
+      "preview_only": "previews/25_pond_preview.png",
+      "recommended_footprint_m": [
+        260,
+        220
+      ],
+      "recommended_depth_m": 2.0,
+      "recommended_bank_width_m": 10.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "e194214f0ea9a00464ef2847f2631a743349e849a6dca4168b72f8d948c08971"
+    },
+    {
+      "id": 26,
+      "name": "26_irregular_pond",
+      "category": "IrregularPond",
+      "kind": "pond",
+      "mask_png16": "masks_png16/26_irregular_pond.png",
+      "mask_raw16": "masks_raw16/26_irregular_pond.raw",
+      "preview_only": "previews/26_irregular_pond_preview.png",
+      "recommended_footprint_m": [
+        340,
+        260
+      ],
+      "recommended_depth_m": 2.0,
+      "recommended_bank_width_m": 10.0,
+      "allow_mirror": true,
+      "min_scale": 0.7,
+      "max_scale": 1.4,
+      "weight": 1.0,
+      "preferred_biomes": [],
+      "sha256_raw16": "f55f5fdb9684cec221082e964495c8310585ed5fb22f30fdee3883c77f7a68dc"
+    }
+  ]
+}

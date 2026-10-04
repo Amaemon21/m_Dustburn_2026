@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: b23981429f914d82854c9500fa709063
+timeCreated: 1748936642
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/Shared/PropertyBindings/Runtime/BindableAttributes.cs
+  uploadId: 998408

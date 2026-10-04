@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: adc527de1cd275741b7849e4de7f6dd7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/StatePlaceholders/InAir/Jump_End.anim
+  uploadId: 998408

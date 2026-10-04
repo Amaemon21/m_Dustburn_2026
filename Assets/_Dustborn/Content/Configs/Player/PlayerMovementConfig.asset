@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e69d99310e9bdc443942220b574c26ad, type: 3}
+  m_Name: PlayerMovementConfig
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementConfig
+  <WalkSpeed>k__BackingField: 4.5
+  <SprintMultiplier>k__BackingField: 1.8
+  <CrouchSpeed>k__BackingField: 2
+  <JumpHeight>k__BackingField: 1.1
+  <Gravity>k__BackingField: -20
+  <AirSlopeLimit>k__BackingField: 0
+  <MinAirTimeToLand>k__BackingField: 0.4
+  <StandingHeight>k__BackingField: 1.8
+  <StandingCenter>k__BackingField: {x: 0, y: 0, z: 0}
+  <CrouchHeight>k__BackingField: 1.3
+  <CrouchCenter>k__BackingField: {x: 0, y: 0, z: 0}
+  <CrouchTransitionTime>k__BackingField: 0.25
+  <CeilingMask>k__BackingField:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  <LookSensitivity>k__BackingField: 0.15
+  <PitchLimit>k__BackingField: 89

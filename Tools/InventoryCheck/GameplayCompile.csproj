@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <_EnableDefaultWindowsPlatform>false</_EnableDefaultWindowsPlatform>
+    <LangVersion>9</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>UNITY_EDITOR;UNITY_6000_3_OR_NEWER;UNITY_2021_3_OR_NEWER</DefineConstants>
+    <NoWarn>CS0649;CS0414;CS0169</NoWarn>
+    <UnityManaged Condition="'$(UnityManaged)' == ''">E:\Unity\6000.3.20f1\Editor\Data\Managed\UnityEngine</UnityManaged>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(UseAddressablesStubs)' == 'true'">
+    <DefineConstants>$(DefineConstants);DUSTBORN_HEADLESS_ADDRESSABLES</DefineConstants>
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AddressablesStubs.cs" Condition="'$(UseAddressablesStubs)' == 'true'" />
+    <Compile Include="../../Assets/Assets/QuickOutline/Scripts/Outline.cs" />
+    <Compile Include="../../Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/**/*.cs"
+             Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/**/*.cs;../../Assets/_Dustborn/Scripts/Utils/**/*.cs" />
+    <Reference Include="$(UnityManaged)/*.dll" />
+    <Reference Include="../../Assets/Plugins/Demigiant/DOTween/DOTween.dll" />
+    <Reference Include="../../Library/ScriptAssemblies/*.dll" Exclude="../../Library/ScriptAssemblies/Assembly-CSharp*.dll" />
+    <Reference Include="../../Assets/Packages/*/lib/netstandard2.1/*.dll" />
+    <Reference Include="../../Assets/Packages/Microsoft.Bcl.TimeProvider.8.0.0/lib/netstandard2.0/Microsoft.Bcl.TimeProvider.dll" />
+    <Reference Include="../../Library/PackageCache/com.unity.nuget.newtonsoft-json@4dfd81071c64/Runtime/Newtonsoft.Json.dll" />
+  </ItemGroup>
+</Project>

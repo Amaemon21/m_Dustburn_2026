@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 77bf144aa546c1f658198292a8489634
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Flat/Flat.unity
+  uploadId: 985582

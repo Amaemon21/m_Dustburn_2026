@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2b3eec6472d6cb248b60138bebe1f26e
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/Assets/KINEMATION/Shared/ScriptableWidget/Editor/ScriptableWidget.Editor.asmdef
+  uploadId: 982620

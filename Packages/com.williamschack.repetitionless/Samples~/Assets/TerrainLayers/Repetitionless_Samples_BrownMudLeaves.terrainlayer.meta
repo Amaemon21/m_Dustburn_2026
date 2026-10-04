@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 55137e210829884c3969a2daa86bb484
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 8574412962073106934
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/TerrainLayers/Repetitionless_Samples_BrownMudLeaves.terrainlayer
+  uploadId: 985582

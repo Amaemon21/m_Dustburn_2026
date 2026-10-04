@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="UnityReferences.props" />
+  <PropertyGroup>
+    <AssemblyName>Dustborn.WorldGen</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(WorldGeneration)\**\*.cs" Exclude="$(WorldGeneration)\Editor\**\*.cs" />
+    <ProjectReference Include="UnityCompileCheck.Utils.csproj" />
+  </ItemGroup>
+</Project>

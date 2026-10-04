@@ -1,0 +1,18 @@
+{
+    "name": "PropertyBindings.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:531f2a4cbbef0164bb9afb778f9fb0c2"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

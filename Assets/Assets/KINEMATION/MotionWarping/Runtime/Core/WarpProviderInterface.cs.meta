@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: af4b4f93ff874248959946ba0a83a8ea
+timeCreated: 1699699303
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/MotionWarping/Runtime/Core/WarpProviderInterface.cs
+  uploadId: 998408

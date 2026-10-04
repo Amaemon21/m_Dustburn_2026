@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8ef469c67f68e2043b2b1cbee0a22775
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/StatePlaceholders/Turns/Standing_Turn_Left.anim
+  uploadId: 998408

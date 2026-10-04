@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c0658b0adff1accee8120226796b54d2
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/BIRP/TerrainShadowCasterPass.hlsl
+  uploadId: 985582

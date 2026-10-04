@@ -1,0 +1,25 @@
+{
+    "name": "Dustborn.WorldGen.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Dustborn.WorldGen",
+        "Dustborn.Utils",
+        "NaughtyAttributes.Core",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "com.williamschack.Repetitionless.Runtime",
+        "com.williamschack.Repetitionless.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

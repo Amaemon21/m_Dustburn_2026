@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: dd210dcd39a8617779208dcb4ec29a92
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/Utilities/BooleanCompression.hlsl
+  uploadId: 985582

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 197b1a7359b71e0859af183d9d8f6e05
+ComputeShaderImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Resources/repetitionless_PaintControlTexture.compute
+  uploadId: 985582

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 83417ca34de1b934cb30707b97177a3b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/StatePlaceholders/Curves_Default.anim
+  uploadId: 998408

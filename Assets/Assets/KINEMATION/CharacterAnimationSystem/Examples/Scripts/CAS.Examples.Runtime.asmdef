@@ -1,0 +1,25 @@
+{
+    "name": "CAS.Examples.Scripts",
+    "rootNamespace": "",
+    "references": [
+        "GUID:11accb3f77969894f8bbe9a1772b2fd1",
+        "GUID:4c36dcf6d8eeb6d44ab73ef966534b46",
+        "GUID:d8548a9d25a091541a1fcde53694c91a",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "UNITY_INPUT_SYSTEM_ENABLED"
+        }
+    ],
+    "noEngineReferences": false
+}

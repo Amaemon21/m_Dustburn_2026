@@ -1,0 +1,35 @@
+{
+  "name": "com.williamschack.repetitionless",
+  "displayName": "Repetitionless",
+  "version": "1.7.2",
+  "unity": "2021.3",
+  "unityRelease": "26f1",
+  "description": "Remove visible texture tiling in seconds with a drop in replacement for materials and terrains. Fully compatible with Built-In, URP, and HDRP",
+  "author": {
+    "name": "William Schack",
+    "url": "https://wilschack.dev/",
+    "email": "contact@wilschack.dev"
+  },
+  "keywords": [
+    "material",
+    "seamless",
+    "shader",
+    "terrain",
+    "texture",
+    "variation",
+    "tile"
+  ],
+  "dependencies": {
+    "com.unity.shadergraph": "12.1.0"
+  },
+  "changelogUrl": "https://github.com/WilliamSchack/Repetitionless-Issues/releases/",
+  "documentationUrl": "https://docs.wilschack.dev/repetitionless/",
+  "license": "See LICENSE.md",
+  "samples": [
+    {
+      "displayName": "Use Automatic Install",
+      "description": "To install the samples, open the Repetitionless window (Window > Repetitionless > Open Window) and import them with the \"Import Samples\" button. That will automatically import the samples for your render pipeline and complete extra required import steps",
+      "path": "Samples~/Manual"
+    }
+  ]
+}

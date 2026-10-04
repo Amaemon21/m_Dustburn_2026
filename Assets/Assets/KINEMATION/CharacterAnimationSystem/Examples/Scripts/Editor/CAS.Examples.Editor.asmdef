@@ -1,0 +1,30 @@
+{
+    "name": "CAS.Examples.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:11accb3f77969894f8bbe9a1772b2fd1",
+        "GUID:d8548a9d25a091541a1fcde53694c91a",
+        "GUID:fe54a6eae90837846a41c67216cb6c8a",
+        "GUID:531f2a4cbbef0164bb9afb778f9fb0c2",
+        "GUID:3b9c1e777897a454ab8f17fb7264c2af",
+        "GUID:47d503a212c7a414484a2b5d14e0ad1e",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "UNITY_INPUT_SYSTEM_ENABLED"
+        }
+    ],
+    "noEngineReferences": false
+}

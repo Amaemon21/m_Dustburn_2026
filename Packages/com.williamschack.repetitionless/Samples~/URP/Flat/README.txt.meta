@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c3827dfdf509efb38a31c0fd7d6b3ba7
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Flat/README.txt
+  uploadId: 985582

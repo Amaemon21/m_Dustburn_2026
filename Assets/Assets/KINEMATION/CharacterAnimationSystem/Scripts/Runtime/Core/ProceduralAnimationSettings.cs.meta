@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: e9e7be750ea64cb99d1929e5a83929ca
+timeCreated: 1742651032
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Core/ProceduralAnimationSettings.cs
+  uploadId: 998408

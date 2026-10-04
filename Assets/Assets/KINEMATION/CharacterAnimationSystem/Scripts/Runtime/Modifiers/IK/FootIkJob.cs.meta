@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: fef7beebb0344a68943dd9366435f129
+timeCreated: 1744016358
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/IK/FootIkJob.cs
+  uploadId: 998408

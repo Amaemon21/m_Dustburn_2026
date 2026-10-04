@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bdba9e03c2b4f82e098db1702d52cbd6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Data/RepetitionlessDataPacker.cs
+  uploadId: 985582

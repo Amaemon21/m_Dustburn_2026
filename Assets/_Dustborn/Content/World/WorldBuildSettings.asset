@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d93d558815fe4b3fafa6a572389b2cb8, type: 3}
+  m_Name: WorldBuildSettings
+  m_EditorClassIdentifier: Assembly-CSharp::WorldBuildSettings
+  <Config>k__BackingField: {fileID: 11400000, guid: daa9a98b29dc1014f857e00a4cdfe223, type: 2}
+  <Biomes>k__BackingField: {fileID: 11400000, guid: 749ec2e32d137254994a3a3ef219a012, type: 2}
+  <Pois>k__BackingField: {fileID: 11400000, guid: 2f732fced9168ef43867cbbf889f0dc5, type: 2}
+  <Voxels>k__BackingField: {fileID: 11400000, guid: edc31c52e91f6c948aa37f4f4342a49b, type: 2}
+  <SpawnDecor>k__BackingField: 1
+  <GrassDensity>k__BackingField: 1
+  <WaterMaterial>k__BackingField: {fileID: 2100000, guid: 4ccd9521bc19372458f9dda2e76fbce6, type: 2}
+  <IceMaterial>k__BackingField: {fileID: 2100000, guid: 5a5af6c2a57e3efb8a8f72bd248a562d, type: 2}
+  <BridgeMaterial>k__BackingField: {fileID: 2100000, guid: 2721863b58ce332224c81ab4fc73f6c5, type: 2}
+  <CulvertPrefab>k__BackingField: {fileID: 1443996605796206, guid: 4f98bba6ef5b4c84ab8c9c3f26da531d, type: 3}
+  <PreviewCenter>k__BackingField: {x: 4223.66, y: 2824.0847}
+  <PreviewColliders>k__BackingField: 1
+  <PreviewDecorEverywhere>k__BackingField: 1
+  <MemoryBudget>k__BackingField: 768
+  <LodCount>k__BackingField: 6
+  <NearDistance>k__BackingField: 96
+  <ControlResolution>k__BackingField: 4096
+  <BatchVertexBudget>k__BackingField: 48000
+  <ShowLoadingScreen>k__BackingField: 0
+  <MeshWorkers>k__BackingField: 8
+  <LoadingBudget>k__BackingField: 60
+  <DecorBudget>k__BackingField: 6
+  <PoisPerFrame>k__BackingField: 16

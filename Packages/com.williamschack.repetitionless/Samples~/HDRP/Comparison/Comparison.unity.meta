@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 01967928a5325c05080b36972e2615fb
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/HDRP/Comparison/Comparison.unity
+  uploadId: 985582

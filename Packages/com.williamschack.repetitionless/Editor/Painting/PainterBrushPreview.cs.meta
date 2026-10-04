@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 090732f316d089b23910e5b59f0d46c1
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/Painting/PainterBrushPreview.cs
+  uploadId: 985582

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c64d053c847236b588f5f2929851de36
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/URP~/RepetitionlessLayeredLit.shader
+  uploadId: 985582

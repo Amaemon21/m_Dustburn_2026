@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 291f05330bc74df98860957b47e438f2
+timeCreated: 1704268108
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/Assets/KINEMATION/Shared/KAnimationCore/Editor/Attributes/CurveSelectorDrawer.cs
+  uploadId: 982620

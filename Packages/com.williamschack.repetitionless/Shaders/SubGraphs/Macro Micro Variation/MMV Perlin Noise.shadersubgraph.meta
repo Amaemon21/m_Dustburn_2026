@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 060b8dc4e5c71336f8061d99b3821db3
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/SubGraphs/Macro Micro
+    Variation/MMV Perlin Noise.shadersubgraph
+  uploadId: 985582

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e3df4810b09bfce57bb2d355639006af
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/RepetitionlessHelpers/DistanceBlend.hlsl
+  uploadId: 985582

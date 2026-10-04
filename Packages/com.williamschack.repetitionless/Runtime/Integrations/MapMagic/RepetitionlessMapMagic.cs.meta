@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d22a1f4e6e1472c14821cc63b1da612f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Runtime/Integrations/MapMagic/RepetitionlessMapMagic.cs
+  uploadId: 985582

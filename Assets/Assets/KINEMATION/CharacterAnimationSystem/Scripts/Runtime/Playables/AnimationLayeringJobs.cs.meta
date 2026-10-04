@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 5d8328e1e2044211b1ae0b788f130bc4
+timeCreated: 1742567797
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Playables/AnimationLayeringJobs.cs
+  uploadId: 998408

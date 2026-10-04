@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d3661ad4b832193bc9c616ea44b1343a
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/BIRP/TerrainPasses.hlsl
+  uploadId: 985582

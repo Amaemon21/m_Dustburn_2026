@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 0be04a10385c477581f3a34b6994b49a
+timeCreated: 1744534868
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Editor/Core/AnimationAssetCreator.cs
+  uploadId: 998408

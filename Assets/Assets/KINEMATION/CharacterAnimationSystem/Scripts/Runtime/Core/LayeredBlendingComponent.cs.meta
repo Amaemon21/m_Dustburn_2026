@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 20ef972d6aa4464f800c4a5e5ce93fd9
+timeCreated: 1742385240
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Core/LayeredBlendingComponent.cs
+  uploadId: 998408

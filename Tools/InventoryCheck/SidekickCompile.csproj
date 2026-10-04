@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>SYSLIB0014</NoWarn>
+    <UnityManaged>E:\Unity\6000.3.20f1\Editor\Data\Managed\UnityEngine</UnityManaged>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Assets/Synty/SidekickCharacters/Scripts/Editor/Utility/ToolDownloader.cs" />
+    <Reference Include="$(UnityManaged)/*.dll" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9b91cdd7441774e459eff94891dc28d2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Examples/Controllers/StatePlaceholders/Walk/Crouched_Walk_Bwd.anim
+  uploadId: 998408

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b9caa7c024e218666aa176c419287ccf
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Common/TextureArrayEssentials/TextureArrayUtilities.hlsl
+  uploadId: 985582

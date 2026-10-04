@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8ea6710235f18d744ae6e01dcff9b621
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/BIRP/Forest/Forest.unity
+  uploadId: 985582

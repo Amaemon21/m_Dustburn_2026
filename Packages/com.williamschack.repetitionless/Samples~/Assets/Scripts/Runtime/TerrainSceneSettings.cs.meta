@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 708b58d46e5dfa82a95e7ce66cf5be86
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/Scripts/Runtime/TerrainSceneSettings.cs
+  uploadId: 985582

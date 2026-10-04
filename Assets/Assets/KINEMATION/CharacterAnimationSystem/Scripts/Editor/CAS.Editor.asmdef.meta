@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 47d503a212c7a414484a2b5d14e0ad1e
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Editor/CAS.Editor.asmdef
+  uploadId: 998408

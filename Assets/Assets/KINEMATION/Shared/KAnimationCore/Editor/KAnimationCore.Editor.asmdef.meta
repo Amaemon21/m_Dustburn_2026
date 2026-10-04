@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3b9c1e777897a454ab8f17fb7264c2af
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 379204
+  packageName: Retarget Pro V5
+  packageVersion: 5.2.1
+  assetPath: Assets/Assets/KINEMATION/Shared/KAnimationCore/Editor/KAnimationCore.Editor.asmdef
+  uploadId: 982620

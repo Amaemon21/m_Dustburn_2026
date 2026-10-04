@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0406cc70e595085a09b9af5ca64e8bb1
+PackageManifestImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/package.json
+  uploadId: 985582

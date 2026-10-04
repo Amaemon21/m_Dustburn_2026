@@ -1,0 +1,66 @@
+#pragma kernel CSMain
+
+RWTexture2D<float4> HolesTexture;
+Texture2D<float4> BrushTexture;
+Texture2D<float4> PositionMap;
+
+SamplerState sampler_LinearClamp;
+
+float4x4 ObjectToWorld;
+float3 HitWorldPos;
+float3 HitNormal;
+
+int BrushChannel;
+bool InvertBrush;
+
+float Radius;
+float RotationRadians;
+float Cutoff;
+
+bool EraseHoles;
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 localPos = PositionMap[id.xy];
+    if (localPos.a < 0.5) return;
+
+    float3 worldPos = mul(ObjectToWorld, localPos).xyz;
+
+    float dist = distance(worldPos, HitWorldPos);
+    if (dist >= Radius)
+        return;
+
+    float brushValue = 1.0;
+    if (BrushChannel >= 0) {
+        // Sample texture relative to the hit normal
+        float3 normal = normalize(HitNormal);
+        float3 up = (abs(normal.y) < 0.999) ? float3(0, 1, 0) : float3(1, 0, 0);
+        float3 tangent = normalize(cross(up, normal));
+        float3 bitanged = cross(normal, tangent);
+
+        float3 offset = worldPos - HitWorldPos;
+        float2 brushUV = float2(dot(offset, tangent), dot(offset, bitanged)) / (Radius * 2) + 0.5;
+
+        // Rotate texture if required
+        if (RotationRadians != 0) {
+            float s = sin(RotationRadians);
+            float c = cos(RotationRadians);
+            float2 centered = brushUV - 0.5;
+            float2 rotated = float2(
+                centered.x * c - centered.y * s,
+                centered.x * s + centered.y * c
+            );
+            brushUV = rotated + 0.5;
+        }
+
+        brushValue = BrushTexture.SampleLevel(sampler_LinearClamp, brushUV, 0)[BrushChannel];
+        if (InvertBrush) brushValue = 1 - brushValue;
+    }
+
+    if (brushValue <= Cutoff)
+        return;
+    
+    float value = EraseHoles ? 1.0 : 0.0;
+    HolesTexture[id.xy] = float4(value, value, value, 1.0);
+}

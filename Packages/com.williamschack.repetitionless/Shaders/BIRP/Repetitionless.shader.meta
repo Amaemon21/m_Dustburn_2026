@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 57255103b0886f909b3a1c1a453806d7
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/BIRP/Repetitionless.shader
+  uploadId: 985582

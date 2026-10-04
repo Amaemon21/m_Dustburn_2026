@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 48e5190fe04fc9c85a59fcad525a4b90
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/BIRP/Forest/Trees/Repetitionless_BIRP_Forest_pine_medium.prefab
+  uploadId: 985582

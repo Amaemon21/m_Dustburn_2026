@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 46160509a5798445c825128726bb787b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 18700000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/Assets/MaterialData/Forest/Repetitionless_Forest_Terrain_RepetitionlessData/TextureArray_EMTextures.asset
+  uploadId: 985582

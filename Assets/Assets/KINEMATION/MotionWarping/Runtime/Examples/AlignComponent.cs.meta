@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cce7418bf5c1f1f4b85e97a5470f0bd5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/MotionWarping/Runtime/Examples/AlignComponent.cs
+  uploadId: 998408

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 61c14e5f16fb77d0891a5c080f4bf0e0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 15600000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Samples~/URP/Forest/TerrainData/Repetitionless_URP_Forest_Terrain4.asset
+  uploadId: 985582

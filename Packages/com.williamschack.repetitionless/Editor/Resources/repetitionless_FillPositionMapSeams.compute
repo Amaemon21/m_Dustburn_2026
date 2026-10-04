@@ -1,0 +1,43 @@
+#pragma kernel CSMain
+
+Texture2D<float4> PositionMap;
+RWTexture2D<float4> Output;
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    PositionMap.GetDimensions(width, height);
+
+    if (id.x >= width || id.y >= height)
+        return;
+
+    float4 current = PositionMap[id.xy];
+
+    // Dont modify valid pixels
+    if (current.a > 0.5) {
+        Output[id.xy] = current;
+        return;
+    }
+
+    // Check the surrounding 8 pixels and use the first valid one hit if any
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            if (x == 0 && y == 0)
+                continue;
+
+            uint2 coord = id.xy + uint2(x, y);
+            if (coord.x < 0 || coord.x >= width || coord.y < 0 || coord.y >= height)
+                continue;
+
+            float4 neighbour = PositionMap[coord];
+            if (neighbour.a > 0.5) {
+                Output[id.xy] = neighbour;
+                return;
+            }
+        }
+    }
+
+    // Invalid pixel
+    Output[id.xy] = current;
+}

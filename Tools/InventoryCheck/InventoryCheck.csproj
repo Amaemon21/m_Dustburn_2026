@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UseAppHost>false</UseAppHost>
+    <NoWarn>CS0649;CS0436</NoWarn>
+    <UnityManaged Condition="'$(UnityManaged)' == ''">E:\Unity\6000.3.20f1\Editor\Data\Managed\UnityEngine</UnityManaged>
+    <ScriptAssemblies>$(MSBuildThisFileDirectory)..\..\Library\ScriptAssemblies</ScriptAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="TestWindowPresenter.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Inventory/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameState/Saves/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/UI/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/UI/PlayerMenu/Input/**/*.cs;../../Assets/_Dustborn/Scripts/Gameplay/UI/Root/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Scenes.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/SceneEnterParams.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Bootstrap/GameplayEnterParams.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/MainMenu/Root/MainMenuEnterParams.cs" />
+    <Compile Include="Harness.cs" />
+    <Compile Include="RegressionChecks.cs" />
+    <Compile Include="UnityLogStub.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/InputService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/UIInputService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/Config/InputSettings.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/Config/UIInputSettings.cs" />
+    <Reference Include="$(UnityManaged)/UnityEngine.CoreModule.dll" />
+    <Reference Include="$(UnityManaged)/UnityEngine.UIModule.dll" />
+    <Reference Include="$(UnityManaged)/UnityEngine.TextRenderingModule.dll" />
+    <Reference Include="$(ScriptAssemblies)/Unity.TextMeshPro.dll" />
+    <Reference Include="$(ScriptAssemblies)/UnityEngine.UI.dll" />
+    <Reference Include="$(ScriptAssemblies)/Unity.InputSystem.dll" />
+    <Reference Include="$(ScriptAssemblies)/NaughtyAttributes.Core.dll" />
+    <Reference Include="$(ScriptAssemblies)/R3.Unity.dll" />
+    <Reference Include="$(ScriptAssemblies)/UniTask.dll" />
+    <Reference Include="$(ScriptAssemblies)/VContainer.dll" />
+    <Reference Include="../../Assets/Packages/R3.1.3.1/lib/netstandard2.1/R3.dll" />
+    <Reference Include="../../Assets/Packages/Microsoft.Bcl.TimeProvider.8.0.0/lib/netstandard2.0/Microsoft.Bcl.TimeProvider.dll" />
+    <Reference Include="../../Library/PackageCache/com.unity.nuget.newtonsoft-json@4dfd81071c64/Runtime/Newtonsoft.Json.dll" />
+  </ItemGroup>
+</Project>

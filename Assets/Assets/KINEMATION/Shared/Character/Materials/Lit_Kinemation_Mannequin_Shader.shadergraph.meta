@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d28b36ee3017a9148b4d24314ee43837
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/Shared/Character/Materials/Lit_Kinemation_Mannequin_Shader.shadergraph
+  uploadId: 998408

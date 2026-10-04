@@ -1,0 +1,20 @@
+{
+    "name": "CAS.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d8548a9d25a091541a1fcde53694c91a",
+        "GUID:531f2a4cbbef0164bb9afb778f9fb0c2",
+        "GUID:9e0de4a12aaad02499ffafb271fc9e4c",
+        "GUID:4c36dcf6d8eeb6d44ab73ef966534b46",
+        "GUID:e0cd26848372d4e5c891c569017e11f1"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

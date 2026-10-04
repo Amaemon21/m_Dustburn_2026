@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 531f2a4cbbef0164bb9afb778f9fb0c2
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/Shared/PropertyBindings/Runtime/PropertyBindings.Runtime.asmdef
+  uploadId: 998408

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 87df93ca1b2f7af71901c44b411b33fc
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Editor/CustomWindows/Texture2DArrayWindowBase.cs
+  uploadId: 985582

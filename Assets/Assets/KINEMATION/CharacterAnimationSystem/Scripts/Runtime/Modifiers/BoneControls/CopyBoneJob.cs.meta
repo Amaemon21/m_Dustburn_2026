@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 666e352e14e448d2bc692fb6f68e5266
+timeCreated: 1743786316
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320309
+  packageName: Character Animation System
+  packageVersion: 2.4.2
+  assetPath: Assets/Assets/KINEMATION/CharacterAnimationSystem/Scripts/Runtime/Modifiers/BoneControls/CopyBoneJob.cs
+  uploadId: 998408

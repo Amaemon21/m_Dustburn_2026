@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="UnityReferences.props" />
+  <PropertyGroup>
+    <AssemblyName>Dustborn.Utils</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(SharedUtils)\**\*.cs" />
+    <Reference Include="$(ScriptAssemblies)\UnityEngine.UI.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.UIModule.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.TextRenderingModule.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

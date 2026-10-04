@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 846a839107194bdf7b0334e98d3d7a4b
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345604
+  packageName: Repetitionless
+  packageVersion: 1.7.2
+  assetPath: Packages/com.williamschack.repetitionless/Shaders/Painting/PaintingPositionMap.shader
+  uploadId: 985582
