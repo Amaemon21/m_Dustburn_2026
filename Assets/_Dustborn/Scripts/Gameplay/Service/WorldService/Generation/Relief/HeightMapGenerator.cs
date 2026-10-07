@@ -1,0 +1,163 @@
+using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
+using Random = Unity.Mathematics.Random;
+
+public class HeightMapGenerator
+{
+    private const int BATCH_SIZE = 64;
+
+    private readonly WorldGenerationConfig _config;
+    private readonly BiomeDatabase _biomes;
+
+    public HeightMapGenerator(WorldGenerationConfig config, BiomeDatabase biomes)
+    {
+        _config = config;
+        _biomes = biomes;
+    }
+
+    public HeightMap Generate(BiomeMap biomeMap)
+    {
+        var random = new Random(((uint)_config.Seed | 1u) * 747796405u + 1u);
+
+        BiomeWeightField weightField;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapWeights))
+            weightField = new BiomeWeightField(biomeMap, _biomes.Count, _config.BiomeBlendRadius);
+
+        var map = new HeightMap(_config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
+
+        NativeArray<float> weights = weightField.ToNativeArray(Allocator.TempJob);
+        NativeArray<BiomeHeightProfile> profiles = BuildProfiles(Allocator.TempJob);
+        var heights = new NativeArray<float>(map.Heights.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+        try
+        {
+            var job = new HeightMapJob
+            {
+                BiomeWeights = weights,
+                Profiles = profiles,
+                Heights = heights,
+                Resolution = map.Resolution,
+                WeightResolution = weightField.Resolution,
+                BiomeCount = _biomes.Count,
+                Settings = BuildSettings(),
+                ContinentOffset = random.NextFloat2(-100f, 100f),
+                HillOffset = random.NextFloat2(-100f, 100f),
+                RidgeOffset = random.NextFloat2(-100f, 100f),
+                DuneOffset = random.NextFloat2(-100f, 100f),
+                DetailOffset = random.NextFloat2(-100f, 100f),
+                MaskOffset = random.NextFloat2(-100f, 100f),
+                DuneBendX = random.NextFloat2(-100f, 100f),
+                DuneBendZ = random.NextFloat2(-100f, 100f),
+                DuneAxis = Axis(random.NextFloat(0f, math.PI))
+            };
+
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightNoise))
+                job.Schedule(heights.Length, BATCH_SIZE).Complete();
+
+            string noise = GenerationChecksum.Of(heights);
+
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightStamps))
+                ApplyStamps(biomeMap, map, heights);
+
+            string stamped = GenerationChecksum.Of(heights);
+
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightHydraulic))
+                HydraulicErosion.Run(_config, heights, map.Resolution);
+
+            string hydraulic = GenerationChecksum.Of(heights);
+
+            using (WorldGenProbe.Measure(WorldGenStage.MapHeightThermal))
+                HeightMapErosion.Run(_config, heights, map.Resolution);
+
+            UnityEngine.Debug.Log($"Relief checksums: biomes {GenerationChecksum.Of(biomeMap.Cells)}, weights {GenerationChecksum.Of(weights)}, noise {noise}, stamps {stamped}, hydraulic {hydraulic}, thermal {GenerationChecksum.Of(heights)}");
+
+            heights.CopyTo(map.Heights);
+        }
+        finally
+        {
+            weights.Dispose();
+            profiles.Dispose();
+            heights.Dispose();
+        }
+
+        return map;
+    }
+
+    public List<TerrainStampPlacement> Stamps { get; } = new();
+
+    public int StampedCells { get; private set; }
+
+    private void ApplyStamps(BiomeMap biomeMap, HeightMap map, NativeArray<float> heights)
+    {
+        TerrainStampSettings settings = _config.Stamps;
+
+        if (settings == null || !settings.Enabled || settings.Database == null || settings.Database.Count == 0)
+            return;
+
+        Stamps.AddRange(new TerrainStampPlacer(_config, settings, _biomes, biomeMap).Place());
+
+        if (Stamps.Count == 0)
+            return;
+
+        var shapes = new TerrainStampShape[settings.Database.Count];
+
+        foreach (TerrainStampPlacement placement in Stamps)
+            shapes[placement.StampIndex] ??= TerrainStampShape.From(settings.Database.Get(placement.StampIndex));
+
+        heights.CopyTo(map.Heights);
+        StampedCells = TerrainStampApplier.Apply(map.Heights, map.Resolution, map.WorldSize, map.MaxHeight, Stamps, shapes, settings);
+        heights.CopyFrom(map.Heights);
+    }
+
+    private NativeArray<BiomeHeightProfile> BuildProfiles(Allocator allocator)
+    {
+        var profiles = new NativeArray<BiomeHeightProfile>(_biomes.Count, allocator, NativeArrayOptions.UninitializedMemory);
+
+        for (int i = 0; i < _biomes.Count; i++)
+        {
+            BiomeDefinition biome = _biomes.Get(i);
+
+            profiles[i] = new BiomeHeightProfile
+            {
+                BaseHeight = biome.BaseHeight,
+                HillAmplitude = biome.HillAmplitude,
+                RidgeAmplitude = biome.RidgeAmplitude,
+                DuneAmplitude = biome.DuneAmplitude,
+                DetailAmplitude = biome.DetailAmplitude
+            };
+        }
+
+        return profiles;
+    }
+
+    private static float2 Axis(float angle)
+    {
+        return new float2(math.cos(angle), math.sin(angle));
+    }
+
+    private HeightFieldSettings BuildSettings()
+    {
+        return new HeightFieldSettings
+        {
+            ReliefScale = _config.ReliefScale,
+            ContinentAmplitude = _config.ContinentAmplitude,
+            ContinentFrequency = _config.ContinentFrequency,
+            HillFrequency = _config.HillFrequency,
+            RidgeFrequency = _config.RidgeFrequency,
+            DuneFrequency = _config.DuneFrequency,
+            DuneWarp = _config.DuneWarp,
+            DetailFrequency = _config.DetailFrequency,
+            ContinentOctaves = _config.ContinentOctaves,
+            HillOctaves = _config.HillOctaves,
+            RidgeOctaves = _config.RidgeOctaves,
+            DuneOctaves = _config.DuneOctaves,
+            DetailOctaves = _config.DetailOctaves,
+            MountainMaskFrequency = _config.MountainMaskFrequency,
+            MountainMaskLow = _config.MountainMaskLow,
+            MountainMaskHigh = _config.MountainMaskHigh
+        };
+    }
+}

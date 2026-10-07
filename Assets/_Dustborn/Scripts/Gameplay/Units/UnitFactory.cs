@@ -38,6 +38,7 @@ public class UnitFactory
         var controller = new UnitController(movementService, detectionService, chaseService, wanderService, health, player);
 
         view.Controller = controller;
+        view.Damageable = health;
         controller.Initialize();
 
         return view;

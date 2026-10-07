@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52b0540509944748b200afae05ccbff1, type: 3}
+  m_Name: Axe_HeldItem
+  m_EditorClassIdentifier: Assembly-CSharp::HeldItemConfig
+  <ViewPrefab>k__BackingField: {fileID: 6879883859816312907, guid: 8a30e653ff6942b1ba86203df91776fe, type: 3}
+  <Animator>k__BackingField: {fileID: 22100000, guid: d2e23b1690a64cef9d5c7937362d1dd8, type: 2}
+  <DrawTime>k__BackingField: 0.73
+  <HolsterTime>k__BackingField: 0.85
+  <Primary>k__BackingField:
+    rid: 7046553330012938240
+  <Secondary>k__BackingField:
+    rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 7046553330012938240
+      type: {class: MeleeActionConfig, ns: , asm: Assembly-CSharp}
+      data:
+        <Motion>k__BackingField: 2
+        <Duration>k__BackingField: 1.1
+        <HitTime>k__BackingField: 0.52
+        <Reach>k__BackingField: 2.4
+        <Radius>k__BackingField: 0.2
+        <Damage>k__BackingField: 25
+        <WearPerHit>k__BackingField: 1
+        <HitMask>k__BackingField:
+          serializedVersion: 2
+          m_Bits: 4294967291
+        <Bonuses>k__BackingField:
+        - <Material>k__BackingField: {fileID: 11400000, guid: 41a6a4fc57026024daaba521e1bba1b2, type: 2}
+          <Damage>k__BackingField: 2
+          <Harvest>k__BackingField: 1.5

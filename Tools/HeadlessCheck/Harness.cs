@@ -74,6 +74,18 @@ static class Harness
 
     static void Main(string[] args)
     {
+        if (MonoRewrite.Wanted(args))
+        {
+            MonoRewrite.Run(args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--noise-parity") >= 0)
+        {
+            NoiseParityChecks.Run();
+            return;
+        }
+
         if (Array.IndexOf(args, "--water-biomes") >= 0)
         {
             GroundPreview.WaterBiomes();
@@ -131,6 +143,12 @@ static class Harness
         if (Array.IndexOf(args, "--water-stamp-import") >= 0)
         {
             WaterStampChecks.RunImport();
+            return;
+        }
+
+        if (Array.IndexOf(args, "--stamp-parity") >= 0)
+        {
+            BakeParity.Stamps("../../Assets/_Dustborn/Content/World/WaterStampDatabase.asset");
             return;
         }
 
@@ -988,6 +1006,7 @@ static class Harness
         Verdict("дерево с LODGroup", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 1800, HasLodGroup = true }, 500, false);
         Verdict("камень с коллайдером", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 900, HasCollider = true }, 500, true);
         Verdict("камень, коллайдеры выкл", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 900, HasCollider = true }, 500, false);
+        Verdict("дерево, которое рубят", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 900, HasCollider = true, Interactive = true }, 500, false);
         Verdict("куст травы", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 60, Instanceable = true }, 2400, false);
         Verdict("трава, ближнее кольцо", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 60, Instanceable = true }, 157082, false);
         Verdict("камень, много копий", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 900, Instanceable = false }, 5000, false);

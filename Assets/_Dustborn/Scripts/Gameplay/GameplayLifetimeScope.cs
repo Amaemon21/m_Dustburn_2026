@@ -7,8 +7,10 @@ using VContainer.Unity;
 public class GameplayLifetimeScope : LifetimeScope
 {
     [SerializeField] private GameplaySceneKind _kind = GameplaySceneKind.BakedWorld;
+    
     [SerializeField, FormerlySerializedAs("_playerTransform"), ShowIf(nameof(IsTestScene))]
     private Transform _testSpawnPoint;
+    
     [SerializeField] private UnitSpawnPoint[] _spawnPoints;
     [SerializeField] private Camera _mainCamera;
 
@@ -26,6 +28,7 @@ public class GameplayLifetimeScope : LifetimeScope
         RegisterCommands(builder);
         RegisterUnits(builder);
         RegisterInventory(builder);
+        RegisterDamage(builder);
         RegisterUI(builder);
     }
 
@@ -51,8 +54,7 @@ public class GameplayLifetimeScope : LifetimeScope
 
         if (_kind == GameplaySceneKind.TestScene)
         {
-            builder.Register<TestScenePreparation>(Lifetime.Singleton).As<IGameplayPreparation>()
-                .WithParameter(_testSpawnPoint);
+            builder.Register<TestScenePreparation>(Lifetime.Singleton).As<IGameplayPreparation>().WithParameter(_testSpawnPoint);
             return;
         }
 
@@ -73,6 +75,7 @@ public class GameplayLifetimeScope : LifetimeScope
         builder.Register<PlayerMovementModifiers>(Lifetime.Singleton);
         builder.RegisterEntryPoint<PlayerCharacterController>().AsSelf().As<IGameplayActivatable>();
         builder.Register<PlayerControlService>(Lifetime.Singleton).AsSelf().As<IGameplayActivatable>();
+        new HandsInstaller().Install(builder);
     }
 
     private void RegisterSaving(IContainerBuilder builder)
@@ -96,25 +99,32 @@ public class GameplayLifetimeScope : LifetimeScope
 
     private void RegisterUnits(IContainerBuilder builder)
     {
-        UnitInstaller unitInstaller = new UnitInstaller(_spawnPoints);
-        unitInstaller.Install(builder);
+        new UnitInstaller(_spawnPoints).Install(builder);
     }
 
     private void RegisterInventory(IContainerBuilder builder)
     {
-        InventoryInstaller inventoryInstaller = new InventoryInstaller();
-        inventoryInstaller.Install(builder);
+        new InventoryInstaller().Install(builder);
+        new ContainerInstaller().Install(builder);
+        new DroppedItemsInstaller().Install(builder);
+    }
 
-        ContainerInstaller containerInstaller = new ContainerInstaller();
-        containerInstaller.Install(builder);
+    private void RegisterDamage(IContainerBuilder builder)
+    {
+        new DamageInstaller().Install(builder);
+        new BlocksInstaller().Install(builder);
     }
 
     private void RegisterUI(IContainerBuilder builder)
     {
-        GameplayUIInstaller gameplayUIInstaller = new GameplayUIInstaller();
-        gameplayUIInstaller.Install(builder);
+        new GameplayUIInstaller().Install(builder);
         
         builder.Register(container => new HudHotbarViewModel(
+            container.Resolve<LocalPlayerInventory>().Proxy,
+            container.Resolve<PlayerInventoryService>(),
+            container.Resolve<ItemCatalog>()), Lifetime.Singleton);
+
+        builder.Register(container => new ItemNotificationsViewModel(
             container.Resolve<LocalPlayerInventory>().Proxy,
             container.Resolve<PlayerInventoryService>(),
             container.Resolve<ItemCatalog>()), Lifetime.Singleton);

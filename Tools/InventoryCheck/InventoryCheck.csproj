@@ -13,7 +13,28 @@
   <ItemGroup>
     <Compile Include="TestWindowPresenter.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/MVVM/**/*.cs" />
-    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Inventory/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Inventory/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Inventory/UI/Notifications/View/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Config/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Model/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Effects/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/IItemAction.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/ItemActionContext.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/ItemActionFactory.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/View/IHeldItemPresenter.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/View/IAimSource.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/PlayerHands.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Damage/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Damage/UI/View/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlockView.cs;../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlockService.cs;../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlocksInstaller.cs" />
+    <Compile Include="DamageChecks.cs" />
+    <Compile Include="NotificationChecks.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/Voxel/Decor/DecorKey.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/PickUpItemInteractable.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/IInteractableObject.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/ItemPickup.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Handler/IInteractionContext.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Configs/InteractableConfig.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Containers/Config/**/*.cs" />
+    <Compile Include="../../Assets/Assets/QuickOutline/Scripts/Outline.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameState/Saves/**/*.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/UI/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/UI/PlayerMenu/Input/**/*.cs;../../Assets/_Dustborn/Scripts/Gameplay/UI/Root/**/*.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Scenes.cs" />
@@ -22,12 +43,18 @@
     <Compile Include="../../Assets/_Dustborn/Scripts/MainMenu/Root/MainMenuEnterParams.cs" />
     <Compile Include="Harness.cs" />
     <Compile Include="RegressionChecks.cs" />
+    <Compile Include="HeldItemChecks.cs" />
+    <Compile Include="DroppedItemChecks.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/DroppedItems/Persistence/**/*.cs" />
     <Compile Include="UnityLogStub.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/InputService.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/UIInputService.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/BindingDisplay.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/Config/InputSettings.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/InputService/Config/UIInputSettings.cs" />
     <Reference Include="$(UnityManaged)/UnityEngine.CoreModule.dll" />
+    <Reference Include="$(UnityManaged)/UnityEngine.AnimationModule.dll" />
+    <Reference Include="$(UnityManaged)/UnityEngine.PhysicsModule.dll" />
     <Reference Include="$(UnityManaged)/UnityEngine.UIModule.dll" />
     <Reference Include="$(UnityManaged)/UnityEngine.TextRenderingModule.dll" />
     <Reference Include="$(ScriptAssemblies)/Unity.TextMeshPro.dll" />
@@ -39,6 +66,7 @@
     <Reference Include="$(ScriptAssemblies)/VContainer.dll" />
     <Reference Include="../../Assets/Packages/R3.1.3.1/lib/netstandard2.1/R3.dll" />
     <Reference Include="../../Assets/Packages/Microsoft.Bcl.TimeProvider.8.0.0/lib/netstandard2.0/Microsoft.Bcl.TimeProvider.dll" />
+    <Reference Include="../../Assets/Packages/Microsoft.Bcl.AsyncInterfaces.6.0.0/lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll" />
     <Reference Include="../../Library/PackageCache/com.unity.nuget.newtonsoft-json@4dfd81071c64/Runtime/Newtonsoft.Json.dll" />
   </ItemGroup>
 </Project>

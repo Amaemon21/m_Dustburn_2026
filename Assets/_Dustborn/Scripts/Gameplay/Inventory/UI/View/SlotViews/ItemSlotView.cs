@@ -16,6 +16,10 @@ public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
     [SerializeField] private Sprite _idleFrame;
     [SerializeField] private Sprite _selectionFrame;
 
+    [Space(10)]
+    [SerializeField] private GameObject _durabilityPanel;
+    [SerializeField] private Image _durabilityFill;
+
     protected bool IsSelected => ViewModel != null && ViewModel.IsSelected.CurrentValue;
 
     protected sealed override void BindCore(T viewModel, CompositeDisposable bindings)
@@ -23,6 +27,8 @@ public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
         bindings.Add(viewModel.Icon.Subscribe(_ => RefreshIcon(viewModel)));
         bindings.Add(viewModel.DraggedAmount.Subscribe(_ => RefreshIcon(viewModel)));
         bindings.Add(viewModel.Rarity.Subscribe(_ => RefreshIcon(viewModel)));
+        bindings.Add(viewModel.Durability.Subscribe(_ => RefreshDurability(viewModel)));
+        bindings.Add(viewModel.DraggedAmount.Subscribe(_ => RefreshDurability(viewModel)));
         bindings.Add(viewModel.IsSelected.Subscribe(_ => RefreshFrame()));
 
         BindSlot(viewModel, bindings);
@@ -46,11 +52,35 @@ public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
         RefreshRarity(viewModel.Rarity.CurrentValue, viewModel.DisplayAmount > 0);
     }
 
+    private void RefreshDurability(T viewModel)
+    {
+        if (_durabilityFill == null)
+            return;
+
+        float? durability = viewModel.Durability.CurrentValue;
+        bool visible = durability.HasValue && viewModel.DisplayAmount > 0;
+        ShowDurability(visible);
+        if (!visible)
+            return;
+
+        _durabilityFill.fillAmount = durability.Value;
+    }
+
+    private void ShowDurability(bool visible)
+    {
+        if (_durabilityPanel != null)
+            _durabilityPanel.SetActive(visible);
+        if (_durabilityFill != null)
+            _durabilityFill.enabled = visible;
+    }
+
     private void RefreshRarity(ItemRarity? rarity, bool visible)
     {
-        Sprite sprite = rarity.HasValue ? _rarityPalette.SpriteOf(rarity.Value) : null;
-        _rarityImage.sprite = sprite;
-        _rarityImage.enabled = visible && sprite != null;
+        Color color = default;
+        bool hasColor = rarity.HasValue && _rarityPalette.TryGetColor(rarity.Value, out color);
+        _rarityImage.enabled = visible && hasColor;
+        if (hasColor)
+            _rarityImage.color = color;
     }
 
     protected sealed override void OnUnbound()
@@ -58,6 +88,7 @@ public abstract class ItemSlotView<T> : View<T> where T : ItemSlotViewModel
         _icon.sprite = null;
         _icon.enabled = false;
         _rarityImage.enabled = false;
+        ShowDurability(false);
         RefreshFrame();
 
         UnbindSlot();

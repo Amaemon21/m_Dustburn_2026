@@ -9,9 +9,9 @@ public sealed class PlayerMenuScreenViewModel : WindowViewModel
     public ReactiveCommand<PlayerMenuTab> SelectTab { get; } = new();
 
     public PlayerMenuScreenViewModel(IInventoryService inventory, PlayerInventoryProxy player, PlayerInventoryService players,
-        ItemCatalog catalog)
+        ItemCatalog catalog, IItemDropService drops)
     {
-        Inventory = new InventoryTabViewModel(inventory, player, players, catalog);
+        Inventory = new InventoryTabViewModel(inventory, player, players, catalog, drops);
         Disposables.Add(SelectTab.Executed.Subscribe(SetTab));
     }
 

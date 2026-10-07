@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using R3;
 using UnityEngine;
 
 public sealed class PlayerInventoryService : IDisposable
@@ -7,6 +8,9 @@ public sealed class PlayerInventoryService : IDisposable
     private readonly InventoryRepository _repository;
     private readonly IInventoryService _inventory;
     private readonly Dictionary<string, PlayerInventoryProxy> _players = new();
+    private readonly Subject<ItemGain> _pickedUp = new();
+
+    public Observable<ItemGain> PickedUp => _pickedUp;
 
     public PlayerInventoryService(InventoryRepository repository, IInventoryService inventory)
     {
@@ -97,13 +101,28 @@ public sealed class PlayerInventoryService : IDisposable
         player.SelectHotbarSlot(index);
     }
 
-    public int PickUp(string ownerId, string itemId, int amount)
+    public int PickUp(string ownerId, string itemId, int amount) => PickUp(ownerId, new InventorySlotState(itemId, amount));
+
+    public int PickUp(string ownerId, InventorySlotState stack)
     {
-        if (amount <= 0)
-            throw new ArgumentOutOfRangeException(nameof(amount));
+        if (stack.Amount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(stack), "A picked up stack must hold at least one item");
+        if (stack.Wear < 0)
+            throw new ArgumentOutOfRangeException(nameof(stack), "A picked up stack cannot have negative wear");
         PlayerInventoryProxy player = GetPlayerInventory(ownerId);
+        bool useHotbar = player.Hotbar.GetAmount(stack.ItemId) > 0;
+        int taken = stack.Wear > 0
+            ? PickUpWorn(player, stack.ItemId, stack.Amount, stack.Wear, useHotbar)
+            : PickUpStack(player, stack.ItemId, stack.Amount, useHotbar);
+
+        if (taken > 0)
+            _pickedUp.OnNext(new ItemGain(ownerId, stack.WithAmount(taken)));
+        return taken;
+    }
+
+    private int PickUpStack(PlayerInventoryProxy player, string itemId, int amount, bool useHotbar)
+    {
         int remaining = amount;
-        bool useHotbar = player.Hotbar.GetAmount(itemId) > 0;
         remaining -= _inventory.AddItemsToExistingStacks(player.Hotbar.OwnerId, itemId, remaining).ItemsAddedAmount;
         if (remaining > 0)
             remaining -= _inventory.AddItemsToExistingStacks(player.Backpack.OwnerId, itemId, remaining).ItemsAddedAmount;
@@ -112,6 +131,32 @@ public sealed class PlayerInventoryService : IDisposable
         if (remaining > 0)
             remaining -= _inventory.AddItemsToInventory(player.Backpack.OwnerId, itemId, remaining).ItemsAddedAmount;
         return amount - remaining;
+    }
+
+    private int PickUpWorn(PlayerInventoryProxy player, string itemId, int amount, int wear, bool useHotbar)
+    {
+        int placed = useHotbar ? PlaceWorn(player.Hotbar, itemId, amount, wear) : 0;
+        return placed + PlaceWorn(player.Backpack, itemId, amount - placed, wear);
+    }
+
+    private int PlaceWorn(IReadOnlyInventoryGrid grid, string itemId, int amount, int wear)
+    {
+        int placed = 0;
+        for (int x = 0; x < grid.Size.x && placed < amount; x++)
+            for (int y = 0; y < grid.Size.y && placed < amount; y++)
+            {
+                Vector2Int coords = new(x, y);
+                if (!grid.GetSlot(coords).IsEmpty)
+                    continue;
+
+                int added = _inventory.AddItemsToInventory(grid.OwnerId, coords, itemId, 1).ItemsAddedAmount;
+                if (added == 0)
+                    return placed;
+
+                _inventory.AddWear(grid.OwnerId, coords, itemId, wear);
+                placed += added;
+            }
+        return placed;
     }
 
     public int QuickTransfer(string ownerId, string sourceId, Vector2Int coordinates)
@@ -182,5 +227,6 @@ public sealed class PlayerInventoryService : IDisposable
         foreach (PlayerInventoryProxy player in _players.Values)
             player.Dispose();
         _players.Clear();
+        _pickedUp.Dispose();
     }
 }

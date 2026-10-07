@@ -25,6 +25,9 @@ MonoBehaviour:
     \u043D\u0435 \u043E\u0431\u043E\u0439\u0442\u0438\u0441\u044C \u0432 \u043F\u0435\u0440\u0432\u044B\u0435
     \u0434\u043D\u0438 \u0432\u044B\u0436\u0438\u0432\u0430\u043D\u0438\u044F."
   <Icon>k__BackingField: {fileID: 21300000, guid: 3d4345420eda64b44a1a51daa24d6cd7, type: 3}
+  <PickUpPrefab>k__BackingField: {fileID: 5573960813918846586, guid: 2d901f4b73b6d354eade24c54a45cb97, type: 3}
+  <Held>k__BackingField: {fileID: 0}
   <MaxStack>k__BackingField: 999
   <Weight>k__BackingField: 0.1
+  <Durability>k__BackingField: 0
   <ResourceCategory>k__BackingField: 0

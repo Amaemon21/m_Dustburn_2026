@@ -84,6 +84,7 @@ public class UnitController : IDisposable
     {
         _compositeDisposable.Dispose();
         _state.Dispose();
+        _health.Dispose();
 
         _behaviourCancellation?.Cancel();
         _behaviourCancellation?.Dispose();

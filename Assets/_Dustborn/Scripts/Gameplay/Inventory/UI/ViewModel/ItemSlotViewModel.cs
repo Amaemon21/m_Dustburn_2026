@@ -7,6 +7,7 @@ public abstract class ItemSlotViewModel : ViewModel
     private readonly ReactiveProperty<InventorySlotState> _state;
     private readonly ReactiveProperty<Sprite> _icon = new(null);
     private readonly ReactiveProperty<ItemRarity?> _rarity = new(null);
+    private readonly ReactiveProperty<float?> _durability = new(null);
     private readonly ReactiveProperty<bool> _selected = new(false);
     private readonly ReactiveProperty<bool> _dragging = new(false);
     private readonly ReactiveProperty<int> _draggedAmount = new(0);
@@ -14,6 +15,7 @@ public abstract class ItemSlotViewModel : ViewModel
     public ReadOnlyReactiveProperty<InventorySlotState> State => _state;
     public ReadOnlyReactiveProperty<Sprite> Icon => _icon;
     public ReadOnlyReactiveProperty<ItemRarity?> Rarity => _rarity;
+    public ReadOnlyReactiveProperty<float?> Durability => _durability;
     public ReadOnlyReactiveProperty<bool> IsSelected => _selected;
     public ReadOnlyReactiveProperty<bool> IsDragging => _dragging;
     public ReadOnlyReactiveProperty<int> DraggedAmount => _draggedAmount;
@@ -30,7 +32,16 @@ public abstract class ItemSlotViewModel : ViewModel
             InventoryItem item = catalog.GetItem(state.ItemId);
             _icon.Value = item == null ? null : item.Icon;
             _rarity.Value = item == null ? null : (ItemRarity?)item.Rarity;
+            _durability.Value = DurabilityOf(catalog, state);
         }));
+    }
+
+    private static float? DurabilityOf(ItemCatalog catalog, InventorySlotState state)
+    {
+        int durability = catalog.DurabilityOf(state.ItemId);
+        if (state.IsEmpty || durability == 0)
+            return null;
+        return Mathf.Clamp01((durability - state.Wear) / (float)durability);
     }
 
     protected internal void SetSelected(bool selected) => _selected.Value = selected;
@@ -46,6 +57,7 @@ public abstract class ItemSlotViewModel : ViewModel
         _state.Dispose();
         _icon.Dispose();
         _rarity.Dispose();
+        _durability.Dispose();
         _selected.Dispose();
         _dragging.Dispose();
         _draggedAmount.Dispose();

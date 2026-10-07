@@ -58,10 +58,10 @@ internal static partial class Harness
             Check(!saves.HasDirtyFiles, "successful save clears dirty");
             InventoryGridProxy entity = proxy.GetProxy("player");
             Check(ReferenceEquals(entity.Origin, saves.Get<InventoryData>().Grids[0]), "save registry keeps actual grid origin");
-            entity.Slots[1].Set(entity.Slots[1].ItemId, 10);
+            entity.Slots[1].Set(entity.Slots[1].ItemId, 10, 0);
             Check(saves.Get<InventoryData>().Grids[0].Slots[1].Amount == 10 && saves.HasDirtyFiles,
                 "direct proxy edits update save data and mark file dirty");
-            entity.Slots[1].Set(entity.Slots[1].ItemId, 9);
+            entity.Slots[1].Set(entity.Slots[1].ItemId, 9, 0);
             proxy.AddItemsToInventory("player", "wood", 1);
             storage.OnWrite = () => proxy.AddItemsToInventory("player", "wood", 1);
             await repository.SaveAsync(CancellationToken.None);
@@ -90,7 +90,19 @@ internal static partial class Harness
         VerifyInventoryDragDrop();
         VerifyInventoryShortcuts();
         VerifyPickupStackPriority();
+        VerifyItemDrop();
         VerifyItemStackLimits();
+        VerifyItemWear();
+        await VerifyWearSave();
+        await VerifyDroppedItemSave();
+        VerifyHeldItemSelection();
+        VerifyHeldItemEffects();
+        VerifyPlayerHands();
+        VerifyBlockHarvest();
+        VerifyStrikeHarvest();
+        await VerifyBlockSave();
+        VerifyTargetHealthBar();
+        VerifyItemNotifications();
         await VerifyPlayerInventory();
         await VerifyLegacyEquipmentLayout();
 
@@ -170,7 +182,7 @@ internal static partial class Harness
 
             using WindowService windows = new();
             windows.Register(PlayerMenuService.PLAYER_MENU_WINDOW, new TestWindowPresenter());
-            using PlayerMenuService screen = new(new PlayerMenuViewModelFactory(inventory, players, catalog), windows);
+            using PlayerMenuService screen = new(new PlayerMenuViewModelFactory(inventory, players, catalog, null), windows);
             screen.OpenInventory(player.OwnerId);
             Check(screen.IsPlayerMenuOpen.CurrentValue && windows.TryGet(PlayerMenuService.PLAYER_MENU_WINDOW, out _), "player menu opens");
             windows.TryGet(PlayerMenuService.PLAYER_MENU_WINDOW, out WindowViewModel window);
@@ -246,21 +258,21 @@ internal static partial class Harness
     {
         InventorySlotData origin = new() { ItemId = "wood", Amount = 2 };
         using InventorySlotProxy slot = new(origin);
-        slot.Set(slot.ItemId, 5);
+        slot.Set(slot.ItemId, 5, 0);
         Check(origin.Amount == 5 && slot.State.CurrentValue.Amount == 5, "slot property immediately updates origin and state");
-        slot.Set("stone", slot.Amount);
+        slot.Set("stone", slot.Amount, 0);
         Check(origin.ItemId == "stone", "slot item property immediately updates origin");
-        Expect<ArgumentException>(() => slot.Set(null, 5), "nonempty slot requires item id");
-        Expect<ArgumentException>(() => slot.Set("wood", -1), "negative slot amount rejected");
-        Expect<ArgumentException>(() => slot.Set("wood", InventorySlotProxy.MAX_AMOUNT + 1), "overcapacity slot amount rejected");
+        Expect<ArgumentException>(() => slot.Set(null, 5, 0), "nonempty slot requires item id");
+        Expect<ArgumentException>(() => slot.Set("wood", -1, 0), "negative slot amount rejected");
+        Expect<ArgumentException>(() => slot.Set("wood", InventorySlotProxy.MAX_AMOUNT + 1, 0), "overcapacity slot amount rejected");
         Check(origin.ItemId == "stone" && origin.Amount == 5, "failed slot edits preserve origin");
-        slot.Set(null, 0);
+        slot.Set(null, 0, 0);
         Check(origin.Amount == 0 && origin.ItemId == null, "clear immediately updates origin");
         InventoryGridData data = new() { OwnerId = "entity", Size = new Vector2Int(2, 2) };
         using InventoryGridProxy grid = new(data);
         InventorySlotData retained = data.Slots[2];
         InventorySlotProxy retainedProxy = grid.Slots[2];
-        retainedProxy.Set("wood", 3);
+        retainedProxy.Set("wood", 3, 0);
         Check(ReferenceEquals(retained, retainedProxy.Origin) && retained.Amount == 3, "grid stores actual slot origin references");
         grid.Resize(new Vector2Int(3, 3));
         Check(data.Size == new Vector2Int(3, 3) && data.Slots.Count == 9, "resize immediately updates origin layout");

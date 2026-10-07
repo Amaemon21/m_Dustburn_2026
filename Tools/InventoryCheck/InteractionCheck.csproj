@@ -27,6 +27,7 @@
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Handler/IInteractionTargetProvider.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/Handler/IInteractionContext.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/ItemPickup.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Inventory/Model/Data/InventorySlotState.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/InteractableObjects/IInteractableObject.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/ViewModels/InteractedViewModel.cs" />
     <Reference Include="$(UnityManaged)/UnityEngine.CoreModule.dll" />

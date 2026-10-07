@@ -10,11 +10,11 @@ public abstract class ConsumableInventoryItem : InventoryItem
 
     public override bool IsUsable => true;
 
-    public override void CollectStats(ICollection<ItemStat> stats, int amount)
+    public override void CollectStats(ICollection<ItemStat> stats, InventorySlotState state)
     {
         AddIfSet(stats, ItemStatType.Health, Health);
         AddIfSet(stats, ItemStatType.Bleeding, Bleeding);
         AddIfSet(stats, ItemStatType.Duration, Duration);
-        base.CollectStats(stats, amount);
+        base.CollectStats(stats, state);
     }
 }

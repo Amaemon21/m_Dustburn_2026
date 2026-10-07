@@ -33,6 +33,7 @@ static class WaterShoreChecks
         public readonly List<(int Source, Vector2 At)> FragmentExamples = new();
         public readonly List<Vector2> MouthExamples = new();
         public readonly List<Vector2> HangingExamples = new();
+        public readonly List<Vector2> IsletExamples = new();
         public readonly List<Vector2> JunctionExamples = new();
 
         public float GridShare => Boundary <= 0 ? 0f : (float)(GridBoundary / Boundary);
@@ -50,6 +51,7 @@ static class WaterShoreChecks
                 + (FragmentExamples.Count == 0 ? "" : "\n  обрывки: " + string.Join(" ", FragmentExamples.ConvertAll(f => $"{f.Source}@({f.At.x:0}, {f.At.y:0})")))
                 + (MouthExamples.Count == 0 ? "" : "\n  разрывы в устьях: " + string.Join(" ", MouthExamples.ConvertAll(p => $"({p.x:0}, {p.y:0})")))
                 + (HangingExamples.Count == 0 ? "" : "\n  край меша над водой: " + string.Join(" ", HangingExamples.ConvertAll(p => $"({p.x:0}, {p.y:0})")))
+                + (IsletExamples.Count == 0 ? "" : "\n  островки: " + string.Join(" ", IsletExamples.ConvertAll(p => $"({p.x:0.0}, {p.y:0.0})")))
                 + (JunctionExamples.Count == 0 ? "" : "\n  T-стыки и лишние рёбра: " + string.Join(" ", JunctionExamples.ConvertAll(p => $"({p.x:0.0}, {p.y:0.0})")));
         }
     }
@@ -400,7 +402,10 @@ static class WaterShoreChecks
         if (map.SampleWorldSmooth(centroid.x, centroid.y) < surface)
             result.TinyHoles++;
         else
+        {
             result.Islets++;
+            result.IsletExamples.Add(centroid);
+        }
     }
 
 

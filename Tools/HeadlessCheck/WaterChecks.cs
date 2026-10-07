@@ -32,6 +32,12 @@ static class WaterChecks
         HeightMap first = WorldMapPipeline.Hydrate(config, terrain(), out WaterMap water, out Hydrology hydrology);
         double millis = clock.Elapsed.TotalMilliseconds;
 
+        if (Environment.GetEnvironmentVariable("WATER_EVENTS") != null)
+        {
+            foreach (HydrologyEvent entry in hydrology.Log.Events)
+                Console.WriteLine($"  событие: {entry}");
+        }
+
         WorldMapPipeline.Hydrate(config, terrain(), out WaterMap repeat, out _);
 
         if (config.Water.ThroughRiver)

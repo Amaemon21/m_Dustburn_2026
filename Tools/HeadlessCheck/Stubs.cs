@@ -10,8 +10,12 @@ namespace UnityEngine
         public override string ToString() => $"({x:0}, {y:0})";
         public float magnitude => Mathf.Sqrt(x * x + y * y);
         public float sqrMagnitude => x * x + y * y;
-        public static Vector2 zero => new(0, 0);
-        public static Vector2 one => new(1, 1);
+        private static readonly Vector2 zeroVector = new(0f, 0f);
+        private static readonly Vector2 oneVector = new(1f, 1f);
+        public static Vector2 zero => zeroVector;
+        public static Vector2 one => oneVector;
+        public void Normalize() { float m = magnitude; if (m > 1E-05f) { x /= m; y /= m; } else { x = 0f; y = 0f; } }
+        public static Vector2 Normalize(in Vector2 value) { float m = value.magnitude; return m > 1E-05f ? new Vector2(value.x / m, value.y / m) : zeroVector; }
         public static Vector2 operator +(Vector2 a, Vector2 b) => new(a.x + b.x, a.y + b.y);
         public static Vector2 operator -(Vector2 a, Vector2 b) => new(a.x - b.x, a.y - b.y);
         public static Vector2 operator -(Vector2 a) => new(-a.x, -a.y);
@@ -19,9 +23,9 @@ namespace UnityEngine
         public static Vector2 operator *(float b, Vector2 a) => new(a.x * b, a.y * b);
         public static Vector2 operator /(Vector2 a, float b) => new(a.x / b, a.y / b);
         public static float Distance(Vector2 a, Vector2 b) => (a - b).magnitude;
-        public static Vector2 Lerp(Vector2 a, Vector2 b, float t) => new(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
-        public static Vector2 Min(Vector2 a, Vector2 b) => new(Math.Min(a.x, b.x), Math.Min(a.y, b.y));
-        public static Vector2 Max(Vector2 a, Vector2 b) => new(Math.Max(a.x, b.x), Math.Max(a.y, b.y));
+        public static Vector2 Lerp(Vector2 a, Vector2 b, float t) { t = Mathf.Clamp01(t); return new(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t); }
+        public static Vector2 Min(Vector2 a, Vector2 b) => new(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y));
+        public static Vector2 Max(Vector2 a, Vector2 b) => new(Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y));
         public static float Dot(Vector2 a, Vector2 b) => a.x * b.x + a.y * b.y;
         public Vector2 normalized { get { float m = magnitude; return m > 1E-05f ? new Vector2(x / m, y / m) : zero; } }
     }
@@ -30,9 +34,12 @@ namespace UnityEngine
     {
         public float x, y, z;
         public Vector3(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
-        public static Vector3 up => new(0, 1, 0);
-        public static Vector3 forward => new(0, 0, 1);
-        public static Vector3 zero => new(0, 0, 0);
+        private static readonly Vector3 upVector = new(0f, 1f, 0f);
+        private static readonly Vector3 forwardVector = new(0f, 0f, 1f);
+        private static readonly Vector3 zeroVector = new(0f, 0f, 0f);
+        public static Vector3 up => upVector;
+        public static Vector3 forward => forwardVector;
+        public static Vector3 zero => zeroVector;
         public static Vector3 operator +(Vector3 a, Vector3 b) => new(a.x + b.x, a.y + b.y, a.z + b.z);
         public static Vector3 operator -(Vector3 a, Vector3 b) => new(a.x - b.x, a.y - b.y, a.z - b.z);
         public static Vector3 operator *(Vector3 a, float b) => new(a.x * b, a.y * b, a.z * b);
@@ -87,39 +94,39 @@ namespace UnityEngine
     {
         public const float Deg2Rad = 0.0174532924f;
         public const float Rad2Deg = 57.29578f;
-        public const float Epsilon = 1E-05f;
+        public static readonly float Epsilon = float.Epsilon;
         public const float PI = 3.14159265f;
-        public static float Sqrt(float v) => MathF.Sqrt(v);
-        public static float Pow(float v, float p) => MathF.Pow(v, p);
-        public static float Abs(float v) => MathF.Abs(v);
+        public static float Sqrt(float v) => (float)Math.Sqrt(v);
+        public static float Pow(float v, float p) => (float)Math.Pow(v, p);
+        public static float Abs(float v) => (float)Math.Abs(v);
         public static float Sign(float v) => v >= 0f ? 1f : -1f;
         public static int Abs(int v) => Math.Abs(v);
-        public static float Min(float a, float b) => MathF.Min(a, b);
-        public static float Min(float a, float b, float c) => MathF.Min(a, MathF.Min(b, c));
+        public static float Min(float a, float b) => a < b ? a : b;
+        public static float Min(float a, float b, float c) => Min(Min(a, b), c);
         public static int Min(int a, int b) => Math.Min(a, b);
-        public static float Max(float a, float b) => MathF.Max(a, b);
-        public static float Max(float a, float b, float c) => MathF.Max(a, MathF.Max(b, c));
+        public static float Max(float a, float b) => a > b ? a : b;
+        public static float Max(float a, float b, float c) => Max(Max(a, b), c);
         public static int Max(int a, int b) => Math.Max(a, b);
-        public static float Clamp(float v, float a, float b) => Math.Clamp(v, a, b);
-        public static int Clamp(int v, int a, int b) => Math.Clamp(v, a, b);
-        public static float Clamp01(float v) => Math.Clamp(v, 0f, 1f);
+        public static float Clamp(float v, float a, float b) => v < a ? a : v > b ? b : v;
+        public static int Clamp(int v, int a, int b) => v < a ? a : v > b ? b : v;
+        public static float Clamp01(float v) => v < 0f ? 0f : v > 1f ? 1f : v;
         public static bool Approximately(float a, float b) => Math.Abs(b - a) < Math.Max(1e-6f * Math.Max(Math.Abs(a), Math.Abs(b)), float.Epsilon * 8f);
-        public static float Lerp(float a, float b, float t) => a + (b - a) * Math.Clamp(t, 0f, 1f);
-        public static float InverseLerp(float a, float b, float v) => a == b ? 0f : Math.Clamp((v - a) / (b - a), 0f, 1f);
-        public static float SmoothStep(float a, float b, float t) { t = Math.Clamp((t - a) / (b - a), 0f, 1f); return t * t * (3f - 2f * t); }
-        public static int FloorToInt(float v) => (int)MathF.Floor(v);
-        public static int CeilToInt(float v) => (int)MathF.Ceiling(v);
-        public static int RoundToInt(float v) => (int)MathF.Round(v);
-        public static float Sin(float v) => MathF.Sin(v);
+        public static float Lerp(float a, float b, float t) => a + (b - a) * Clamp01(t);
+        public static float InverseLerp(float a, float b, float v) => a != b ? Clamp01((v - a) / (b - a)) : 0f;
+        public static float SmoothStep(float from, float to, float t) { t = Clamp01(t); t = -2f * t * t * t + 3f * t * t; return to * t + from * (1f - t); }
+        public static int FloorToInt(float v) => (int)Math.Floor(v);
+        public static int CeilToInt(float v) => (int)Math.Ceiling(v);
+        public static int RoundToInt(float v) => (int)Math.Round(v);
+        public static float Sin(float v) => (float)Math.Sin(v);
         public static float Exp(float p) => (float)Math.Exp(p);
-        public static float Log(float v, float b) => MathF.Log(v) / MathF.Log(b);
-        public static float Log(float v) => MathF.Log(v);
-        public static float Cos(float v) => MathF.Cos(v);
-        public static float Atan2(float y, float x) => MathF.Atan2(y, x);
-        public static float Atan(float v) => MathF.Atan(v);
-        public static float Acos(float v) => MathF.Acos(v);
-        public static float Asin(float v) => MathF.Asin(v);
-        public static float Tan(float v) => MathF.Tan(v);
+        public static float Log(float v, float b) => (float)Math.Log(v, b);
+        public static float Log(float v) => (float)Math.Log(v);
+        public static float Cos(float v) => (float)Math.Cos(v);
+        public static float Atan2(float y, float x) => (float)Math.Atan2(y, x);
+        public static float Atan(float v) => (float)Math.Atan(v);
+        public static float Acos(float v) => (float)Math.Acos(v);
+        public static float Asin(float v) => (float)Math.Asin(v);
+        public static float Tan(float v) => (float)Math.Tan(v);
         public static float LerpUnclamped(float a, float b, float t) => a + (b - a) * t;
         public static float DeltaAngle(float a, float b) { float d = (b - a) % 360f; if (d > 180f) d -= 360f; if (d < -180f) d += 360f; return d; }
     }
@@ -441,95 +448,6 @@ namespace UnityEditor
         public static void DrawLine(Vector3 a, Vector3 b) { }
         public static void DrawAAPolyLine(float w, Vector3[] p) { }
         public static void Label(Vector3 position, string text) { }
-    }
-}
-
-namespace Unity.Mathematics
-{
-    public struct float2
-    {
-        public float x, y;
-        public float2(float x, float y) { this.x = x; this.y = y; }
-        public float2(float v) { x = v; y = v; }
-        public static float2 operator +(float2 a, float2 b) => new(a.x + b.x, a.y + b.y);
-        public static float2 operator -(float2 a, float2 b) => new(a.x - b.x, a.y - b.y);
-        public static float2 operator *(float2 a, float2 b) => new(a.x * b.x, a.y * b.y);
-        public static float2 operator *(float2 a, float b) => new(a.x * b, a.y * b);
-        public static float2 operator *(float a, float2 b) => new(a * b.x, a * b.y);
-        public static float2 operator /(float2 a, float b) => new(a.x / b, a.y / b);
-        public static float2 operator /(float2 a, float2 b) => new(a.x / b.x, a.y / b.y);
-        public static float2 zero => new(0, 0);
-    }
-
-    public struct float4
-    {
-        public float x, y, z, w;
-        public float4(float x, float y, float z, float w) { this.x = x; this.y = y; this.z = z; this.w = w; }
-        public float this[int i] => i switch { 0 => x, 1 => y, 2 => z, _ => w };
-        public static float4 operator *(float4 a, float b) => new(a.x * b, a.y * b, a.z * b, a.w * b);
-        public static float4 operator *(float a, float4 b) => b * a;
-    }
-
-    public struct int4
-    {
-        public int x, y, z, w;
-        public int4(int x, int y, int z, int w) { this.x = x; this.y = y; this.z = z; this.w = w; }
-        public int this[int i] => i switch { 0 => x, 1 => y, 2 => z, _ => w };
-        public static int4 operator +(int a, int4 b) => new(a + b.x, a + b.y, a + b.z, a + b.w);
-        public static int4 operator *(int4 a, int b) => new(a.x * b, a.y * b, a.z * b, a.w * b);
-    }
-
-    public static class math
-    {
-        public static float abs(float v) => MathF.Abs(v);
-        public static float min(float a, float b) => MathF.Min(a, b);
-        public static int min(int a, int b) => Math.Min(a, b);
-        public static float max(float a, float b) => MathF.Max(a, b);
-        public static int max(int a, int b) => Math.Max(a, b);
-        public static float clamp(float v, float a, float b) => Math.Clamp(v, a, b);
-        public static int clamp(int v, int a, int b) => Math.Clamp(v, a, b);
-        public static int4 clamp(int4 v, int a, int b) => new(Math.Clamp(v.x, a, b), Math.Clamp(v.y, a, b), Math.Clamp(v.z, a, b), Math.Clamp(v.w, a, b));
-        public static float cos(float v) => MathF.Cos(v);
-        public static float exp(float v) => MathF.Exp(v);
-        public static float log(float v) => MathF.Log(v);
-        public const float PI = MathF.PI;
-        public static float sin(float v) => MathF.Sin(v);
-        public static float saturate(float v) => Math.Clamp(v, 0f, 1f);
-        public static float lerp(float a, float b, float t) => a + (b - a) * t;
-        public static float unlerp(float a, float b, float v) => (v - a) / (b - a);
-        public static float smoothstep(float a, float b, float v) { float t = Math.Clamp((v - a) / (b - a), 0f, 1f); return t * t * (3f - 2f * t); }
-        public static float round(float v) => MathF.Round(v);
-        public static float sqrt(float v) => MathF.Sqrt(v);
-        public static float pow(float v, float p) => MathF.Pow(v, p);
-        public static float floor(float v) => MathF.Floor(v);
-        public static float atan(float v) => MathF.Atan(v);
-        public static float degrees(float v) => v * 57.29578f;
-        public static float length(float2 v) => MathF.Sqrt(v.x * v.x + v.y * v.y);
-        public static float distance(float2 a, float2 b) => length(a - b);
-
-        public static float distancesq(float2 a, float2 b) => lengthsq(a - b);
-
-        public static float lengthsq(float2 a) => a.x * a.x + a.y * a.y;
-        public static float ceil(float v) => MathF.Ceiling(v);
-        public static float dot(float2 a, float2 b) => a.x * b.x + a.y * b.y;
-    }
-
-    public static class noise
-    {
-        public static float snoise(float2 position) => Simplex.Snoise(position.x, position.y);
-    }
-
-    public struct Random
-    {
-        private uint _state;
-        public Random(uint seed) { _state = seed; Next(); }
-        private uint Next() { uint t = _state; _state ^= _state << 13; _state ^= _state >> 17; _state ^= _state << 5; return t; }
-        public float NextFloat() => BitConverter.Int32BitsToSingle((int)(0x3f800000u | (Next() >> 9))) - 1f;
-        public float NextFloat(float min, float max) => NextFloat() * (max - min) + min;
-        public float2 NextFloat2(float min, float max) { float x = NextFloat(), y = NextFloat(); return new(x * (max - min) + min, y * (max - min) + min); }
-        public int NextInt(int max) => (int)((Next() * (ulong)max) >> 32);
-        public int NextInt(int min, int max) => (int)(Next() * (ulong)(uint)(max - min) >> 32) + min;
-        public uint NextUInt() => Next() - 1u;
     }
 }
 

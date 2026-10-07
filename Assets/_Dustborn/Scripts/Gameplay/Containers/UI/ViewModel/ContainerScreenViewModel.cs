@@ -14,13 +14,14 @@ public sealed class ContainerScreenViewModel : WindowViewModel
     public ReactiveCommand<Unit> TakeAll { get; } = new();
 
     public ContainerScreenViewModel(IInventoryService inventory, ContainerInventoryService containers,
-        PlayerInventoryProxy player, PlayerInventoryService players, ItemCatalog catalog, string containerOwnerId, string title)
+        PlayerInventoryProxy player, PlayerInventoryService players, ItemCatalog catalog, IItemDropService drops,
+        string containerOwnerId, string title)
     {
         _containers = containers;
         _player = player;
         _grid = inventory.GetInventory(containerOwnerId);
         Title = title;
-        DragDrop = new InventoryDragDropViewModel(inventory);
+        DragDrop = new InventoryDragDropViewModel(inventory, drops);
         Container = new InventoryGridViewModel(inventory, containerOwnerId, catalog, DragDrop);
         Backpack = new InventoryGridViewModel(inventory, player.Backpack.OwnerId, catalog, DragDrop);
         Hotbar = new HotbarViewModel(inventory, player, players, catalog, DragDrop);

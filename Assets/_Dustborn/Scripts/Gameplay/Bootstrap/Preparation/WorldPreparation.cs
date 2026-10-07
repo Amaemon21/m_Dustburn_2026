@@ -10,11 +10,13 @@ public sealed class WorldPreparation : IGameplayPreparation
 
     private readonly PlayerSpawnService _player;
     private readonly WorldGenerator _world;
+    private readonly IDecorObjectHook _decorHook;
 
-    public WorldPreparation(PlayerSpawnService player, WorldGenerator world)
+    public WorldPreparation(PlayerSpawnService player, WorldGenerator world, IDecorObjectHook decorHook)
     {
         _player = player;
         _world = world;
+        _decorHook = decorHook;
     }
 
     public async UniTask Prepare(IProgress<SceneLoadStatus> progress, CancellationToken token)
@@ -30,6 +32,7 @@ public sealed class WorldPreparation : IGameplayPreparation
         Transform player = _player.Spawn(position, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
 
         _world.SetViewer(player);
+        _world.SetDecorHook(_decorHook);
         _world.LoadWorld();
 
         float deadline = Time.realtimeSinceStartup + WORLD_WAIT_TIMEOUT;

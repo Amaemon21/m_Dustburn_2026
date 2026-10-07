@@ -5,15 +5,17 @@ using Object = UnityEngine.Object;
 public sealed class PlayerSpawnService : IPlayerProvider, IDisposable
 {
     private readonly GameObject _prefab;
+    private readonly PlayerHandsFactory _hands;
 
     private GameObject _player;
 
     public Transform Player => _player == null ? null : _player.transform;
     public PlayerCharacter Character { get; private set; }
 
-    public PlayerSpawnService(GameplayAssets assets)
+    public PlayerSpawnService(GameplayAssets assets, PlayerHandsFactory hands)
     {
         _prefab = assets.PlayerPrefab;
+        _hands = hands;
     }
 
     public Transform Spawn(Vector3 position, Quaternion rotation)
@@ -28,7 +30,7 @@ public sealed class PlayerSpawnService : IPlayerProvider, IDisposable
         if (view == null)
             throw new InvalidOperationException($"{nameof(PlayerSpawnService)}: player prefab '{_prefab.name}' has no {nameof(PlayerView)}");
 
-        Character = new PlayerCharacter(view);
+        Character = new PlayerCharacter(view, _hands.Create(view));
 
         Debug.Log($"{nameof(PlayerSpawnService)}: player spawned at {position.x:0}, {position.y:0}, {position.z:0}");
 

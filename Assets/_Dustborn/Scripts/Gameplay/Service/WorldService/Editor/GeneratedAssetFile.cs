@@ -5,8 +5,13 @@ using System.Threading;
 
 public static class GeneratedAssetFile
 {
-    private const int REPLACE_ATTEMPTS = 4;
+    private const int REPLACE_ATTEMPTS = 10;
     private const int RETRY_DELAY_MS = 100;
+    private const int SHARING_VIOLATION = 32;
+    private const int LOCK_VIOLATION = 33;
+    private const int USER_MAPPED_FILE = 1224;
+    private const int UNABLE_TO_REMOVE_REPLACED = 1175;
+    private const int UNABLE_TO_MOVE_REPLACEMENT = 1177;
 
     public static void WriteAllBytes(string path, byte[] bytes)
     {
@@ -36,7 +41,7 @@ public static class GeneratedAssetFile
                 }
                 catch (IOException exception) when (IsFileBusy(exception) && attempt < REPLACE_ATTEMPTS - 1)
                 {
-                    Thread.Sleep(RETRY_DELAY_MS);
+                    Thread.Sleep(RETRY_DELAY_MS * (attempt + 1));
                 }
             }
         }
@@ -54,7 +59,7 @@ public static class GeneratedAssetFile
     private static bool IsFileBusy(IOException exception)
     {
         int error = exception.HResult & 0xffff;
-        return error == 32 || error == 33 || error == 1224;
+        return error is SHARING_VIOLATION or LOCK_VIOLATION or USER_MAPPED_FILE or UNABLE_TO_REMOVE_REPLACED or UNABLE_TO_MOVE_REPLACEMENT;
     }
 }
 #endif

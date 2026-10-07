@@ -15,4 +15,5 @@ public interface IInventoryService
     void SetSize(string ownerId, Vector2Int size);
     bool MoveItems(string sourceId, Vector2Int source, string targetId, Vector2Int target, int amount = 1);
     bool SwapSlots(string firstId, Vector2Int first, string secondId, Vector2Int second);
+    bool AddWear(string ownerId, Vector2Int coords, string itemId, int amount);
 }

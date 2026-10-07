@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemRarityPalette
   _entries:
   - Rarity: 0
-    Sprite: {fileID: 0}
+    Color: {r: 1, g: 1, b: 1, a: 0}
   - Rarity: 1
-    Sprite: {fileID: 21300000, guid: 49c918cede2221f4f8e5480dc4d31f64, type: 3}
+    Color: {r: 0.6117647, g: 0.53333336, b: 0.40392157, a: 1}
   - Rarity: 2
-    Sprite: {fileID: 21300000, guid: ef909849c1aa93b4cae94c4f90853ac8, type: 3}
+    Color: {r: 0.8117647, g: 0.49803922, b: 0.16078432, a: 1}
   - Rarity: 3
-    Sprite: {fileID: 21300000, guid: 940857212751c7f4aac3c5c42fb72fbd, type: 3}
+    Color: {r: 0.63529414, g: 0.6431373, b: 0.105882354, a: 1}
   - Rarity: 4
-    Sprite: {fileID: 21300000, guid: 5f09ff9ef13e03d43b7c590a99c95d58, type: 3}
+    Color: {r: 0.38431373, g: 0.6509804, b: 0.3019608, a: 1}
   - Rarity: 5
-    Sprite: {fileID: 21300000, guid: f8e1655f97718a9459ff92ab217443e6, type: 3}
+    Color: {r: 0.32156864, g: 0.49019608, b: 0.7921569, a: 1}
   - Rarity: 6
-    Sprite: {fileID: 21300000, guid: a4600814ec756da41a6ab9ecced5c4d0, type: 3}
+    Color: {r: 0.627451, g: 0.39607844, b: 0.7607843, a: 1}

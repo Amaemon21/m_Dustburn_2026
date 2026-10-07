@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb408c6c278d089499556a57ba898ba9, type: 3}
   m_Name: WorldGenerationConfig
   m_EditorClassIdentifier: Assembly-CSharp::WorldGenerationConfig
-  <Seed>k__BackingField: 1613419011
+  <Seed>k__BackingField: -40394712
   <WorldSize>k__BackingField: 8192
   <BiomeCellSize>k__BackingField: 8
   <HeightCellSize>k__BackingField: 1

@@ -176,6 +176,7 @@ public static class WorldGenerationEditorRun
             TotalSeconds = CLOCK.Elapsed.TotalSeconds;
             CLOCK.Stop();
             CollectDetails();
+            LogTimings();
 
             if (preview != null)
                 GeneratedMesh.Destroy(preview);
@@ -241,6 +242,31 @@ public static class WorldGenerationEditorRun
             if (stat.Count > 0)
                 DETAILS.Add(new StageTime(label, WorldGenProbe.ToMs(stat.Ticks) / 1000d));
         }
+    }
+
+    private static void LogTimings()
+    {
+        var rows = new List<(WorldGenStage Stage, double Seconds, int Count)>();
+
+        for (var stage = (WorldGenStage)0; stage < WorldGenStage.Count; stage++)
+        {
+            WorldGenStageStat stat = WorldGenProbe.Stat(stage);
+
+            if (stat.Count > 0)
+                rows.Add((stage, WorldGenProbe.ToMs(stat.Ticks) / 1000d, stat.Count));
+        }
+
+        rows.Sort((a, b) => b.Seconds.CompareTo(a.Seconds));
+
+        var text = new System.Text.StringBuilder($"World generation took {TotalSeconds:0.0} s. Stages:");
+
+        foreach ((WorldGenStage stage, double seconds, int count) in rows)
+        {
+            if (seconds >= 0.05d)
+                text.Append($"\n  {stage}: {seconds:0.0} s ({count})");
+        }
+
+        Debug.Log(text.ToString());
     }
 
     private static void Mark(string stage)

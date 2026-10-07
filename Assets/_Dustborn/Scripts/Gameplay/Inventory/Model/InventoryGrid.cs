@@ -61,12 +61,12 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         using IDisposable update = Proxy.DeferNotifications();
         ValidateItems(itemId, amount);
         InventorySlotProxy slot = Slot(coords);
-        if (!Accepts(coords, itemId) || (!slot.IsEmpty && slot.ItemId != itemId))
+        if (!Accepts(coords, itemId) || (!slot.IsEmpty && (slot.ItemId != itemId || slot.Wear != 0)))
             return new AddItemsToInventoryGridResult(OwnerId, amount, 0);
 
         int added = Math.Min(amount, CapacityFor(itemId) - slot.Amount);
         if (added > 0)
-            slot.Set(itemId, slot.Amount + added);
+            slot.Set(itemId, slot.Amount + added, slot.Wear);
         int remaining = Fill(itemId, amount - added, false);
         remaining = Fill(itemId, remaining, true);
         return CompleteAdd(itemId, amount, amount - remaining);
@@ -84,7 +84,7 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
             if (slot.ItemId != itemId)
                 continue;
             int removed = Math.Min(remaining, slot.Amount);
-            slot.Set(itemId, slot.Amount - removed);
+            slot.Set(itemId, slot.Amount - removed, slot.Wear);
             remaining -= removed;
             if (remaining == 0)
                 break;
@@ -99,7 +99,7 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         InventorySlotProxy slot = Slot(coords);
         if (slot.ItemId != itemId || slot.Amount < amount)
             return new RemoveItemsFromInventoryGridResult(OwnerId, amount, false);
-        slot.Set(itemId, slot.Amount - amount);
+        slot.Set(itemId, slot.Amount - amount, slot.Wear);
         return CompleteRemove(itemId, amount);
     }
 
@@ -132,18 +132,19 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         InventorySlotProxy from = Slot(source);
         InventorySlotProxy to = targetGrid.Slot(target);
         if (ReferenceEquals(from, to) || from.IsEmpty || from.Amount < amount ||
-            !targetGrid.Accepts(target, from.ItemId) || (!to.IsEmpty && to.ItemId != from.ItemId) ||
+            !targetGrid.Accepts(target, from.ItemId) || (!to.IsEmpty && (to.ItemId != from.ItemId || to.Wear != from.Wear)) ||
             amount > targetGrid.CapacityFor(from.ItemId) - to.Amount)
             return false;
 
         string itemId = from.ItemId;
+        int wear = from.Wear;
         using IDisposable sourceUpdate = Proxy.DeferNotifications();
         using IDisposable targetUpdate = targetGrid.Proxy.DeferNotifications();
         using (from.DeferNotifications())
         using (to.DeferNotifications())
         {
-            from.Set(itemId, from.Amount - amount);
-            to.Set(itemId, to.Amount + amount);
+            from.Set(itemId, from.Amount - amount, wear);
+            to.Set(itemId, to.Amount + amount, wear);
         }
         if (!ReferenceEquals(this, targetGrid))
         {
@@ -172,8 +173,8 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         using (a.DeferNotifications())
         using (b.DeferNotifications())
         {
-            a.Set(other.ItemId, other.Amount);
-            b.Set(state.ItemId, state.Amount);
+            a.Set(other.ItemId, other.Amount, other.Wear);
+            b.Set(state.ItemId, state.Amount, state.Wear);
         }
         if (!ReferenceEquals(this, secondGrid))
         {
@@ -188,6 +189,24 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
                 _itemsAdded.OnNext((other.ItemId, other.Amount));
             }
         }
+        return true;
+    }
+
+    public bool AddWear(Vector2Int coords, string itemId, int amount)
+    {
+        if (amount < 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        InventorySlotProxy slot = Slot(coords);
+        int durability = _catalog.DurabilityOf(itemId);
+        if (slot.IsEmpty || slot.ItemId != itemId || durability == 0)
+            return false;
+
+        int wear = Math.Min(durability, slot.Wear + amount);
+        if (wear == slot.Wear)
+            return true;
+
+        using IDisposable update = Proxy.DeferNotifications();
+        slot.Set(itemId, slot.Amount, wear);
         return true;
     }
 
@@ -238,12 +257,12 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
             if (remaining == 0)
                 break;
             if (!Accepts(InventoryGridLayout.CoordsOf(i, Size), itemId) ||
-                slot.IsEmpty != empty || (!empty && slot.ItemId != itemId))
+                slot.IsEmpty != empty || (!empty && (slot.ItemId != itemId || slot.Wear != 0)))
                 continue;
             int added = Math.Min(remaining, capacity - slot.Amount);
             if (added <= 0)
                 continue;
-            slot.Set(itemId, slot.Amount + added);
+            slot.Set(itemId, slot.Amount + added, slot.Wear);
             remaining -= added;
         }
         return remaining;

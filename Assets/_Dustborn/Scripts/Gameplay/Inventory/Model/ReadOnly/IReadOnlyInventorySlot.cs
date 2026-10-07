@@ -3,6 +3,7 @@ public interface IReadOnlyInventorySlot
 {
     string ItemId { get; }
     int Amount { get; }
+    int Wear { get; }
     bool IsEmpty { get; }
     ReadOnlyReactiveProperty<InventorySlotState> State { get; }
 }

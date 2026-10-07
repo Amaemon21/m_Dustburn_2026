@@ -13,6 +13,7 @@ public sealed class InventorySlotProxy : IReadOnlyInventorySlot, IDisposable
     public InventorySlotData Origin { get; }
     public string ItemId => _current.ItemId;
     public int Amount => _current.Amount;
+    public int Wear => _current.Wear;
     public ReadOnlyReactiveProperty<InventorySlotState> State => _state;
     public Observable<Unit> Changed => _changed;
     public bool IsEmpty => Amount == 0;
@@ -21,23 +22,27 @@ public sealed class InventorySlotProxy : IReadOnlyInventorySlot, IDisposable
     {
         Origin = origin ?? throw new ArgumentNullException(nameof(origin));
         _accepts = accepts;
-        Validate(origin.ItemId, origin.Amount);
-        _current = new InventorySlotState(origin.Amount == 0 ? null : origin.ItemId, origin.Amount);
+        Validate(origin.ItemId, origin.Amount, origin.Wear);
+        _current = Normalize(origin.ItemId, origin.Amount, origin.Wear);
         _state = new ReactiveProperty<InventorySlotState>(_current);
     }
 
-    public void Set(string itemId, int amount)
+    public void Set(string itemId, int amount, int wear)
     {
-        Validate(itemId, amount);
-        _current = new InventorySlotState(amount == 0 ? null : itemId, amount);
+        Validate(itemId, amount, wear);
+        _current = Normalize(itemId, amount, wear);
         Origin.ItemId = _current.ItemId;
         Origin.Amount = _current.Amount;
+        Origin.Wear = _current.Wear;
         Publish();
     }
 
-    private void Validate(string itemId, int amount)
+    private static InventorySlotState Normalize(string itemId, int amount, int wear)
+        => amount == 0 ? new InventorySlotState(null, 0) : new InventorySlotState(itemId, amount, wear);
+
+    private void Validate(string itemId, int amount, int wear)
     {
-        if (amount < 0 || amount > MAX_AMOUNT || (amount > 0 && string.IsNullOrWhiteSpace(itemId)))
+        if (amount < 0 || amount > MAX_AMOUNT || wear < 0 || (amount > 0 && string.IsNullOrWhiteSpace(itemId)))
             throw new ArgumentException("Invalid inventory slot state");
         if (_accepts != null && !_accepts(itemId, amount))
             throw new ArgumentException("Item is not allowed in this slot");

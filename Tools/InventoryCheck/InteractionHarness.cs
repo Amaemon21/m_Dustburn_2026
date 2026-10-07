@@ -112,7 +112,7 @@ internal static class InteractionHarness
         Check(firstActivatable.ActivationCount == 1 && secondActivatable.ActivationCount == 1, "every service is activated once");
 
         TestContext pickupContext = new() { Capacity = 2 };
-        ItemPickup pickup = new("stone", 5);
+        ItemPickup pickup = new(new InventorySlotState("stone", 5));
         pickup.PickUp(pickupContext);
         Check(pickup.Remaining == 3 && pickupContext.Received == 2 && pickupContext.ItemId == "stone", "partial pickup keeps remaining stack in world");
         pickup.PickUp(pickupContext);
@@ -122,6 +122,8 @@ internal static class InteractionHarness
         Check(pickup.Remaining == 0 && pickupContext.Received == 5, "all remaining items can be picked up later");
         pickup.PickUp(pickupContext);
         Check(pickupContext.Received == 5, "consumed pickup cannot add items twice");
+        new ItemPickup(new InventorySlotState("axe", 1, 4)).PickUp(pickupContext);
+        Check(pickupContext.ItemId == "axe" && pickupContext.Wear == 4, "a dropped item hands its wear back on pickup");
 
         await VerifyPlayerControl();
         Console.WriteLine($"PASS: {_checks} interaction lifecycle and window checks");
@@ -189,10 +191,12 @@ internal static class InteractionHarness
         public int Capacity { get; set; }
         public int Received { get; private set; }
         public string ItemId { get; private set; }
-        public int PickUp(string itemId, int amount)
+        public int Wear { get; private set; }
+        public int PickUp(InventorySlotState stack)
         {
-            ItemId = itemId;
-            int accepted = Math.Min(Capacity, amount);
+            ItemId = stack.ItemId;
+            Wear = stack.Wear;
+            int accepted = Math.Min(Capacity, stack.Amount);
             Capacity -= accepted;
             Received += accepted;
             return accepted;

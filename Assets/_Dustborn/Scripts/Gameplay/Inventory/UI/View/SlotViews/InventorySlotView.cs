@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class InventorySlotView : InteractiveItemSlotView<InventorySlotViewModel>
 {
     [SerializeField] private TMP_Text _textAmount;
-    [SerializeField] private Image _slotCross;
 
     protected override InventorySlotViewModel DraggableSlot => ViewModel;
 
@@ -21,13 +20,11 @@ public class InventorySlotView : InteractiveItemSlotView<InventorySlotViewModel>
     {
         int amount = viewModel.DisplayAmount;
         _textAmount.text = SlotAmountText.Format(amount);
-        _slotCross.gameObject.SetActive(amount == 0);
     }
 
     protected override void UnbindSlot()
     {
         _textAmount.text = string.Empty;
-        _slotCross.gameObject.SetActive(false);
         base.UnbindSlot();
     }
 }

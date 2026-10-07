@@ -99,14 +99,42 @@ static class WaterAudit
         if (Array.IndexOf(args, "--pipeline") >= 0)
         {
             int cached = Array.IndexOf(args, "--raw-cache");
-            HeightMap relief = cached >= 0 && File.Exists(args[cached + 1]) ? HeightMap.FromRaw16(File.ReadAllBytes(args[cached + 1]), config.HeightMapResolution, config.WorldSize, config.MaxHeight) : null;
+            HeightMap relief = cached >= 0 && File.Exists(args[cached + 1]) ? ReliefCache.Read(args[cached + 1], config) : null;
+
+            if (cached >= 0 && relief == null)
+            {
+                relief = new HeightMapGenerator(config, biomes).Generate(new BiomeMapGenerator(config, biomes).Generate());
+                ReliefCache.Write(args[cached + 1], relief);
+            }
+
+            int trace = Array.IndexOf(args, "--stage-trace");
+
+            if (trace >= 0)
+            {
+                var points = new List<Vector2>();
+                var culture = System.Globalization.CultureInfo.InvariantCulture;
+
+                for (int k = trace + 1; k + 1 < args.Length && float.TryParse(args[k], System.Globalization.NumberStyles.Float, culture, out float tx); k += 2)
+                    points.Add(new Vector2(tx, float.Parse(args[k + 1], culture)));
+
+                StageTrace.Run(config, biomes, pois, relief, points);
+                return;
+            }
+
             WorldMapResult world = new WorldMapPipeline(config, biomes, pois).Generate(null, default, relief);
+
+            if (Array.IndexOf(args, "--stage-times") >= 0)
+                PrintStageTimes();
+
             map = world.Heights;
             water = world.Water;
             origin = $"полный конвейер текущего кода за {clock.Elapsed.TotalSeconds:0} с";
 
             if (Array.IndexOf(args, "--compare-bake") >= 0)
+            {
                 CompareBake(map, $"{GENERATED}/HeightMap.bytes", config);
+                BakeParity.Compare(world, GENERATED, config, args);
+            }
         }
         else if (Array.IndexOf(args, "--generate") >= 0)
         {
@@ -119,7 +147,7 @@ static class WaterAudit
 
             if (cache != null && File.Exists(cache))
             {
-                raw = HeightMap.FromRaw16(File.ReadAllBytes(cache), config.HeightMapResolution, config.WorldSize, config.MaxHeight);
+                raw = ReliefCache.Read(cache, config);
             }
             else
             {
@@ -127,7 +155,7 @@ static class WaterAudit
                 raw = new HeightMapGenerator(config, biomes).Generate(biomeMap);
 
                 if (cache != null)
-                    File.WriteAllBytes(cache, raw.ToRaw16());
+                    ReliefCache.Write(cache, raw);
             }
 
             if (Array.IndexOf(args, "--profile") >= 0)
@@ -284,6 +312,24 @@ static class WaterAudit
 
         if (!accepted)
             Environment.Exit(1);
+    }
+
+    private static void PrintStageTimes()
+    {
+        var rows = new List<(string Name, double Ms, int Count)>();
+
+        for (var stage = (WorldGenStage)0; stage < WorldGenStage.Count; stage++)
+        {
+            WorldGenStageStat stat = WorldGenProbe.Stat(stage);
+
+            if (stat.Count > 0)
+                rows.Add((stage.ToString(), WorldGenProbe.ToMs(stat.Ticks), stat.Count));
+        }
+
+        rows.Sort((a, b) => b.Ms.CompareTo(a.Ms));
+
+        foreach ((string name, double ms, int count) in rows)
+            Console.WriteLine($"  этап {name}: {ms / 1000d:0.0} с ({count})");
     }
 
     private static void CompareBake(HeightMap map, string path, WorldGenerationConfig config)
@@ -548,7 +594,7 @@ static class WaterAudit
                 continue;
 
             int open = points.FindAll(point => !point.Submerged).Count;
-            Console.WriteLine($"  река {r}: {points.Count} точек ({open} открытых), {water.Rivers[r].Length:0} м, ({points[0].Position.x:0}, {points[0].Position.y:0}) {RiverEnds.Start(water, r)} → ({points[^1].Position.x:0}, {points[^1].Position.y:0}) {RiverEnds.End(water, r)}, ширина {points[0].Width:0}..{points[^1].Width:0} м, уровень {points[0].Surface:0.0} → {points[^1].Surface:0.0}");
+            Console.WriteLine($"  река {r}: {points.Count} точек ({open} открытых), {water.Rivers[r].Length:0} м, ({points[0].Position.x:0}, {points[0].Position.y:0}) {RiverEnds.Start(water, r)}/{water.Rivers[r].Source} sub0 {points[0].Submerged} → ({points[^1].Position.x:0}, {points[^1].Position.y:0}) {RiverEnds.End(water, r)}, ширина {points[0].Width:0}..{points[^1].Width:0} м, уровень {points[0].Surface:0.0} → {points[^1].Surface:0.0}");
         }
     }
 
@@ -559,6 +605,24 @@ static class WaterAudit
         int c = water.CellIndex(x, z);
         Console.WriteLine($"  uncarved {(water.Uncarved != null ? water.Uncarved.SampleWorldSmooth(x, z) : float.NaN):0.00}, filled {(water.Filled != null ? water.Filled[water.CellIndex(x, z)] : float.NaN):0.00}, bodies {string.Join(" ", System.Linq.Enumerable.Select(water.Bodies, (body, id) => $"{id}:{body.Kind}@{body.Surface:0.00}"))}");
         Console.WriteLine($"({x},{z}) ground {ground:0.00} sample {s.Kind} surface {s.Surface:0.00} width {s.Width:0.0} body {s.Body} | cell kind {(WaterKind)water.Kinds[c]} bodyId {water.BodyIds[c]} shoreDist {water.ShoreDistance[c]:0.0} shoreSurf {water.ShoreSurface[c]:0.00}");
+
+        int detail = water.DetailStart(c);
+
+        if (detail >= 0 && Environment.GetEnvironmentVariable("WATER_NODES") != null)
+        {
+            for (int j = WaterMap.CELL_SIDE_NODES - 1; j >= 0; j--)
+            {
+                var line = new System.Text.StringBuilder("   ");
+
+                for (int i = 0; i < WaterMap.CELL_SIDE_NODES; i++)
+                {
+                    int node = detail + j * WaterMap.CELL_SIDE_NODES + i;
+                    line.Append($" {water.DetailOwner(node),3}@{water.DetailGround(node):0.00}/{map.SampleWorldSmooth(c % water.Resolution * water.CellSize + i * water.NodeStep, c / water.Resolution * water.CellSize + j * water.NodeStep):0.00}");
+                }
+
+                Console.WriteLine(line.ToString());
+            }
+        }
 
         foreach (WaterCrossing crossing in water.Crossings)
         {

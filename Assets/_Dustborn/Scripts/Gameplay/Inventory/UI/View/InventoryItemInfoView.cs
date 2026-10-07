@@ -50,7 +50,7 @@ public class InventoryItemInfoView : View<InventoryItemInfoViewModel>
         _categoryText.text = item.Category.ToString();
         _iconImage.sprite = item.Icon;
         _descriptionText.text = item.Description;
-        _stats.Show(item, state.Amount);
+        _stats.Show(item, state);
     }
 
     public void CloseSelection()

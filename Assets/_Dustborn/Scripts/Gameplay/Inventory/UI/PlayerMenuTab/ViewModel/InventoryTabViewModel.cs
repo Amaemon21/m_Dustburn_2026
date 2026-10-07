@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class InventoryTabViewModel : ViewModel
 {
     private readonly IInventoryService _inventory;
+    private readonly IItemDropService _drops;
     public PlayerInventoryProxy Player { get; }
     public InventoryGridViewModel Backpack { get; }
     public HotbarViewModel Hotbar { get; }
@@ -16,11 +17,12 @@ public sealed class InventoryTabViewModel : ViewModel
     private readonly ReactiveProperty<bool> _lastTransferSucceeded = new(true);
 
     public InventoryTabViewModel(IInventoryService inventory, PlayerInventoryProxy player, PlayerInventoryService players,
-        ItemCatalog catalog)
+        ItemCatalog catalog, IItemDropService drops)
     {
         _inventory = inventory;
+        _drops = drops;
         Player = player;
-        DragDrop = new InventoryDragDropViewModel(inventory);
+        DragDrop = new InventoryDragDropViewModel(inventory, drops);
         Backpack = new InventoryGridViewModel(inventory, player.Backpack.OwnerId, catalog, DragDrop);
         Hotbar = new HotbarViewModel(inventory, player, players, catalog, DragDrop);
         Equipment = new InventoryGridViewModel(inventory, player.Equipment.OwnerId, catalog, DragDrop);
@@ -29,6 +31,7 @@ public sealed class InventoryTabViewModel : ViewModel
         Disposables.Add(Unequip.Executed.Subscribe(_ => UnequipSelected()));
         Disposables.Add(TakeFromHotbar.Executed.Subscribe(_ => TakeSelectedHotbar()));
         ItemInfo = new InventoryItemInfoViewModel(catalog, Backpack, Hotbar.Grid, Equipment);
+        Disposables.Add(ItemInfo.Drop.Executed.Subscribe(_ => DropSelected()));
         foreach (InventoryGridViewModel grid in new[] { Backpack, Hotbar.Grid, Equipment })
             Disposables.Add(grid.QuickTransferRequested.Subscribe(coordinates =>
             {
@@ -74,6 +77,17 @@ public sealed class InventoryTabViewModel : ViewModel
         _lastTransferSucceeded.Value = _inventory.MoveItems(Player.Hotbar.OwnerId, source,
             Player.Backpack.OwnerId, target.Value, state.Amount);
         SelectTransferredItem(target.Value);
+    }
+
+    private void DropSelected()
+    {
+        string ownerId = ItemInfo.SelectedOwnerId;
+        InventorySlotState state = ItemInfo.State.CurrentValue;
+        if (_drops == null || ownerId == null || state.IsEmpty)
+            return;
+
+        DragDrop.Cancel();
+        _drops.Drop(ownerId, ItemInfo.SelectedCoordinates, state.Amount);
     }
 
     private Vector2Int? GetBackpackTarget()

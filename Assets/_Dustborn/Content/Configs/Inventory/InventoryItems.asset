@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: InventoryItems
   m_EditorClassIdentifier: Assembly-CSharp::InventoryItemDatabase
   _items:
-  - {fileID: 11400000, guid: 394d9363449443e4c83647b422fb87a5, type: 2}
   - {fileID: 11400000, guid: 2d0d54e8d9e3a1848881af1dcb813cc3, type: 2}
   - {fileID: 11400000, guid: a602ec120374bc949a0e8c4762427da7, type: 2}
   - {fileID: 11400000, guid: 96e05a601e28608419c457b587520eed, type: 2}
+  - {fileID: 11400000, guid: 96626c25c42249aca4e931e641b4cf09, type: 2}

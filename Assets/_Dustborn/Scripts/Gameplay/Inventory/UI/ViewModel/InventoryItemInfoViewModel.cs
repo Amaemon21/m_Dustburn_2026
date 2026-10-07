@@ -64,7 +64,7 @@ public sealed class InventoryItemInfoViewModel : ViewModel
     {
         InventoryItem item = Item;
         Use.SetCanExecute(item != null && item.IsUsable);
-        Drop.SetCanExecute(item != null);
+        Drop.SetCanExecute(item != null && item.PickUpPrefab != null);
     }
 
     public bool IsSelected(InventoryGridViewModel grid, Vector2Int coordinates)

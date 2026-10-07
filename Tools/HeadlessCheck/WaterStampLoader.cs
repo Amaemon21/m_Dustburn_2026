@@ -20,9 +20,11 @@ static class WaterStampLoader
         return JsonSerializer.Deserialize<WaterStampManifest>(File.ReadAllText(path), new JsonSerializerOptions { IncludeFields = true });
     }
 
-    public static WaterStampDatabase Load()
+    public const string DATABASE = "../../Assets/_Dustborn/Content/World/WaterStampDatabase.asset";
+
+    public static WaterStampDatabase Load(bool storedTraces = true)
     {
-        if (_cached != null)
+        if (storedTraces && _cached != null)
             return _cached;
 
         WaterStampManifest manifest = Manifest();
@@ -54,10 +56,16 @@ static class WaterStampLoader
         foreach (string warning in warnings)
             Console.WriteLine("[warning] " + warning);
 
-        _cached = new WaterStampDatabase();
-        _cached.Replace(definitions);
+        if (storedTraces && File.Exists(DATABASE))
+            BakeParity.ApplyStoredTraces(definitions, DATABASE);
 
-        return _cached;
+        var database = new WaterStampDatabase();
+        database.Replace(definitions);
+
+        if (storedTraces)
+            _cached = database;
+
+        return database;
     }
 
     public static void Attach(WorldGenerationConfig config, bool enabled = true)

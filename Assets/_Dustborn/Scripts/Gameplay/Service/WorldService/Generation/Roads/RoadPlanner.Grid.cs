@@ -1,0 +1,268 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
+
+public partial class RoadPlanner
+{
+    private void Rasterise(RoadEdge edge)
+    {
+        float spacing = _cellSize / 3f;
+
+        for (float along = 0f; along <= edge.Length; along += spacing)
+        {
+            Vector2 point = edge.PointAt(along);
+            int cell = CellOf(point);
+            int x = cell % _resolution;
+            int y = cell / _resolution;
+
+            _corridorEdge[cell] = edge.Id;
+            _corridorAlong[cell] = along;
+
+            for (int dy = -BAND_CELLS; dy <= BAND_CELLS; dy++)
+            {
+                for (int dx = -BAND_CELLS; dx <= BAND_CELLS; dx++)
+                {
+                    int bandX = x + dx;
+                    int bandY = y + dy;
+
+                    if (bandX < 0 || bandY < 0 || bandX >= _resolution || bandY >= _resolution)
+                        continue;
+
+                    int band = bandY * _resolution + bandX;
+                    byte ring = (byte)Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy));
+
+                    if (ring > _bandDistance[band])
+                        continue;
+
+                    _bandDistance[band] = ring;
+                    _bandEdge[band] = edge.Id;
+                    _bandAlong[band] = along;
+                }
+            }
+        }
+    }
+
+    private void Penalise(Vector2 point)
+    {
+        int cell = CellOf(point);
+        int x = cell % _resolution;
+        int y = cell / _resolution;
+
+        for (int dy = -PENALTY_CELLS; dy <= PENALTY_CELLS; dy++)
+        {
+            for (int dx = -PENALTY_CELLS; dx <= PENALTY_CELLS; dx++)
+            {
+                int px = x + dx;
+                int py = y + dy;
+
+                if (px < 0 || py < 0 || px >= _resolution || py >= _resolution)
+                    continue;
+
+                _penalty[py * _resolution + px] = REROUTE_PENALTY;
+            }
+        }
+    }
+
+    private void MarkSettlements(IReadOnlyList<SettlementLayout> layouts, float clearanceShare = 1f)
+    {
+        Array.Clear(_blocked, 0, _blocked.Length);
+        _layouts = layouts;
+        SettledCells = 0;
+        StubCells = 0;
+
+        if (layouts == null)
+            return;
+
+        float reach = _config.HighwaySettlementClearance * clearanceShare + _cellSize * 0.75f;
+
+        foreach (SettlementLayout layout in layouts)
+        {
+            if (layout == null || layout.IsEmpty)
+                continue;
+
+            int minX = Mathf.Clamp(Mathf.FloorToInt((layout.Min.x - reach) / _cellSize), 0, _resolution - 1);
+            int maxX = Mathf.Clamp(Mathf.CeilToInt((layout.Max.x + reach) / _cellSize), 0, _resolution - 1);
+            int minY = Mathf.Clamp(Mathf.FloorToInt((layout.Min.y - reach) / _cellSize), 0, _resolution - 1);
+            int maxY = Mathf.Clamp(Mathf.CeilToInt((layout.Max.y + reach) / _cellSize), 0, _resolution - 1);
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    int cell = y * _resolution + x;
+
+                    if (_blocked[cell] || !layout.IsWithin(CellCenter(cell), reach))
+                        continue;
+
+                    _blocked[cell] = true;
+                    SettledCells++;
+                }
+            }
+
+            foreach (SettlementGateway gateway in layout.Gateways)
+                BlockStub(gateway);
+        }
+    }
+
+    private void BlockStub(SettlementGateway gateway)
+    {
+        float width = _config.RoadHalfWidth + _config.RoadShoulder + _cellSize * 0.5f;
+        float length = _config.GatewayApproachLength - _cellSize;
+        Vector2 far = gateway.Port + gateway.Tangent * length;
+
+        int minX = Mathf.Clamp(Mathf.FloorToInt((Mathf.Min(gateway.Port.x, far.x) - width) / _cellSize), 0, _resolution - 1);
+        int maxX = Mathf.Clamp(Mathf.CeilToInt((Mathf.Max(gateway.Port.x, far.x) + width) / _cellSize), 0, _resolution - 1);
+        int minY = Mathf.Clamp(Mathf.FloorToInt((Mathf.Min(gateway.Port.y, far.y) - width) / _cellSize), 0, _resolution - 1);
+        int maxY = Mathf.Clamp(Mathf.CeilToInt((Mathf.Max(gateway.Port.y, far.y) + width) / _cellSize), 0, _resolution - 1);
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                int cell = y * _resolution + x;
+                Vector2 offset = CellCenter(cell) - gateway.Port;
+                float along = Vector2.Dot(offset, gateway.Tangent);
+                float across = Mathf.Abs(offset.x * gateway.Tangent.y - offset.y * gateway.Tangent.x);
+
+                if (_blocked[cell] || along < 0f || along > length || across > width)
+                    continue;
+
+                _blocked[cell] = true;
+                StubCells++;
+            }
+        }
+    }
+
+    private bool IsBlocked(Vector2 point)
+    {
+        return _blocked[CellOf(point)];
+    }
+
+    private void PrecomputeSteps()
+    {
+        float[] valley = ValleyField();
+
+        Parallel.For(0, _resolution, y =>
+        {
+            for (int x = 0; x < _resolution; x++)
+            {
+                for (int step = 0; step < HEADINGS; step++)
+                {
+                    int nextX = x + STEP_X[step];
+                    int nextY = y + STEP_Y[step];
+                    int index = (y * _resolution + x) * HEADINGS + step;
+
+                    if (nextX < 0 || nextY < 0 || nextX >= _resolution || nextY >= _resolution)
+                    {
+                        _grade[index] = float.MaxValue;
+                        continue;
+                    }
+
+                    BaseCost(x, y, nextX, nextY, valley[nextY * _resolution + nextX], out _stepCost[index], out _grade[index], out _cross[index]);
+                }
+            }
+        });
+
+        for (int heading = 0; heading < STATES; heading++)
+        {
+            for (int step = 0; step < HEADINGS; step++)
+            {
+                _turnCost[heading * HEADINGS + step] = TurnCost(heading, step);
+                _turnRadius[heading * HEADINGS + step] = TurnRadius(heading, step);
+            }
+        }
+
+        for (int step = 0; step < HEADINGS; step++)
+            _stepLength[step] = new Vector2(STEP_X[step], STEP_Y[step]).magnitude * _cellSize;
+    }
+
+    private float[] ValleyField()
+    {
+        int cellCount = _resolution * _resolution;
+        var heights = new float[cellCount];
+        var multiplier = new float[cellCount];
+
+        for (int y = 0; y < _resolution; y++)
+        {
+            for (int x = 0; x < _resolution; x++)
+                heights[y * _resolution + x] = SampleMeters(x, y);
+        }
+
+        if (_config.ValleyPreference <= 0f)
+        {
+            Array.Fill(multiplier, 1f);
+            return multiplier;
+        }
+
+        int radius = Mathf.Max(1, Mathf.RoundToInt(_config.ValleyRadius / _cellSize));
+        float[] blurred = BoxBlur(heights, _resolution, radius);
+
+        for (int i = 0; i < cellCount; i++)
+        {
+            float above = Mathf.Max(0f, heights[i] - blurred[i]) / VALLEY_SCALE;
+
+            multiplier[i] = 1f + _config.ValleyPreference * Mathf.Min(above, VALLEY_CAP);
+        }
+
+        return multiplier;
+    }
+
+    private static float[] BoxBlur(float[] source, int size, int radius)
+    {
+        var horizontal = new float[source.Length];
+        var result = new float[source.Length];
+        float scale = 1f / (2 * radius + 1);
+
+        for (int y = 0; y < size; y++)
+        {
+            float sum = 0f;
+
+            for (int k = -radius; k <= radius; k++)
+                sum += source[y * size + Mathf.Clamp(k, 0, size - 1)];
+
+            for (int x = 0; x < size; x++)
+            {
+                horizontal[y * size + x] = sum * scale;
+                sum += source[y * size + Mathf.Min(x + radius + 1, size - 1)] - source[y * size + Mathf.Max(x - radius, 0)];
+            }
+        }
+
+        for (int x = 0; x < size; x++)
+        {
+            float sum = 0f;
+
+            for (int k = -radius; k <= radius; k++)
+                sum += horizontal[Mathf.Clamp(k, 0, size - 1) * size + x];
+
+            for (int y = 0; y < size; y++)
+            {
+                result[y * size + x] = sum * scale;
+                sum += horizontal[Mathf.Min(y + radius + 1, size - 1) * size + x] - horizontal[Mathf.Max(y - radius, 0) * size + x];
+            }
+        }
+
+        return result;
+    }
+
+    private void BaseCost(int fromX, int fromY, int toX, int toY, float valley, out float cost, out float grade, out float cross)
+    {
+        float deltaX = (toX - fromX) * _cellSize;
+        float deltaY = (toY - fromY) * _cellSize;
+        float distance = Mathf.Sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        float fromHeight = SampleMeters(fromX, fromY);
+        float toHeight = SampleMeters(toX, toY);
+
+        grade = StepGrade(fromX, fromY, toX, toY, distance);
+        cross = CrossSlope(fromX, fromY, toX, toY, deltaX, deltaY, distance);
+
+        float gradeOvershoot = Mathf.Max(0f, grade - _config.RoadMaxGrade) / Mathf.Max(_config.RoadMaxGrade, 1e-3f);
+        float crossOvershoot = Mathf.Max(0f, cross - _config.HighwayMaxCrossSlope) / Mathf.Max(_config.HighwayMaxCrossSlope, 1e-3f);
+        float overshoot = OVERSHOOT_PENALTY * gradeOvershoot * gradeOvershoot + CROSS_OVERSHOOT_PENALTY * crossOvershoot * crossOvershoot;
+
+        cost = distance * (1f + _config.RoadSlopePenalty * grade * grade + _config.RoadCrossSlopePenalty * cross * cross + overshoot) * valley;
+
+        cost *= WaterCost(fromX, fromY, toX, toY, toHeight);
+    }
+}

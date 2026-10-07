@@ -8,6 +8,7 @@ public sealed class ItemCatalog
 
     private readonly Dictionary<string, HashSet<EquipmentSlot>> _equipment = new();
     private readonly Dictionary<string, int> _maxStacks = new();
+    private readonly Dictionary<string, int> _durabilities = new();
     private readonly Dictionary<string, InventoryItem> _items = new();
 
     public ItemCatalog()
@@ -28,9 +29,13 @@ public sealed class ItemCatalog
                 throw new ArgumentException($"Inventory item '{item.name}' at index {index} in database '{database.name}' has an empty ItemId", nameof(database));
             if (_items.ContainsKey(item.ItemId))
                 throw new InvalidOperationException($"Duplicate item id '{item.ItemId}'");
+            if (item.WearsOut && item.MaxStack != 1)
+                throw new ArgumentException($"Inventory item '{item.ItemId}' wears out (Durability {item.Durability}) and must stack to 1, it stacks to {item.MaxStack}", nameof(database));
 
             _items.Add(item.ItemId, item);
             SetMaxStack(item.ItemId, item.MaxStack);
+            if (item.WearsOut)
+                SetDurability(item.ItemId, item.Durability);
 
             if (item is EquipmentInventoryItem equipmentItem)
                 RegisterEquipment(item.ItemId, equipmentItem.EquipmentSlot);
@@ -64,12 +69,35 @@ public sealed class ItemCatalog
             throw new ArgumentException("Item id is required", nameof(itemId));
         if (maxStack < 1 || maxStack > InventorySlotProxy.MAX_AMOUNT)
             throw new ArgumentOutOfRangeException(nameof(maxStack), $"Item '{itemId}' stacks to {maxStack}, allowed 1..{InventorySlotProxy.MAX_AMOUNT}");
+        if (maxStack != 1 && DurabilityOf(itemId) > 0)
+            throw new InvalidOperationException($"Item '{itemId}' wears out and must stack to 1, not {maxStack}");
 
         _maxStacks[itemId] = maxStack;
     }
 
+    public void SetDurability(string itemId, int durability)
+    {
+        if (string.IsNullOrWhiteSpace(itemId))
+            throw new ArgumentException("Item id is required", nameof(itemId));
+        if (durability < 0)
+            throw new ArgumentOutOfRangeException(nameof(durability), $"Item '{itemId}' has durability {durability}, it must not be negative");
+        if (durability > 0 && MaxStack(itemId) != 1)
+            throw new InvalidOperationException($"Item '{itemId}' wears out and must stack to 1, it stacks to {MaxStack(itemId)}");
+
+        _durabilities[itemId] = durability;
+    }
+
     public int MaxStack(string itemId)
         => itemId != null && _maxStacks.TryGetValue(itemId, out int maxStack) ? maxStack : DEFAULT_MAX_STACK;
+
+    public int DurabilityOf(string itemId)
+        => itemId != null && _durabilities.TryGetValue(itemId, out int durability) ? durability : 0;
+
+    public bool IsWornOut(InventorySlotState state)
+    {
+        int durability = DurabilityOf(state.ItemId);
+        return !state.IsEmpty && durability > 0 && state.Wear >= durability;
+    }
 
     public bool CanEquip(string itemId, EquipmentSlot slot)
         => itemId != null && _equipment.TryGetValue(itemId, out HashSet<EquipmentSlot> allowed) && allowed.Contains(slot);

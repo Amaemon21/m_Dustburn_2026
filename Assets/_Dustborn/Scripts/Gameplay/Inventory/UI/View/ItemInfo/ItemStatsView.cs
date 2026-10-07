@@ -8,10 +8,10 @@ public sealed class ItemStatsView : MonoBehaviour
 
     private IReadOnlyList<ItemStatView> Rows => _rows ??= GetComponentsInChildren<ItemStatView>(true);
 
-    public void Show(InventoryItem item, int amount)
+    public void Show(InventoryItem item, InventorySlotState state)
     {
         _stats.Clear();
-        item?.CollectStats(_stats, amount);
+        item?.CollectStats(_stats, state);
 
         foreach (ItemStatView row in Rows)
         {
@@ -22,7 +22,7 @@ public sealed class ItemStatsView : MonoBehaviour
         }
     }
 
-    public void Clear() => Show(null, 0);
+    public void Clear() => Show(null, default);
 
     private bool TryFind(ItemStatType type, out float value)
     {

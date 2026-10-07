@@ -63,6 +63,8 @@ public sealed class InventoryService : IInventoryService, IDisposable
         => GetGrid(sourceId).MoveTo(source, GetGrid(targetId), target, amount);
     public bool SwapSlots(string firstId, Vector2Int first, string secondId, Vector2Int second)
         => GetGrid(firstId).SwapWith(first, GetGrid(secondId), second);
+    public bool AddWear(string ownerId, Vector2Int coords, string itemId, int amount)
+        => GetGrid(ownerId).AddWear(coords, itemId, amount);
 
     public InventoryGridProxy GetProxy(string ownerId) => GetGrid(ownerId).Proxy;
 

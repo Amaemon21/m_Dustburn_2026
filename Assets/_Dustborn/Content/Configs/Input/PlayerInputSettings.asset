@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: PlayerInputSettings
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputSettings
   <Interact>k__BackingField: {fileID: -8896287593638862753, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <PrimaryAction>k__BackingField: {fileID: 786640425070342191, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
+  <SecondaryAction>k__BackingField: {fileID: -6817193362407426912, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
   <Move>k__BackingField: {fileID: -6614868923786162697, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
   <Look>k__BackingField: {fileID: -1649801930288297608, guid: 6298fa93293cae4418393a2a54d27417, type: 3}
   <Sprint>k__BackingField: {fileID: -6846715346062353045, guid: 6298fa93293cae4418393a2a54d27417, type: 3}

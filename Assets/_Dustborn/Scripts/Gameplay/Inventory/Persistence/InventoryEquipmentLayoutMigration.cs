@@ -87,5 +87,6 @@ public sealed class InventoryEquipmentLayoutMigration : ISaveMigration
         }
         target.ItemId = item.ItemId;
         target.Amount = item.Amount;
+        target.Wear = item.Wear;
     }
 }

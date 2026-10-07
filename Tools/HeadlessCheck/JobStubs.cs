@@ -10,6 +10,7 @@ namespace Unity.Burst
     public class BurstCompileAttribute : Attribute
     {
         public bool CompileSynchronously { get; set; }
+        public bool DisableSafetyChecks { get; set; }
 
         public BurstCompileAttribute() { }
         public BurstCompileAttribute(FloatPrecision precision, FloatMode mode) { }
@@ -67,7 +68,7 @@ namespace Unity.Collections
     }
 }
 
-namespace Unity.Collections.LowLevel.Unsafe
+namespace Unity.Collections
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class NativeDisableParallelForRestrictionAttribute : Attribute { }

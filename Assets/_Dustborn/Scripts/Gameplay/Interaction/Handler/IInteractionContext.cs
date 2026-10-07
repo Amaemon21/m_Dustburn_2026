@@ -1,5 +1,5 @@
 public interface IInteractionContext
 {
-    int PickUp(string itemId, int amount);
+    int PickUp(InventorySlotState stack);
     void OpenContainer(string containerId, ContainerConfig config);
 }

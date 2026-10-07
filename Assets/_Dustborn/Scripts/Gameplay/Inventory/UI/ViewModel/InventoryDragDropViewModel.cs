@@ -5,6 +5,7 @@ using UnityEngine;
 public sealed class InventoryDragDropViewModel : ViewModel
 {
     private readonly IInventoryService _inventory;
+    private readonly IItemDropService _drops;
     private readonly CompositeDisposable _sourceBindings = new();
     private readonly ReactiveProperty<InventorySlotState> _state = new(new InventorySlotState(null, 0));
     private readonly ReactiveProperty<Sprite> _icon = new(null);
@@ -17,9 +18,10 @@ public sealed class InventoryDragDropViewModel : ViewModel
     public ReadOnlyReactiveProperty<Vector2> Position => _position;
     public bool IsDragging => _source != null;
 
-    public InventoryDragDropViewModel(IInventoryService inventory)
+    public InventoryDragDropViewModel(IInventoryService inventory, IItemDropService drops = null)
     {
         _inventory = inventory;
+        _drops = drops;
     }
 
     public bool Begin(InventorySlotViewModel source, Vector2 position, bool takeHalf = false)
@@ -34,7 +36,7 @@ public sealed class InventoryDragDropViewModel : ViewModel
         _position.Value = position;
         int amount = takeHalf ? (_sourceState.Amount + 1) / 2 : _sourceState.Amount;
         source.SetDragging(amount);
-        _state.Value = new InventorySlotState(_sourceState.ItemId, amount);
+        _state.Value = _sourceState.WithAmount(amount);
         _sourceBindings.Add(source.State.Skip(1).Subscribe(_ => Cancel()));
         return true;
     }
@@ -49,7 +51,7 @@ public sealed class InventoryDragDropViewModel : ViewModel
     {
         if (IsDragging)
         {
-            _state.Value = new InventorySlotState(_sourceState.ItemId, Math.Clamp(amount, 1, _sourceState.Amount));
+            _state.Value = _sourceState.WithAmount(Math.Clamp(amount, 1, _sourceState.Amount));
             _source.SetDragging(_state.CurrentValue.Amount);
         }
     }
@@ -72,7 +74,8 @@ public sealed class InventoryDragDropViewModel : ViewModel
                 return false;
 
             InventorySlotState destination = target.State.CurrentValue;
-            if (!destination.IsEmpty && destination.ItemId != state.ItemId)
+            bool stacks = destination.ItemId == state.ItemId && destination.Wear == state.Wear;
+            if (!destination.IsEmpty && !stacks)
                 return state.Amount == _sourceState.Amount &&
                     _inventory.SwapSlots(source.OwnerId, source.Coordinates, target.OwnerId, target.Coordinates);
 
@@ -84,6 +87,21 @@ public sealed class InventoryDragDropViewModel : ViewModel
         finally
         {
             Cancel();
+        }
+    }
+
+    public bool DropToWorld(InventorySlotViewModel source)
+    {
+        InventorySlotState state = _state.CurrentValue;
+        try
+        {
+            return _drops != null && ReferenceEquals(_source, source) && !source.IsDisposed &&
+                source.State.CurrentValue.Equals(_sourceState) &&
+                _drops.Drop(source.OwnerId, source.Coordinates, state.Amount);
+        }
+        finally
+        {
+            Cancel(source);
         }
     }
 

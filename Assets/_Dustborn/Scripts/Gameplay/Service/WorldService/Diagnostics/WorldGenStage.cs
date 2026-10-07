@@ -93,6 +93,10 @@ public enum WorldGenStage
     MapCoast,
     MapMainRiver,
     MapDrainageValleys,
+    MapRoadSearch,
+    MapRoadAssemble,
+    MapRoadPrepare,
+    MapRoadJob,
 
     Count
 }

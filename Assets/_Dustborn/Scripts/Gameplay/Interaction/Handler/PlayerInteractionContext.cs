@@ -11,7 +11,7 @@ public sealed class PlayerInteractionContext : IInteractionContext
         _containers = containers;
     }
 
-    public int PickUp(string itemId, int amount) => _players.PickUp(_player.OwnerId, itemId, amount);
+    public int PickUp(InventorySlotState stack) => _players.PickUp(_player.OwnerId, stack);
 
     public void OpenContainer(string containerId, ContainerConfig config) => _containers.Open(containerId, config);
 }

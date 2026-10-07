@@ -76,6 +76,9 @@ public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnte
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (eventData.button == PointerEventData.InputButton.Left && eventData.pointerCurrentRaycast.gameObject == null)
+            _dragSlot?.DragDrop?.DropToWorld(_dragSlot);
+
         _dragSlot?.DragDrop?.Cancel(_dragSlot);
     }
 

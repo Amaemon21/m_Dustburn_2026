@@ -64,7 +64,7 @@ public sealed class UIInputService : InputService
         }
     }
 
-    private static string BindingOf(InputAction action) => action == null ? string.Empty : action.GetBindingDisplayString();
+    private static string BindingOf(InputAction action) => BindingDisplay.Of(action);
 
     protected override void OnDisposed()
     {

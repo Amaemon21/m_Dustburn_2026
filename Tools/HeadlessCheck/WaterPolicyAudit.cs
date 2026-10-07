@@ -374,12 +374,16 @@ static class WaterPolicyAudit
             bool crowded = false;
             Vector2 at = default;
 
-            for (int i = 0; i < owner.Length && !crowded; i++)
+            for (int i = 0; i < owner.Length; i++)
             {
                 if (owner[i] != body)
                     continue;
 
                 onRiver |= riverCells.Contains(i);
+
+                if (crowded)
+                    continue;
+
                 int x = i % n, z = i / n;
 
                 for (int dz = -reach; dz <= reach && !crowded; dz++)

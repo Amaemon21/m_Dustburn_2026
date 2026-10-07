@@ -45,6 +45,63 @@ internal static partial class Harness
             "pickup stack allocation preserves the full item amount");
     }
 
+    private static void VerifyItemDrop()
+    {
+        SaveService saves = new(InventoryRegistry(), new MemoryStorage(), ProjectSerializer());
+        ItemCatalog catalog = new();
+        catalog.SetMaxStack("axe", 1);
+        catalog.SetDurability("axe", 10);
+        using InventoryRepository repository = new(saves);
+        using InventoryService inventory = new(repository, catalog);
+        using PlayerInventoryService players = new(repository, inventory);
+        PlayerInventoryProxy player = players.GetOrCreatePlayerInventory("drop", new Vector2Int(2, 1), 2);
+        inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(0, 0), "wood", 20);
+        inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "axe");
+        inventory.AddWear(player.Hotbar.OwnerId, new Vector2Int(0, 0), "axe", 4);
+        TestDrops drops = new(inventory);
+        using InventoryTabViewModel tab = new(inventory, player, players, catalog, drops);
+        InventorySlotViewModel wood = tab.Backpack.Slots.CurrentValue[0];
+        InventorySlotViewModel axe = tab.Hotbar.Grid.Slots.CurrentValue[0];
+
+        tab.ItemInfo.Select(tab.Backpack, new Vector2Int(0, 0));
+        Check(!tab.ItemInfo.Drop.CanExecute.CurrentValue, "an item without a pickup prefab offers no drop");
+        tab.ItemInfo.Clear();
+
+        tab.DragDrop.Begin(wood, default, true);
+        Check(tab.DragDrop.DropToWorld(wood) && drops.Last.Amount == 10 && wood.State.CurrentValue.Amount == 10 &&
+            !tab.DragDrop.IsDragging && !wood.IsDragging.CurrentValue, "dragging out of the window drops the dragged amount");
+        Check(!tab.DragDrop.DropToWorld(wood) && drops.Last.Amount == 10, "nothing is dropped without a drag");
+        tab.DragDrop.Begin(axe, default);
+        Check(tab.DragDrop.DropToWorld(axe) && axe.State.CurrentValue.IsEmpty && drops.Last.Wear == 4,
+            "a dropped worn item leaves its slot with its wear");
+
+        Check(players.PickUp(player.OwnerId, drops.Last) == 1 &&
+            player.Backpack.GetSlot(new Vector2Int(1, 0)).State.CurrentValue.Equals(new InventorySlotState("axe", 1, 4)),
+            "a worn item comes back with its wear into the first free backpack slot");
+        inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(1, 0), "axe");
+        Check(players.PickUp(player.OwnerId, new InventorySlotState("axe", 1, 2)) == 1 &&
+            player.Hotbar.GetSlot(new Vector2Int(0, 0)).State.CurrentValue.Equals(new InventorySlotState("axe", 1, 2)),
+            "a worn item goes to the hotbar when the hotbar already holds that item");
+        Check(players.PickUp(player.OwnerId, new InventorySlotState("axe", 1, 3)) == 0, "a worn item is refused when no slot is free");
+    }
+
+    private sealed class TestDrops : IItemDropService
+    {
+        private readonly IInventoryService _inventory;
+        public InventorySlotState Last { get; private set; }
+
+        public TestDrops(IInventoryService inventory) => _inventory = inventory;
+
+        public bool Drop(string ownerId, Vector2Int coordinates, int amount)
+        {
+            InventorySlotState state = _inventory.GetInventory(ownerId).GetSlot(coordinates).State.CurrentValue;
+            if (!_inventory.RemoveItemsFromInventory(ownerId, coordinates, state.ItemId, amount).Success)
+                return false;
+            Last = new InventorySlotState(state.ItemId, amount, state.Wear);
+            return true;
+        }
+    }
+
     private static void VerifyInventoryShortcuts()
     {
         SaveService saves = new(InventoryRegistry(), new MemoryStorage(), ProjectSerializer());
@@ -56,7 +113,7 @@ internal static partial class Harness
         PlayerInventoryProxy player = players.GetOrCreatePlayerInventory("shortcuts", new Vector2Int(5, 1), 2);
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(0, 0), "helmet", 2);
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(1, 0), "wood", 20);
-        using InventoryTabViewModel tab = new(inventory, player, players, catalog);
+        using InventoryTabViewModel tab = new(inventory, player, players, catalog, null);
         using HudHotbarViewModel hud = new(player, players, catalog);
         tab.Backpack.Slots.CurrentValue[0].QuickTransfer.Execute(Unit.Default);
         Check(player.Equipment.GetAmount("helmet") == 1 && player.Backpack.GetAmount("helmet") == 1,
@@ -138,7 +195,7 @@ internal static partial class Harness
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(2, 0), "stone", 1);
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(3, 0), "iron", 5);
         inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "wood", 90);
-        using InventoryTabViewModel tab = new(inventory, player, players, catalog);
+        using InventoryTabViewModel tab = new(inventory, player, players, catalog, null);
         InventoryDragDropViewModel drag = tab.DragDrop;
         InventorySlotViewModel wood = tab.Backpack.Slots.CurrentValue[0];
         InventorySlotViewModel helmet = tab.Backpack.Slots.CurrentValue[1];
@@ -577,10 +634,10 @@ internal static partial class Harness
             Size = new Vector2Int(Enum.GetValues(typeof(EquipmentSlot)).Length, 1)
         }, catalog);
         InventorySlotProxy head = equipment.Proxy.Slots[(int)EquipmentSlot.Headwear];
-        Expect<ArgumentException>(() => head.Set("wood", 1), "direct proxy edit obeys equipment restrictions");
-        Expect<ArgumentException>(() => head.Set("helmet", 2), "direct equipment edit obeys capacity");
+        Expect<ArgumentException>(() => head.Set("wood", 1, 0), "direct proxy edit obeys equipment restrictions");
+        Expect<ArgumentException>(() => head.Set("helmet", 2, 0), "direct equipment edit obeys capacity");
         Check(head.IsEmpty, "failed equipment proxy edits preserve slot");
-        head.Set("helmet", 1);
+        head.Set("helmet", 1, 0);
         Check(head.Origin.ItemId == "helmet" && head.Origin.Amount == 1, "valid proxy edit synchronizes origin");
     }
 
