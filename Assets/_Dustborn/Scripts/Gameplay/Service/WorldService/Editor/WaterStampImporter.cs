@@ -10,8 +10,8 @@ public static class WaterStampImporter
     private const string PACK = "Assets/_Dustborn/Content/WaterStamps";
     private const string MANIFEST_PATH = PACK + "/manifest.json";
     private const string DATA_FOLDER = PACK + "/WaterStampData";
-    private const string DATABASE_PATH = "Assets/_Dustborn/Content/World/WaterStampDatabase.asset";
-    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/World/WorldBuildSettings.asset";
+    private const string DATABASE_PATH = "Assets/_Dustborn/Content/Configs/World/WaterStampDatabase.asset";
+    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
     private const string DATABASE_PROPERTY = "<Water>k__BackingField.<Stamps>k__BackingField.<Database>k__BackingField";
 
     [MenuItem("Мир/Импорт штампов воды")]

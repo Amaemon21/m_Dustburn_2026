@@ -16,7 +16,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
             {
                 return DragAndDropVisualMode.None;
             }
-            
+
             if (perform)
             {
                 var selection = Selection.activeGameObject;
@@ -24,13 +24,13 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
                 {
                     var component = selection.GetComponent<T1>();
                     if (component == null) component = selection.AddComponent<T1>();
-                    if(component is IAssetDragAndDrop assetDragAndDrop) assetDragAndDrop.SetAsset(asset);
+                    if (component is IAssetDragAndDrop assetDragAndDrop) assetDragAndDrop.SetAsset(asset);
                 }
             }
-            
+
             return DragAndDropVisualMode.Copy;
         }
-        
+
 #if UNITY_6000_3_OR_NEWER
         protected static DragAndDropVisualMode OnHierarchyDrop(UnityEngine.EntityId dropTargetId,
             HierarchyDropFlags dropMode, Transform parentForDraggedObjects, bool perform)
@@ -44,7 +44,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
             return HandleDragAndDrop(perform);
         }
 #endif
-        
+
         protected static DragAndDropVisualMode OnInspectorDrop(UnityEngine.Object[] targets, bool perform)
         {
             return HandleDragAndDrop(perform);

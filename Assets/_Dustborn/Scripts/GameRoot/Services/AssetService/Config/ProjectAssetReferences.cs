@@ -8,4 +8,5 @@ public sealed class ProjectAssetReferences
 {
     [field: SerializeField, Header("Prefabs"), HorizontalLine(2f, EColor.Green)] public AssetReferenceGameObject UIRootPrefab { get; private set; }
     [field: SerializeField] public AssetReferenceGameObject MainMenuUIPrefab { get; private set; }
+    [field: SerializeField, Header("World")] public AssetReferenceT<WorldBuildSettings> WorldBuildSettings { get; private set; }
 }

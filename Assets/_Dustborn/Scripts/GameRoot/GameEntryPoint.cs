@@ -78,7 +78,18 @@ public class GameEntryPoint : IAsyncStartable
         }
 
         Debug.LogError($"{nameof(GameEntryPoint)}: scene '{failed.SceneName}' failed to start, returning to the main menu");
-        return new MainMenuEnterParams($"Failed to enter {failed.SceneName}: {exception.Message}");
+        return new MainMenuEnterParams($"Failed to enter {failed.SceneName}: {exception.Message}", NoticeFor(exception));
+    }
+
+    private static string NoticeFor(Exception exception)
+    {
+        if (exception is WorldSaveMismatchException)
+            return "Сохранение относится к другому миру и не может быть загружено.";
+
+        if (exception is WorldMissingException)
+            return "Мир этого сохранения не найден: он удалён или создан на другом компьютере.";
+
+        return "Не удалось загрузить игру. Подробности в логе.";
     }
 
     private ISceneFlow FlowFor(Scenes scene)

@@ -10,7 +10,6 @@ public sealed class GameplaySaveInputService : IGameplayActivatable, IDisposable
     private readonly ISaveService _saves;
     private readonly InputAction _saveAction = new("SaveGame", InputActionType.Button, "<Keyboard>/f5");
     private readonly CompositeDisposable _subscriptions = new();
-    private readonly CancellationTokenSource _cancellation = new();
     private bool _saving;
 
     public GameplaySaveInputService(ISaveService saves)
@@ -23,18 +22,18 @@ public sealed class GameplaySaveInputService : IGameplayActivatable, IDisposable
         _subscriptions.Clear();
         _subscriptions.Add(Observable.FromEvent<InputAction.CallbackContext>(
             handler => _saveAction.performed += handler,
-            handler => _saveAction.performed -= handler).Subscribe(_ => SaveAsync(_cancellation.Token).Forget()));
+            handler => _saveAction.performed -= handler).Subscribe(_ => SaveAsync().Forget()));
         _saveAction.Enable();
     }
 
-    private async UniTask SaveAsync(CancellationToken token)
+    private async UniTask SaveAsync()
     {
         if (_saving)
             return;
         _saving = true;
         try
         {
-            await _saves.SaveDirtyAsync(token);
+            await _saves.SaveDirtyAsync(CancellationToken.None);
             Debug.Log("Game saved");
         }
         finally
@@ -48,7 +47,5 @@ public sealed class GameplaySaveInputService : IGameplayActivatable, IDisposable
         _subscriptions.Dispose();
         _saveAction.Disable();
         _saveAction.Dispose();
-        _cancellation.Cancel();
-        _cancellation.Dispose();
     }
 }

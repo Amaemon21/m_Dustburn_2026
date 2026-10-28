@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public partial class VoxelTerrainStreamer
@@ -14,12 +16,27 @@ public partial class VoxelTerrainStreamer
         }
     }
 
+    private readonly struct Paving
+    {
+        public Column Column { get; }
+        public Transform Holder { get; }
+        public Task<RoadSurfaceMesh.Geometry> Task { get; }
+
+        public Paving(Column column, Transform holder, Task<RoadSurfaceMesh.Geometry> task)
+        {
+            Column = column;
+            Holder = holder;
+            Task = task;
+        }
+    }
+
     private class Column
     {
         public VoxelColumnKey Key { get; }
         public GameObject Root { get; }
 
         public int Remaining { get; set; }
+        public bool Staged { get; set; }
 
         public bool Ready => Remaining <= 0;
 
@@ -76,7 +93,7 @@ public partial class VoxelTerrainStreamer
         if (_decorAtStart == 0)
             _decorAtStart = _decorQueue.Count;
 
-        if (_hasActive || _pending.Count > 0 || _queue.InFlight > 0 || _decorQueue.Count > 0 || _colliders.Waiting > 0)
+        if (_hasActive || _pending.Count > 0 || _queue.InFlight > 0 || _paving.Count > 0 || _decorQueue.Count > 0 || _colliders.Waiting > 0)
             return;
 
         _ready = true;
@@ -105,7 +122,10 @@ public partial class VoxelTerrainStreamer
             column.Remaining--;
 
             if (!mesh.IsEmpty)
-                Spawn(mesh, column.Root.transform, $"{chunk.Key} y {chunkY}", Solid(chunk.Key.Lod));
+            {
+                Transform holder = Spawn(mesh, column.Root.transform, $"{chunk.Key} y {chunkY}", Solid(chunk.Key.Lod));
+                Pave(column, chunk.Key, mesh, holder);
+            }
 
             if (column.Ready)
                 Show(column);
@@ -113,6 +133,42 @@ public partial class VoxelTerrainStreamer
 
         _queue.Reset();
         _inFlight.Clear();
+    }
+
+    private void Pave(Column column, VoxelColumnKey key, VoxelMesh mesh, Transform holder)
+    {
+        if (_roadSurface == null || _roadMaterial == null || !_roadSurface.Touches(key, _plan.ChunkMetres(key.Lod)))
+            return;
+
+        RoadSurfaceMesh surface = _roadSurface;
+        Vector3[] positions = mesh.Vertices.AsArray().ToArray();
+        Vector3[] normals = mesh.Normals.AsArray().ToArray();
+        int[] triangles = mesh.Triangles.AsArray().ToArray();
+
+        column.Remaining++;
+        _paving.Add(new Paving(column, holder, Task.Run(() => surface.Build(positions, normals, triangles))));
+    }
+
+    private void FinishPaving()
+    {
+        for (int i = _paving.Count - 1; i >= 0; i--)
+        {
+            Paving paving = _paving[i];
+
+            if (!paving.Task.IsCompleted)
+                continue;
+
+            _paving.RemoveAt(i);
+            paving.Column.Remaining--;
+
+            if (paving.Task.IsFaulted)
+                Debug.LogException(paving.Task.Exception?.GetBaseException(), this);
+            else if (paving.Holder != null)
+                RoadSurfaceBuilder.Build(paving.Task.Result, _roadMaterial, paving.Holder);
+
+            if (paving.Column.Ready)
+                Show(paving.Column);
+        }
     }
 
     private void Rush()
@@ -168,7 +224,7 @@ public partial class VoxelTerrainStreamer
     {
         float size = _plan.ChunkMetres(key.Lod);
 
-        VerticalRange(key, size, out int low, out int high);
+        _field.ChunkRange(key, size, _plan.VoxelSize(key.Lod), out int low, out int high);
 
         GameObject root = NewColumn(key);
 
@@ -178,7 +234,7 @@ public partial class VoxelTerrainStreamer
 
         root.SetActive(false);
 
-        var column = new Column(key, root, high - low + 1);
+        var column = new Column(key, root, high - low + 1) { Staged = _staging != null };
 
         _loaded[key] = column;
 
@@ -193,7 +249,7 @@ public partial class VoxelTerrainStreamer
 
     private void Show(Column column)
     {
-        if (column.Root == null || column.Root.activeSelf)
+        if (column.Staged || column.Root == null || column.Root.activeSelf)
             return;
 
         column.Root.SetActive(true);
@@ -201,18 +257,18 @@ public partial class VoxelTerrainStreamer
 
     private GameObject NewColumn(VoxelColumnKey key)
     {
-        var column = new GameObject($"Column {key}");
+        var column = new GameObject($"Column {key}") { layer = gameObject.layer };
 
         column.transform.SetParent(transform, false);
 
         return column;
     }
 
-    private void Spawn(VoxelMesh source, Transform parent, string name, bool collider)
+    private Transform Spawn(VoxelMesh source, Transform parent, string name, bool collider)
     {
         WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.VoxelSpawn);
 
-        var holder = new GameObject(name);
+        var holder = new GameObject(name) { layer = parent.gameObject.layer };
 
         holder.transform.SetParent(parent, false);
 
@@ -240,28 +296,8 @@ public partial class VoxelTerrainStreamer
 
         WorldGenProbe.Mark(WorldGenMilestone.FirstTerrain);
         span.Finish(source.TriangleCount);
-    }
 
-    private void VerticalRange(VoxelColumnKey key, float size, out int low, out int high)
-    {
-        float lowest = float.MaxValue;
-        float highest = float.MinValue;
-
-        float step = _plan.VoxelSize(key.Lod);
-
-        for (float z = key.Z * size; z <= (key.Z + 1) * size; z += step)
-        {
-            for (float x = key.X * size; x <= (key.X + 1) * size; x += step)
-            {
-                float surface = _field.Surface(x, z);
-
-                lowest = Mathf.Min(lowest, surface);
-                highest = Mathf.Max(highest, surface);
-            }
-        }
-
-        low = Mathf.FloorToInt(lowest / size) - 1;
-        high = Mathf.FloorToInt(highest / size) + 1;
+        return holder.transform;
     }
 
     private bool Solid(int lod)

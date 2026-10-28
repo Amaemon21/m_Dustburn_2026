@@ -11,122 +11,54 @@ public class VoxelDecorRenderer : MonoBehaviour
     private const float TILE_FRACTION = 0.25f;
     private const float HYSTERESIS = 6f;
 
+    private static readonly int InstanceTint = Shader.PropertyToID("_InstanceTint");
+    private static readonly List<VoxelDecorRenderer> Active = new();
+
     private Mesh _mesh;
     private int _subMesh;
     private Material _material;
     private Matrix4x4[][] _batches;
+    private MaterialPropertyBlock[] _batchTints;
     private Bounds[] _batchBounds;
     private bool[] _batchDrawn;
     private Bounds _bounds;
     private ShadowCastingMode _shadows = ShadowCastingMode.On;
     private float _drawDistance;
-
-    private Camera _camera;
+    private int _slot = -1;
 
     public int Count { get; private set; }
 
-    public void Setup(Mesh mesh, Material material, Matrix4x4[] matrices, Bounds bounds, ShadowCastingMode shadows, float drawDistance, int subMesh = 0)
+    public void Setup(Mesh mesh, Material material, Matrix4x4[] matrices, ShadowCastingMode shadows, float drawDistance, int subMesh = 0,
+        Vector4[] tints = null)
     {
         _mesh = mesh;
         _subMesh = subMesh;
         _material = material;
-        _bounds = bounds;
         _shadows = shadows;
         _drawDistance = drawDistance;
 
         Count = matrices.Length;
 
         if (drawDistance > 0f)
-            SplitByTile(matrices, Mathf.Max(MIN_TILE, drawDistance * TILE_FRACTION));
+            SplitByTile(matrices, tints, Mathf.Max(MIN_TILE, drawDistance * TILE_FRACTION));
         else
-            SplitInOrder(matrices);
+            SplitInOrder(matrices, tints);
+
+        _bounds = _batchBounds.Length == 0 ? new Bounds(transform.position, Vector3.zero) : _batchBounds[0];
+
+        foreach (Bounds bounds in _batchBounds)
+            _bounds.Encapsulate(bounds);
     }
 
-    private void SplitInOrder(Matrix4x4[] matrices)
-    {
-        int batches = Mathf.CeilToInt(matrices.Length / (float)BATCH);
-
-        _batches = new Matrix4x4[batches][];
-        _batchBounds = null;
-
-        for (int i = 0; i < batches; i++)
-        {
-            int count = Mathf.Min(BATCH, matrices.Length - i * BATCH);
-
-            _batches[i] = new Matrix4x4[count];
-
-            System.Array.Copy(matrices, i * BATCH, _batches[i], 0, count);
-        }
-    }
-
-    private void SplitByTile(Matrix4x4[] matrices, float tile)
-    {
-        var tiles = new Dictionary<(int, int), List<Matrix4x4>>();
-
-        foreach (Matrix4x4 matrix in matrices)
-        {
-            Vector3 position = matrix.GetColumn(3);
-
-            (int, int) key = (Mathf.FloorToInt(position.x / tile), Mathf.FloorToInt(position.z / tile));
-
-            if (!tiles.TryGetValue(key, out List<Matrix4x4> bucket))
-                tiles[key] = bucket = new List<Matrix4x4>();
-
-            bucket.Add(matrix);
-        }
-
-        var batches = new List<Matrix4x4[]>();
-        var bounds = new List<Bounds>();
-
-        foreach (KeyValuePair<(int, int), List<Matrix4x4>> pair in tiles)
-        {
-            List<Matrix4x4> bucket = pair.Value;
-
-            for (int start = 0; start < bucket.Count; start += BATCH)
-            {
-                int count = Mathf.Min(BATCH, bucket.Count - start);
-
-                var batch = new Matrix4x4[count];
-
-                bucket.CopyTo(start, batch, 0, count);
-
-                batches.Add(batch);
-                bounds.Add(Enclose(batch));
-            }
-        }
-
-        _batches = batches.ToArray();
-        _batchBounds = bounds.ToArray();
-        _batchDrawn = new bool[_batches.Length];
-    }
-
-    private static Bounds Enclose(Matrix4x4[] batch)
-    {
-        var bounds = new Bounds(batch[0].GetColumn(3), Vector3.zero);
-
-        foreach (Matrix4x4 matrix in batch)
-            bounds.Encapsulate((Vector3)matrix.GetColumn(3));
-
-        bounds.Expand(2f);
-
-        return bounds;
-    }
-
-    private void LateUpdate()
+    public void Draw(Vector3 viewer, Camera camera, bool steady)
     {
         if (_mesh == null || _material == null || _batches == null)
             return;
 
         if (_drawDistance <= 0f)
         {
-            Draw(0, _batches.Length);
-
-            return;
-        }
-
-        if (!TryViewer(out Vector3 viewer))
-        {
-            Draw(0, _batches.Length);
+            for (int i = 0; i < _batches.Length; i++)
+                DrawBatch(i, camera);
 
             return;
         }
@@ -140,41 +72,187 @@ public class VoxelDecorRenderer : MonoBehaviour
         for (int i = 0; i < _batches.Length; i++)
         {
             float range = _batchBounds[i].SqrDistance(viewer);
+            bool drawn = range <= (steady && !_batchDrawn[i] ? inner : outer);
 
-            _batchDrawn[i] = range <= (_batchDrawn[i] ? outer : inner);
+            if (steady)
+                _batchDrawn[i] = drawn;
 
-            if (!_batchDrawn[i])
+            if (drawn)
+                DrawBatch(i, camera);
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (Active.Count == 0)
+            RenderPipelineManager.beginCameraRendering += Render;
+
+        _slot = Active.Count;
+        Active.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        if (_slot < 0)
+            return;
+
+        int last = Active.Count - 1;
+        VoxelDecorRenderer moved = Active[last];
+
+        Active[_slot] = moved;
+        moved._slot = _slot;
+        Active.RemoveAt(last);
+
+        _slot = -1;
+
+        if (Active.Count == 0)
+            RenderPipelineManager.beginCameraRendering -= Render;
+    }
+
+    private static void Render(ScriptableRenderContext context, Camera camera)
+    {
+        if (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)
+            return;
+
+        Vector3 viewer = camera.transform.position;
+        bool steady = camera.cameraType == CameraType.Game;
+
+        foreach (VoxelDecorRenderer renderer in Active)
+        {
+            if ((camera.cullingMask & (1 << renderer.gameObject.layer)) != 0)
+                renderer.Draw(viewer, camera, steady);
+        }
+    }
+
+    private void DrawBatch(int batch, Camera camera)
+    {
+        var parameters = new RenderParams(_material)
+        {
+            camera = camera,
+            layer = gameObject.layer,
+            shadowCastingMode = _shadows,
+            receiveShadows = true,
+            worldBounds = _batchBounds[batch],
+            matProps = _batchTints?[batch]
+        };
+
+        Graphics.RenderMeshInstanced(parameters, _mesh, _subMesh, _batches[batch]);
+    }
+
+    private void SplitInOrder(Matrix4x4[] matrices, Vector4[] tints)
+    {
+        int batches = Mathf.CeilToInt(matrices.Length / (float)BATCH);
+
+        _batches = new Matrix4x4[batches][];
+        _batchTints = tints == null ? null : new MaterialPropertyBlock[batches];
+        _batchBounds = new Bounds[batches];
+        _batchDrawn = new bool[batches];
+
+        for (int i = 0; i < batches; i++)
+        {
+            int count = Mathf.Min(BATCH, matrices.Length - i * BATCH);
+
+            _batches[i] = new Matrix4x4[count];
+
+            System.Array.Copy(matrices, i * BATCH, _batches[i], 0, count);
+
+            _batchBounds[i] = Enclose(_batches[i]);
+
+            if (tints == null)
                 continue;
 
-            Graphics.DrawMeshInstanced(_mesh, _subMesh, _material, _batches[i], _batches[i].Length, null, _shadows, true, gameObject.layer);
+            var batchTints = new Vector4[count];
+
+            System.Array.Copy(tints, i * BATCH, batchTints, 0, count);
+
+            _batchTints[i] = Block(batchTints);
         }
     }
 
-    private void Draw(int from, int count)
+    private void SplitByTile(Matrix4x4[] matrices, Vector4[] tints, float tile)
     {
-        for (int i = from; i < count; i++)
-            Graphics.DrawMeshInstanced(_mesh, _subMesh, _material, _batches[i], _batches[i].Length, null, _shadows, true, gameObject.layer);
-    }
+        var tiles = new Dictionary<(int, int), List<int>>();
 
-    private bool TryViewer(out Vector3 position)
-    {
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
+        for (int i = 0; i < matrices.Length; i++)
         {
-            UnityEditor.SceneView view = UnityEditor.SceneView.lastActiveSceneView;
+            Vector3 position = matrices[i].GetColumn(3);
 
-            position = view == null || view.camera == null ? Vector3.zero : view.camera.transform.position;
+            (int, int) key = (Mathf.FloorToInt(position.x / tile), Mathf.FloorToInt(position.z / tile));
 
-            return view != null && view.camera != null;
+            if (!tiles.TryGetValue(key, out List<int> bucket))
+                tiles[key] = bucket = new List<int>();
+
+            bucket.Add(i);
         }
-#endif
 
-        if (_camera == null)
-            _camera = Camera.main;
+        var batches = new List<Matrix4x4[]>();
+        var blocks = new List<MaterialPropertyBlock>();
+        var bounds = new List<Bounds>();
 
-        position = _camera == null ? Vector3.zero : _camera.transform.position;
+        foreach (KeyValuePair<(int, int), List<int>> pair in tiles)
+        {
+            List<int> bucket = pair.Value;
 
-        return _camera != null;
+            for (int start = 0; start < bucket.Count; start += BATCH)
+            {
+                int count = Mathf.Min(BATCH, bucket.Count - start);
+
+                var batch = new Matrix4x4[count];
+                Vector4[] batchTints = tints == null ? null : new Vector4[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    batch[i] = matrices[bucket[start + i]];
+
+                    if (batchTints != null)
+                        batchTints[i] = tints[bucket[start + i]];
+                }
+
+                batches.Add(batch);
+                blocks.Add(batchTints == null ? null : Block(batchTints));
+                bounds.Add(Enclose(batch));
+            }
+        }
+
+        _batches = batches.ToArray();
+        _batchTints = tints == null ? null : blocks.ToArray();
+        _batchBounds = bounds.ToArray();
+        _batchDrawn = new bool[_batches.Length];
+    }
+
+    private static MaterialPropertyBlock Block(Vector4[] tints)
+    {
+        var block = new MaterialPropertyBlock();
+
+        block.SetVectorArray(InstanceTint, tints);
+
+        return block;
+    }
+
+    private Bounds Enclose(Matrix4x4[] batch)
+    {
+        Bounds local = _mesh.bounds;
+        Bounds bounds = Transformed(local, batch[0]);
+
+        foreach (Matrix4x4 matrix in batch)
+            bounds.Encapsulate(Transformed(local, matrix));
+
+        bounds.Expand(2f * MeshCombiner.WIND_MARGIN);
+
+        return bounds;
+    }
+
+    private static Bounds Transformed(Bounds local, Matrix4x4 matrix)
+    {
+        Vector3 centre = matrix.MultiplyPoint3x4(local.center);
+        Vector3 extents = local.extents;
+
+        var size = new Vector3(
+            Mathf.Abs(matrix.m00) * extents.x + Mathf.Abs(matrix.m01) * extents.y + Mathf.Abs(matrix.m02) * extents.z,
+            Mathf.Abs(matrix.m10) * extents.x + Mathf.Abs(matrix.m11) * extents.y + Mathf.Abs(matrix.m12) * extents.z,
+            Mathf.Abs(matrix.m20) * extents.x + Mathf.Abs(matrix.m21) * extents.y + Mathf.Abs(matrix.m22) * extents.z);
+
+        return new Bounds(centre, 2f * size);
     }
 
     private void OnDrawGizmosSelected()

@@ -362,6 +362,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                     {
                         SceneView.RepaintAll();
                     }
+
                     break;
 
                 case EventType.MouseDown:
@@ -382,6 +383,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
 
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseDrag:
@@ -405,6 +407,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
 
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseUp:
@@ -413,6 +416,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         GUIUtility.hotControl = 0;
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.Ignore:
@@ -420,6 +424,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                     {
                         GUIUtility.hotControl = 0;
                     }
+
                     break;
 
                 case EventType.Repaint:
@@ -473,6 +478,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                     {
                         SceneView.RepaintAll();
                     }
+
                     break;
 
                 case EventType.MouseDown:
@@ -493,6 +499,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
 
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseDrag:
@@ -516,6 +523,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
 
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseUp:
@@ -525,6 +533,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         s_PositionPlaneDragState = default;
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.Ignore:
@@ -533,6 +542,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         GUIUtility.hotControl = 0;
                         s_PositionPlaneDragState = default;
                     }
+
                     break;
 
                 case EventType.Repaint:
@@ -583,6 +593,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                     {
                         SceneView.RepaintAll();
                     }
+
                     break;
 
                 case EventType.MouseDown:
@@ -606,6 +617,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         SceneView.RepaintAll();
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseDrag:
@@ -631,6 +643,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         s_RotationDragState.lastMousePosition = currentEvent.mousePosition;
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseUp:
@@ -641,6 +654,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         SceneView.RepaintAll();
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.Ignore:
@@ -650,6 +664,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         s_RotationDragState = default;
                         SceneView.RepaintAll();
                     }
+
                     break;
 
                 case EventType.Repaint:
@@ -721,6 +736,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                     {
                         SceneView.RepaintAll();
                     }
+
                     break;
 
                 case EventType.MouseDown:
@@ -740,6 +756,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         SceneView.RepaintAll();
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseDrag:
@@ -774,6 +791,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         s_FreeRotationDragState.lastMousePosition = currentEvent.mousePosition;
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.MouseUp:
@@ -784,6 +802,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         SceneView.RepaintAll();
                         currentEvent.Use();
                     }
+
                     break;
 
                 case EventType.Ignore:
@@ -793,6 +812,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor
                         s_FreeRotationDragState = default;
                         SceneView.RepaintAll();
                     }
+
                     break;
 
                 case EventType.Repaint:

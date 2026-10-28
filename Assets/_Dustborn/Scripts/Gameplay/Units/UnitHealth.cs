@@ -6,8 +6,6 @@ public class UnitHealth : IDamageable, IDisposable
     private readonly UnitConfig _config;
     private readonly ReactiveProperty<int> _health;
 
-    public event Action OnUnitDead;
-
     public DamageTargetKind Kind => DamageTargetKind.Entity;
     public BlockMaterial Material => null;
     public int MaxHealth => _config.MaxHealth;
@@ -29,9 +27,6 @@ public class UnitHealth : IDamageable, IDisposable
 
         int dealt = Math.Min(damage, health);
         _health.Value = health - dealt;
-        if (_health.Value <= 0)
-            OnUnitDead?.Invoke();
-
         return new DamageResult(dealt, _health.Value <= 0);
     }
 

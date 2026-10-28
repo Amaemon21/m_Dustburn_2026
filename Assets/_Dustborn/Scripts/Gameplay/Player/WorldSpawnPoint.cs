@@ -1,4 +1,3 @@
-using Unity.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,7 +8,7 @@ public static class WorldSpawnPoint
     private const float SHORE_MARGIN = 4f;
     private const float GROUND_CLEARANCE = 3f;
 
-    public static Vector3 Find(BakedWorld world)
+    public static Vector3 Find(WorldData world)
     {
         WorldGenerationConfig config = world.Config;
 
@@ -20,8 +19,8 @@ public static class WorldSpawnPoint
         float low = Mathf.Min(EDGE_MARGIN, config.WorldSize * 0.25f);
         float high = config.WorldSize - low;
 
-        NativeArray<byte> raw = world.HeightMap.GetData<byte>();
-        WaterMap water = world.LoadWater();
+        byte[] raw = world.Heights;
+        WaterMap water = world.Water;
 
         Vector3 highest = Vector3.zero;
         float highestGround = float.NegativeInfinity;
@@ -48,7 +47,7 @@ public static class WorldSpawnPoint
         return highest;
     }
 
-    private static float Sample(NativeArray<byte> raw, int resolution, float cellSize, float maxHeight, float worldX, float worldZ)
+    private static float Sample(byte[] raw, int resolution, float cellSize, float maxHeight, float worldX, float worldZ)
     {
         int x = Mathf.Clamp(Mathf.RoundToInt(worldX / cellSize), 0, resolution - 1);
         int y = Mathf.Clamp(Mathf.RoundToInt(worldZ / cellSize), 0, resolution - 1);

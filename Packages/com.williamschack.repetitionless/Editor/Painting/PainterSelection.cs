@@ -96,7 +96,9 @@ namespace Repetitionless.Editor.Painter
                 switch (stream.GetEventType(i)) {
                     case ObjectChangeKind.DestroyGameObjectHierarchy:
                         stream.GetDestroyGameObjectHierarchyEvent(i, out DestroyGameObjectHierarchyEventArgs destroyGameObjectHierarchyEvent);
-#if UNITY_6000_3_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
+                        Object destroyedObject = EditorUtility.EntityIdToObject(destroyGameObjectHierarchyEvent.entityId);
+#elif UNITY_6000_3_OR_NEWER
                         Object destroyedObject = EditorUtility.EntityIdToObject(destroyGameObjectHierarchyEvent.instanceId);
 #else
                         Object destroyedObject = EditorUtility.InstanceIDToObject(destroyGameObjectHierarchyEvent.instanceId);

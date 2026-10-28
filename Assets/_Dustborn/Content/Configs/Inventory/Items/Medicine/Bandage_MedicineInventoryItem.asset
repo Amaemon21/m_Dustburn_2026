@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc1a8492844f264e857bf4b71ab0483, type: 3}
+  m_Name: Bandage_MedicineInventoryItem
+  m_EditorClassIdentifier: Assembly-CSharp::MedicineInventoryItem
+  <ItemId>k__BackingField: bandage
+  <ItemName>k__BackingField: "\u0411\u0438\u043D\u0442"
+  <Category>k__BackingField: 5
+  <Rarity>k__BackingField: 0
+  <Description>k__BackingField: "\u0427\u0438\u0441\u0442\u0430\u044F \u043F\u043E\u0432\u044F\u0437\u043A\u0430."
+  <Icon>k__BackingField: {fileID: 0}
+  <PickUpPrefab>k__BackingField: {fileID: 5348616900736228205, guid: 9c9d95479ca4a674399ca10632ef9253, type: 3}
+  <Held>k__BackingField: {fileID: 0}
+  <MaxStack>k__BackingField: 20
+  <Weight>k__BackingField: 0.05
+  <Durability>k__BackingField: 0
+  <Health>k__BackingField: 15
+  <Stamina>k__BackingField: 0
+  <Food>k__BackingField: 0
+  <Water>k__BackingField: 0
+  <Infection>k__BackingField: 0
+  <Bleeding>k__BackingField: 0
+  <Duration>k__BackingField: 0

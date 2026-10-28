@@ -13,6 +13,16 @@ public sealed class BlockConfig : ScriptableObject
     [field: SerializeField, Foldout("Harvest")] public HarvestYield[] Harvest { get; private set; } = Array.Empty<HarvestYield>();
     [field: SerializeField, Foldout("Destroy Drops")] public DestroyDrop[] DestroyDrops { get; private set; } = Array.Empty<DestroyDrop>();
 
+#if UNITY_EDITOR
+    public void EditorSetup(BlockMaterial material, int maxHealth, HarvestYield[] harvest, DestroyDrop[] drops)
+    {
+        Material = material;
+        MaxHealth = Mathf.Max(1, maxHealth);
+        Harvest = harvest ?? Array.Empty<HarvestYield>();
+        DestroyDrops = drops ?? Array.Empty<DestroyDrop>();
+    }
+#endif
+
     private void OnValidate()
     {
         foreach (HarvestYield yield in Harvest ?? Array.Empty<HarvestYield>())
@@ -27,5 +37,8 @@ public sealed class BlockConfig : ScriptableObject
                 drop.ApplyDefaults();
             drop.Validate();
         }
+
+        ListDuplicates.Clear(Harvest, entry => entry.Item, index => Harvest[index].ClearItem(), this, nameof(Harvest));
+        ListDuplicates.Clear(DestroyDrops, entry => entry.Item, index => DestroyDrops[index].ClearItem(), this, nameof(DestroyDrops));
     }
 }

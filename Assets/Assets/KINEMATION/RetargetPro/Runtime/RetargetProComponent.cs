@@ -145,6 +145,8 @@ namespace KINEMATION.RetargetPro.Runtime
                     state.OnSceneGUI(drawBoneRendering, drawTransformHandles);
                 }
             }
+
+            RetargetFeatureState.DeselectHandleOnDoubleClick();
         }
 #endif
     }

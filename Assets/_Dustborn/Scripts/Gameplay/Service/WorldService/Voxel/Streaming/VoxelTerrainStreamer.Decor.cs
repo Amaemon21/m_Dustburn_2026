@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,9 +7,11 @@ public partial class VoxelTerrainStreamer
     private class DecorRing
     {
         public DecorScope Scope { get; }
+        public string Label { get; }
         public float Reach { get; }
 
         public Dictionary<Vector2Int, GameObject> Patches { get; } = new();
+        public HashSet<Vector2Int> Stale { get; } = new();
 
         public Vector2 Sown { get; set; }
         public bool Planted { get; set; }
@@ -16,9 +19,18 @@ public partial class VoxelTerrainStreamer
         public DecorRing(DecorScope scope, float reach)
         {
             Scope = scope;
+            Label = scope.ToString();
             Reach = reach;
         }
     }
+
+    private const int REGROW_PER_FRAME = 24;
+
+    private float DecorFrameBudget => _preload && !_ready ? _preloadBudget : _decorBudget;
+
+    private readonly Dictionary<GameObject, GameObject> _replacing = new();
+    private readonly Queue<(DecorRing Ring, Vector2Int Cell)> _regrow = new();
+    private readonly List<VoxelDecorBuild> _sown = new();
 
     private int Patches()
     {
@@ -52,7 +64,14 @@ public partial class VoxelTerrainStreamer
 
         var placer = new VoxelDecorPlacer(_config, _biomes, _field, filter, _grassDensity);
 
-        return placer.Layers.Count == 0 ? null : new VoxelDecorSpawner(placer, _voxels, _batchVertexBudget, false) { Hook = DecorHook };
+        placer.Edits = DecorEditIndex.For(_decorEdits, _config.Seed, placer.Layers);
+
+        if (placer.Layers.Count == 0)
+            return null;
+
+        var spawner = new VoxelDecorSpawner(placer, _voxels, _batchVertexBudget, false) { Hook = DecorHook };
+        spawner.EnablePooling(transform);
+        return spawner;
     }
 
     private float WidestFootprint()
@@ -78,6 +97,9 @@ public partial class VoxelTerrainStreamer
         if (patch == null)
             return;
 
+        if (_replacing.Remove(patch, out GameObject replaced))
+            Demolish(replaced);
+
         foreach (VoxelDecorBuild build in _decorQueue)
         {
             if (build.Owns(patch))
@@ -86,16 +108,18 @@ public partial class VoxelTerrainStreamer
 
         patch.SetActive(false);
 
-        _demolishing.Enqueue(patch);
+        _demolishing.Enqueue(new VoxelDecorDemolition(patch));
     }
 
     private void Demolish()
     {
         int budget = _demolishPerFrame;
+        double deadline = Math.Min(DecorFrameBudget, _decorClock.Elapsed.TotalMilliseconds + DecorFrameBudget * 0.25);
 
-        while (budget > 0 && _demolishing.Count > 0)
+        while (budget > 0 && _demolishing.Count > 0 && _decorClock.Elapsed.TotalMilliseconds < deadline)
         {
-            GameObject patch = _demolishing.Peek();
+            VoxelDecorDemolition demolition = _demolishing.Peek();
+            GameObject patch = demolition.Root;
 
             if (patch == null)
             {
@@ -104,25 +128,24 @@ public partial class VoxelTerrainStreamer
                 continue;
             }
 
-            Transform root = patch.transform;
-
-            while (budget > 0 && root.childCount > 0)
+            while (budget > 0 && !demolition.Complete && _decorClock.Elapsed.TotalMilliseconds < deadline)
             {
-                Transform child = root.GetChild(root.childCount - 1);
+                if (!demolition.TryTake(out GameObject child))
+                    break;
 
-                child.SetParent(null, false);
-
-                GeneratedMesh.Destroy(child.gameObject);
+                if (_decor == null || !_decor.Recycle(child))
+                    GeneratedMesh.Destroy(child);
 
                 budget--;
             }
 
-            if (root.childCount > 0)
+            if (!demolition.Complete)
                 break;
 
             _demolishing.Dequeue();
 
             GeneratedMesh.Destroy(patch);
+            budget--;
         }
     }
 
@@ -131,21 +154,22 @@ public partial class VoxelTerrainStreamer
         if (_decor == null || _decorQueue.Count == 0)
             return;
 
-        float budget = _preload && !_ready ? _preloadBudget : _decorBudget;
-
-        _clock.Restart();
-
-        while (_decorQueue.Count > 0)
+        while (_decorQueue.Count > 0 && _decorClock.Elapsed.TotalMilliseconds < DecorFrameBudget)
         {
             VoxelDecorBuild build = _decorQueue.Peek();
 
-            _decor.Step(build, DECOR_SLICE);
+            if (build.Preparing)
+                break;
+
+            if (!build.Done)
+                _decor.Step(build, DECOR_SLICE);
 
             if (build.Done)
+            {
                 _decorQueue.Dequeue();
-
-            if (_clock.Elapsed.TotalMilliseconds >= budget)
-                break;
+                build.ReleaseMesh();
+                Reveal(build);
+            }
         }
     }
 
@@ -156,6 +180,38 @@ public partial class VoxelTerrainStreamer
 
         foreach (DecorRing ring in _rings)
             Sow(ring, ground);
+
+        Regrow();
+
+        _decor.PrepareInBackground(_sown);
+        _sown.Clear();
+    }
+
+    private void Regrow()
+    {
+        float size = _plan.ChunkMetres(0);
+
+        for (int grown = 0; grown < REGROW_PER_FRAME && _regrow.Count > 0; grown++)
+        {
+            (DecorRing ring, Vector2Int cell) = _regrow.Dequeue();
+
+            ring.Stale.Remove(cell);
+
+            if (!ring.Patches.TryGetValue(cell, out GameObject patch))
+                continue;
+
+            ring.Patches.Remove(cell);
+            Grow(ring, cell, size, patch);
+        }
+    }
+
+    private void ForgetRegrowth()
+    {
+        _regrow.Clear();
+        _sown.Clear();
+
+        foreach (DecorRing ring in _rings)
+            ring.Stale.Clear();
     }
 
     private void Sow(DecorRing ring, Vector2 ground)
@@ -205,19 +261,59 @@ public partial class VoxelTerrainStreamer
         }
     }
 
-    private void Grow(DecorRing ring, Vector2Int cell, float size)
+    private void Reveal(VoxelDecorBuild build)
     {
-        if (!_cover.TryGetValue(cell, out VoxelColumnKey column))
+        if (build.IsOrphaned || !_replacing.Remove(build.Parent.gameObject, out GameObject replaced))
             return;
 
-        var patch = new GameObject($"{ring.Scope} {cell.x} {cell.y}");
+        build.Parent.gameObject.SetActive(true);
+
+        Demolish(replaced);
+    }
+
+    private void Grow(DecorRing ring, Vector2Int cell, float size, GameObject replaced = null)
+    {
+        if (!_cover.TryGetValue(cell, out VoxelColumnKey column))
+        {
+            Demolish(replaced);
+            return;
+        }
+
+        var patch = new GameObject($"{ring.Label} {cell.x.ToString()} {cell.y.ToString()}");
 
         patch.transform.SetParent(transform, false);
 
+        if (replaced != null)
+        {
+            patch.SetActive(false);
+            _replacing[patch] = replaced;
+        }
+
         ring.Patches[cell] = patch;
 
-        _decorQueue.Enqueue(new VoxelDecorBuild(new Vector2(cell.x * size, cell.y * size), size, patch.transform,
-            column.Lod, Frame(column), ring.Scope));
+        var build = new VoxelDecorBuild(new Vector2(cell.x * size, cell.y * size), size, patch.transform,
+            column.Lod, Frame(column), ring.Scope);
+
+        _sown.Add(build);
+        _decorQueue.Enqueue(build);
+    }
+
+    private void StopPreparing()
+    {
+        foreach (VoxelDecorBuild build in _decorQueue)
+        {
+            build.Done = true;
+
+            try
+            {
+                build.Preparation?.Wait();
+            }
+            catch (AggregateException)
+            {
+            }
+
+            build.ReleaseMesh();
+        }
     }
 
     private void Rings()
@@ -236,8 +332,6 @@ public partial class VoxelTerrainStreamer
     {
         float span = _plan.ChunkMetres(column.Lod);
 
-        return new DecorSurface(new Vector2(column.X * span, column.Z * span),
-            VoxelDensitySampler.MorphSpan(_voxels.ChunkSize, _plan.VoxelSize(column.Lod)),
-            _plan.VoxelSize(column.Lod), column.Morph);
+        return new DecorSurface(new Vector2(column.X * span, column.Z * span), _voxels.ChunkSize, _plan.VoxelSize(column.Lod), column.Morph);
     }
 }

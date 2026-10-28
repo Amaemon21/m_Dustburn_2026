@@ -15,7 +15,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
             {
                 return;
             }
-            
+
             CurveProcessorUtility.ApplyCurvesFromImporter(clip, importer);
         }
     }

@@ -8,7 +8,7 @@ public sealed class SaveService : ISaveService
 {
     public const string DEFAULT_SLOT = "slot_0";
 
-    private const string FILE_EXTENSION = ".json";
+    public const string FILE_EXTENSION = ".json";
 
     private readonly SaveRegistry _registry;
     private readonly ISaveStorage _storage;
@@ -105,6 +105,8 @@ public sealed class SaveService : ISaveService
                 loads.Add(ReadDocumentAsync(fileName, RelativePath(_registry.GetFile(fileName)[0]), token));
             }
             SaveDocument[] documents = await UniTask.WhenAll(loads);
+            for (int i = 0; i < files.Count; i++)
+                documents[i] = await AdoptLegacyAsync(files[i], documents[i], token);
             token.ThrowIfCancellationRequested();
             if (session != Session(scope))
                 return;
@@ -137,7 +139,7 @@ public sealed class SaveService : ISaveService
         {
             if (session != Session(sections[0].Scope) || _fileRevisions[fileName] != revision)
                 return;
-            SaveDocument document = await ReadDocumentAsync(fileName, path, token);
+            SaveDocument document = await AdoptLegacyAsync(fileName, await ReadDocumentAsync(fileName, path, token), token);
             token.ThrowIfCancellationRequested();
             _fileRevisions.TryGetValue(fileName, out long currentRevision);
             if (session == Session(sections[0].Scope) && revision == currentRevision)
@@ -214,6 +216,64 @@ public sealed class SaveService : ISaveService
             Debug.LogWarning($"Recovered save file '{fileName}' from backup");
         }
         return recovered ?? (corrupt || corruptBackup ? new SaveDocument { RequiresSave = true } : null);
+    }
+
+    private async UniTask<SaveDocument> AdoptLegacyAsync(string fileName, SaveDocument document, CancellationToken token)
+    {
+        foreach (SaveSection section in _registry.GetFile(fileName))
+        {
+            if (section.LegacyFileName == null || (document != null && document.Sections.ContainsKey(section.Key)))
+                continue;
+
+            string path = section.Scope == SaveScope.Global
+                ? section.LegacyFileName + FILE_EXTENSION
+                : $"{_activeSlot}/{section.LegacyFileName}{FILE_EXTENSION}";
+            object value = ReadSection(await ReadLegacyAsync(path, false, token), section)
+                ?? ReadSection(await ReadLegacyAsync(path, true, token), section);
+            if (value == null)
+                continue;
+
+            document ??= new SaveDocument();
+            document.Sections[section.Key] = value;
+            document.RequiresSave = true;
+            Debug.Log($"Save section '{section.Key}' read from legacy file '{section.LegacyFileName}', it moves to '{fileName}' on the next save");
+        }
+
+        return document;
+    }
+
+    private async UniTask<string> ReadLegacyAsync(string path, bool backup, CancellationToken token)
+    {
+        try
+        {
+            return backup ? await _storage.ReadBackupAsync(path, token) : await _storage.ReadAsync(path, token);
+        }
+        catch (Exception exception) when (exception is System.IO.IOException || exception is UnauthorizedAccessException)
+        {
+            Debug.LogWarning($"Legacy save read failed for '{path}': {exception.Message}");
+            return null;
+        }
+    }
+
+    private object ReadSection(string text, SaveSection section)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return null;
+
+        try
+        {
+            SaveDocument legacy = _serializer.Deserialize(text, new[] { section });
+            return legacy.Sections.TryGetValue(section.Key, out object value) ? value : null;
+        }
+        catch (UnsupportedSaveVersionException)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning($"Legacy save file '{section.LegacyFileName}' is unreadable for section '{section.Key}': {exception.Message}");
+            return null;
+        }
     }
 
     private long AdvanceSession(SaveScope scope)

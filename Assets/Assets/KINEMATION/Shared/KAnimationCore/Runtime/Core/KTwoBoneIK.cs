@@ -23,7 +23,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
 
         public bool hasValidHint;
     }
-    
+
     public class KTwoBoneIK
     {
         public static void Solve(ref KTwoBoneIkData ikData)
@@ -33,7 +33,8 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             Vector3 endPosition = ikData.tip.position;
 
             Vector3 effectorPosition = Vector3.Lerp(endPosition, ikData.target.position, ikData.posWeight);
-            Quaternion effectorRotation = Quaternion.Slerp(ikData.tip.rotation, ikData.target.rotation, ikData.rotWeight);
+            Quaternion effectorRotation =
+                Quaternion.Slerp(ikData.tip.rotation, ikData.target.rotation, ikData.rotWeight);
 
             float upperLimbLength = (jointPosition - rootPosition).magnitude;
             float lowerLimbLength = (endPosition - jointPosition).magnitude;
@@ -56,8 +57,8 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             Vector3 jointPosition = joint.position;
             Vector3 endPosition = end.position;
 
-            SolveTwoBoneIK(rootPosition, jointPosition, jointTarget, effector, 
-                out Vector3 outJointPos, out Vector3 outEndPos, upperLimbLength, lowerLimbLength, allowStretching, 
+            SolveTwoBoneIK(rootPosition, jointPosition, jointTarget, effector,
+                out Vector3 outJointPos, out Vector3 outEndPos, upperLimbLength, lowerLimbLength, allowStretching,
                 startStretchRatio, maxStretchScale);
 
             Quaternion rootDelta = FindBetweenNormals(jointPosition - rootPosition, outJointPos - rootPosition);
@@ -176,13 +177,13 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             Vector3 rootPos = ikData.root.position;
             Vector3 jointPos = ikData.mid.position;
             Vector3 endPos = ikData.tip.position;
-            
+
             Vector3 desiredDir = GetDesiredDirection(rootPos, effectorPos, endPos);
             Vector3 bendDir = GetCurrentBendDirection(rootPos, jointPos, endPos, desiredDir) * targetDistance;
-            bool canProject = TryProjectToBendPlane(ikData.hint.position - rootPos, desiredDir, 
+            bool canProject = TryProjectToBendPlane(ikData.hint.position - rootPos, desiredDir,
                 out Vector3 hintDir);
 
-            if (ikData is {hasValidHint: true, hintWeight: > KMath.FloatMin} && canProject)
+            if (ikData is { hasValidHint: true, hintWeight: > KMath.FloatMin } && canProject)
             {
                 float clampedHintWeight = Mathf.Clamp01(ikData.hintWeight);
                 bendDir = bendDir.sqrMagnitude < KMath.SqrEpsilon

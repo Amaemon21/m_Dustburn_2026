@@ -28,9 +28,9 @@ public class HeightMapGenerator
 
         var map = new HeightMap(_config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
 
-        NativeArray<float> weights = weightField.ToNativeArray(Allocator.TempJob);
-        NativeArray<BiomeHeightProfile> profiles = BuildProfiles(Allocator.TempJob);
-        var heights = new NativeArray<float>(map.Heights.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        NativeArray<float> weights = weightField.ToNativeArray(GenerationJobs.ALLOCATOR);
+        NativeArray<BiomeHeightProfile> profiles = BuildProfiles(GenerationJobs.ALLOCATOR);
+        var heights = new NativeArray<float>(map.Heights.Length, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
 
         try
         {
@@ -55,7 +55,7 @@ public class HeightMapGenerator
             };
 
             using (WorldGenProbe.Measure(WorldGenStage.MapHeightNoise))
-                job.Schedule(heights.Length, BATCH_SIZE).Complete();
+                GenerationJobs.Run(job, heights.Length, BATCH_SIZE);
 
             string noise = GenerationChecksum.Of(heights);
 

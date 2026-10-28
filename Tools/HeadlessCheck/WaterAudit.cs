@@ -26,7 +26,10 @@ static class WaterAudit
     public sealed class Result
     {
         public long Probes;
-        public long Holes, Hanging, ZFight, Stacked, Shore, LodFlood, LodMissing, Cliffs;
+        public long Holes, Hanging, ZFight, Stacked, Shore, LodFlood, LodMissing, Cliffs, LodGaps;
+        public float WorstLodGap;
+        public long[] GapsByLod = new long[8];
+        public readonly ConcurrentDictionary<(int X, int Z), long> GapTiles = new();
         public long[] FloodByLod = new long[8], MissingByLod = new long[8];
         public int Steps, TrenchPoints, RiverPoints;
         public float WorstStep, WorstTrench, WorstHang, WorstCliff;
@@ -52,10 +55,32 @@ static class WaterAudit
                 + $"  LOD: вода видна над сушей                   {Area(LodFlood),10:N0} м²\n"
                 + $"  LOD: вода скрыта грубой землёй              {Area(LodMissing),10:N0} м²\n"
                 + $"  LOD по кольцам, видна над сушей / скрыта (м²): {ByLod()}\n"
+                + $"  LOD: кромка воды над грубой землёй          {Area(LodGaps),10:N0} м², до {WorstLodGap:0.00} м; по кольцам {GapsLod()}; по квадратам 1 км {GapTileList()}\n"
                 + $"  ступеньки уровня реки круче {STEP_GRADE:P0}              {Steps,10:N0} (до {WorstStep:0.00} м/м) из {RiverPoints:N0} точек\n"
                 + $"  траншеи глубже {TRENCH:0} м                          {TrenchPoints,10:N0} точек (до {WorstTrench:0.0} м в ({WorstTrenchAt.x:0}, {WorstTrenchAt.y:0}))\n"
                 + (DriftArea >= 0f ? $"  русло врезано не по итоговому уровню          {DriftArea,10:N0} м², до {WorstDrift:0.00} м{(DriftPatches.Length > 0 ? "; пятна " + DriftPatches : "")}\n" : "")
                 + $"  меши: {Parts} частей, {Triangles:N0} треугольников";
+        }
+
+        private string GapTileList()
+        {
+            var tiles = new List<KeyValuePair<(int X, int Z), long>>(GapTiles);
+            tiles.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+            return string.Join(", ", tiles.ConvertAll(pair => $"{pair.Key.X} {pair.Key.Z}: {Area(pair.Value):N0}"));
+        }
+
+        private string GapsLod()
+        {
+            var parts = new List<string>();
+
+            for (int lod = 0; lod < GapsByLod.Length; lod++)
+            {
+                if (GapsByLod[lod] > 0)
+                    parts.Add($"L{lod} {Area(GapsByLod[lod]):N0}");
+            }
+
+            return string.Join(", ", parts);
         }
 
         private string ByLod()
@@ -215,6 +240,9 @@ static class WaterAudit
             Console.WriteLine(RiverTopologyAudit.Measure(water).Describe());
         }
 
+        if (HeightDump.Run(args, map, water))
+            return;
+
         int inspect = Array.IndexOf(args, "--at");
 
         for (int at = inspect; at >= 0 && at + 2 < args.Length && float.TryParse(args[at + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float ix); at += 2)
@@ -256,6 +284,11 @@ static class WaterAudit
             ListRivers(water);
 
         var viewer = new Vector2(2036.5f, 4577.5f);
+        int viewerAt = Array.IndexOf(args, "--viewer");
+
+        if (viewerAt >= 0)
+            viewer = new Vector2(float.Parse(args[viewerAt + 1], System.Globalization.CultureInfo.InvariantCulture), float.Parse(args[viewerAt + 2], System.Globalization.CultureInfo.InvariantCulture));
+
         string spots = Environment.GetEnvironmentVariable("WATER_AT");
 
         if (!string.IsNullOrEmpty(spots))
@@ -268,6 +301,7 @@ static class WaterAudit
         }
 
         Result result = Measure(map, water, viewer, "water_audit.png");
+        Console.WriteLine(Skirts(map, water));
 
         if (raw != null)
             ChannelDrift(map, water, config.Water.BridgeMinWidth, result);
@@ -305,7 +339,7 @@ static class WaterAudit
             int lod = Array.IndexOf(args, "--view-lod");
             float distance = lod >= 0 ? float.Parse(args[lod + 1], System.Globalization.CultureInfo.InvariantCulture) : 0f;
 
-            WaterView.Render(args[view + 1], map, water, listed ? WaterView.Read(args[view + 2]) : WaterView.Pick(water, map), distance);
+            WaterView.Render(args[view + 1], map, water, listed ? WaterView.Read(args[view + 2]) : WaterView.Pick(water, map), distance, viewerAt >= 0 ? viewer : null);
         }
 
         Benchmark(water, map);
@@ -675,6 +709,42 @@ static class WaterAudit
         }
     }
 
+    private static string Skirts(HeightMap map, WaterMap water)
+    {
+        int quads = 0, exposed = 0;
+        float worst = 0f;
+        Vector2 worstAt = Vector2.zero;
+
+        foreach (WaterMeshPart part in WaterMeshes.Build(water))
+        {
+            var vertices = new List<Vector3>(part.Vertices);
+            var uv = new List<Vector2>(part.Uv);
+            var triangles = new List<int>(part.Triangles);
+            int before = vertices.Count;
+            quads += WaterSkirt.Append(water, vertices, uv, triangles);
+
+            for (int v = before; v < vertices.Count; v += 4)
+            {
+                Vector3 a = vertices[v], b = vertices[v + 1];
+                float x = 0.5f * (a.x + b.x), z = 0.5f * (a.z + b.z);
+                float below = a.y - map.SampleWorldSmooth(x, z);
+
+                if (below <= 0.05f)
+                    continue;
+
+                exposed++;
+
+                if (below > worst)
+                {
+                    worst = below;
+                    worstAt = new Vector2(x, z);
+                }
+            }
+        }
+
+        return $"  юбка кромки: {quads:N0} лент по {WaterSkirt.DEPTH:0} м, над точной землёй торчит {exposed:N0} (до {worst:0.00} м у ({worstAt.x:0}, {worstAt.y:0}))";
+    }
+
     public static void PrintExamples(Result result)
     {
         foreach (KeyValuePair<string, ConcurrentBag<Vector2>> pair in result.Examples)
@@ -750,8 +820,9 @@ static class WaterAudit
         float cell = water.CellSize;
         float near = water.ShoreReach;
 
-        long probes = 0, holes = 0, hanging = 0, zfight = 0, stacked = 0, shore = 0, lodFlood = 0, lodMissing = 0, cliffs = 0;
-        float worstCliff = 0f;
+        long probes = 0, holes = 0, hanging = 0, zfight = 0, stacked = 0, shore = 0, lodFlood = 0, lodMissing = 0, cliffs = 0, lodGaps = 0;
+        float worstCliff = 0f, worstLodGap = 0f;
+        var gapsByLod = new long[8];
         var floodByLod = new long[8];
         var missingByLod = new long[8];
         float worstHang = 0f;
@@ -761,8 +832,9 @@ static class WaterAudit
 
         Parallel.For(0, resolution, row =>
         {
-            long p = 0, h = 0, hg = 0, zf = 0, st = 0, sh = 0, lf = 0, lm = 0, cf = 0;
-            float hangMax = 0f, cliffMax = 0f;
+            long p = 0, h = 0, hg = 0, zf = 0, st = 0, sh = 0, lf = 0, lm = 0, cf = 0, lg = 0;
+            float hangMax = 0f, cliffMax = 0f, gapMax = 0f;
+            var gaps = new long[8];
             var covers = new List<(float Y, int Source)>();
             var floods = new long[8];
             var misses = new long[8];
@@ -857,7 +929,18 @@ static class WaterAudit
 
                         if (covers.Count == 0 && !wet)
                         {
-                            float edge = EdgeAbove(index, water, x, z) - ground;
+                            float rim = EdgeAbove(index, water, x, z);
+                            float edge = rim - ground;
+                            float gap = rim - surface.Height(x, z);
+
+                            if (gap > CLIFF && edge <= CLIFF)
+                            {
+                                lg++;
+                                gaps[surface.LodAt(x, z)]++;
+                                result.GapTiles.AddOrUpdate(((int)(x / 1000f), (int)(z / 1000f)), 1, (_, count) => count + 1);
+                                gapMax = Mathf.Max(gapMax, gap);
+                                result.Example("кромка над LOD-землёй", new Vector2(x, z));
+                            }
 
                             if (edge > CLIFF)
                             {
@@ -905,6 +988,11 @@ static class WaterAudit
                 lodFlood += lf;
                 lodMissing += lm;
                 cliffs += cf;
+                lodGaps += lg;
+                worstLodGap = Mathf.Max(worstLodGap, gapMax);
+
+                for (int lod = 0; lod < 8; lod++)
+                    gapsByLod[lod] += gaps[lod];
                 worstCliff = Mathf.Max(worstCliff, cliffMax);
 
                 for (int lod = 0; lod < 8; lod++)
@@ -929,6 +1017,9 @@ static class WaterAudit
         result.MissingByLod = missingByLod;
         result.WorstHang = worstHang;
         result.Cliffs = cliffs;
+        result.LodGaps = lodGaps;
+        result.WorstLodGap = worstLodGap;
+        result.GapsByLod = gapsByLod;
         result.WorstCliff = worstCliff;
         result.LargestCliff = Largest(marks, 0, 0, 255);
         result.CliffPatches = DescribePatches(marks, 0, 0, 255, 6);

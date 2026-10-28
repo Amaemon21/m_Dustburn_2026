@@ -107,8 +107,85 @@ static class RoadPaintChecks
         Require(wobble < 0.1f, $"Weights along a straight road must not beat against the texel grid, they vary by {wobble:0.000}.");
 
         CheckJunction(config, database, field, carriage);
+        CheckSurfaces(config, database, field, carriage);
+        CheckSurfaceFallbacks(config, database, field, carriage, verge);
 
-        Console.WriteLine("Road paint checks passed: straight edges at every angle, edges on their lines, full coverage, junctions filled.");
+        Console.WriteLine("Road paint checks passed: straight edges at every angle, edges on their lines, full coverage, junctions filled, asphalt over dirt.");
+    }
+
+    private static void CheckSurfaceFallbacks(WorldGenerationConfig config, BiomeDatabase database, BiomeWeightField field,
+        TerrainLayer dirt, TerrainLayer verge)
+    {
+        TerrainLayer asphalt = config.AsphaltLayer;
+        var highway = new Road(new[] { new Vector2(100f, 256f), new Vector2(412f, 256f) }, 10f, RoadKind.Highway);
+
+        foreach (bool splitVerge in new[] { false, true })
+        {
+            Set(config, "RoadEdgeLayer", splitVerge ? verge : null);
+            Set(config, "RoadLayer", null);
+
+            using var painter = new GroundSplatPainter(config, database, field, new[] { highway });
+            using var baked = painter.BakeWorld(RESOLUTION, new float[RESOLUTION * RESOLUTION], new float[RESOLUTION * RESOLUTION]);
+            var weights = new float[baked.Length];
+            baked.CopyTo(weights);
+            RequireCoverage(weights, painter.Layers.Length);
+            Require(painter.AsphaltLayerIndex >= 0, "An assigned asphalt layer must work without a dirt layer.");
+            Require(Bilinear(weights, painter.Layers.Length, painter.AsphaltLayerIndex, new Vector2(180f, 256f), 2f) > 0.95f,
+                "A highway must stay paved without a dirt layer.");
+        }
+
+        Set(config, "RoadLayer", dirt);
+        Set(config, "AsphaltLayer", null);
+        Set(config, "RoadEdgeLayer", verge);
+
+        using (var painter = new GroundSplatPainter(config, database, field, new[] { highway }))
+        {
+            Require(painter.AsphaltLayerIndex == painter.RoadLayerIndex, "Missing asphalt must preserve the legacy road layer.");
+            using var baked = painter.BakeWorld(RESOLUTION, new float[RESOLUTION * RESOLUTION], new float[RESOLUTION * RESOLUTION]);
+            var weights = new float[baked.Length];
+            baked.CopyTo(weights);
+            RequireCoverage(weights, painter.Layers.Length);
+        }
+
+        Set(config, "AsphaltLayer", asphalt);
+        using var dirtPainter = new GroundSplatPainter(config, database, field,
+            new[] { new Road(highway.Points, highway.Width, RoadKind.DirtAccess) });
+        Require(Array.IndexOf(dirtPainter.Layers, asphalt) < 0, "A dirt-only network must not consume an asphalt layer slot.");
+    }
+
+    private static void CheckSurfaces(WorldGenerationConfig config, BiomeDatabase database, BiomeWeightField field, TerrainLayer dirt)
+    {
+        var asphalt = new TerrainLayer { name = "asphalt" };
+        Set(config, "AsphaltLayer", asphalt);
+
+        var highway = new Road(new[] { new Vector2(100f, 256f), new Vector2(412f, 256f) }, config.RoadHalfWidth * 2f, RoadKind.Highway);
+        var spur = new Road(new[] { new Vector2(256f, 256f), new Vector2(256f, 420f) }, config.DirtHalfWidth * 2f, RoadKind.DirtAccess);
+
+        using var painter = new GroundSplatPainter(config, database, field, new List<Road> { highway, spur });
+        using var baked = painter.BakeWorld(RESOLUTION, new float[RESOLUTION * RESOLUTION], new float[RESOLUTION * RESOLUTION]);
+
+        var weights = new float[baked.Length];
+        baked.CopyTo(weights);
+
+        int layers = painter.Layers.Length;
+        int dirtIndex = Array.IndexOf(painter.Layers, dirt);
+        int asphaltIndex = Array.IndexOf(painter.Layers, asphalt);
+        float texel = (float)WORLD / RESOLUTION;
+
+        RequireCoverage(weights, layers);
+        Require(asphaltIndex >= 0 && asphaltIndex == painter.AsphaltLayerIndex, "An asphalt road must register the asphalt layer.");
+
+        float edge = Crossing(weights, layers, asphaltIndex, new Vector2(180f, 256f), new Vector2(0f, 1f), 0f, 12f, true);
+        float spurAsphalt = Bilinear(weights, layers, asphaltIndex, new Vector2(256f, 258f), texel);
+
+        Console.WriteLine($"  asphalt edge sits {Mathf.Abs(edge - config.RoadHalfWidth) * 100f:0.0} cm off the carriageway line, {spurAsphalt:0.00} asphalt where a dirt spur enters it");
+
+        Require(Mathf.Abs(edge - config.RoadHalfWidth) < 0.25f, "The asphalt edge must sit on the carriageway line.");
+        Require(Bilinear(weights, layers, dirtIndex, new Vector2(180f, 256f), texel) < 0.01f, "A highway must carry no dirt on its carriageway.");
+        Require(Bilinear(weights, layers, asphaltIndex, new Vector2(256f, 256f), texel) > 0.95f, "A dirt spur must not break the asphalt where it joins.");
+        Require(spurAsphalt > 0.8f, "Asphalt must lie over the dirt of a spur inside the highway carriageway.");
+        Require(Bilinear(weights, layers, dirtIndex, new Vector2(256f, 330f), texel) > 0.8f, "A dirt spur must be painted with the dirt layer.");
+        Require(Bilinear(weights, layers, asphaltIndex, new Vector2(256f, 330f), texel) < 0.01f, "Asphalt must not leak onto a dirt spur.");
     }
 
     private static void CheckJunction(WorldGenerationConfig config, BiomeDatabase database, BiomeWeightField field, TerrainLayer carriage)

@@ -1,18 +1,21 @@
 using NaughtyAttributes;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class ItemStatView : MonoBehaviour
 {
-    [SerializeField] private ItemStatType _type;
+    [SerializeField, Required] private Image _iconImage;
+    [SerializeField, Required] private TMP_Text _labelText;
     [SerializeField, Required] private TMP_Text _valueText;
-    [SerializeField] private string _format = "{0:0.#}";
 
-    public ItemStatType Type => _type;
-
-    public void Show(float value)
+    public void Show(Sprite icon, string label, string value, Color color)
     {
-        _valueText.text = string.Format(_format, value);
+        _iconImage.sprite = icon;
+        _iconImage.enabled = icon != null;
+        _labelText.text = label;
+        _valueText.text = value;
+        _valueText.color = color;
         gameObject.SetActive(true);
     }
 

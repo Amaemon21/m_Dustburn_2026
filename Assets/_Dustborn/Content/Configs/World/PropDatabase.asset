@@ -1,0 +1,1521 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e32b9d71ff7ad2e4d97ca72928537378, type: 3}
+  m_Name: PropDatabase
+  m_EditorClassIdentifier: Dustborn.WorldGen::PropDatabase
+  _definitions:
+  - <Prefab>k__BackingField: {fileID: 1625245722009567076, guid: 83c900561fcf9b544b119f851ffdbbf2, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 6
+    <Radius>k__BackingField: 2.7997556
+    <GroundOffset>k__BackingField: 0.037327766
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 20
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 8936510607233366314, guid: f8a732a99d679514593b5925130d82ca, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 3
+    <Radius>k__BackingField: 2.92219
+    <GroundOffset>k__BackingField: 0.037327766
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 20
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 517570616210765801, guid: 8124a959a97c02f4f930b9a4bf3a4ac7, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 4
+    <Radius>k__BackingField: 2.846217
+    <GroundOffset>k__BackingField: 0.04896593
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 20
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 813852368716416646, guid: 3ebe69e9e31859c40aa144048ea38a18, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 2
+    <Radius>k__BackingField: 2.8988087
+    <GroundOffset>k__BackingField: 0.031153321
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 20
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1243194821767460, guid: 5d15148e0a22c4c4393564f566146863, type: 3}
+    <Context>k__BackingField: 13
+    <Weight>k__BackingField: 3
+    <Radius>k__BackingField: 3.0943449
+    <GroundOffset>k__BackingField: 0.3329273
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 20
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1369839499385476, guid: 5874ee8f45fcb7642a55893da4660af3, type: 3}
+    <Context>k__BackingField: 1
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 6.092428
+    <GroundOffset>k__BackingField: 0.33292723
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 20
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1323047027928602, guid: d0292d784c0801f43bd2bce9012b3dfe, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 2.8315396
+    <GroundOffset>k__BackingField: 0.13182825
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 30
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1721595516740150, guid: ea0126607ce5c0146a133bc0724058fa, type: 3}
+    <Context>k__BackingField: 9
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 2.8315396
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 30
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1448393425937996, guid: 65a763c41c067ed4881d772340eaf2a9, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.3844638
+    <GroundOffset>k__BackingField: 0.36143905
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1393981593434204, guid: cbb7175ad1bbd7641ab5d4a1e454da28, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.4457936
+    <GroundOffset>k__BackingField: 0.31301534
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 8154300557864242371, guid: b0906325d0a26e1489b3ad46fe2b2804, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1.5
+    <Radius>k__BackingField: 0.583915
+    <GroundOffset>k__BackingField: -0.000000029802322
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 2.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1762637303941844797, guid: 0b37a86e1e785d143857ea4577c20bd7, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.2570686
+    <GroundOffset>k__BackingField: 0.04642874
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1844169820113782203, guid: 864e64345ce215443ac59466cf1859f5, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.0696068
+    <GroundOffset>k__BackingField: 0.024930477
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1876651411659958344, guid: f0c980da59b126748851a32c100f061c, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.5116589
+    <GroundOffset>k__BackingField: 0.051974475
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 3487890822814317681, guid: c172ef52e05a65c4c89d9712ea5375b0, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.1499536
+    <GroundOffset>k__BackingField: 0.023452997
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1769424475871970, guid: 134451b9a0f42f74db5206a930257325, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 1.2028174
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 15
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1368765525914770, guid: 99bb428bc8858ca46828b4caf53d53b6, type: 3}
+    <Context>k__BackingField: 1
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 8.586784
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 10
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1090662257128980, guid: 05fd97763c7784641a2be2c5dd009dad, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 1.0303383
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 8
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1428597106796134, guid: 6aabbfeb79f437344abb2ae7d3b1138d, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 1.0949157
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 1
+    <YawJitter>k__BackingField: 12
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1329448962256884, guid: f38278fb572f21f45bb13f84333f1492, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 1.2
+    <Radius>k__BackingField: 0.24983965
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 1
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 2
+    <ClusterMax>k__BackingField: 5
+    <ClusterRadius>k__BackingField: 4
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1878898758856694, guid: 964b2c52961f0cb4982ed6b25f338d9c, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 1.1950136
+    <GroundOffset>k__BackingField: 0.059283882
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1544143072547004, guid: a30c6940385cb1a41bd34cf40535c1c9, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.21241619
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 8762631186539954202, guid: a93af91344a04db46bcc65d3c5b6af77, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 0.3181082
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 2
+    <ClusterRadius>k__BackingField: 2
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1058660311932574195, guid: c23111b052be07046a95b3bebc8adfa8, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 0.934826
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 5180279435588249085, guid: 5d8e4388422b5ed499bdf6ac983e11b4, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 0.48379797
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1528322374337062, guid: 9268322bde00a844c935286f5b177899, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.95157534
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1283339109596406, guid: 770e16623d7202d438d860aff393b50a, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.5729139
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1875004977760290061, guid: 4d496953a68e6244590e9978bcf77827, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.25
+    <Radius>k__BackingField: 0.46200752
+    <GroundOffset>k__BackingField: 0.06808422
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 5587515618983918771, guid: 621074b767b7a4b44adf3cb53e53aa1c, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.25227493
+    <GroundOffset>k__BackingField: 0.00043556467
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 7202178729404218063, guid: 48b1f41bae8444c41ba83a4c70e88fc6, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.4416686
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 2
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 6622859441278377326, guid: c2b452fecc18ca04d8052fe64e595c89, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.46612793
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 2
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1552746946814654, guid: 3f8e282304c9a9d43af73f0f65432bcc, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.7
+    <Radius>k__BackingField: 0.67801034
+    <GroundOffset>k__BackingField: 0.2406794
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1969217312546254, guid: 98c5197f62f2c3544b5e868b99dbd90a, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.7
+    <Radius>k__BackingField: 0.4987233
+    <GroundOffset>k__BackingField: 0.2406794
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1191712689399428, guid: 780f1cb428bce674e93646b0f53c2d44, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.7
+    <Radius>k__BackingField: 0.49872327
+    <GroundOffset>k__BackingField: 0.24067938
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 6262876942326532440, guid: 23992d2136d736d4f9b159fb30492b34, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.84157395
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 5594905320013325140, guid: bf819c8962b196542966d2c0f34b8125, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.7874306
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 2883714682353932977, guid: c6dea5b3f7289e74c827cf449176e0c8, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.1551366
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 2062960301646113307, guid: 5a223d38f1d5b894398586a3cd415c6b, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 0.8316188
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1204243286769032, guid: a93ebe0c53d3a91459513439be0a61b4, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 0.58572185
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1478621594701304, guid: 9b4a3189ee7b0f34aa3cf7efcf1d1e47, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 0.84157395
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 5130397881040954387, guid: 47061afbc0770914b9d44d07db227761, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.2
+    <Radius>k__BackingField: 1.5042809
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 251703961284195302, guid: 6393109fab119824792be9312f57c912, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 0.36443508
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1239577106600078, guid: 2e76e3fffef533140a54ca0007816b36, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.26888338
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1225048615775740, guid: edfc4898e4496cd4dad4c1bc72885af9, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.15
+    <Radius>k__BackingField: 0.5248082
+    <GroundOffset>k__BackingField: 0.01538229
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 3631287778073934586, guid: e5a1211f7a065fe48902dd7dbb74b231, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.25
+    <Radius>k__BackingField: 0.2455079
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 6497242572177100325, guid: 55f267c07eb4bc440a81595bd166ddae, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.35
+    <Radius>k__BackingField: 2.236809
+    <GroundOffset>k__BackingField: 0.019693375
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 5711226435142485648, guid: 35b41062aca81654fbc0616278541a3a, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.35
+    <Radius>k__BackingField: 1.8500359
+    <GroundOffset>k__BackingField: 0.019693375
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 2029347682786398373, guid: 58270cfa4b42b3849af5c18833482eab, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.35
+    <Radius>k__BackingField: 1.5121937
+    <GroundOffset>k__BackingField: 0.019693375
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 557777405005389629, guid: 004adb5ff2e38c8408085b3afbb66998, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.35
+    <Radius>k__BackingField: 1.052562
+    <GroundOffset>k__BackingField: 0.006177008
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 3890642211683617782, guid: c5ad54740801318459ddb6002e0fdadd, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.35
+    <Radius>k__BackingField: 0.836867
+    <GroundOffset>k__BackingField: 0.019693375
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 2275344319671623067, guid: 0a13ea77471e5eb41bd7273ad9a4c5a2, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.67282474
+    <GroundOffset>k__BackingField: -0.05824256
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1667549893534606, guid: d3195afaa7116e346becc0beb3c1d9af, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 0.6078502
+    <GroundOffset>k__BackingField: -0.018564314
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1389209004187396, guid: 8d88bc0e7a9d1464a9cb754889e14277, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 0.5602598
+    <GroundOffset>k__BackingField: 0.062041134
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1121779255184192, guid: 20b31b4bd31ffef43885ef3b751fbbac, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 0.692401
+    <GroundOffset>k__BackingField: 0.029598355
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1199291695004738, guid: 0cb1593144887c44cb7d7c99d4bf6c7b, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 0.47550154
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1224102057153114, guid: c64fe55c8aa987f49b7067e160535307, type: 3}
+    <Context>k__BackingField: 2
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 0.41073465
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1560892809606946, guid: 46aa832c3547e514db99b32cb222fe6c, type: 3}
+    <Context>k__BackingField: 2
+    <Weight>k__BackingField: 0.8
+    <Radius>k__BackingField: 1.5703931
+    <GroundOffset>k__BackingField: 0.008806676
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1623863139179680, guid: c7d1bd2ea50676e4da10ea3d4b5b4770, type: 3}
+    <Context>k__BackingField: 6
+    <Weight>k__BackingField: 0.7
+    <Radius>k__BackingField: 0.5097921
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1856484033027460, guid: a8a45343aa731f947b88a08bcae029da, type: 3}
+    <Context>k__BackingField: 6
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 1.406914
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1660401197378284, guid: 1e6d52c5a1887514194fbe09c859cf1e, type: 3}
+    <Context>k__BackingField: 6
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 3.0694494
+    <GroundOffset>k__BackingField: 0.060491562
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1494100888421823701, guid: 246050e207c092e4aa27135f1190ec1c, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1.2
+    <Radius>k__BackingField: 0.9751915
+    <GroundOffset>k__BackingField: -0.004065415
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 2
+    <ClusterMax>k__BackingField: 5
+    <ClusterRadius>k__BackingField: 3
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 7231905816813796934, guid: d8bc22b95264b1648bf42ccdd94d6397, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1.2
+    <Radius>k__BackingField: 0.38070408
+    <GroundOffset>k__BackingField: -0.0046193562
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 2
+    <ClusterMax>k__BackingField: 5
+    <ClusterRadius>k__BackingField: 3
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 5555712749461109408, guid: 54f90d77fd350844f884a62a040d2a14, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 1.2
+    <Radius>k__BackingField: 0.5959116
+    <GroundOffset>k__BackingField: -0.006095402
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 2
+    <ClusterMax>k__BackingField: 5
+    <ClusterRadius>k__BackingField: 3
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1239673110073358, guid: 74a2829ad6b219647837703fe70c3195, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 0.7075524
+    <GroundOffset>k__BackingField: 0.032987468
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1969308005612910, guid: 8b0119798535c7c4baa31b87b8bf013b, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 2.0893388
+    <GroundOffset>k__BackingField: 0.032987464
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1980102390720548, guid: 4db648087ebc4264f9dfaecafc022298, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 3.7127259
+    <GroundOffset>k__BackingField: 0.059770226
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1841504986358056, guid: 9cb0eccf8f1237e4d9b07733831e1002, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.7435099
+    <GroundOffset>k__BackingField: 0.1036734
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1437611484020292, guid: a54164509d3de6c4b94d41d74d9fbfde, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.6782497
+    <GroundOffset>k__BackingField: 0.104562074
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1124453869619182, guid: 96b38ac7f205f754f8bcc963dde39a91, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 1.5416834
+    <GroundOffset>k__BackingField: 0.055039972
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1024666379822224, guid: a3499f6fe1a2b01449e30968afd80f24, type: 3}
+    <Context>k__BackingField: 2
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.3859968
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1747560883631604, guid: 1bc1999912c1dae46910833b23007041, type: 3}
+    <Context>k__BackingField: 6
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.48039228
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1899919133668748, guid: 0436c8f76afbe664bb10159b48103a54, type: 3}
+    <Context>k__BackingField: 2
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 1.1356425
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1596417884367404, guid: 5b9ee52daac010c429f27234d456fd53, type: 3}
+    <Context>k__BackingField: 2
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.8072552
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1151416925077548, guid: 515e1db93e1ca044e8ffcae8b93962c9, type: 3}
+    <Context>k__BackingField: 3
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.83185375
+    <GroundOffset>k__BackingField: 0.035076022
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1569311349296154, guid: 1981d5825883e0b44bbeb44a70c80ab2, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 0.5039392
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1890296390273018, guid: c0be81b802ec8bc48a72b44fb9f9d127, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 0.50124556
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 2
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1730107154310758, guid: a9d518df91f0c0c489cc7c8b8183a9bc, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.0184267
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1556934238034718, guid: a821fd33992301a4ea4d00d8c9f9e4fc, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 1.0218992
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1466574748293544, guid: c627d1e9d420ada43b975b292709995d, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 0.258204
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 4
+    <ClusterRadius>k__BackingField: 2
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1512058194556154, guid: 5435d69378f8015498122301b7030044, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.6045252
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 2
+    <ClusterMax>k__BackingField: 6
+    <ClusterRadius>k__BackingField: 2
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1653233000656760, guid: 9e423b6f040d02043a58de2575bf31c2, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 1.0258228
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1973639171627302, guid: 6c612f77731c1884eb74ec4b3eb274c1, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.40212357
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1796243636264490, guid: 5cde1e39dacd5ca4e9540eeffa28a929, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.25
+    <Radius>k__BackingField: 0.85585606
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1367829943548754, guid: 132f0c5cf34a8f44cbcf61c051bd9ee3, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.49970865
+    <GroundOffset>k__BackingField: 0.053246617
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 2
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1669160615611804, guid: 1fc6021ef8f8cc44293ea5d1d8030ad0, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.2440308
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1082968531951720, guid: cac039c217c7f7446851fd514e0c9f99, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.24403079
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1396230683886934, guid: d1e8923fd3714c44a9e3b7cca48e2f2b, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 1.6594927
+    <GroundOffset>k__BackingField: 0.039441764
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1446105489464506, guid: c82ff59b90e265646ba683260fb3dabf, type: 3}
+    <Context>k__BackingField: 12
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 1.0849605
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1524708790358150, guid: 05968793e7901464f9f36cbaf3db2b42, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.25050688
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1999675713022318, guid: d0c57add0db626d49af2a228a4d09f10, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.2
+    <Radius>k__BackingField: 1.1695541
+    <GroundOffset>k__BackingField: 0.0101418495
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1390090078305650, guid: 2b6c1212da9af9c4caa311932200a99b, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 1.7281122
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1886075303413064, guid: 5380ea35099b3064fa75d746d2ccab87, type: 3}
+    <Context>k__BackingField: 15
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 1.7546207
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 1.5
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1789185446098736, guid: c3eb15bcd8f40b24b87e3584a2977b37, type: 3}
+    <Context>k__BackingField: 12
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 0.25795817
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 2
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1332903101755578, guid: aef29d6db8cb28b4991b77202750c8d6, type: 3}
+    <Context>k__BackingField: 4
+    <Weight>k__BackingField: 0.15
+    <Radius>k__BackingField: 1.480237
+    <GroundOffset>k__BackingField: 0.000027179718
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1356227548348618, guid: 4bb6fb95190f685449650409a7e62320, type: 3}
+    <Context>k__BackingField: 6
+    <Weight>k__BackingField: 0.15
+    <Radius>k__BackingField: 0.6925783
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1902484300601508, guid: 950107518aa65904a8ec8dc82f046db9, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.5
+    <Radius>k__BackingField: 1.7708364
+    <GroundOffset>k__BackingField: 0.061590075
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1275556058015706, guid: 108a73e40d7f3744ab832ddbd1d463b3, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 2.4049466
+    <GroundOffset>k__BackingField: 0.063637495
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1304215742492940, guid: b25da15eb25646d4883fccab379b2615, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 1.0868479
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1459058126935912, guid: 90d0f23b7a1a07c4f91a5576459e0ef7, type: 3}
+    <Context>k__BackingField: 12
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 0.34098253
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1649974113805406, guid: f4cb629fb5439e147913651062de1c00, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.6
+    <Radius>k__BackingField: 0.6855142
+    <GroundOffset>k__BackingField: 0.0007607043
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1250369813790830, guid: 0b5f6d25b94df864198e8a3d98e469f4, type: 3}
+    <Context>k__BackingField: 10
+    <Weight>k__BackingField: 0.4
+    <Radius>k__BackingField: 3.4752884
+    <GroundOffset>k__BackingField: 0.17856139
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1076728500266232, guid: a0d880dc7e3769245a538a2870225b86, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.3
+    <Radius>k__BackingField: 4.417496
+    <GroundOffset>k__BackingField: 0.3649915
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 20
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1515035654734784, guid: d6d6bb355a182494e8cf5232693ce62a, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.2
+    <Radius>k__BackingField: 0.24809253
+    <GroundOffset>k__BackingField: 0.15611152
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 3
+    <ClusterRadius>k__BackingField: 2
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1413989101031552, guid: b916c2d117291e04db6fd5f69c614b16, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.2
+    <Radius>k__BackingField: 2.0535057
+    <GroundOffset>k__BackingField: 0.1522255
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 4
+    <ClusterRadius>k__BackingField: 3
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1955612268141634, guid: 8b9034941d6022244bf8e66698bfee7e, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.2
+    <Radius>k__BackingField: 0.13468629
+    <GroundOffset>k__BackingField: 0.21507698
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 30
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 4
+    <ClusterRadius>k__BackingField: 3
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1083212358057016, guid: 9d669c3e5f399f94a8ab7c4d227af72a, type: 3}
+    <Context>k__BackingField: 12
+    <Weight>k__BackingField: 0.08
+    <Radius>k__BackingField: 3.3497367
+    <GroundOffset>k__BackingField: -0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 1925596745066438, guid: 6f285ef925e839f42a62bd4b683f9c42, type: 3}
+    <Context>k__BackingField: 8
+    <Weight>k__BackingField: 0.03
+    <Radius>k__BackingField: 8.171045
+    <GroundOffset>k__BackingField: 0.023687601
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 180
+    <TiltToGround>k__BackingField: 1
+    <MaxSlope>k__BackingField: 8
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: 
+  <HighwayPer100m>k__BackingField: 2
+  <DirtPer100m>k__BackingField: 1
+  <StreetPer100m>k__BackingField: 3
+  <YardMin>k__BackingField: 2
+  <YardMax>k__BackingField: 5
+  <YardDepth>k__BackingField: 6
+  <WildPerKm2>k__BackingField: 40
+  <CullScreenHeight>k__BackingField: 0.012

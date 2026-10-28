@@ -25,7 +25,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         Replace,
         Ignore
     }
-    
+
     // Represents the pose for the specific rig element.
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Rig")]
     [Serializable]

@@ -20,7 +20,7 @@ static class WaterStampLoader
         return JsonSerializer.Deserialize<WaterStampManifest>(File.ReadAllText(path), new JsonSerializerOptions { IncludeFields = true });
     }
 
-    public const string DATABASE = "../../Assets/_Dustborn/Content/World/WaterStampDatabase.asset";
+    public const string DATABASE = "../../Assets/_Dustborn/Content/Configs/World/WaterStampDatabase.asset";
 
     public static WaterStampDatabase Load(bool storedTraces = true)
     {

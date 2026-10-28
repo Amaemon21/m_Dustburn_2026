@@ -11,13 +11,12 @@ using DG.Tweening.Core;
 using DG.Tweening.Core.Enums;
 using DG.Tweening.Plugins;
 using DG.Tweening.Plugins.Options;
+using Outline = UnityEngine.UI.Outline;
+using Text = UnityEngine.UI.Text;
 
 #pragma warning disable 1591
 namespace DG.Tweening
 {
-	using Outline = UnityEngine.UI.Outline;
-	using Text = UnityEngine.UI.Text;
-
 	public static class DOTweenModuleUI
     {
         #region Shortcuts

@@ -35,7 +35,7 @@ public struct HeightFieldSettings
     public float MountainMaskHigh;
 }
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct HeightMapJob : IJobParallelFor
 {
     private const float DUNE_ABSENT = 1e-5f;

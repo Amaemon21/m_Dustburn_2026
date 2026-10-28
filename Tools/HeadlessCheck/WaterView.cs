@@ -26,14 +26,14 @@ static class WaterView
         }
     }
 
-    public static void Render(string directory, HeightMap map, WaterMap water, IEnumerable<Scene> scenes, float lodDistance = 0f)
+    public static void Render(string directory, HeightMap map, WaterMap water, IEnumerable<Scene> scenes, float lodDistance = 0f, Vector2? fixedViewer = null)
     {
         Directory.CreateDirectory(directory);
 
         VoxelDensityField field = null;
         var voxels = new VoxelConfig();
 
-        if (lodDistance > 0f)
+        if (lodDistance > 0f || fixedViewer.HasValue)
         {
             float lowest = float.MaxValue;
 
@@ -68,6 +68,9 @@ static class WaterView
 
                 if (Mathf.Abs(viewer.x - scene.Center.x) < lodDistance * 0.5f)
                     viewer = new Vector2(Mathf.Clamp(scene.Center.x - lodDistance, 0f, map.WorldSize), scene.Center.y);
+
+                if (fixedViewer.HasValue)
+                    viewer = fixedViewer.Value;
 
                 var probe = new VoxelSurfaceProbe(field.Sampler, new VoxelStreamPlan(voxels, 6, 96f, map.WorldSize, water), viewer, voxels.ChunkSize);
                 ground = probe.Height;

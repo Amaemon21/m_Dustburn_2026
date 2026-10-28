@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <DefineConstants>UNITY_EDITOR</DefineConstants>
+    <NoWarn>CS0649</NoWarn>
+    <Decor>../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/Voxel/Decor</Decor>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(Decor)/VoxelDecorSpawner.cs" />
+    <Compile Include="$(Decor)/VoxelDecorBuild.cs" />
+    <Compile Include="$(Decor)/VoxelDecorPool.cs" />
+    <Compile Include="$(Decor)/VoxelDecorDemolition.cs" />
+    <Compile Include="$(Decor)/PooledDecorObject.cs" />
+    <Compile Include="$(Decor)/MeshCombiner.Copies.cs" />
+    <Compile Include="$(Decor)/MeshCombinePlan.cs" />
+    <Compile Include="$(Decor)/DecorKey.cs" />
+    <Compile Include="$(Decor)/IDecorObjectHook.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlockView.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Editor/RendererMaterialProbe.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/Generation/Props/PropInstanceBuilder.cs" />
+  </ItemGroup>
+</Project>

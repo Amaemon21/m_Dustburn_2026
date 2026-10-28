@@ -9,7 +9,19 @@ public class PlayerInventorySettings : InventorySetting
     [field: FormerlySerializedAs("HotbarSize")]
     public int HotbarSize { get; private set; } = 7;
 
+    [field: SerializeField, BoxGroup("Weight"), Label("Comfortable Carry Weight"), HorizontalLine(2f, EColor.Orange), Min(0f)]
+    public float MaxCarryWeight { get; private set; } = 90f;
+    [field: SerializeField, Foldout("Carry Zones")]
+    public CarryZone[] CarryZones { get; private set; } = CarryZone.Defaults();
+
     [field: SerializeField, BoxGroup("Drop"), HorizontalLine(2f, EColor.Orange), Min(0f)]
     public float DropDistance { get; private set; } = 1.2f;
     [field: SerializeField, BoxGroup("Drop")] public LayerMask DropMask { get; private set; } = ~0;
+
+    private void OnValidate()
+    {
+        foreach (CarryZone zone in CarryZones ?? new CarryZone[0])
+            if (zone != null && zone.IsUnset)
+                zone.ApplyDefaults();
+    }
 }

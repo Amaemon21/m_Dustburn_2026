@@ -3,25 +3,23 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using VContainer;
 
-public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler,
-    IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler where T : ItemSlotViewModel
+public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+    IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler where T : ItemSlotViewModel
 {
+    
+    [Inject] private readonly UIInputService _input;
+    
     [SerializeField] private Sprite _hoverFrame;
 
     private bool _isHovered;
+    private T _slot;
     private InventorySlotViewModel _dragSlot;
-    private UIInputService _input;
 
     protected abstract InventorySlotViewModel DraggableSlot { get; }
 
-    [Inject]
-    public void Construct(UIInputService input)
-    {
-        _input = input;
-    }
-
     protected override void BindSlot(T viewModel, CompositeDisposable bindings)
     {
+        _slot = viewModel;
         _dragSlot = DraggableSlot;
     }
 
@@ -29,23 +27,31 @@ public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnte
     {
         _dragSlot?.DragDrop?.Cancel(_dragSlot);
         _dragSlot = null;
-        _isHovered = false;
-        RefreshFrame();
+        SetHovered(false);
+        _slot = null;
     }
 
     protected override Sprite ResolveFrame(bool selected)
         => !selected && _isHovered ? _hoverFrame : base.ResolveFrame(selected);
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerEnter(PointerEventData eventData) => SetHovered(true);
+
+    public void OnPointerExit(PointerEventData eventData) => SetHovered(false);
+
+    public void OnPointerDown(PointerEventData eventData) => _slot?.SetHover(null);
+
+    private void SetHovered(bool hovered)
     {
-        _isHovered = true;
+        _isHovered = hovered;
+        _slot?.SetHover(hovered ? TopEdge() : (Vector3?)null);
         RefreshFrame();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    private Vector3 TopEdge()
     {
-        _isHovered = false;
-        RefreshFrame();
+        RectTransform rectTransform = (RectTransform)transform;
+        Rect rect = rectTransform.rect;
+        return rectTransform.TransformPoint(new Vector3(rect.center.x, rect.yMax, 0f));
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -91,7 +97,6 @@ public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnte
     private void OnDisable()
     {
         _dragSlot?.DragDrop?.Cancel(_dragSlot);
-        _isHovered = false;
-        RefreshFrame();
+        SetHovered(false);
     }
 }

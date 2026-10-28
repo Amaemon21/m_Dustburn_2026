@@ -11,13 +11,13 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
     {
         public float velocity;
         public float error;
-        
+
         public void Reset()
         {
             error = velocity = 0f;
         }
     }
-    
+
     public struct VectorSpringState
     {
         public FloatSpringState x;
@@ -31,7 +31,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             z.Reset();
         }
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Core")]
     [Serializable]
     public struct VectorSpring
@@ -49,7 +49,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             scale = Vector3.zero
         };
     }
-    
+
     public class KSpringMath
     {
         public static float FloatSpringInterp(float current, float target, float speed, float criticalDamping,
@@ -71,17 +71,17 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
 
             return current;
         }
-        
-        public static Vector3 VectorSpringInterp(Vector3 current, in Vector3 target, in VectorSpring spring, 
+
+        public static Vector3 VectorSpringInterp(Vector3 current, in Vector3 target, in VectorSpring spring,
             ref VectorSpringState state, float deltaTime)
         {
-            current.x = FloatSpringInterp(current.x, target.x, spring.speed.x, 
+            current.x = FloatSpringInterp(current.x, target.x, spring.speed.x,
                 spring.damping.x, spring.stiffness.x, spring.scale.x, ref state.x, deltaTime);
-            
-            current.y = FloatSpringInterp(current.y, target.y, spring.speed.y, 
+
+            current.y = FloatSpringInterp(current.y, target.y, spring.speed.y,
                 spring.damping.y, spring.stiffness.y, spring.scale.y, ref state.y, deltaTime);
-            
-            current.z = FloatSpringInterp(current.z, target.z, spring.speed.z, 
+
+            current.z = FloatSpringInterp(current.z, target.z, spring.speed.z,
                 spring.damping.z, spring.stiffness.z, spring.scale.z, ref state.z, deltaTime);
 
             return current;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class WorldSurfaceBake
 {
-    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/World/WorldBuildSettings.asset";
+    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
 
     [MenuItem("Мир/Перепечь землю мира")]
     public static void Rebuild()
@@ -21,6 +21,12 @@ public static class WorldSurfaceBake
 
         if (world == null || !world.IsValid)
             throw new InvalidOperationException("Bake a complete world before rebuilding its surface.");
+
+        if (world.Config != settings.Config)
+        {
+            world.Config.EditorTakeTerrainLayers(settings.Config);
+            EditorUtility.SetDirty(world.Config);
+        }
 
         var request = new VoxelGroundMaterial.Request
         {
@@ -41,6 +47,8 @@ public static class WorldSurfaceBake
 
         if (request.Material == null || !result.StartsWith("splatmap:", StringComparison.Ordinal))
             throw new InvalidOperationException($"The surface could not be rebuilt: {result}");
+
+        GroundLayerSetAsset.Save(settings, request);
 
         world.EditorSetup(world.Config, settings.Biomes, world.HeightMap, world.BiomeMap,
             world.RoadMask, world.Roads, world.Placement, request.Material, world.Water, world.Stamps);

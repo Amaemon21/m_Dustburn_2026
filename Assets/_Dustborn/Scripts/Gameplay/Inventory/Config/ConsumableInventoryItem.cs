@@ -5,6 +5,10 @@ using UnityEngine;
 public abstract class ConsumableInventoryItem : InventoryItem
 {
     [field: SerializeField, BoxGroup("Effect"), HorizontalLine(2f, EColor.Red)] public float Health { get; private set; }
+    [field: SerializeField, BoxGroup("Effect")] public float Stamina { get; private set; }
+    [field: SerializeField, BoxGroup("Effect")] public float Food { get; private set; }
+    [field: SerializeField, BoxGroup("Effect")] public float Water { get; private set; }
+    [field: SerializeField, BoxGroup("Effect")] public float Infection { get; private set; }
     [field: SerializeField, BoxGroup("Effect")] public float Bleeding { get; private set; }
     [field: SerializeField, BoxGroup("Effect"), Min(0f)] public float Duration { get; private set; }
 
@@ -13,6 +17,10 @@ public abstract class ConsumableInventoryItem : InventoryItem
     public override void CollectStats(ICollection<ItemStat> stats, InventorySlotState state)
     {
         AddIfSet(stats, ItemStatType.Health, Health);
+        AddIfSet(stats, ItemStatType.Stamina, Stamina);
+        AddIfSet(stats, ItemStatType.Food, Food);
+        AddIfSet(stats, ItemStatType.Water, Water);
+        AddIfSet(stats, ItemStatType.Infection, Infection);
         AddIfSet(stats, ItemStatType.Bleeding, Bleeding);
         AddIfSet(stats, ItemStatType.Duration, Duration);
         base.CollectStats(stats, state);

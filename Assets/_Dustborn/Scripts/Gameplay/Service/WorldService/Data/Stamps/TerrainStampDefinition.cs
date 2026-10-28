@@ -73,7 +73,7 @@ public class TerrainStampDefinition
 
     public long ExpectedBytes => (long)NativeResolution * NativeResolution * sizeof(ushort);
 
-    public bool IsValid => HeightData != null && NativeResolution >= 2 && HeightData.dataSize == ExpectedBytes
+    public bool IsValid => NativeResolution >= 2 && StampBytes.SizeOf(HeightData) == ExpectedBytes
         && RecommendedSize.x > 0f && RecommendedSize.y > 0f;
 }
 

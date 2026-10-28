@@ -12,10 +12,18 @@ public sealed class ForgeSmeltingTable : ScriptableObject
         [field: SerializeField, Required] public InventoryItem Item { get; private set; }
         [field: SerializeField] public ForgeMaterial Material { get; private set; } = ForgeMaterial.Iron;
         [field: SerializeField, Min(1)] public int Units { get; private set; } = 1;
+
+        public void ClearItem() => Item = null;
     }
 
     [SerializeField, BoxGroup("Smelting"), Label("Entries"), HorizontalLine(2f, EColor.Orange)]
     private Entry[] _entries = Array.Empty<Entry>();
 
     public IReadOnlyList<Entry> Entries => _entries;
+
+    private void OnValidate()
+    {
+        _entries ??= Array.Empty<Entry>();
+        ListDuplicates.Clear(_entries, entry => entry.Item, index => _entries[index].ClearItem(), this, "Entries");
+    }
 }

@@ -12,6 +12,11 @@ public static class VoxelSplatBaker
 
     public static Texture2D[] Bake(WorldGenerationConfig config, GroundSplatPainter painter, HeightMap map, int resolution)
     {
+        return Upload(BakePixels(config, painter, map, resolution), resolution);
+    }
+
+    public static Color32[][] BakePixels(WorldGenerationConfig config, GroundSplatPainter painter, HeightMap map, int resolution)
+    {
         int layers = painter.Layers.Length;
         int tile = TileFor(resolution, layers);
 
@@ -43,7 +48,7 @@ public static class VoxelSplatBaker
             }
         }
 
-        return Upload(pixels, resolution);
+        return pixels;
     }
 
     public static void Surface(WorldGenerationConfig config, HeightMap map, int resolution, out float[] steepness, out float[] height)

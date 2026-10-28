@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct HydraulicSampleJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> Heights;
@@ -23,7 +23,7 @@ public struct HydraulicSampleJob : IJobParallelFor
     }
 }
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct HydraulicOutflowJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> Coarse;
@@ -58,7 +58,7 @@ public struct HydraulicOutflowJob : IJobParallelFor
     }
 }
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct HydraulicFlowJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> Coarse;
@@ -104,7 +104,7 @@ public struct HydraulicFlowJob : IJobParallelFor
     }
 }
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct HydraulicCarveJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> Coarse;
@@ -138,7 +138,7 @@ public struct HydraulicCarveJob : IJobParallelFor
     }
 }
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct HydraulicApplyJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<float> Cut;

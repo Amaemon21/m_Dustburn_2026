@@ -40,12 +40,6 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
         [Tooltip("Target weapon or weapon-handle bone used to anchor the FPS setup.")]
         public KRigElementChain targetWeapon;
 
-        [HideInInspector] public bool enableWeaponHandle;
-        [HideInInspector] public bool enableRightHandHandle;
-        [HideInInspector] public bool enableLeftHandle;
-        [HideInInspector] public bool enableRightPole;
-        [HideInInspector] public bool enableLeftPole;
-
         [Header("IK Offsets")] [Tooltip("Right hand translation offset.")]
         public Vector3 rightHandOffset = Vector3.zero;
 

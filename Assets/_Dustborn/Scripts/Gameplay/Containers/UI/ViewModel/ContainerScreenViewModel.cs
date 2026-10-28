@@ -11,11 +11,13 @@ public sealed class ContainerScreenViewModel : WindowViewModel
     public InventoryGridViewModel Backpack { get; }
     public HotbarViewModel Hotbar { get; }
     public InventoryDragDropViewModel DragDrop { get; }
+    public InventoryItemInfoViewModel Selection { get; }
+    public ItemNameHoverViewModel ItemNameHover { get; }
     public ReactiveCommand<Unit> TakeAll { get; } = new();
 
     public ContainerScreenViewModel(IInventoryService inventory, ContainerInventoryService containers,
-        PlayerInventoryProxy player, PlayerInventoryService players, ItemCatalog catalog, IItemDropService drops,
-        string containerOwnerId, string title)
+        PlayerInventoryProxy player, IReadOnlyInventoryWeight playerWeight, PlayerInventoryService players,
+        ItemCatalog catalog, IItemDropService drops, string containerOwnerId, string title)
     {
         _containers = containers;
         _player = player;
@@ -23,8 +25,10 @@ public sealed class ContainerScreenViewModel : WindowViewModel
         Title = title;
         DragDrop = new InventoryDragDropViewModel(inventory, drops);
         Container = new InventoryGridViewModel(inventory, containerOwnerId, catalog, DragDrop);
-        Backpack = new InventoryGridViewModel(inventory, player.Backpack.OwnerId, catalog, DragDrop);
-        Hotbar = new HotbarViewModel(inventory, player, players, catalog, DragDrop);
+        Backpack = new InventoryGridViewModel(inventory, player.Backpack.OwnerId, catalog, DragDrop, playerWeight);
+        Hotbar = new HotbarViewModel(inventory, player, catalog, DragDrop);
+        Selection = new InventoryItemInfoViewModel(catalog, Container, Backpack, Hotbar.Grid);
+        ItemNameHover = new ItemNameHoverViewModel(catalog, DragDrop, Container, Backpack, Hotbar.Grid);
 
         Disposables.Add(Container.QuickTransferRequested.Subscribe(coordinates =>
         {
@@ -46,6 +50,8 @@ public sealed class ContainerScreenViewModel : WindowViewModel
 
     protected override void OnDisposed()
     {
+        ItemNameHover.Dispose();
+        Selection.Dispose();
         DragDrop.Dispose();
         Container.Dispose();
         Backpack.Dispose();

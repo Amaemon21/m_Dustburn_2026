@@ -114,21 +114,25 @@ namespace Repetitionless.Editor.Data
         /// The AVTextures drawer<br />
         /// Not serialized, needs to be setup with SetupTextureDrawers for each session using this
         /// </summary>
+        [System.NonSerialized]
         public TextureArrayCustomChannelsGUIDrawer AVTexturesDrawer;
         /// <summary>
         /// The NSOTextures drawer<br />
         /// Not serialized, needs to be setup with SetupTextureDrawers for each session using this
         /// </summary>
+        [System.NonSerialized]
         public TextureArrayCustomChannelsGUIDrawer NSOTexturesDrawer;
         /// <summary>
         /// The EMTextures drawer<br />
         /// Not serialized, needs to be setup with SetupTextureDrawers for each session using this
         /// </summary>
+        [System.NonSerialized]
         public TextureArrayCustomChannelsGUIDrawer EMTexturesDrawer;
         /// <summary>
         /// The BMTextures drawer<br />
         /// Not serialized, needs to be setup with SetupTextureDrawers for each session using this
         /// </summary>
+        [System.NonSerialized]
         public TextureArrayCustomChannelsGUIDrawer BMTexturesDrawer;
 
         /// <summary>

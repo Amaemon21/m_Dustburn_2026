@@ -204,7 +204,7 @@ namespace Repetitionless.Editor.Painter
                 float innerRadius = PaintingHoles ? (ErasingHoles ? 0.9f : 0.0f) : (1 - BrushSmoothness);
                 _brushPreview.DrawBrush(_sceneInteraction.LastMouseHit, sceneView, BrushRadius, innerRadius, BrushTexture == null ? -1 : BrushRotationDegrees);
 
-                if (!_sceneInteraction.ResizingBrush && (_paintingObjects.Count != 0 || !Event.current.shift))
+                if (!_sceneInteraction.ResizingBrush)
                     Paint(_sceneInteraction.LastMouseHit);
             }
 
@@ -371,6 +371,9 @@ namespace Repetitionless.Editor.Painter
 
                 return;
             }
+
+            if (_paintingObjects.Count == 0 && Event.current.shift)
+                return;
 
             if (currentEvent.button != 0)
                 return;

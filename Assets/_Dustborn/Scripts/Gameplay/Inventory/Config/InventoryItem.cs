@@ -28,15 +28,21 @@ public abstract class InventoryItem : ScriptableObject
 
     public virtual void CollectStats(ICollection<ItemStat> stats, InventorySlotState state)
     {
-        AddIfSet(stats, ItemStatType.Weight, Weight * Mathf.Max(1, state.Amount));
+        int amount = Mathf.Max(1, state.Amount);
+
+        if (Held != null)
+            Held.CollectStats(stats);
         if (WearsOut)
-            stats.Add(new ItemStat(ItemStatType.Durability, Mathf.Max(0, Durability - state.Wear)));
+            stats.Add(new ItemStat(ItemStatType.Durability, Mathf.Max(0, Durability - state.Wear), Durability));
+        if (MaxStack > 1)
+            stats.Add(new ItemStat(ItemStatType.Amount, amount, MaxStack));
+        AddIfSet(stats, ItemStatType.Weight, Weight * amount, amount > 1 ? Weight : 0f);
     }
 
-    protected static void AddIfSet(ICollection<ItemStat> stats, ItemStatType type, float value)
+    protected static void AddIfSet(ICollection<ItemStat> stats, ItemStatType type, float value, float limit = 0f)
     {
         if (!Mathf.Approximately(value, 0f))
-            stats.Add(new ItemStat(type, value));
+            stats.Add(new ItemStat(type, value, limit));
     }
 
     private void Reset()

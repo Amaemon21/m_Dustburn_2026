@@ -56,6 +56,12 @@ namespace Repetitionless.Editor.Processors
             else           HideURP(forceCheck);
             if (hdrpFound) UnhideHDRP(forceCheck);
             else           HideHDRP(forceCheck);
+
+#if UNITY_7000_0_OR_NEWER
+            // BIRP is removed in Unity 7
+            // HDRP will also be removed soon so I need to check for that later on
+            HideBIRP();
+#endif
         }
 
         private static void UnhideFolder(string folderPath)
@@ -79,16 +85,31 @@ namespace Repetitionless.Editor.Processors
             UnityEditor.AssetDatabase.Refresh();
         }
 
-        private static string GetPathURP()
+        private static string GetShaderFolderPath(string folder)
         {
             string projectPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../"));
-            return projectPath + "/" + Constants.PACKAGE_PATH + "/Shaders/URP";
+            return projectPath + "/" + Constants.PACKAGE_PATH + $"/Shaders/{folder}";
+        }
+
+        private static string GetPathBIRP()
+        {
+            return GetShaderFolderPath("BIRP");
+        }
+
+        private static string GetPathURP()
+        {
+            return GetShaderFolderPath("URP");
         }
 
         private static string GetPathHDRP()
         {
-            string projectPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../"));
-            return projectPath + "/" + Constants.PACKAGE_PATH + "/Shaders/HDRP";
+            return GetShaderFolderPath("HDRP");
+        }
+
+        private static void HideBIRP()
+        {
+            string folderPath = GetPathBIRP();
+            HideFolder(folderPath);
         }
 
         private static void UnhideURP(bool forceCheck = false)

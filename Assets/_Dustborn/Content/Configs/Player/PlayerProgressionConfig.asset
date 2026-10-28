@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f60816b96327b0a47bccfdc5b4033a50, type: 3}
+  m_Name: PlayerProgressionConfig
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerProgressionConfig
+  <Levels>k__BackingField:
+    <MaxLevel>k__BackingField: 100
+    <BaseExperience>k__BackingField: 100
+    <ExperienceGrowth>k__BackingField: 1.15
+  <Harvest>k__BackingField:
+    <PerDamage>k__BackingField: 0.2
+    <PerDestroyedHealth>k__BackingField: 0.1

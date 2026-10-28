@@ -40,6 +40,8 @@ public class GameplayLifetimeScope : LifetimeScope
         builder.Register(resolver => resolver.Resolve<GameplayAssets>().PlayerInput, Lifetime.Singleton);
         builder.Register(resolver => resolver.Resolve<GameplayAssets>().UIInput, Lifetime.Singleton);
         builder.Register(resolver => resolver.Resolve<GameplayAssets>().InteractionSettings, Lifetime.Singleton);
+        builder.Register(resolver => resolver.Resolve<GameplayAssets>().PlayerVitals, Lifetime.Singleton);
+        builder.Register(resolver => resolver.Resolve<GameplayAssets>().PlayerProgression, Lifetime.Singleton);
     }
 
     private static void RegisterEntry(IContainerBuilder builder)
@@ -51,6 +53,9 @@ public class GameplayLifetimeScope : LifetimeScope
     private void RegisterPreparation(IContainerBuilder builder)
     {
         builder.Register<PlayerSpawnService>(Lifetime.Singleton).AsSelf().As<IPlayerProvider>();
+        builder.Register<WorldSaveRepository>(Lifetime.Singleton);
+        builder.Register<PlayerPlacementRepository>(Lifetime.Singleton);
+        builder.RegisterEntryPoint<PlayerPlacementTracker>().AsSelf().As<IGameplayActivatable>();
 
         if (_kind == GameplaySceneKind.TestScene)
         {
@@ -59,6 +64,8 @@ public class GameplayLifetimeScope : LifetimeScope
         }
 
         builder.RegisterComponentInHierarchy<WorldGenerator>();
+        builder.Register<WorldObjectBinder>(Lifetime.Singleton).As<IWorldObjectHook>();
+        builder.Register<GameWorldLoader>(Lifetime.Singleton);
         builder.Register<WorldPreparation>(Lifetime.Singleton).As<IGameplayPreparation>();
     }
 
@@ -75,6 +82,9 @@ public class GameplayLifetimeScope : LifetimeScope
         builder.Register<PlayerMovementModifiers>(Lifetime.Singleton);
         builder.RegisterEntryPoint<PlayerCharacterController>().AsSelf().As<IGameplayActivatable>();
         builder.Register<PlayerControlService>(Lifetime.Singleton).AsSelf().As<IGameplayActivatable>();
+        new PlayerStatsInstaller().Install(builder);
+        new VitalsInstaller().Install(builder);
+        new ProgressionInstaller().Install(builder);
         new HandsInstaller().Install(builder);
     }
 
@@ -123,6 +133,8 @@ public class GameplayLifetimeScope : LifetimeScope
             container.Resolve<LocalPlayerInventory>().Proxy,
             container.Resolve<PlayerInventoryService>(),
             container.Resolve<ItemCatalog>()), Lifetime.Singleton);
+
+        builder.Register<PlayerStatusViewModel>(Lifetime.Singleton);
 
         builder.Register(container => new ItemNotificationsViewModel(
             container.Resolve<LocalPlayerInventory>().Proxy,

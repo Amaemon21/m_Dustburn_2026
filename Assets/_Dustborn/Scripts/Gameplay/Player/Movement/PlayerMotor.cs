@@ -34,7 +34,7 @@ public sealed class PlayerMotor : IDisposable
         bool wasGrounded = _controller.isGrounded;
         UpdateCrouch(request.Crouch);
 
-        bool sprinting = request.Sprint && !_crouching && request.Move.y > 0f;
+        bool sprinting = request.Sprint && !_crouching;
         float speed = (_crouching ? _config.CrouchSpeed : _config.WalkSpeed) * (sprinting ? _config.SprintMultiplier : 1f) * request.SpeedMultiplier;
         Vector3 planar = Vector3.ClampMagnitude(_body.right * request.Move.x + _body.forward * request.Move.y, 1f) * speed;
 

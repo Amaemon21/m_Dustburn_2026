@@ -6,7 +6,7 @@ using UnityEngine;
 public class GrassLayer
 {
     [field: SerializeField]
-    [field: Tooltip("White shaded plant texture with alpha, drawn on two crossed cards. Set it and the prefab below is ignored.")]
+    [field: Tooltip("White shaded plant texture with alpha, drawn on three crossed planes. Set it and the prefab below is ignored.")]
     public Texture2D Card { get; private set; }
 
     [field: SerializeField]

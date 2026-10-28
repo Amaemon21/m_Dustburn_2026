@@ -39,6 +39,12 @@ public class UnitMovementService
         _view.FollowerEntity.destination = target;
     }
 
+    public void Stop()
+    {
+        if (_view != null && _view.FollowerEntity != null)
+            _view.FollowerEntity.isStopped = true;
+    }
+
     private async UniTask MoveToDestinationAsync(Vector3 target, CancellationToken token, bool waitAfterArrival)
     {
         _view.FollowerEntity.destination = target;

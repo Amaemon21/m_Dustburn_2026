@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 
@@ -70,19 +71,13 @@ public partial class RoadPlanner
         public NativeArray<SourceData> Sources;
         public NativeArray<GoalData> Goals;
 
-        public NativeArray<float> Cost;
-        public NativeArray<int> Previous;
-        public NativeArray<bool> Closed;
-        public NativeList<int> HeapItems;
-        public NativeList<float> HeapPriorities;
-        public NativeArray<int> SourceIndex;
-        public NativeArray<ushort> StepMask;
-        public NativeArray<byte> ReachMark;
-        public NativeArray<int> ReachQueue;
-        public NativeArray<int> Result;
+        public readonly List<SearchScratch> Scratches = new();
+
+        private readonly int _cellCount;
 
         public SearchSpace(int cellCount)
         {
+            _cellCount = cellCount;
             Penalty = new NativeArray<float>(cellCount, Allocator.Persistent);
             Blocked = new NativeArray<bool>(cellCount, Allocator.Persistent);
             Heuristic = new NativeArray<float>(cellCount, Allocator.Persistent);
@@ -94,17 +89,14 @@ public partial class RoadPlanner
             CorridorTangent = new NativeArray<float2>(cellCount, Allocator.Persistent);
             Sources = new NativeArray<SourceData>(1, Allocator.Persistent);
             Goals = new NativeArray<GoalData>(1, Allocator.Persistent);
+        }
 
-            Cost = new NativeArray<float>(cellCount * STATES, Allocator.Persistent);
-            Previous = new NativeArray<int>(cellCount * STATES, Allocator.Persistent);
-            Closed = new NativeArray<bool>(cellCount * STATES, Allocator.Persistent);
-            HeapItems = new NativeList<int>(cellCount / 2, Allocator.Persistent);
-            HeapPriorities = new NativeList<float>(cellCount / 2, Allocator.Persistent);
-            SourceIndex = new NativeArray<int>(cellCount, Allocator.Persistent);
-            StepMask = new NativeArray<ushort>(cellCount, Allocator.Persistent);
-            ReachMark = new NativeArray<byte>(cellCount, Allocator.Persistent);
-            ReachQueue = new NativeArray<int>(cellCount * 2, Allocator.Persistent);
-            Result = new NativeArray<int>(2, Allocator.Persistent);
+        public SearchScratch Scratch(int index)
+        {
+            while (Scratches.Count <= index)
+                Scratches.Add(new SearchScratch(_cellCount));
+
+            return Scratches[index];
         }
 
         public void Statics(float[] stepCost, float[] grade, float[] cross, float[] turnCost, float[] turnRadius, float[] stepLength, float2[] headings, int[] stepOffset, int[] stepX, int[] stepY)
@@ -152,6 +144,43 @@ public partial class RoadPlanner
             NativeBuffer.Release(ref CorridorTangent);
             NativeBuffer.Release(ref Sources);
             NativeBuffer.Release(ref Goals);
+
+            foreach (SearchScratch scratch in Scratches)
+                scratch.Dispose();
+
+            Scratches.Clear();
+        }
+    }
+
+    private sealed class SearchScratch : IDisposable
+    {
+        public NativeArray<float> Cost;
+        public NativeArray<int> Previous;
+        public NativeArray<bool> Closed;
+        public NativeList<int> HeapItems;
+        public NativeList<float> HeapPriorities;
+        public NativeArray<int> SourceIndex;
+        public NativeArray<ushort> StepMask;
+        public NativeArray<byte> ReachMark;
+        public NativeArray<int> ReachQueue;
+        public NativeArray<int> Result;
+
+        public SearchScratch(int cellCount)
+        {
+            Cost = new NativeArray<float>(cellCount * STATES, Allocator.Persistent);
+            Previous = new NativeArray<int>(cellCount * STATES, Allocator.Persistent);
+            Closed = new NativeArray<bool>(cellCount * STATES, Allocator.Persistent);
+            HeapItems = new NativeList<int>(cellCount / 2, Allocator.Persistent);
+            HeapPriorities = new NativeList<float>(cellCount / 2, Allocator.Persistent);
+            SourceIndex = new NativeArray<int>(cellCount, Allocator.Persistent);
+            StepMask = new NativeArray<ushort>(cellCount, Allocator.Persistent);
+            ReachMark = new NativeArray<byte>(cellCount, Allocator.Persistent);
+            ReachQueue = new NativeArray<int>(cellCount * 2, Allocator.Persistent);
+            Result = new NativeArray<int>(3, Allocator.Persistent);
+        }
+
+        public void Dispose()
+        {
             NativeBuffer.Release(ref Cost);
             NativeBuffer.Release(ref Previous);
             NativeBuffer.Release(ref Closed);

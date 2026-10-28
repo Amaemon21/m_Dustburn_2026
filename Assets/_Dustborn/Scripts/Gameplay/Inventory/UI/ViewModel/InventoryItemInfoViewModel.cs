@@ -13,6 +13,7 @@ public sealed class InventoryItemInfoViewModel : ViewModel
 
     public ReadOnlyReactiveProperty<InventorySlotState> State => _state;
     public InventoryItem Item => _catalog.GetItem(_state.CurrentValue.ItemId);
+    public float? Durability => _catalog.RemainingDurability(_state.CurrentValue);
     public bool HasItem => !_state.CurrentValue.IsEmpty;
     public string SelectedOwnerId => _selectedGrid?.OwnerId;
     public Vector2Int SelectedCoordinates => _selectedCoordinates;
@@ -40,7 +41,7 @@ public sealed class InventoryItemInfoViewModel : ViewModel
     public void Select(InventoryGridViewModel grid, Vector2Int coordinates)
     {
         _slotBindings.Clear();
-        InventorySlotViewModel slot = grid.Slots.CurrentValue[InventoryGridLayout.IndexOf(coordinates, grid.Size)];
+        InventorySlotViewModel slot = grid.SlotAt(coordinates);
         if (IsSelected(grid, coordinates) || slot.State.CurrentValue.IsEmpty)
         {
             Clear();
@@ -48,6 +49,9 @@ public sealed class InventoryItemInfoViewModel : ViewModel
         }
         _selectedGrid = grid;
         _selectedCoordinates = coordinates;
+        foreach (InventoryGridViewModel other in _grids)
+            if (!ReferenceEquals(other, grid))
+                other.SelectSlot(null);
         grid.SelectSlot(coordinates);
         _slotBindings.Add(slot.State.Subscribe(state =>
         {

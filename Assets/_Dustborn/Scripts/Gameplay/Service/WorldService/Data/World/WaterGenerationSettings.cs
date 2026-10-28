@@ -5,6 +5,8 @@ using UnityEngine;
 [Serializable]
 public class WaterGenerationSettings
 {
+    private const float NO_RIVERS_START_AREA = 1000000f;
+
     [field: SerializeField] public bool Enabled { get; private set; } = true;
 
     [field: SerializeField]
@@ -139,4 +141,12 @@ public class WaterGenerationSettings
     [field: SerializeField]
     [field: Tooltip("Authored river, lake and pond shapes laid over the drainage. Hydrology still decides where water goes; the stamps decide what it looks like.")]
     public WaterStampSettings Stamps { get; private set; } = new();
+
+    internal void Vary(float riverFactor, float lakeFactor)
+    {
+        ThroughRiver = ThroughRiver && riverFactor > 0f;
+        RiverStartArea = riverFactor > 0f ? RiverStartArea / riverFactor : NO_RIVERS_START_AREA;
+        LakeDensity = Mathf.Clamp01(LakeDensity * lakeFactor);
+        PondDensity = Mathf.Clamp01(PondDensity * lakeFactor);
+    }
 }

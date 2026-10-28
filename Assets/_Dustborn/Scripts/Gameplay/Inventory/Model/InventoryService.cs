@@ -59,12 +59,17 @@ public sealed class InventoryService : IInventoryService, IDisposable
     public bool Has(string ownerId, string itemId, int amount = 1) => GetGrid(ownerId).Has(itemId, amount);
     public void SwitchSlots(string ownerId, Vector2Int first, Vector2Int second) => GetGrid(ownerId).SwitchSlots(first, second);
     public void SetSize(string ownerId, Vector2Int size) => GetGrid(ownerId).SetSize(size);
+    public void Lock(string ownerId, Func<Vector2Int, bool> locked) => GetGrid(ownerId).Lock(locked);
+    public void Restrict(string ownerId, Func<Vector2Int, string, bool> accepts) => GetGrid(ownerId).Restrict(accepts);
     public bool MoveItems(string sourceId, Vector2Int source, string targetId, Vector2Int target, int amount = 1)
         => GetGrid(sourceId).MoveTo(source, GetGrid(targetId), target, amount);
     public bool SwapSlots(string firstId, Vector2Int first, string secondId, Vector2Int second)
         => GetGrid(firstId).SwapWith(first, GetGrid(secondId), second);
+    public bool Transfer(string sourceId, Vector2Int source, string targetId, Vector2Int target, int amount)
+        => GetGrid(sourceId).TransferTo(source, GetGrid(targetId), target, amount);
     public bool AddWear(string ownerId, Vector2Int coords, string itemId, int amount)
         => GetGrid(ownerId).AddWear(coords, itemId, amount);
+    public bool Sort(string ownerId, InventorySortMode mode) => GetGrid(ownerId).Sort(mode);
 
     public InventoryGridProxy GetProxy(string ownerId) => GetGrid(ownerId).Proxy;
 

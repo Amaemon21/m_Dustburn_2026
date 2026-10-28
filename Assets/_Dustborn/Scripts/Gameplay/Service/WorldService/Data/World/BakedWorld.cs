@@ -31,6 +31,15 @@ public class BakedWorld : ScriptableObject
         return WaterMapFormat.Load(Water);
     }
 
+    public string Fingerprint()
+    {
+        if (!IsValid)
+            throw new System.InvalidOperationException($"{name}: an incomplete or stale bake has no fingerprint");
+
+        return WorldFingerprint.Of(GeneratorVersion, Config.Seed, Config.WorldSize, HeightMap.GetData<byte>(), Water.GetData<byte>(),
+            Placement.Placements.Count, Placement.Props.Count);
+    }
+
 #if UNITY_EDITOR
     public void EditorInvalidate()
     {

@@ -18,6 +18,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Stubs.cs" />
+    <Compile Include="PropPlacementChecks.cs" />
+    <Compile Include="RecenterChecks.cs" />
     <Compile Include="JobStubs.cs" />
     <Compile Include="AssetReader.cs" />
     <Compile Include="Missing.cs" />
@@ -32,10 +34,12 @@
     <Compile Include="WorldFeatureChecks.cs" />
     <Compile Include="WaterChecks.cs" />
     <Compile Include="WaterAudit.cs" />
+    <Compile Include="HeightDump.cs" />
     <Compile Include="BakeParity.cs" />
     <Compile Include="MonoRewrite.cs" />
     <Compile Include="WaterView.cs" />
     <Compile Include="WaterShoreChecks.cs" />
+    <Compile Include="WaterTerrainChecks.cs" />
     <Compile Include="NoiseParityChecks.cs" />
     <Compile Include="WaterFixtures.cs" />
     <Compile Include="QualityChecks.cs" />
@@ -45,11 +49,20 @@
     <Compile Include="WaterStampWorlds.cs" />
     <Compile Include="GroundPreview.cs" />
     <Compile Include="RoadPaintChecks.cs" />
+    <Compile Include="RoadSurfaceMeshChecks.cs" />
+    <Compile Include="RoadShaderChecks.cs" />
+    <Compile Include="RoadSurfacePreview.cs" />
     <Compile Include="RoadTopologyChecks.cs" />
     <Compile Include="RoadAudit.cs" />
     <Compile Include="WaterPolicyAudit.cs" />
     <Compile Include="RiverTopologyAudit.cs" />
     <Compile Include="RiverShapeAudit.cs" />
+    <Compile Include="PreviewCost.cs" />
+    <Compile Include="DecorGroundChecks.cs" />
+    <Compile Include="RuntimeStreamingChecks.cs" />
+    <Compile Include="RoadView.cs" />
+    <Compile Include="RoadSurfaceReference.cs" />
+    <Compile Include="VariationRun.cs" />
     <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
     <Compile Include="$(Mathematics)/**/*.cs" Exclude="$(Mathematics)/math_unity_conversion.cs;$(Mathematics)/PropertyAttributes.cs" />
     <Compile Include="$(SharedUtils)/**/*.cs" Exclude="$(SharedUtils)/UIWear/**/*.cs" />
@@ -58,19 +71,26 @@
                       $(WorldGeneration)/Runtime/WorldGenerator.cs;
                       $(WorldGeneration)/Runtime/WorldRuntimeLoader.cs;
                       $(WorldGeneration)/Data/World/BakedWorld.cs;
+                      $(WorldGeneration)/Data/World/WorldData.cs;
                       $(WorldGeneration)/Generation/Buildings/PoiInstanceBuilder.cs;
+                      $(WorldGeneration)/Generation/Props/PropInstanceBuilder.cs;
                       $(WorldGeneration)/Voxel/Streaming/VoxelTerrainBuilder*.cs;
                       $(WorldGeneration)/Voxel/Streaming/VoxelTerrainStreamer*.cs;
                       $(WorldGeneration)/Voxel/Decor/VoxelDecorSpawner.cs;
-                      $(WorldGeneration)/Voxel/Decor/MeshCombiner.cs;
+                      $(WorldGeneration)/Voxel/Decor/MeshCombiner*.cs;
                       $(WorldGeneration)/Voxel/Decor/VoxelDecorRenderer.cs;
                       $(WorldGeneration)/Voxel/Decor/GrassCardFactory.cs;
+                      $(WorldGeneration)/Voxel/Decor/GrassCardMeshBuild.cs;
                       $(WorldGeneration)/Voxel/Streaming/VoxelColliderQueue.cs;
                       $(WorldGeneration)/Voxel/Decor/VoxelDecorBuild.cs;
+                      $(WorldGeneration)/Voxel/Decor/VoxelDecorPool.cs;
+                      $(WorldGeneration)/Voxel/Decor/PooledDecorObject.cs;
+                      $(WorldGeneration)/Voxel/Decor/VoxelDecorDemolition.cs;
                       $(WorldGeneration)/Voxel/Material/RepetitionlessVoxelSetup.cs;
                       $(WorldGeneration)/Voxel/Material/VoxelGroundMaterial.cs;
                       $(WorldGeneration)/Voxel/Scene/VoxelColumnDebug.cs;
                       $(WorldGeneration)/Voxel/Scene/WaterSurfaceBuilder.cs;
+                      $(WorldGeneration)/Voxel/Scene/RoadSurfaceBuilder.cs;
                       $(WorldGeneration)/Voxel/Scene/WaterCrossingBuilder.cs;
                       $(WorldGeneration)/Voxel/Scene/WorldEdgeBuilder.cs;
                       $(WorldGeneration)/Voxel/Scene/WorldFeatureGizmos.cs;

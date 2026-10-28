@@ -12,8 +12,9 @@ public sealed class UnitInstaller : IInstaller
 
     public void Install(IContainerBuilder builder)
     {
-        builder.RegisterInstance(_spawnPoints ?? System.Array.Empty<UnitSpawnPoint>());
+        builder.RegisterInstance(new SceneUnitSpawnSource(_spawnPoints)).As<IUnitSpawnSource>();
 
+        builder.Register<UnitNavigation>(Lifetime.Singleton);
         builder.Register<UnitFactory>(Lifetime.Singleton);
         builder.Register<UnitSpawnService>(Lifetime.Singleton).As<IGameplayActivatable>();
     }

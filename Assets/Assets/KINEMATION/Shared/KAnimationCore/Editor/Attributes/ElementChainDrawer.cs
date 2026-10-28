@@ -26,30 +26,30 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 attr = customAttribute as CustomElementChainDrawerAttribute;
                 if (attr != null) break;
             }
-            
+
             return attr;
         }
-        
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
             IRigProvider rig = RigEditorUtility.TryGetRigProvider(fieldInfo, property);
-            
+
             SerializedProperty elementChain = property.FindPropertyRelative("elementChain");
             SerializedProperty chainName = property.FindPropertyRelative("chainName");
-            
+
             if (rig != null)
             {
                 float labelWidth = EditorGUIUtility.labelWidth;
                 var customChain = GetCustomChainAttribute();
-                
+
                 Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
                 Rect buttonRect = position;
-                
+
                 string buttonText = $"Edit {chainName.stringValue}";
 
-                if (customChain is {drawLabel: true})
+                if (customChain is { drawLabel: true })
                 {
                     EditorGUI.PrefixLabel(labelRect, label);
                     labelRect.x += labelRect.width;
@@ -57,17 +57,17 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
 
                     buttonRect.x = labelRect.x;
                     buttonRect.width = position.width - labelWidth;
-                    
+
                     buttonText = $"Edit {label.text}";
                 }
 
-                if (customChain is {drawTextField: true})
+                if (customChain is { drawTextField: true })
                 {
                     chainName.stringValue = EditorGUI.TextField(labelRect, chainName.stringValue);
-                    
-                    buttonRect.width = position.width  - labelRect.width - (labelRect.x - position.x);
+
+                    buttonRect.width = position.width - labelRect.width - (labelRect.x - position.x);
                     buttonRect.x = labelRect.x + labelRect.width;
-                    
+
                     buttonText = "Edit";
                 }
 
@@ -76,7 +76,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 {
                     buttonRect.width -= EditorGUIUtility.singleLineHeight + ClearButtonSpacing;
                 }
-                
+
                 if (GUI.Button(buttonRect, buttonText))
                 {
                     var hierarchy = rig.GetHierarchy();

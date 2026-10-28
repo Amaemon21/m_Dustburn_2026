@@ -8,7 +8,9 @@ public struct DecorInstance
     public float Rotation;
     public float Scale;
     public float Height;
-    public Color Tint;
+    public float Shade;
+    public Vector2 Slope;
+    public float Lean;
     public int CellX;
     public int CellY;
 }
@@ -19,6 +21,9 @@ public class VoxelDecorPlacer
     private const float BIOME_EPSILON = 0.002f;
     private const int MAX_BIOME_PROBES = 8;
 
+    public const float TRUNK_RADIUS = 0.4f;
+    public const float ROCK_LEAN = 1f;
+
     private readonly WorldGenerationConfig _config;
     private readonly VoxelDensityField _field;
     private readonly DecorFilter _filter;
@@ -28,7 +33,11 @@ public class VoxelDecorPlacer
 
     public IReadOnlyList<VoxelDecorLayer> Layers => _layers;
 
-    public int Rejected { get; private set; }
+    public DecorEditIndex Edits { get; set; }
+
+    private int _rejected;
+
+    public int Rejected => _rejected;
 
     public VoxelDecorPlacer(WorldGenerationConfig config, BiomeDatabase biomes, VoxelDensityField field, DecorFilter filter, float grassScale = 1f)
     {
@@ -65,6 +74,12 @@ public class VoxelDecorPlacer
         if (chance <= 0f || minCornerX >= maxCornerX || minCornerY >= maxCornerY)
             return 0;
 
+        DecorEditIndex edits = Edits;
+        bool edited = edits != null && edits.Touches(layerIndex);
+
+        if (edited)
+            AddMoved(layer, edits.Moved(layerIndex), new Vector2(minCornerX, minCornerY), new Vector2(maxCornerX, maxCornerY), output, frame);
+
         if (!InBiome(layer, origin, span))
             return 0;
 
@@ -84,16 +99,20 @@ public class VoxelDecorPlacer
                 if (point.x < minCornerX || point.y < minCornerY || point.x >= maxCornerX || point.y >= maxCornerY)
                     continue;
 
+                if (edited && edits.Overrides(new DecorKey(layerIndex, cellX, cellY)))
+                    continue;
+
                 if (random.NextFloat() > chance)
                     continue;
 
                 if (!Fits(layer, point, random.NextFloat(), frame, out float surface))
                 {
-                    Rejected++;
+                    System.Threading.Interlocked.Increment(ref _rejected);
                     continue;
                 }
 
                 DecorInstance instance = Build(layer, point, surface, ref random);
+                Ground(layer, ref instance, frame);
                 instance.CellX = cellX;
                 instance.CellY = cellY;
                 output.Add(instance);
@@ -101,6 +120,37 @@ public class VoxelDecorPlacer
         }
 
         return (maxX - minX + 1) * (maxY - minY + 1);
+    }
+
+    public static float TrunkSink(Vector2 slope, float scale)
+    {
+        return Mathf.Sqrt(slope.x * slope.x + slope.y * slope.y) * TRUNK_RADIUS * scale;
+    }
+
+    private void AddMoved(VoxelDecorLayer layer, IReadOnlyList<DecorEdit> moved, Vector2 min, Vector2 max, List<DecorInstance> output,
+        DecorSurface frame)
+    {
+        foreach (DecorEdit edit in moved)
+        {
+            Vector2 point = edit.Position;
+
+            if (point.x < min.x || point.y < min.y || point.x >= max.x || point.y >= max.y)
+                continue;
+
+            DecorInstance instance = edit.Instance(0f);
+
+            Ground(layer, ref instance, frame);
+            output.Add(instance);
+        }
+    }
+
+    private void Ground(VoxelDecorLayer layer, ref DecorInstance instance, DecorSurface frame)
+    {
+        float ground = _field.Drawn(instance.Position.x, instance.Position.z, frame, out Vector2 slope);
+
+        instance.Slope = slope;
+        instance.Lean = layer.Kind == DecorKind.Rock ? ROCK_LEAN : 0f;
+        instance.Position.y = layer.Kind == DecorKind.Tree ? ground - TrunkSink(slope, instance.Scale) : ground;
     }
 
     private void GrassDensity(ref float spacing, ref float chance)
@@ -183,7 +233,7 @@ public class VoxelDecorPlacer
             Rotation = random.NextFloat(0f, 360f),
             Scale = scale,
             Height = scale * squash * layer.HeightScale,
-            Tint = layer.Tint * shade
+            Shade = shade
         };
     }
 

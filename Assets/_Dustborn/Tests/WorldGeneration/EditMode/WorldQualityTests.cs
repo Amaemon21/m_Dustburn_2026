@@ -6,7 +6,7 @@ using UnityEngine;
 [Category("WorldGen.Quality")]
 public class WorldQualityTests
 {
-    private const string CONTENT = "Assets/_Dustborn/Content/World";
+    private const string CONTENT = "Assets/_Dustborn/Content/Configs/World";
 
     [Test]
     public void GenerationConfigMatchesItsCodeDefaults()

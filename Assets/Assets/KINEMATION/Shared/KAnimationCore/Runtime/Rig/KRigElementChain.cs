@@ -14,7 +14,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
     public class KRigElementChain
     {
         public int Count => elementChain.Count;
-        
+
         public string chainName;
         [HideInInspector] public List<KRigElement> elementChain = new List<KRigElement>();
 
@@ -38,23 +38,23 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         {
             cachedTransforms.Clear();
             spaceType = targetSpace;
-            
+
             foreach (var element in transformChain)
             {
                 KTransform cache = new KTransform();
-                
+
                 if (targetSpace == ESpaceType.WorldSpace)
                 {
                     cache.position = element.position;
                     cache.rotation = element.rotation;
-                } 
+                }
                 else if (targetSpace == ESpaceType.ComponentSpace)
                 {
                     if (root == null)
                     {
                         root = element.root;
                     }
-                    
+
                     cache.position = root.InverseTransformPoint(element.position);
                     cache.rotation = Quaternion.Inverse(root.rotation) * element.rotation;
                 }
@@ -63,7 +63,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
                     cache.position = element.localPosition;
                     cache.rotation = element.localRotation;
                 }
-                
+
                 cachedTransforms.Add(cache);
             }
         }
@@ -83,7 +83,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
                     pose = cache,
                     space = spaceType
                 };
-                
+
                 KAnimationMath.ModifyTransform(element.root, element, pose, weight);
             }
         }
@@ -94,17 +94,17 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
             int count = transformChain.Count;
 
             if (count > 0 && root == null) root = transformChain[0];
-            
+
             for (int i = 0; i < count; i++)
             {
                 Transform targetBone = transformChain[i];
-                
+
                 if (count == 1)
                 {
                     Vector3 targetMS = root.InverseTransformPoint(targetBone.position);
                     chainLength = targetMS.magnitude;
                 }
-                
+
                 if (i > 0)
                 {
                     chainLength += (targetBone.position - transformChain[i - 1].position).magnitude;
@@ -118,7 +118,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         {
             if (transformChain == null || cachedTransforms == null) return false;
             if (transformChain.Count == 0) return false;
-            
+
             return true;
         }
     }

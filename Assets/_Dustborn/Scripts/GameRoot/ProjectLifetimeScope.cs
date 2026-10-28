@@ -19,6 +19,10 @@ public class ProjectLifetimeScope : LifetimeScope
         builder.Register<UIRootService>(Lifetime.Singleton);
 
         new SaveInstaller().Install(builder);
+        builder.Register<GameSlotService>(Lifetime.Singleton);
+        builder.Register<WorldCatalog>(Lifetime.Singleton);
+        builder.Register<WorldSettingsProvider>(Lifetime.Singleton);
+        builder.Register<WorldGenerationService>(Lifetime.Singleton);
 
         builder.Register<SceneLoader>(Lifetime.Singleton);
         builder.Register<SceneTransition>(Lifetime.Singleton);

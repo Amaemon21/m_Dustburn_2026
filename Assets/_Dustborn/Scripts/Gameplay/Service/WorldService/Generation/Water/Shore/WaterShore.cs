@@ -15,25 +15,47 @@ public static partial class WaterShore
     {
         var regions = new StandingWaterRegions(water, map);
 
-        regions.Build(SHELF);
-        regions.Publish();
+        BuildRegions(regions);
 
-        for (int pass = 0; pass < RESURFACE_PASSES && (Resurface(water) | DropDeadRivers(water)); pass++)
+        for (int pass = 0; pass < RESURFACE_PASSES && ResurfaceRivers(water); pass++)
+            BuildRegions(regions);
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapShoreResurface))
         {
-            regions.Build(SHELF);
-            regions.Publish();
+            Hydrology.MeetTrunks(water);
+            TaperSources(water);
         }
 
-        Hydrology.MeetTrunks(water);
-        TaperSources(water);
-        Distances(water);
+        MeasureDistances(water);
 
-        Shelf(water, map, regions);
+        using (WorldGenProbe.Measure(WorldGenStage.MapShoreShelf))
+            Shelf(water, map, regions);
 
-        regions.Publish();
-        Distances(water);
+        using (WorldGenProbe.Measure(WorldGenStage.MapShoreRegions))
+            regions.Publish();
+
+        MeasureDistances(water);
         water.MarkShoreReady();
 
         return regions;
+    }
+
+    private static void BuildRegions(StandingWaterRegions regions)
+    {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.MapShoreRegions);
+        regions.Build(SHELF);
+        regions.Publish();
+    }
+
+    private static bool ResurfaceRivers(WaterMap water)
+    {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.MapShoreResurface);
+        return Resurface(water) | DropDeadRivers(water);
+    }
+
+    private static void MeasureDistances(WaterMap water)
+    {
+        using WorldGenProbe.Span span = WorldGenProbe.Measure(WorldGenStage.MapShoreDistances);
+        Distances(water);
     }
 }

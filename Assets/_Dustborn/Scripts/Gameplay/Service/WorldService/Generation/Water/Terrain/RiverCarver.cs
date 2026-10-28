@@ -221,19 +221,19 @@ public static partial class RiverCarver
         for (int body = 0; body < water.Bodies.Count; body++)
             surfaces[body] = water.Bodies[body].Surface;
 
-        var segmentArray = new NativeArray<CarveSegment>(carveSegments, Allocator.TempJob);
-        var memberArray = new NativeArray<int>(flat.Length > 0 ? flat : new int[1], Allocator.TempJob);
-        var rangeArray = new NativeArray<int2>(ranges, Allocator.TempJob);
-        var boundArray = new NativeArray<int4>(bounds, Allocator.TempJob);
-        var offsetArray = new NativeArray<int>(offsets, Allocator.TempJob);
-        var lakeArray = new NativeArray<short>(nearLake, Allocator.TempJob);
-        var distanceArray = new NativeArray<byte>(lakeDistance, Allocator.TempJob);
-        var surfaceArray = new NativeArray<float>(surfaces, Allocator.TempJob);
-        var heightArray = new NativeArray<float>(compact, Allocator.TempJob);
+        var segmentArray = new NativeArray<CarveSegment>(carveSegments, GenerationJobs.ALLOCATOR);
+        var memberArray = new NativeArray<int>(flat.Length > 0 ? flat : new int[1], GenerationJobs.ALLOCATOR);
+        var rangeArray = new NativeArray<int2>(ranges, GenerationJobs.ALLOCATOR);
+        var boundArray = new NativeArray<int4>(bounds, GenerationJobs.ALLOCATOR);
+        var offsetArray = new NativeArray<int>(offsets, GenerationJobs.ALLOCATOR);
+        var lakeArray = new NativeArray<short>(nearLake, GenerationJobs.ALLOCATOR);
+        var distanceArray = new NativeArray<byte>(lakeDistance, GenerationJobs.ALLOCATOR);
+        var surfaceArray = new NativeArray<float>(surfaces, GenerationJobs.ALLOCATOR);
+        var heightArray = new NativeArray<float>(compact, GenerationJobs.ALLOCATOR);
 
         try
         {
-            new CarveJob
+            GenerationJobs.Run(new CarveJob
             {
                 Segments = segmentArray,
                 Members = memberArray,
@@ -252,7 +252,7 @@ public static partial class RiverCarver
                 WaterResolution = water.Resolution,
                 Left = LeftWander,
                 Right = RightWander
-            }.Schedule(work.Count, 1).Complete();
+            }, work.Count, 1);
 
             heightArray.CopyTo(compact);
         }

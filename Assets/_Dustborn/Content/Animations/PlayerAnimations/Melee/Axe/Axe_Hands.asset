@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca591a46d382efc4de2c17bcf1ae2328, type: 3}
+  m_Name: Axe_Hands
+  m_EditorClassIdentifier: Assembly-CSharp::HandsAnimationSet
+  <Base>k__BackingField: {fileID: 0}
+  <Motions>k__BackingField:
+  - <Motion>k__BackingField: 0
+    <Clip>k__BackingField: {fileID: 7400000, guid: a91ce38374dcba64ba532544d271aa9b, type: 2}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0
+    <End>k__BackingField: 0
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 1
+    <Next>k__BackingField: 4
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 1
+    <Clip>k__BackingField: {fileID: 7400000, guid: 16f03eb53b6f8a84fa01087d2ffc7ce2, type: 2}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.1
+    <End>k__BackingField: 0
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 0
+    <Next>k__BackingField: 0
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 2
+    <Clip>k__BackingField: {fileID: 7400000, guid: 37dd6674fddc76c43a76a2e90e1bf2a7, type: 2}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.05
+    <End>k__BackingField: 0
+    <Impact>k__BackingField: 0.37
+    <Chained>k__BackingField: 1
+    <Next>k__BackingField: 4
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 4
+    <Clip>k__BackingField: {fileID: 5287373066589583298, guid: 469afcf548ba0e4448e4c141a9e008b4, type: 3}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.25
+    <End>k__BackingField: 0
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 0
+    <Next>k__BackingField: 0
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 5
+    <Clip>k__BackingField: {fileID: 5287373066589583298, guid: 469afcf548ba0e4448e4c141a9e008b4, type: 3}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.25
+    <End>k__BackingField: 0
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 0
+    <Next>k__BackingField: 0
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 6
+    <Clip>k__BackingField: {fileID: 7400000, guid: 78826b8e8092ac14589438428f4e9f24, type: 2}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.25
+    <End>k__BackingField: 0
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 0
+    <Next>k__BackingField: 0
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 7
+    <Clip>k__BackingField: {fileID: 7400000, guid: 62d11fe9c96a43b4d9fbfa709aaea0c7, type: 2}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.15
+    <End>k__BackingField: 0.31666666
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 1
+    <Next>k__BackingField: 6
+    <NextFade>k__BackingField: 0.1
+  - <Motion>k__BackingField: 8
+    <Clip>k__BackingField: {fileID: 7400000, guid: d4b1cb95882b9e84d9abfd00f51ec6bf, type: 2}
+    <ItemClip>k__BackingField: {fileID: 0}
+    <Speed>k__BackingField: 1
+    <FadeIn>k__BackingField: 0.15
+    <End>k__BackingField: 0.31666666
+    <Impact>k__BackingField: 0
+    <Chained>k__BackingField: 1
+    <Next>k__BackingField: 4
+    <NextFade>k__BackingField: 0.1

@@ -14,7 +14,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
         public string name;
         public bool defaultValue;
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Input")]
     [Serializable]
     public struct IntProperty
@@ -22,7 +22,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
         public string name;
         public int defaultValue;
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Input")]
     [Serializable]
     public struct FloatProperty
@@ -31,7 +31,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
         public float defaultValue;
         public float interpolationSpeed;
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Input")]
     [Serializable]
     public struct VectorProperty

@@ -50,12 +50,13 @@ public static class WorldMapPipelineChecks
             Set(biome, nameof(biome.DetailAmplitude), 0.001f);
         }
 
-        var pipeline = new WorldMapPipeline(config, biomes, pois);
+        PropDatabase props = PropPlacementChecks.Database();
+        var pipeline = new WorldMapPipeline(config, biomes, pois, props);
         var progress = new List<float>();
         WorldMapResult first = pipeline.Generate((stage, fraction) => progress.Add(fraction));
         WorldMapResult second = pipeline.Generate();
 
-        Require(progress.Count == 8 && progress.SequenceEqual(progress.OrderBy(value => value)), "All stages must report increasing progress.");
+        Require(progress.Count == 10 && progress.SequenceEqual(progress.OrderBy(value => value)), "All stages must report increasing progress.");
         Require(first.Biomes.Cells.SequenceEqual(second.Biomes.Cells), "Repeated generation must preserve biome cells.");
         Require(first.Heights.Heights.SequenceEqual(second.Heights.Heights), "Repeated generation must not carve the previous terrain again.");
         Require(first.RoadMask.SequenceEqual(second.RoadMask), "Repeated generation must preserve the road mask.");
@@ -77,6 +78,7 @@ public static class WorldMapPipelineChecks
 
 
         CheckWater(config, first, second);
+        PropPlacementChecks.Check(config, props, first, second);
         RoadNetworkReport report = RoadNetworkDiagnostics.Measure(config, first.Roads, first.Settlements, first.Placements, null, null, null);
 
         if (report.Hard > 0 && problemDirectory != null)

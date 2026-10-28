@@ -152,6 +152,7 @@ public static class RoadAudit
         var points = new List<Vector2>();
         List<Road> target = null;
         int hubs = 0;
+        float width = 0f;
         bool inHubs = false;
 
         foreach (string raw in File.ReadLines(path))
@@ -188,11 +189,17 @@ public static class RoadAudit
                 continue;
             }
 
-            if (!body.StartsWith("<Width>k__BackingField:", StringComparison.Ordinal) || points.Count < 2)
+            if (body.StartsWith("<Width>k__BackingField:", StringComparison.Ordinal))
+            {
+                width = float.Parse(body.Substring(body.IndexOf(':') + 1), CultureInfo.InvariantCulture);
+                continue;
+            }
+
+            if (!body.StartsWith("<Kind>k__BackingField:", StringComparison.Ordinal) || points.Count < 2)
                 continue;
 
-            float width = float.Parse(body.Substring(body.IndexOf(':') + 1), CultureInfo.InvariantCulture);
-            target.Add(new Road(points.ToArray(), width, target == regional ? RoadKind.Highway : RoadKind.LocalStreet));
+            var kind = (RoadKind)int.Parse(body.Substring(body.IndexOf(':') + 1), CultureInfo.InvariantCulture);
+            target.Add(new Road(points.ToArray(), width, kind));
             points.Clear();
         }
 

@@ -26,6 +26,8 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
 
     [BoxGroup("Rendering"), HideIf(nameof(_useRepetitionless)), SerializeField]
     private Material _material;
+    [BoxGroup("Rendering"), SerializeField] private Material _roadMaterial;
+    private RoadSurfaceMesh _roadSurface;
 
     [BoxGroup("Rendering"), SerializeField]
     private bool _buildColliders = true;
@@ -51,6 +53,7 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
     private PoiPlacementAsset _poiPlacement;
 
     [SerializeField, HideInInspector] private TextAsset _water;
+    [SerializeField, HideInInspector] private DecorEditsAsset _decorEdits;
     [SerializeField, HideInInspector] private Material _waterMaterial;
     [SerializeField, HideInInspector] private Material _iceMaterial;
     [SerializeField, HideInInspector] private Material _bridgeMaterial;
@@ -92,7 +95,7 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
     [BoxGroup("World"), MinValue(16)]
     [Tooltip("Memory the built world may take in megabytes. The build is refused before it starts if the estimate goes over, because running out of memory takes the editor down with it.")]
     [SerializeField]
-    private int _memoryBudget = 768;
+    private int _memoryBudget = 1024;
 
     private readonly List<MeshFilter> _chunks = new();
     private readonly List<VoxelColumnKey> _columns = new();
@@ -120,16 +123,16 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
     [ShowNativeProperty]
     public string BuildCost => _voxels == null || _config == null
         ? "VoxelConfig or WorldGenerationConfig is not assigned"
-        : Estimate().Describe();
+        : $"Base rings: {Estimate().Describe()}; shoreline detail is checked on build";
 
     private VoxelStreamPlan Plan()
     {
         return new VoxelStreamPlan(_voxels, _lodCount, _nearDistance, _config.WorldSize, WaterMapFormat.Load(_water));
     }
 
-    private VoxelBudget Estimate()
+    private VoxelBudget Estimate(VoxelStreamPlan plan = null)
     {
-        VoxelStreamPlan plan = Plan();
+        plan ??= Plan();
         var budget = new VoxelBudget();
 
         plan.Around(_center, _columns);
@@ -155,17 +158,22 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
         if (!Validate())
             return false;
 
-        if (!Affordable())
-            return false;
-
-        Clear();
-
+        long load = WorldGenProbe.Now;
         HeightMap map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
         _waterMap = WaterMapFormat.Load(_water);
 
         using var field = new VoxelDensityField(map, _voxels, Lowest(map));
 
         VoxelStreamPlan plan = Plan();
+        VoxelShorePlan.Refine(field.Sampler, plan, _center, _voxels.ChunkSize, _waterMap);
+        bool affordable = Affordable(plan);
+        WorldGenProbe.Record(WorldGenStage.PreviewLoad, load, WorldGenProbe.Now, 0);
+
+        if (!affordable)
+            return false;
+
+        Clear();
+        _roadSurface = _roadMaterial != null ? new RoadSurfaceMesh(_roads?.Paved(), _waterMap) : null;
 
         plan.Around(_center, _columns);
 
@@ -187,9 +195,12 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
         using (WorldGenProbe.Measure(WorldGenStage.PreviewDecor))
             decor = SpawnDecor(field, plan, progress);
 
-        WaterSurfaceBuilder.Build(_waterMap, _waterMaterial, _iceMaterial, transform, WorldEdgeBuilder.OffshoreReach(_config));
-        WorldEdgeBuilder.Build(_config, _material, transform);
-        WaterCrossingBuilder.Build(_waterMap, _bridgeMaterial, _culvertPrefab, transform);
+        using (WorldGenProbe.Measure(WorldGenStage.PreviewWater))
+        {
+            WaterSurfaceBuilder.Build(_waterMap, _waterMaterial, _iceMaterial, transform, WorldEdgeBuilder.OffshoreReach(_config));
+            WorldEdgeBuilder.Build(_config, _material, transform);
+            WaterCrossingBuilder.Build(_waterMap, _bridgeMaterial, _culvertPrefab, transform);
+        }
 
 #if UNITY_EDITOR
         WorldFeatureGizmos.Attach(transform, _stamps, _water);
@@ -207,6 +218,7 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
         _voxels = settings.Voxels;
         _heightMap = world.HeightMap;
         _material = world.Material;
+        _roadMaterial = settings.RoadMaterial;
         _useRepetitionless = false;
         _paintSplatmap = false;
         _biomes = world.Biomes;
@@ -215,6 +227,7 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
         _roads = world.Roads;
         _poiPlacement = world.Placement;
         _water = world.Water;
+        _decorEdits = settings.DecorEdits;
         _stamps = new List<TerrainStampPlacement>(world.Stamps);
         _waterMaterial = settings.WaterMaterial;
         _iceMaterial = settings.IceMaterial;
@@ -238,6 +251,7 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
 
         _chunks.Clear();
         _roots.Clear();
+        _roadSurface = null;
 
         _decor?.Dispose();
         _decor = null;
@@ -254,9 +268,9 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
         _decor = null;
     }
 
-    private bool Affordable()
+    private bool Affordable(VoxelStreamPlan plan = null)
     {
-        VoxelBudget budget = Estimate();
+        VoxelBudget budget = Estimate(plan);
 
         if (budget.Megabytes <= _memoryBudget)
             return true;

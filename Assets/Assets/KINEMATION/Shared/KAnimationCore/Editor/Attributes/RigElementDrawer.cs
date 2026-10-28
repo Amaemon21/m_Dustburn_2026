@@ -24,7 +24,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
         private void DrawRigElement(Rect position, SerializedProperty property, GUIContent label)
         {
             IRigProvider rig = RigEditorUtility.TryGetRigProvider(fieldInfo, property);
-             
+
             SerializedProperty name = property.FindPropertyRelative("name");
             SerializedProperty index = property.FindPropertyRelative("index");
 
@@ -33,7 +33,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 EditorGUI.PropertyField(position, name, label, true);
                 return;
             }
-            
+
             bool hasUserSelection = index.intValue > -1 || !string.IsNullOrEmpty(name.stringValue);
             Rect contentRect = EditorGUI.PrefixLabel(position, label);
             Rect buttonRect = new Rect(contentRect.x, position.y, contentRect.width,
@@ -57,7 +57,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 {
                     int foundIndex = ArrayUtility.FindIndex(hierarchy,
                         element => element.name.Equals(name.stringValue));
-                    if(foundIndex >= 0) selection = new List<int>() { foundIndex + 1 };
+                    if (foundIndex >= 0) selection = new List<int>() { foundIndex + 1 };
                 }
 
                 RigWindow.ShowWindow(hierarchy, (selectedElement) =>
@@ -86,7 +86,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 ClearSelection(name, index);
             }
         }
-        
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);

@@ -16,19 +16,20 @@ public class UnitFactory
         _player = player;
     }
 
-    public UnitView Create(Transform spawnTransform, UnitConfig config)
+    public UnitView Create(Vector3 position, Quaternion rotation, UnitConfig config)
     {
         Transform player = _player.Player;
 
         if (player == null)
             throw new InvalidOperationException($"{nameof(UnitFactory)}: units are created before the player is spawned");
 
-        UnitView view = _resolver.Instantiate(config.UnitPrefab, spawnTransform.position, spawnTransform.rotation, parent: null);
+        UnitView view = _resolver.Instantiate(config.UnitPrefab, position, rotation, parent: null);
         
         ApplyMovementSettings(view, config);
+        UnitNavigation.Exclude(view.gameObject);
         
         var fovService = new UnitFieldOfViewService(config, view.UnitCenter);
-        var randomWalkablePointService = new RandomWalkablePointService( config, spawnTransform, fovService);
+        var randomWalkablePointService = new RandomWalkablePointService(config, position, fovService);
         var movementService = new UnitMovementService(config, view, fovService, randomWalkablePointService);
         var detectionService = new UnitDetectionService(config, view, fovService, player);
         var chaseService = new UnitChaseService(config, movementService, detectionService, player);

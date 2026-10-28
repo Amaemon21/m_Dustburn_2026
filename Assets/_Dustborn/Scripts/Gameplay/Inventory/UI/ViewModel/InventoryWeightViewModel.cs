@@ -1,36 +1,26 @@
+using System;
 using R3;
-using UnityEngine;
 
 public sealed class InventoryWeightViewModel : ViewModel
 {
-    private readonly IReadOnlyInventoryGrid[] _grids;
-    private readonly ItemCatalog _catalog;
-    private readonly ReactiveProperty<float> _total = new(0f);
+    private readonly IReadOnlyInventoryWeight _weight;
 
-    public ReadOnlyReactiveProperty<float> Total => _total;
+    public ReadOnlyReactiveProperty<float> Current => _weight.Current;
+    public IReadOnlyStat Capacity => _weight.Capacity;
+    public bool HasLimit => _weight.HasLimit;
+    public ReadOnlyReactiveProperty<bool> IsOverloaded => _weight.IsOverloaded;
+    public ReadOnlyReactiveProperty<CarryZone> Zone => _weight.Zone;
 
-    public InventoryWeightViewModel(ItemCatalog catalog, params IReadOnlyInventoryGrid[] grids)
+    public InventoryWeightViewModel(IReadOnlyInventoryWeight weight)
     {
-        _catalog = catalog;
-        _grids = grids;
-        foreach (IReadOnlyInventoryGrid grid in grids)
-            Disposables.Add(grid.Changed.Subscribe(_ => Refresh()));
-        Refresh();
+        _weight = weight ?? throw new ArgumentNullException(nameof(weight));
     }
 
-    private void Refresh()
+    public static InventoryWeightViewModel ForGrid(ItemCatalog catalog, IReadOnlyInventoryGrid grid)
     {
-        float total = 0f;
-        foreach (IReadOnlyInventoryGrid grid in _grids)
-            for (int x = 0; x < grid.Size.x; x++)
-                for (int y = 0; y < grid.Size.y; y++)
-                {
-                    IReadOnlyInventorySlot slot = grid.GetSlot(new Vector2Int(x, y));
-                    if (!slot.IsEmpty)
-                        total += _catalog.WeightOf(slot.ItemId) * slot.Amount;
-                }
-        _total.Value = total;
+        InventoryWeight weight = new(catalog, null, grid);
+        InventoryWeightViewModel viewModel = new(weight);
+        viewModel.Disposables.Add(weight);
+        return viewModel;
     }
-
-    protected override void OnDisposed() => _total.Dispose();
 }

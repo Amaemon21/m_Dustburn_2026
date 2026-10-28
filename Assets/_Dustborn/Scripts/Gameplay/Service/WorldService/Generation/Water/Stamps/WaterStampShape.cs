@@ -34,7 +34,7 @@ public sealed class WaterStampShape
 
     public static WaterStampShape From(WaterStampDefinition definition)
     {
-        return Decode(definition.MaskData.bytes, definition.NativeResolution);
+        return Decode(StampBytes.Of(definition.MaskData), definition.NativeResolution);
     }
 
     public ushort Raw(int column, int row)

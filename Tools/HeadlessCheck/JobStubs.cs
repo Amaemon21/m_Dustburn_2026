@@ -2,6 +2,22 @@ using System;
 
 namespace Unity.Burst
 {
+    public readonly struct SharedStatic<T> where T : struct
+    {
+        private readonly T[] _box;
+
+        private SharedStatic(T[] box) { _box = box; }
+
+        public ref T Data => ref _box[0];
+
+        public static SharedStatic<T> GetOrCreate<TContext>(uint alignment = 0) => new(Store<TContext>.Box);
+
+        private static class Store<TContext>
+        {
+            public static readonly T[] Box = new T[1];
+        }
+    }
+
     public enum FloatPrecision { Standard, High, Medium, Low }
 
     public enum FloatMode { Default, Strict, Deterministic, Fast }
@@ -54,6 +70,8 @@ namespace Unity.Collections
         }
 
         public void CopyTo(T[] destination) => Array.Copy(_values, destination, _values.Length);
+
+        public T[] ToArray() => (T[])_values.Clone();
 
         public void CopyFrom(T[] source) => Array.Copy(source, _values, _values.Length);
 

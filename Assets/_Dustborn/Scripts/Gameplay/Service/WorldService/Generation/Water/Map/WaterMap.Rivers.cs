@@ -27,6 +27,7 @@ public sealed partial class WaterMap
 
         var point = new Vector2(x, z);
         float best = float.MaxValue;
+        float lowest = float.MaxValue;
         int owner = int.MaxValue;
 
         foreach (int segment in near)
@@ -55,6 +56,7 @@ public sealed partial class WaterMap
                 continue;
 
             float share = distance / Mathf.Max(half * half, 1e-6f);
+            lowest = Mathf.Min(lowest, Mathf.Lerp(a.Surface, b.Surface, t));
 
             if (river > owner || river == owner && share >= best)
                 continue;
@@ -67,9 +69,12 @@ public sealed partial class WaterMap
                 Surface = Mathf.Lerp(a.Surface, b.Surface, t),
                 Width = Mathf.Lerp(a.Width, b.Width, t),
                 Flow = length < 1e-8f ? Vector2.zero : axis / Mathf.Sqrt(length),
-                Body = -1
+                Body = -1,
+                Inside = half * (1f - Mathf.Sqrt(share))
             };
         }
+
+        sample.Lowest = lowest;
 
         return best < float.MaxValue;
     }

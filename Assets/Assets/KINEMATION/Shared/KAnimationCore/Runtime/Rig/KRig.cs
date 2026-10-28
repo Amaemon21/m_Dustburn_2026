@@ -16,19 +16,19 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
     {
         public RuntimeAnimatorController targetAnimator;
         public List<KRigElement> rigHierarchy = new List<KRigElement>();
-        
+
         [CustomElementChainDrawer(false, true)]
         public List<KRigElementChain> rigElementChains = new List<KRigElementChain>();
-        
+
         public KRigElement[] GetHierarchy()
         {
             return rigHierarchy.ToArray();
         }
     }
-    
+
     // Character skeleton asset.
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Rig")]
-    [CreateAssetMenu(menuName = "KINEMATION/Rig", fileName =  "NewRig")]
+    [CreateAssetMenu(menuName = "KINEMATION/Rig", fileName = "NewRig")]
     public class KRig : KRigBase
     {
         public UserInputConfig inputConfig;
@@ -55,15 +55,15 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
             {
                 result.transformChain.Add(rigComponent.GetRigTransform(element));
             }
-            
+
             return result;
         }
-        
+
         public KRigElement GetElementByName(string targetName)
         {
             return rigHierarchy.Find(item => item.name.Equals(targetName));
         }
-        
+
 #if UNITY_EDITOR
         public List<int> rigDepths = new List<int>();
         private List<Object> _rigObservers = new List<Object>();
@@ -84,18 +84,18 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         {
             rigHierarchy.Clear();
             rigDepths.Clear();
-            
+
             rigComponent.RefreshHierarchy();
-            
+
             var hierarchy = rigComponent.GetRigTransforms();
             var depths = rigComponent.GetHierarchyDepths();
-            
+
             for (int i = 0; i < hierarchy.Length; i++)
             {
                 rigHierarchy.Add(new KRigElement(i, hierarchy[i].transform.name));
                 rigDepths.Add(depths[i]);
             }
-            
+
             NotifyObservers();
 
             EditorUtility.SetDirty(this);
@@ -105,14 +105,14 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         public void RegisterRigObserver(Object newRigObserver)
         {
             // Only register Rig Observers.
-            IRigObserver observer = (IRigObserver) newRigObserver;
+            IRigObserver observer = (IRigObserver)newRigObserver;
             if (observer == null) return;
-            
+
             if (_rigObservers.Contains(newRigObserver))
             {
                 return;
             }
-            
+
             _rigObservers.Add(newRigObserver);
             EditorUtility.SetDirty(this);
         }

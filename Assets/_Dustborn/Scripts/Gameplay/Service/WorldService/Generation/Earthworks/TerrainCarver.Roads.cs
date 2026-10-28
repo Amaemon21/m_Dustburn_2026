@@ -13,6 +13,7 @@ public partial class TerrainCarver
         float maxFill = kind.MaxFill;
         float maxCut = kind.MaxCut;
         int smoothing = kind.ProfileSmoothing;
+        WorldGenProbe.Span profiling = WorldGenProbe.Measure(WorldGenStage.MapCarveProfile);
 
         Vector2[] points = Densify(road.Points);
         float[] distance = Cumulative(points);
@@ -46,7 +47,10 @@ public partial class TerrainCarver
             cuts[i] = Mathf.Max(maxCut, (original[i] - profile[i]) * _source.MaxHeight + OVERRUN_MARGIN);
         }
 
-        StampRoad(points, distance, profile, skirts, halfWidth, reach, fills, cuts, bridged);
+        profiling.Dispose();
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapCarveStamp))
+            StampRoad(points, distance, profile, skirts, halfWidth, reach, fills, cuts, bridged);
     }
 
     private void MeetExistingRoads(Vector2[] points, float[] profile, float[] surface, bool[] anchored, float maxGrade, float footprint)

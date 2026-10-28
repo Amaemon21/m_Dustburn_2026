@@ -348,7 +348,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         }
 
         // Copies a bone pose in world space.
-        public static void CopyBone(AnimationStream stream, TransformStreamHandle from, TransformStreamHandle to, 
+        public static void CopyBone(AnimationStream stream, TransformStreamHandle from, TransformStreamHandle to,
             float weight = 1f)
         {
             to.SetPosition(stream, Vector3.Lerp(to.GetPosition(stream), from.GetPosition(stream), weight));
@@ -356,7 +356,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         }
 
         // Copies a bone pose in world space.
-        public static void CopyBone(AnimationStream stream, TransformSceneHandle from, TransformStreamHandle to, 
+        public static void CopyBone(AnimationStream stream, TransformSceneHandle from, TransformStreamHandle to,
             float weight = 1f)
         {
             to.SetPosition(stream, Vector3.Lerp(to.GetPosition(stream), from.GetPosition(stream), weight));

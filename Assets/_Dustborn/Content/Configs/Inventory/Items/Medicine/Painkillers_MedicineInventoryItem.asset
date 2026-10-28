@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc1a8492844f264e857bf4b71ab0483, type: 3}
+  m_Name: Painkillers_MedicineInventoryItem
+  m_EditorClassIdentifier: Assembly-CSharp::MedicineInventoryItem
+  <ItemId>k__BackingField: painkillers
+  <ItemName>k__BackingField: "\u041E\u0431\u0435\u0437\u0431\u043E\u043B\u0438\u0432\u0430\u044E\u0449\u0435\u0435"
+  <Category>k__BackingField: 5
+  <Rarity>k__BackingField: 0
+  <Description>k__BackingField: "\u0421\u043D\u0438\u043C\u0430\u0435\u0442 \u0431\u043E\u043B\u044C
+    \u0438 \u043D\u0435\u043C\u043D\u043E\u0433\u043E \u0441\u0431\u0438\u0432\u0430\u0435\u0442
+    \u0437\u0430\u0440\u0430\u0436\u0435\u043D\u0438\u0435."
+  <Icon>k__BackingField: {fileID: 0}
+  <PickUpPrefab>k__BackingField: {fileID: 2477145078432396284, guid: 4dd655c55e19d0e409500c65806fe3b7, type: 3}
+  <Held>k__BackingField: {fileID: 0}
+  <MaxStack>k__BackingField: 20
+  <Weight>k__BackingField: 0.05
+  <Durability>k__BackingField: 0
+  <Health>k__BackingField: 10
+  <Stamina>k__BackingField: 0
+  <Food>k__BackingField: 0
+  <Water>k__BackingField: 0
+  <Infection>k__BackingField: -5
+  <Bleeding>k__BackingField: 0
+  <Duration>k__BackingField: 0

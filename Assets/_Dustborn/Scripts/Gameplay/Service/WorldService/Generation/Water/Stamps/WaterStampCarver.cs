@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public static class WaterStampCarver
+public static partial class WaterStampCarver
 {
     public const float FLOOD_LIFT = 0.6f;
 
@@ -46,7 +46,7 @@ public static class WaterStampCarver
         }
     }
 
-    public static long Carve(HeightMap carved, HeightMap source, WaterMap water, WaterStampLibrary library)
+    public static long Carve(HeightMap carved, HeightMap source, WaterMap water, WaterStampLibrary library, CarveCache cache = null)
     {
         WaterStampLayout layout = water.Stamps;
 
@@ -103,6 +103,8 @@ public static class WaterStampCarver
         float influence = library.Settings.RiverInfluence;
         long changed = 0;
 
+        cache?.Prepare(source, buckets.Length);
+
         Parallel.For(0, buckets.Length, () => 0L, (tile, _, count) =>
         {
             List<int> bucket = buckets[tile];
@@ -123,6 +125,11 @@ public static class WaterStampCarver
             int tileMinZ = Mathf.CeilToInt(tile / tiles * TILE / cell);
             int tileMaxZ = tile / tiles == tiles - 1 ? resolution - 1 : Mathf.Min(resolution - 1, Mathf.CeilToInt((tile / tiles + 1) * TILE / cell) - 1);
             int tileWidth = tileMaxX - tileMinX + 1;
+            float[] signature = cache == null ? null : Signature(bucket, segments, sections);
+
+            if (cache != null && cache.TryReuse(tile, signature, out float[] stored))
+                return count + Lower(stored, heights, resolution, tileMinX, tileMaxX, tileMinZ, tileMaxZ, tileWidth);
+
             var target = new float[tileWidth * (tileMaxZ - tileMinZ + 1)];
             var nearest = new float[target.Length];
             var guard = new float[target.Length];
@@ -137,28 +144,17 @@ public static class WaterStampCarver
             foreach (int s in bucket)
                 Stamp(segments[s], sections[segments[s].River], original, target, nearest, guard, resolution, cell, maxHeight, influence, tileMinX, tileMaxX, tileMinZ, tileMaxZ, tileWidth);
 
-            for (int z = tileMinZ; z <= tileMaxZ; z++)
+            for (int local = 0; local < target.Length; local++)
             {
-                for (int x = tileMinX; x <= tileMaxX; x++)
-                {
-                    int local = (z - tileMinZ) * tileWidth + x - tileMinX;
-                    float value = target[local];
+                float value = target[local];
 
-                    if (float.IsPositiveInfinity(value))
-                        continue;
-
-                    int index = z * resolution + x;
-                    float lowered = Mathf.Max(value, guard[local]) / maxHeight;
-
-                    if (lowered >= heights[index])
-                        continue;
-
-                    heights[index] = lowered;
-                    count++;
-                }
+                if (!float.IsPositiveInfinity(value))
+                    target[local] = Mathf.Max(value, guard[local]) / maxHeight;
             }
 
-            return count;
+            cache?.Store(tile, signature, target);
+
+            return count + Lower(target, heights, resolution, tileMinX, tileMaxX, tileMinZ, tileMaxZ, tileWidth);
         }, count => System.Threading.Interlocked.Add(ref changed, count));
 
         layout.CorridorCells += changed;

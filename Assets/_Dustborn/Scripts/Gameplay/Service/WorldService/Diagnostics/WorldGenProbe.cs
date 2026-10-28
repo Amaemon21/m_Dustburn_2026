@@ -300,6 +300,14 @@ public static class WorldGenProbe
         if (stage <= WorldGenStage.PoiBatch)
             return "WorldGen.POI.";
 
-        return "WorldGen.Cleanup.";
+        if (stage <= WorldGenStage.CleanupDispose)
+            return "WorldGen.Cleanup.";
+
+        string name = stage.ToString();
+
+        if (name.StartsWith("Map", System.StringComparison.Ordinal))
+            return "WorldGen.Map.";
+
+        return name.StartsWith("Preview", System.StringComparison.Ordinal) ? "WorldGen.Preview." : "WorldGen.Voxel.";
     }
 }

@@ -3,11 +3,18 @@ using System.Diagnostics;
 using System.IO;
 using UnityEditor.PackageManager;
 
+#if UNITY_6000_5_OR_NEWER
+using Unity.Scripting.LifecycleManagement;
+#endif
+
 namespace Repetitionless.Editor.Config
 {
     /// <summary>
     /// Used to retrieve the package info for repetitionless
     /// </summary>
+#if UNITY_6000_5_OR_NEWER
+    [NoAutoStaticsCleanup]
+#endif
     internal static class RepetitionlessPackageInfo
     {
         public enum EPackageSource

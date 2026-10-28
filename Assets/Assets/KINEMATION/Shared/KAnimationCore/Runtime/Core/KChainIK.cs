@@ -9,13 +9,13 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
     {
         public Vector3[] positions;
         public float[] lengths;
-        
+
         public Vector3 target;
         public float tolerance;
         public float maxReach;
         public int maxIterations;
     }
-    
+
     public class KChainIK
     {
         public static bool SolveFABRIK(ref ChainIKData ikData)
@@ -36,7 +36,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
 
             int tipIndex = ikData.positions.Length - 1;
             float sqrTolerance = KMath.Square(ikData.tolerance);
-            
+
             if (KMath.SqrDistance(ikData.positions[tipIndex], ikData.target) > sqrTolerance)
             {
                 var rootPos = ikData.positions[0];
@@ -50,16 +50,17 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
                     for (int i = tipIndex - 1; i > -1; --i)
                     {
                         ikData.positions[i] = ikData.positions[i + 1] +
-                                                   ((ikData.positions[i] - ikData.positions[i + 1]).normalized *
-                                                    ikData.lengths[i]);
+                                              ((ikData.positions[i] - ikData.positions[i + 1]).normalized *
+                                               ikData.lengths[i]);
                     }
-                    
+
                     // Backward reaching phase
                     // Set root back at it's original position and propagate displacement to rest of chain
                     ikData.positions[0] = rootPos;
                     for (int i = 1; i < ikData.positions.Length; ++i)
                         ikData.positions[i] = ikData.positions[i - 1] +
-                                                   ((ikData.positions[i] - ikData.positions[i - 1]).normalized * ikData.lengths[i - 1]);
+                                              ((ikData.positions[i] - ikData.positions[i - 1]).normalized *
+                                               ikData.lengths[i - 1]);
                 } while ((KMath.SqrDistance(ikData.positions[tipIndex], ikData.target) > sqrTolerance) &&
                          (++iteration < ikData.maxIterations));
 

@@ -15,28 +15,28 @@ public static class HydraulicErosion
 
         int cells = coarse * coarse;
 
-        var terrain = new NativeArray<float>(cells, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-        var outflow = new NativeArray<float>(cells, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-        var flow = new NativeArray<float>(cells, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-        var spare = new NativeArray<float>(cells, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        var terrain = new NativeArray<float>(cells, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
+        var outflow = new NativeArray<float>(cells, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
+        var flow = new NativeArray<float>(cells, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
+        var spare = new NativeArray<float>(cells, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
 
         try
         {
-            new HydraulicSampleJob
+            GenerationJobs.Run(new HydraulicSampleJob
             {
                 Heights = heights,
                 Coarse = terrain,
                 Resolution = resolution,
                 CoarseResolution = coarse,
                 Step = step
-            }.Schedule(coarse, 1).Complete();
+            }, coarse, 1);
 
-            new HydraulicOutflowJob
+            GenerationJobs.Run(new HydraulicOutflowJob
             {
                 Coarse = terrain,
                 Outflow = outflow,
                 Resolution = coarse
-            }.Schedule(coarse, 1).Complete();
+            }, coarse, 1);
 
             for (int i = 0; i < cells; i++)
                 flow[i] = 1f;
@@ -46,21 +46,21 @@ public static class HydraulicErosion
 
             for (int pass = 0; pass < config.HydraulicPasses; pass++)
             {
-                new HydraulicFlowJob
+                GenerationJobs.Run(new HydraulicFlowJob
                 {
                     Coarse = terrain,
                     Outflow = outflow,
                     Flow = source,
                     Target = target,
                     Resolution = coarse
-                }.Schedule(coarse, 1).Complete();
+                }, coarse, 1);
 
                 (source, target) = (target, source);
             }
 
             StreamPower(source, Mathf.Max(1f, config.HydraulicPasses), config.HydraulicFlowExponent);
 
-            new HydraulicCarveJob
+            GenerationJobs.Run(new HydraulicCarveJob
             {
                 Coarse = terrain,
                 Water = source,
@@ -70,16 +70,16 @@ public static class HydraulicErosion
                 MaxHeight = config.MaxHeight,
                 Strength = config.HydraulicStrength,
                 MaxCut = config.MaxHydraulicCut
-            }.Schedule(coarse, 1).Complete();
+            }, coarse, 1);
 
-            new HydraulicApplyJob
+            GenerationJobs.Run(new HydraulicApplyJob
             {
                 Cut = target,
                 Heights = heights,
                 Resolution = resolution,
                 CoarseResolution = coarse,
                 Step = step
-            }.Schedule(resolution, 1).Complete();
+            }, resolution, 1);
         }
         finally
         {

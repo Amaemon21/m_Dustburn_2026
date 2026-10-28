@@ -12,6 +12,8 @@ public class GrassCardFactory : IDisposable
     private const float CUTOFF = 0.35f;
     private const float FADE_FRACTION = 0.9f;
 
+    internal const float SWAY_REACH = 0.5f;
+
     private const float SNOW_START = 0.55f;
     private const float AMBIENT_STRENGTH = 1f;
     private const float WIND_SCALE = 0.9f;
@@ -20,6 +22,14 @@ public class GrassCardFactory : IDisposable
 
     private static readonly Color SnowColor = new(0.933f, 0.957f, 0.969f);
     private static readonly Vector4 WindDirection = new(1f, 0f, 0.3f, 0f);
+
+    private static readonly List<Vector3> BatchVertices = new();
+    private static readonly List<Vector3> BatchNormals = new();
+    private static readonly List<Vector4> BatchTangents = new();
+    private static readonly List<Vector2> BatchCorners = new();
+    private static readonly List<Vector3> BatchRoots = new();
+    private static readonly List<Color> BatchTints = new();
+    private static readonly List<int> BatchIndices = new();
 
     private readonly Dictionary<GrassCardStyle, Material> _materials = new();
 
@@ -58,56 +68,97 @@ public class GrassCardFactory : IDisposable
         _mesh = null;
     }
 
-    private static Mesh BuildMesh()
+    public static Mesh Batch(IReadOnlyList<DecorInstance> instances, int start, int count, Vector3 origin, DecorTint tint, string name)
     {
-        var mesh = new Mesh { name = "Grass Card", hideFlags = HideFlags.DontSave };
+        ClearBatch();
 
-        var vertices = new Vector3[8];
-        var normals = new Vector3[8];
-        var tangents = new Vector4[8];
-        var uv = new Vector2[8];
-        var triangles = new int[12];
-
-        for (int quad = 0; quad < 2; quad++)
+        for (int i = 0; i < count; i++)
         {
-            Vector3 side = quad == 0 ? new Vector3(0.5f, 0f, 0f) : new Vector3(0f, 0f, 0.5f);
-            Vector3 face = quad == 0 ? Vector3.back : Vector3.right;
-            Vector3 tangent = quad == 0 ? Vector3.right : Vector3.forward;
-            int first = quad * 4;
+            DecorInstance instance = instances[start + i];
 
-            vertices[first + 0] = -side;
-            vertices[first + 1] = side;
-            vertices[first + 2] = side + Vector3.up;
-            vertices[first + 3] = -side + Vector3.up;
-
-            uv[first + 0] = new Vector2(0f, 0f);
-            uv[first + 1] = new Vector2(1f, 0f);
-            uv[first + 2] = new Vector2(1f, 1f);
-            uv[first + 3] = new Vector2(0f, 1f);
-
-            for (int corner = 0; corner < 4; corner++)
-            {
-                normals[first + corner] = face;
-                tangents[first + corner] = new Vector4(tangent.x, tangent.y, tangent.z, -1f);
-            }
-
-            triangles[quad * 6 + 0] = first + 0;
-            triangles[quad * 6 + 1] = first + 2;
-            triangles[quad * 6 + 2] = first + 1;
-            triangles[quad * 6 + 3] = first + 0;
-            triangles[quad * 6 + 4] = first + 3;
-            triangles[quad * 6 + 5] = first + 2;
+            AddTuft(instance.Position - origin, instance.Rotation, new Vector2(instance.Scale, instance.Height), instance.Slope,
+                tint.Exact(instance.Shade));
         }
 
-        mesh.vertices = vertices;
-        mesh.normals = normals;
-        mesh.tangents = tangents;
-        mesh.uv = uv;
-        mesh.triangles = triangles;
+        Mesh mesh = Upload(name);
 
-        mesh.bounds = new Bounds(new Vector3(0f, 0.5f, 0f), new Vector3(1.5f, 1.2f, 1.5f));
+        ClearBatch();
 
         return mesh;
+    }
+
+    private static Mesh BuildMesh()
+    {
+        ClearBatch();
+        AddTuft(Vector3.zero, 0f, Vector2.one, Vector2.zero, Color.white);
+
+        Mesh mesh = Upload("Grass Tuft");
+
+        mesh.hideFlags = HideFlags.DontSave;
+
+        ClearBatch();
+
+        return mesh;
+    }
+
+    private static Mesh Upload(string name)
+    {
+        var mesh = new Mesh
+        {
+            name = name,
+            indexFormat = BatchVertices.Count > ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16
+        };
+
+        mesh.SetVertices(BatchVertices);
+        mesh.SetNormals(BatchNormals);
+        mesh.SetTangents(BatchTangents);
+        mesh.SetUVs(0, BatchCorners);
+        mesh.SetUVs(1, BatchRoots);
+        mesh.SetColors(BatchTints);
+        mesh.SetIndices(BatchIndices, MeshTopology.Triangles, 0);
+
+        Bounds bounds = mesh.bounds;
+
+        bounds.Expand(2f * SWAY_REACH);
+        mesh.bounds = bounds;
+
+        return mesh;
+    }
+
+    private static void AddTuft(Vector3 root, float yaw, Vector2 size, Vector2 slope, Color tint)
+    {
+        for (int plane = 0; plane < GrassTuft.PLANES; plane++)
+        {
+            int first = BatchVertices.Count;
+            Vector3 normal = GrassTuft.Normal(yaw, plane);
+            Vector3 tangent = GrassTuft.Tangent(yaw, plane);
+
+            foreach (Vector2 corner in GrassTuft.Corners)
+            {
+                Vector3 offset = GrassTuft.Offset(yaw, plane, corner, size, slope);
+
+                BatchVertices.Add(root + offset);
+                BatchNormals.Add(normal);
+                BatchTangents.Add(new Vector4(tangent.x, tangent.y, tangent.z, -1f));
+                BatchCorners.Add(corner);
+                BatchRoots.Add(-offset);
+                BatchTints.Add(tint);
+            }
+
+            foreach (int index in GrassTuft.Quad)
+                BatchIndices.Add(first + index);
+        }
+    }
+
+    private static void ClearBatch()
+    {
+        BatchVertices.Clear();
+        BatchNormals.Clear();
+        BatchTangents.Clear();
+        BatchCorners.Clear();
+        BatchRoots.Clear();
+        BatchTints.Clear();
+        BatchIndices.Clear();
     }
 
     private static Shader Pick()
@@ -174,7 +225,8 @@ public class GrassCardFactory : IDisposable
         SetFloat(material, "_Flutter", Mathf.Clamp(style.Flutter, 0f, 0.02f));
         SetFloat(material, "_Roundness", Mathf.Clamp(style.Roundness, 0f, 2f));
         SetFloat(material, "_NormalUp", Mathf.Clamp01(style.NormalUp));
-        SetFloat(material, "_Variation", Mathf.Clamp(style.Variation, 0f, 0.35f));
+        SetFloat(material, "_EdgeHide", GrassTuft.EDGE_HIDE);
+        SetFloat(material, "_EdgeShow", GrassTuft.EDGE_SHOW);
 
         material.EnableKeyword("_ALPHATEST_ON");
         material.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");

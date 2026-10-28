@@ -23,7 +23,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     assetAttribute = customAttribute as RigAssetSelectorAttribute;
                 }
             }
-            
+
             if (assetAttribute != null && !string.IsNullOrEmpty(assetAttribute.assetName))
             {
                 if (property.serializedObject.FindProperty(assetAttribute.assetName) is var prop)

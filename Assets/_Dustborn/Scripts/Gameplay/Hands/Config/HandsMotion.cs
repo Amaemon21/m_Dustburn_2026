@@ -6,5 +6,7 @@ public enum HandsMotion
     PowerAttack,
     Idle,
     Walk,
-    Run
+    Run,
+    RunStart,
+    RunEnd
 }

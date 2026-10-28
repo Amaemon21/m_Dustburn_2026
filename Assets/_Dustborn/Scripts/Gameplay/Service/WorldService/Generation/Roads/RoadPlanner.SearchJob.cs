@@ -7,6 +7,12 @@ public partial class RoadPlanner
 {
     private const byte REACHED = 1;
     private const byte LEFT_AS_SOURCE = 2;
+    private const int ABORT_CHECK = 512;
+
+    private abstract class SearchStop
+    {
+        public static readonly SharedStatic<int> Flag = SharedStatic<int>.GetOrCreate<SearchStop>();
+    }
 
     [BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
     private struct SearchJob : IJob
@@ -62,6 +68,7 @@ public partial class RoadPlanner
         {
             Result[0] = -1;
             Result[1] = -1;
+            Result[2] = 0;
 
             for (int i = 0; i < Cost.Length; i++)
             {
@@ -102,9 +109,18 @@ public partial class RoadPlanner
             float bestTotal = float.MaxValue;
             int bestState = -1;
             int bestGoal = -1;
+            int popped = 0;
 
             while (TryPop(out int current))
             {
+                if (++popped % ABORT_CHECK == 0 && System.Threading.Interlocked.CompareExchange(ref SearchStop.Flag.Data, 0, 0) != 0)
+                {
+                    Result[2] = 1;
+                    turnMask.Dispose();
+                    strictMask.Dispose();
+                    return;
+                }
+
                 if (Closed[current])
                     continue;
 

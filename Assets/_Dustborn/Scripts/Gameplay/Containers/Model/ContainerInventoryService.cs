@@ -45,12 +45,10 @@ public sealed class ContainerInventoryService
         if (state.IsEmpty)
             return 0;
 
-        bool hotbarHoldsItem = player.Hotbar.GetAmount(state.ItemId) > 0;
-        int moved = Fill(sourceId, coordinates, player.Hotbar, false);
-        moved += Fill(sourceId, coordinates, player.Backpack, false);
-        if (hotbarHoldsItem)
-            moved += Fill(sourceId, coordinates, player.Hotbar, true);
-        return moved + Fill(sourceId, coordinates, player.Backpack, true);
+        int moved = 0;
+        foreach (PlayerStackStep step in PlayerStackPlacement.Route(player, state.ItemId))
+            moved += Fill(sourceId, coordinates, step.Grid, step.EmptySlots);
+        return moved;
     }
 
     public int MoveToGrid(string sourceId, Vector2Int coordinates, IReadOnlyInventoryGrid target)
@@ -67,8 +65,8 @@ public sealed class ContainerInventoryService
             return 0;
 
         int capacity = target.CapacityFor(state.ItemId);
-        for (int x = 0; x < target.Size.x; x++)
-            for (int y = 0; y < target.Size.y; y++)
+        for (int y = 0; y < target.Size.y; y++)
+            for (int x = 0; x < target.Size.x; x++)
             {
                 if (source.IsEmpty)
                     return state.Amount;
@@ -89,25 +87,58 @@ public sealed class ContainerInventoryService
     {
         IReadOnlyInventoryGrid container = _inventory.GetInventory(containerOwnerId);
         int moved = 0;
-        for (int x = 0; x < container.Size.x; x++)
-            for (int y = 0; y < container.Size.y; y++)
+        for (int y = 0; y < container.Size.y; y++)
+            for (int x = 0; x < container.Size.x; x++)
                 moved += MoveToPlayer(player, containerOwnerId, new Vector2Int(x, y));
         return moved;
     }
 
     private void FillLoot(string ownerId, ContainerConfig config)
     {
-        foreach (ContainerLoot loot in config.Loot)
+        System.Random random = new(SeedOf(ownerId));
+        int stacks = 0;
+
+        foreach (int index in Shuffled(config.Loot.Length, random))
         {
+            ContainerLoot loot = config.Loot[index];
             if (loot == null || loot.Item == null)
             {
                 Debug.LogError($"ContainerInventoryService: container config '{config.name}' has an empty loot entry");
                 continue;
             }
 
-            AddItemsToInventoryGridResult result = _inventory.AddItemsToInventory(ownerId, loot.Item.ItemId, loot.Amount);
+            if (config.MaxStacks > 0 && stacks >= config.MaxStacks)
+                break;
+
+            int amount = loot.Roll(random);
+            if (amount <= 0)
+                continue;
+
+            AddItemsToInventoryGridResult result = _inventory.AddItemsToInventory(ownerId, loot.Item.ItemId, amount);
+            stacks++;
             if (result.ItemsNotAddedAmount > 0)
                 Debug.LogWarning($"ContainerInventoryService: '{config.name}' has no room for {result.ItemsNotAddedAmount} of '{loot.Item.ItemId}'");
         }
+    }
+
+    private static int[] Shuffled(int count, System.Random random)
+    {
+        int[] order = new int[count];
+        for (int i = 0; i < count; i++)
+            order[i] = i;
+        for (int i = count - 1; i > 0; i--)
+        {
+            int j = random.Next(i + 1);
+            (order[i], order[j]) = (order[j], order[i]);
+        }
+        return order;
+    }
+
+    private static int SeedOf(string ownerId)
+    {
+        uint hash = 2166136261u;
+        foreach (char symbol in ownerId)
+            hash = (hash ^ symbol) * 16777619u;
+        return (int)hash;
     }
 }

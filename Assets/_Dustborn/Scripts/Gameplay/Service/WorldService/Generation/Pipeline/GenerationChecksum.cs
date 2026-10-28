@@ -33,11 +33,11 @@ public static class GenerationChecksum
 
     public static string Of(NativeArray<float> values)
     {
-        var blocks = new NativeArray<ulong>(Blocks(values.Length), Allocator.TempJob);
+        var blocks = new NativeArray<ulong>(Blocks(values.Length), GenerationJobs.ALLOCATOR);
 
         try
         {
-            new BlockHashJob { Values = values, Blocks = blocks }.Schedule(blocks.Length, 1).Complete();
+            GenerationJobs.Run(new BlockHashJob { Values = values, Blocks = blocks }, blocks.Length, 1);
 
             var hashes = new ulong[blocks.Length];
             blocks.CopyTo(hashes);
@@ -50,7 +50,7 @@ public static class GenerationChecksum
         }
     }
 
-    [BurstCompile(CompileSynchronously = true)]
+    [BurstCompile(CompileSynchronously = true, DisableSafetyChecks = true)]
     private struct BlockHashJob : IJobParallelFor
     {
         [ReadOnly] public NativeArray<float> Values;
@@ -63,6 +63,46 @@ public static class GenerationChecksum
 
             for (int i = block * BLOCK; i < end; i++)
                 hash = Mix(hash, math.asuint(Values[i]));
+
+            Blocks[block] = hash;
+        }
+    }
+
+    public static string Of(NativeArray<byte> values)
+    {
+        var blocks = new NativeArray<ulong>(Blocks(values.Length), GenerationJobs.ALLOCATOR);
+
+        try
+        {
+            GenerationJobs.Run(new ByteBlockHashJob { Values = values, Blocks = blocks }, blocks.Length, 1);
+
+            var hashes = new ulong[blocks.Length];
+            blocks.CopyTo(hashes);
+
+            return Format(Combine(hashes));
+        }
+        finally
+        {
+            blocks.Dispose();
+        }
+    }
+
+    [BurstCompile(CompileSynchronously = true, DisableSafetyChecks = true)]
+    private struct ByteBlockHashJob : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<byte> Values;
+        public NativeArray<ulong> Blocks;
+
+        public void Execute(int block)
+        {
+            int end = math.min(Values.Length, (block + 1) * BLOCK);
+            ulong hash = OFFSET;
+
+            for (int i = block * BLOCK; i < end; i++)
+            {
+                hash ^= Values[i];
+                hash *= PRIME;
+            }
 
             Blocks[block] = hash;
         }

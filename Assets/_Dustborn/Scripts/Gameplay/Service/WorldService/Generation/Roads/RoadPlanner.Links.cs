@@ -247,38 +247,54 @@ public partial class RoadPlanner
             using (WorldGenProbe.Measure(WorldGenStage.MapRoadPrepare))
                 PrepareSearch();
 
+            Journey found = FirstJourney(plans, relaxed, ref tangled);
+
+            if (found != null)
+                return Chosen(facing != null && facing.Hard <= found.Hard ? facing : found);
+        }
+
+        return Chosen(facing != null && (tangled == null || !Better(tangled, facing)) ? facing : tangled);
+    }
+
+    private Journey FirstJourney(List<SearchPlan> plans, bool relaxed, ref Journey tangled)
+    {
+        SearchBatch batch;
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapRoadSearch))
+            batch = StartSearches(plans);
+
+        try
+        {
             for (int i = 0; i < plans.Count; i++)
             {
-                List<int> states;
-                Endpoint source;
-                Endpoint goal;
+                SearchOutcome outcome;
 
                 using (WorldGenProbe.Measure(WorldGenStage.MapRoadSearch))
-                    states = Search(plans[i], out source, out goal);
+                    outcome = FinishSearch(batch, plans, i);
 
-                if (states == null)
+                if (outcome.States == null)
                     continue;
 
                 Journey journey;
 
                 using (WorldGenProbe.Measure(WorldGenStage.MapRoadAssemble))
-                    journey = Assemble(states, source, goal);
+                    journey = Assemble(outcome.States, outcome.Source, outcome.Goal);
                 journey.Level = plans[i].Level;
                 journey.Relaxed = relaxed;
 
-                if (journey.Self > 0)
-                {
-                    if (Better(journey, tangled))
-                        tangled = journey;
+                if (journey.Self == 0)
+                    return journey;
 
-                    continue;
-                }
-
-                return Chosen(facing != null && facing.Hard <= journey.Hard ? facing : journey);
+                if (Better(journey, tangled))
+                    tangled = journey;
             }
-        }
 
-        return Chosen(facing != null && (tangled == null || !Better(tangled, facing)) ? facing : tangled);
+            return null;
+        }
+        finally
+        {
+            StopSearches(batch);
+        }
     }
 
     private Journey Chosen(Journey journey)

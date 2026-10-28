@@ -9,6 +9,13 @@ public sealed class InventoryInstaller : IInstaller
         builder.Register<InventoryRepository>(Lifetime.Singleton);
         builder.Register<InventoryService>(Lifetime.Singleton).AsSelf().As<IInventoryService>();
         builder.Register<PlayerInventoryService>(Lifetime.Singleton);
+        builder.Register<InventoryWeightService>(Lifetime.Singleton);
         builder.Register<LocalPlayerInventory>(Lifetime.Singleton);
+        builder.Register(resolver => new PlayerEncumbrance(
+                resolver.Resolve<LocalPlayerInventory>().Weight,
+                resolver.Resolve<PlayerInventorySettings>().CarryZones,
+                resolver.Resolve<PlayerStatSheet>(),
+                resolver.Resolve<PlayerMovementModifiers>()), Lifetime.Singleton)
+            .AsSelf().As<IGameplayActivatable>();
     }
 }

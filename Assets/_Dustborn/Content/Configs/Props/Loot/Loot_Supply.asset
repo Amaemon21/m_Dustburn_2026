@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fba787062ec9e428294f42f469676d, type: 3}
+  m_Name: Loot_Supply
+  m_EditorClassIdentifier: Assembly-CSharp::ContainerConfig
+  <InteractableName>k__BackingField: "\u041F\u0440\u0438\u043F\u0430\u0441\u044B"
+  <Size>k__BackingField: {x: 5, y: 4}
+  <Loot>k__BackingField:
+  - <Item>k__BackingField: {fileID: 11400000, guid: 4e70a647fd2a8944dbdecaf522802481, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 3
+    <Chance>k__BackingField: 0.6
+  - <Item>k__BackingField: {fileID: 11400000, guid: ae1ad0d4a134f284c9206a8ac053c154, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 3
+    <Chance>k__BackingField: 0.6
+  - <Item>k__BackingField: {fileID: 11400000, guid: 6dad61d3f546ec140b78c8319cf308e9, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 4
+    <Chance>k__BackingField: 0.4
+  - <Item>k__BackingField: {fileID: 11400000, guid: a602ec120374bc949a0e8c4762427da7, type: 2}
+    <Amount>k__BackingField: 2
+    <MaxAmount>k__BackingField: 6
+    <Chance>k__BackingField: 0.4
+  - <Item>k__BackingField: {fileID: 11400000, guid: bc20a71d15df010489690b52c897e419, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 2
+    <Chance>k__BackingField: 0.3
+  - <Item>k__BackingField: {fileID: 11400000, guid: 246cdc592bed39e48b5e3cc485b89e78, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 1
+    <Chance>k__BackingField: 0.2
+  <MaxStacks>k__BackingField: 4

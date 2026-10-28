@@ -1,12 +1,19 @@
 #if UNITY_EDITOR
 using System;
 
+#if UNITY_6000_5_OR_NEWER
+using Unity.Scripting.LifecycleManagement;
+#endif
+
 namespace Repetitionless.Editor.Config
 {
     /// <summary>
     /// Used to update repetitionless prefs<br />
     /// Prefs are project relative and Stored in "Library/com.williamschack.repetitionless/prefs.json"
     /// </summary>
+#if UNITY_6000_5_OR_NEWER
+    [NoAutoStaticsCleanup]
+#endif
     internal static class RepetitionlessPrefs
     {
         private const string PREFS_FILE_PATH = Constants.LIBRARY_PATH + "/prefs.json";

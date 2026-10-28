@@ -24,6 +24,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         public static Color CardColor = EditorGUIUtility.isProSkin
             ? new Color32(52, 52, 52, 255)
             : new Color32(210, 210, 210, 255);
+
         public static Color BackgroundColor = EditorGUIUtility.isProSkin
             ? new Color32(56, 56, 56, 255)
             : new Color32(128, 128, 128, 255);
@@ -83,6 +84,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                 {
                     DrawPackage(package);
                 }
+
                 EditorGUILayout.EndScrollView();
             }
 
@@ -249,6 +251,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                     Refresh();
                 }
             }
+
             EditorGUILayout.EndHorizontal();
         }
 
@@ -561,15 +564,17 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
 
         private static void DrawCardBorder(Rect cardRect)
         {
-            Color borderColor = Color.Lerp(CardColor, new Color32(25,25,25, 255),
+            Color borderColor = Color.Lerp(CardColor, new Color32(25, 25, 25, 255),
                 EditorGUIUtility.isProSkin ? 0.32f : 0.18f);
             borderColor.a = CardColor.a;
 
             const float borderWidth = 1.05f;
             EditorGUI.DrawRect(new Rect(cardRect.x, cardRect.y, cardRect.width, borderWidth), borderColor);
-            EditorGUI.DrawRect(new Rect(cardRect.x, cardRect.yMax - borderWidth, cardRect.width, borderWidth), borderColor);
+            EditorGUI.DrawRect(new Rect(cardRect.x, cardRect.yMax - borderWidth, cardRect.width, borderWidth),
+                borderColor);
             EditorGUI.DrawRect(new Rect(cardRect.x, cardRect.y, borderWidth, cardRect.height), borderColor);
-            EditorGUI.DrawRect(new Rect(cardRect.xMax - borderWidth, cardRect.y, borderWidth, cardRect.height), borderColor);
+            EditorGUI.DrawRect(new Rect(cardRect.xMax - borderWidth, cardRect.y, borderWidth, cardRect.height),
+                borderColor);
         }
 
         private void DrawVersionAndStatus(PackageEntry package)
@@ -645,6 +650,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                             GUILayout.Height(26f));
                     }
                 }
+
                 return;
             }
 
@@ -866,6 +872,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                     _operationEntry.operationMessage = $"Package operation failed: {exception.Message}";
                     _operationEntry.operationMessageType = MessageType.Error;
                 }
+
                 Debug.LogException(exception);
             }
             finally

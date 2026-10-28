@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Axe_HeldItem
   m_EditorClassIdentifier: Assembly-CSharp::HeldItemConfig
   <ViewPrefab>k__BackingField: {fileID: 6879883859816312907, guid: 8a30e653ff6942b1ba86203df91776fe, type: 3}
-  <Animator>k__BackingField: {fileID: 22100000, guid: d2e23b1690a64cef9d5c7937362d1dd8, type: 2}
+  <Animations>k__BackingField: {fileID: 11400000, guid: 849e687d2b7af017ad7d96073d7a130e, type: 2}
   <DrawTime>k__BackingField: 0.73
   <HolsterTime>k__BackingField: 0.85
+  <RunEndTime>k__BackingField: 0.32
   <Primary>k__BackingField:
     rid: 7046553330012938240
   <Secondary>k__BackingField:
@@ -29,16 +30,20 @@ MonoBehaviour:
       type: {class: MeleeActionConfig, ns: , asm: Assembly-CSharp}
       data:
         <Motion>k__BackingField: 2
-        <Duration>k__BackingField: 1.1
-        <HitTime>k__BackingField: 0.52
+        <Recovery>k__BackingField: 0
         <Reach>k__BackingField: 2.4
         <Radius>k__BackingField: 0.2
-        <Damage>k__BackingField: 25
+        <Damage>k__BackingField: 9
         <WearPerHit>k__BackingField: 1
+        <StaminaCost>k__BackingField: 12
+        <ImpactShake>k__BackingField: 0.6
         <HitMask>k__BackingField:
           serializedVersion: 2
           m_Bits: 4294967291
         <Bonuses>k__BackingField:
         - <Material>k__BackingField: {fileID: 11400000, guid: 41a6a4fc57026024daaba521e1bba1b2, type: 2}
-          <Damage>k__BackingField: 2
-          <Harvest>k__BackingField: 1.5
+          <Damage>k__BackingField: 3.7
+          <Harvest>k__BackingField: 1
+        - <Material>k__BackingField: {fileID: 11400000, guid: 85017072285962b4985fe2d11cbda949, type: 2}
+          <Damage>k__BackingField: 2.45
+          <Harvest>k__BackingField: 1

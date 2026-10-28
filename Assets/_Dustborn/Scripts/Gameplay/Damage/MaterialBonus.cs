@@ -28,6 +28,8 @@ public sealed class MaterialBonus
         Harvest = 1f;
     }
 
+    public void ClearMaterial() => Material = null;
+
     public static MaterialBonus Find(IReadOnlyList<MaterialBonus> bonuses, BlockMaterial material)
     {
         if (bonuses == null || material == null)

@@ -12,6 +12,8 @@ public sealed class GameplayAssetReferences
     [field: SerializeField] public AssetReferenceT<PlayerInputSettings> PlayerInput { get; private set; }
     [field: SerializeField] public AssetReferenceT<UIInputSettings> UIInput { get; private set; }
     [field: SerializeField] public AssetReferenceT<InteractSettings> InteractionSettings { get; private set; }
+    [field: SerializeField] public AssetReferenceT<PlayerVitalsConfig> PlayerVitals { get; private set; }
+    [field: SerializeField] public AssetReferenceT<PlayerProgressionConfig> PlayerProgression { get; private set; }
 
     [field: SerializeField, Header("Prefabs"), HorizontalLine(2f, EColor.Green)] public AssetReferenceGameObject PlayerPrefab { get; private set; }
     [field: SerializeField] public AssetReferenceGameObject GameplayUIPrefab { get; private set; }

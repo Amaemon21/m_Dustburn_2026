@@ -31,10 +31,10 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
             {
                 if (!compareTo.rigHierarchy[i].name.Equals(hierarchy[i].name)) return false;
             }
-            
+
             return true;
         }
-        
+
         public int[] GetHierarchyDepths()
         {
             return hierarchyDepths.ToArray();
@@ -46,7 +46,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
             {
                 return null;
             }
-            
+
             return hierarchy.ToArray();
         }
 
@@ -75,7 +75,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
                 TraverseHierarchyByLayer(child, depth + 1);
             }
         }
-        
+
         public void RefreshHierarchy()
         {
             hierarchy.Clear();
@@ -84,7 +84,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
 #endif
             TraverseHierarchyByLayer(transform, 0);
         }
-        
+
         public void Initialize()
         {
             // Register Virtual Elements.
@@ -115,7 +115,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
                 virtualElement.Animate();
             }
         }
-        
+
         public Transform[] GetRigTransforms()
         {
             return hierarchy.ToArray();
@@ -124,7 +124,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         public Transform GetRigTransform(KRigElement rigElement)
         {
             int index = rigElement.index;
-            
+
             // Invalid index, try to use the element name instead.
             if (index < 0 || index > hierarchy.Count - 1)
             {
@@ -136,20 +136,20 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
             {
                 return null;
             }
-            
+
             return hierarchy[index].transform;
         }
-        
+
         public Transform GetRigTransform(string elementName)
         {
             if (_hierarchyMap.TryGetValue(elementName, out var element))
             {
                 return hierarchy[element];
             }
-            
+
             return null;
         }
-        
+
         public Transform GetRigTransform(int elementIndex)
         {
             if (elementIndex < 0 || elementIndex > hierarchy.Count - 1)
@@ -163,8 +163,9 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
         public void CacheHierarchyPose()
         {
             _cachedHierarchyPose.Clear();
-            foreach (var element in hierarchy) _cachedHierarchyPose.Add(new KTransform(element, 
-                false));
+            foreach (var element in hierarchy)
+                _cachedHierarchyPose.Add(new KTransform(element,
+                    false));
         }
 
         public void ApplyHierarchyCachedPose()

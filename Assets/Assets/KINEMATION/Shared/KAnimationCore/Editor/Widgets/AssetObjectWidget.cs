@@ -11,15 +11,15 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
     public class AssetObjectWidget<T> where T : Object
     {
         public UnityEditor.Editor editor;
-        
+
         public string _objectLabel;
 
         private Object _cachedObject;
         private Object _parentAsset;
-        
+
         private SerializedObject _targetObject;
         private SerializedProperty _targetProperty;
-        
+
         private bool _isExpanded;
 
         private bool IsSubAsset(Object asset)
@@ -46,7 +46,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
             Object newComponent = Activator.CreateInstance<T>();
             newComponent.name = _objectLabel.Replace(" ", string.Empty);
             newComponent.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
-            
+
             Undo.RegisterCreatedObjectUndo(newComponent, "Add Component");
             AssetDatabase.AddObjectToAsset(newComponent, _parentAsset);
             EditorUtility.SetDirty(_parentAsset);
@@ -54,7 +54,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
 
             _targetProperty.objectReferenceValue = newComponent;
         }
-        
+
         public AssetObjectWidget(SerializedObject target, string propertyName, string label)
         {
             _objectLabel = label;
@@ -62,7 +62,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
             _targetProperty = _targetObject.FindProperty(propertyName);
             _parentAsset = target.targetObject;
         }
-        
+
         public void OnInspectorGUI()
         {
             _targetObject.Update();
@@ -72,17 +72,17 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
                 EditorGUILayout.BeginHorizontal();
 
                 Object objectRef = _targetProperty.objectReferenceValue;
-                objectRef = (T) EditorGUILayout.ObjectField(_objectLabel, objectRef, typeof(T), false);
+                objectRef = (T)EditorGUILayout.ObjectField(_objectLabel, objectRef, typeof(T), false);
                 _targetProperty.objectReferenceValue = objectRef;
 
                 if (GUILayout.Button("Create"))
                 {
                     OnCreatePressed();
                 }
-                
+
                 if (GUILayout.Button("Show"))
                 {
-                    if(editor != null) _isExpanded = !_isExpanded;
+                    if (editor != null) _isExpanded = !_isExpanded;
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -115,7 +115,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
             {
                 EditorGUILayout.PropertyField(_targetProperty);
             }
-            
+
             _targetObject.ApplyModifiedProperties();
         }
     }

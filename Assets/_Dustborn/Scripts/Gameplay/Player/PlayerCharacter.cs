@@ -11,13 +11,13 @@ public sealed class PlayerCharacter : IDisposable
     public PlayerCameraMotion CameraMotion { get; }
     public PlayerMovementResult LastMovement { get; private set; }
 
-    public PlayerCharacter(PlayerView view, PlayerHands hands)
+    public PlayerCharacter(PlayerView view, PlayerHands hands, PlayerCameraMotion cameraMotion)
     {
         View = view != null ? view : throw new ArgumentNullException(nameof(view));
         Hands = hands ?? throw new ArgumentNullException(nameof(hands));
         _motor = new PlayerMotor(view.Controller, view.Movement);
         _look = new PlayerLook(view.transform, view.CameraPivot, view.Movement);
-        CameraMotion = new PlayerCameraMotion(view.CameraPivot, view.TiltRoot, view.CameraMotion);
+        CameraMotion = cameraMotion ?? throw new ArgumentNullException(nameof(cameraMotion));
     }
 
     public PlayerMovementResult Move(PlayerMovementRequest request, float deltaTime)
@@ -28,8 +28,8 @@ public sealed class PlayerCharacter : IDisposable
 
     public void Look(Vector2 delta, float deltaTime)
     {
-        _look.Tick(delta);
-        CameraMotion.Tick(LastMovement, deltaTime);
+        Vector2 turn = _look.Tick(delta);
+        CameraMotion.Tick(LastMovement, turn, deltaTime);
     }
 
     public void Dispose()

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class RoadTopologyChecks
 {
-    private const string CONTENT = "../../Assets/_Dustborn/Content/World";
+    private const string CONTENT = "../../Assets/_Dustborn/Content/Configs/World";
     private const long MEDIUM_BUDGET_MILLISECONDS = 120000;
     private const int PROBLEMS_SHOWN = 4;
     private const int PROBLEMS_TRACED = 2;

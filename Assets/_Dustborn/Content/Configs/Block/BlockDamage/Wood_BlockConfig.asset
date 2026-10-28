@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockConfig
   <DisplayName>k__BackingField: "\u0421\u043E\u0441\u043D\u0430"
   <Material>k__BackingField: {fileID: 11400000, guid: 41a6a4fc57026024daaba521e1bba1b2, type: 2}
-  <MaxHealth>k__BackingField: 300
+  <MaxHealth>k__BackingField: 1200
   <Harvest>k__BackingField:
   - <Item>k__BackingField: {fileID: 11400000, guid: a602ec120374bc949a0e8c4762427da7, type: 2}
-    <Count>k__BackingField: 20
+    <Count>k__BackingField: 150
   <DestroyDrops>k__BackingField: []

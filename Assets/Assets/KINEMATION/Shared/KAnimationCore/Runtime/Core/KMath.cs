@@ -14,19 +14,19 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         {
             return value * value;
         }
-        
+
         public static float SqrDistance(Vector3 a, Vector3 b)
         {
             return (b - a).sqrMagnitude;
         }
-        
+
         public static float NormalizeEulerAngle(float angle)
         {
             while (angle < -180f) angle += 360f;
             while (angle >= 180f) angle -= 360f;
             return angle;
         }
-        
+
         public static float TriangleAngle(float aLen, float aLen1, float aLen2)
         {
             float c = Mathf.Clamp((aLen1 * aLen1 + aLen2 * aLen2 - aLen * aLen) / (aLen1 * aLen2) / 2.0f, -1.0f, 1.0f);
@@ -72,7 +72,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
 
             return Mathf.Clamp01(alpha);
         }
-        
+
         public static float ExpDecayAlpha(float speed, float deltaTime)
         {
             return 1 - Mathf.Exp(-speed * deltaTime);
@@ -91,7 +91,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         public static Vector2 ComputeLookAtInput(Transform root, Transform from, Transform to)
         {
             Vector2 result = Vector2.zero;
-            
+
             Quaternion rot = Quaternion.LookRotation(to.position - from.position);
             rot = Quaternion.Inverse(root.rotation) * rot;
 

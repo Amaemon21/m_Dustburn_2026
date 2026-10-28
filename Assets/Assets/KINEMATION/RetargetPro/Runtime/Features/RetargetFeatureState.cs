@@ -17,6 +17,116 @@ namespace KINEMATION.RetargetPro.Runtime.Features
         protected KRigComponent targetRigComponent;
 
 #if UNITY_EDITOR
+        private static RetargetFeatureState _selectedHandleOwner;
+        private int _selectedHandleIndex = -1;
+        private Vector3 _selectionBoundsSize;
+
+        protected bool IsHandleSelected(int index)
+        {
+            return _selectedHandleOwner == this && _selectedHandleIndex == index;
+        }
+
+        protected void RenderTargetSelection(int index, Vector3 position, Quaternion rotation)
+        {
+            float size = Mathf.Max(0.0001f,
+                Vector3.Scale(_selectionBoundsSize, GetTargetRoot().lossyScale).magnitude * 0.02f);
+            if (!IsHandleSelected(index) && Handles.Button(position, rotation, size, size, WireCubeHandleCap))
+            {
+                _selectedHandleOwner = this;
+                _selectedHandleIndex = index;
+                GUI.changed = true;
+            }
+        }
+
+        public static void DeselectHandleOnDoubleClick()
+        {
+            Event evt = Event.current;
+            if (_selectedHandleOwner != null && evt.type == EventType.MouseDown && evt.button == 0 &&
+                evt.clickCount == 2 && !evt.alt && GUIUtility.hotControl == 0)
+            {
+                _selectedHandleOwner = null;
+                GUI.changed = true;
+                evt.Use();
+            }
+        }
+
+        private static float SignedTriangleArea(Vector2 point, Vector2 vertex1, Vector2 vertex2)
+        {
+            return (point.x - vertex2.x) * (vertex1.y - vertex2.y) -
+                   (vertex1.x - vertex2.x) * (point.y - vertex2.y);
+        }
+
+        private static bool IsPointInTriangle(Vector2 point, Vector2 vertex1, Vector2 vertex2, Vector2 vertex3)
+        {
+            if (Mathf.Abs(SignedTriangleArea(vertex1, vertex2, vertex3)) <= 0.001f)
+            {
+                return false;
+            }
+
+            float area1 = SignedTriangleArea(point, vertex1, vertex2);
+            float area2 = SignedTriangleArea(point, vertex2, vertex3);
+            float area3 = SignedTriangleArea(point, vertex3, vertex1);
+
+            bool hasNegative = area1 < 0f || area2 < 0f || area3 < 0f;
+            bool hasPositive = area1 > 0f || area2 > 0f || area3 > 0f;
+            return !(hasNegative && hasPositive);
+        }
+
+        private static bool IsMouseInsideProjectedQuad(Vector2 mousePosition, Vector3 center, Vector3 axis1,
+            Vector3 axis2)
+        {
+            Vector2 vertex1 = HandleUtility.WorldToGUIPoint(center - axis1 - axis2);
+            Vector2 vertex2 = HandleUtility.WorldToGUIPoint(center + axis1 - axis2);
+            Vector2 vertex3 = HandleUtility.WorldToGUIPoint(center + axis1 + axis2);
+            Vector2 vertex4 = HandleUtility.WorldToGUIPoint(center - axis1 + axis2);
+
+            return IsPointInTriangle(mousePosition, vertex1, vertex2, vertex3) ||
+                   IsPointInTriangle(mousePosition, vertex1, vertex3, vertex4);
+        }
+
+        private static bool IsMouseInsideProjectedCube(Vector3 position, Quaternion rotation, float size)
+        {
+            Vector2 mousePosition = Event.current.mousePosition;
+            float halfSize = size * 0.5f;
+
+            Vector3 right = rotation * Vector3.right * halfSize;
+            Vector3 up = rotation * Vector3.up * halfSize;
+            Vector3 forward = rotation * Vector3.forward * halfSize;
+
+            return IsMouseInsideProjectedQuad(mousePosition, position + forward, right, up) ||
+                   IsMouseInsideProjectedQuad(mousePosition, position - forward, right, up) ||
+                   IsMouseInsideProjectedQuad(mousePosition, position + right, forward, up) ||
+                   IsMouseInsideProjectedQuad(mousePosition, position - right, forward, up) ||
+                   IsMouseInsideProjectedQuad(mousePosition, position + up, right, forward) ||
+                   IsMouseInsideProjectedQuad(mousePosition, position - up, right, forward);
+        }
+
+        private static void WireCubeHandleCap(int controlId, Vector3 position, Quaternion rotation, float size,
+            EventType eventType)
+        {
+            switch (eventType)
+            {
+                case EventType.Layout:
+                    float distance = IsMouseInsideProjectedCube(position, rotation, size)
+                        ? 0f
+                        : HandleUtility.DistanceToCube(position, rotation, size);
+                    HandleUtility.AddControl(controlId, distance);
+                    break;
+                case EventType.Repaint:
+                    Matrix4x4 originalMatrix = Handles.matrix;
+                    try
+                    {
+                        Handles.matrix = Matrix4x4.TRS(position, rotation, Vector3.one);
+                        Handles.DrawWireCube(Vector3.zero, Vector3.one * size);
+                    }
+                    finally
+                    {
+                        Handles.matrix = originalMatrix;
+                    }
+                    break;
+            }
+        }
+
         private const float BoneSizeFactor = 0.15f;
         private const float BoneSizeScale = 1f;
         private const float BoneFillAlphaFactor = 0.22f;
@@ -214,6 +324,17 @@ namespace KINEMATION.RetargetPro.Runtime.Features
         {
             sourceRigComponent = sourceComponent;
             targetRigComponent = targetComponent;
+#if UNITY_EDITOR
+            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
+            if (targetComponent != null)
+            {
+                foreach (Transform bone in targetComponent.GetHierarchy())
+                {
+                    if (bone != null) bounds.Encapsulate(targetComponent.transform.InverseTransformPoint(bone.position));
+                }
+            }
+            _selectionBoundsSize = bounds.size;
+#endif
             Initialize(featureAsset);
         }
         
@@ -228,6 +349,9 @@ namespace KINEMATION.RetargetPro.Runtime.Features
 
         public virtual void OnDestroy()
         {
+#if UNITY_EDITOR
+            if (_selectedHandleOwner == this) _selectedHandleOwner = null;
+#endif
         }
         
         protected Transform GetSourceRoot()

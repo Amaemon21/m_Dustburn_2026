@@ -35,6 +35,13 @@ public readonly struct RoadKindProfile
 
     public bool IsRegional => Kind == RoadKind.Highway || Kind == RoadKind.DirtAccess;
 
+    public RoadSurface Surface => SurfaceOf(Kind);
+
+    public static RoadSurface SurfaceOf(RoadKind kind)
+    {
+        return kind == RoadKind.DirtAccess ? RoadSurface.Dirt : RoadSurface.Asphalt;
+    }
+
     public static RoadKindProfile For(WorldGenerationConfig config, RoadKind kind)
     {
         return kind switch

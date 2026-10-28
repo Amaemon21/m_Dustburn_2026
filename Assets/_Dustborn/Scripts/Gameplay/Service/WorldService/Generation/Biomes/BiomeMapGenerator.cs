@@ -108,8 +108,8 @@ public class BiomeMapGenerator
 
     private void Classify(BiomeMap map)
     {
-        var seeds = new NativeArray<BiomeSeed>(_seeds, Allocator.TempJob);
-        var cells = new NativeArray<byte>(map.Cells.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        var seeds = new NativeArray<BiomeSeed>(_seeds, GenerationJobs.ALLOCATOR);
+        var cells = new NativeArray<byte>(map.Cells.Length, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
 
         try
         {
@@ -126,7 +126,7 @@ public class BiomeMapGenerator
                 WarpPersistence = _config.WarpPersistence
             };
 
-            job.Schedule(map.Resolution, CLASSIFY_BATCH).Complete();
+            GenerationJobs.Run(job, map.Resolution, CLASSIFY_BATCH);
 
             cells.CopyTo(map.Cells);
         }

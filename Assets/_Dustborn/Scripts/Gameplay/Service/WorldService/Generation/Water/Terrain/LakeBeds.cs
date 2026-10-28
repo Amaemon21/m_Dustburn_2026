@@ -10,6 +10,8 @@ public static class LakeBeds
     public const int SHORE_BAND_CELLS = 2;
     public const int SMOOTH_RADIUS = 4;
     public const float KEEP_SIDE = 0.2f;
+    public const int LEVEL_RADIUS = 4;
+    public const int LEVEL_PASSES = 2;
 
     public static void Deepen(HeightMap map, WaterMap water)
     {
@@ -40,6 +42,136 @@ public static class LakeBeds
                     heights[index] -= amount * scale;
             }
         });
+    }
+
+    private readonly struct Box
+    {
+        public readonly int X;
+        public readonly int Z;
+        public readonly int Width;
+        public readonly int Height;
+
+        public Box(int x, int z, int width, int height)
+        {
+            X = x;
+            Z = z;
+            Width = width;
+            Height = height;
+        }
+    }
+
+    public static void Level(HeightMap map, WaterMap water)
+    {
+        if (water == null || water.Bodies.Count == 0)
+            return;
+
+        int resolution = map.Resolution;
+        float step = map.WorldSize / (float)(resolution - 1);
+        Box[] boxes = Boxes(water, step, resolution);
+
+        for (int pass = 0; pass < LEVEL_PASSES; pass++)
+        {
+            float[] source = (float[])map.Heights.Clone();
+
+            Parallel.For(0, boxes.Length, body =>
+            {
+                Box box = boxes[body];
+
+                if (box.Width <= 0 || water.Bodies[body].Kind == WaterKind.Sea)
+                    return;
+
+                float[] mean = BoxMean(source, resolution, box, LEVEL_RADIUS);
+
+                for (int row = box.Z; row < box.Z + box.Height; row++)
+                {
+                    for (int column = box.X; column < box.X + box.Width; column++)
+                    {
+                        if (!water.Covers(column * step, row * step, out short owner) || owner != body)
+                            continue;
+
+                        int index = row * resolution + column;
+                        map.Heights[index] = Mathf.Min(source[index], mean[(row - box.Z) * box.Width + column - box.X]);
+                    }
+                }
+            });
+        }
+    }
+
+    private static Box[] Boxes(WaterMap water, float step, int resolution)
+    {
+        int count = water.Bodies.Count;
+        var boxes = new Box[count];
+        var minX = new int[count];
+        var minZ = new int[count];
+        var maxX = new int[count];
+        var maxZ = new int[count];
+
+        Array.Fill(minX, int.MaxValue);
+        Array.Fill(minZ, int.MaxValue);
+        Array.Fill(maxX, int.MinValue);
+        Array.Fill(maxZ, int.MinValue);
+
+        for (int cell = 0; cell < water.BodyIds.Length; cell++)
+        {
+            short body = water.BodyIds[cell];
+
+            if (body < 0 || body >= count)
+                continue;
+
+            int x = cell % water.Resolution, z = cell / water.Resolution;
+            minX[body] = Math.Min(minX[body], x);
+            minZ[body] = Math.Min(minZ[body], z);
+            maxX[body] = Math.Max(maxX[body], x);
+            maxZ[body] = Math.Max(maxZ[body], z);
+        }
+
+        for (int body = 0; body < count; body++)
+        {
+            if (minX[body] > maxX[body])
+                continue;
+
+            int x0 = Math.Max(0, Mathf.FloorToInt((minX[body] - 1) * water.CellSize / step));
+            int z0 = Math.Max(0, Mathf.FloorToInt((minZ[body] - 1) * water.CellSize / step));
+            int x1 = Math.Min(resolution, Mathf.CeilToInt((maxX[body] + 2) * water.CellSize / step) + 1);
+            int z1 = Math.Min(resolution, Mathf.CeilToInt((maxZ[body] + 2) * water.CellSize / step) + 1);
+            boxes[body] = new Box(x0, z0, x1 - x0, z1 - z0);
+        }
+
+        return boxes;
+    }
+
+    private static float[] BoxMean(float[] heights, int resolution, Box box, int radius)
+    {
+        var rows = new float[box.Width * box.Height];
+        var mean = new float[rows.Length];
+
+        for (int row = box.Z; row < box.Z + box.Height; row++)
+        {
+            for (int column = box.X; column < box.X + box.Width; column++)
+            {
+                double sum = 0;
+
+                for (int dx = -radius; dx <= radius; dx++)
+                    sum += heights[row * resolution + Math.Clamp(column + dx, 0, resolution - 1)];
+
+                rows[(row - box.Z) * box.Width + column - box.X] = (float)(sum / (2 * radius + 1));
+            }
+        }
+
+        for (int row = 0; row < box.Height; row++)
+        {
+            for (int column = 0; column < box.Width; column++)
+            {
+                double sum = 0;
+
+                for (int dz = -radius; dz <= radius; dz++)
+                    sum += rows[Math.Clamp(row + dz, 0, box.Height - 1) * box.Width + column];
+
+                mean[row * box.Width + column] = (float)(sum / (2 * radius + 1));
+            }
+        }
+
+        return mean;
     }
 
     public static void SmoothShores(HeightMap map, WaterMap water)

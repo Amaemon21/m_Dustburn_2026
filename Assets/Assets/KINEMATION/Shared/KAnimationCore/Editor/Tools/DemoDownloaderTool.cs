@@ -17,7 +17,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         public string contentName;
         public List<Tag> tags;
     }
-    
+
     public struct Tag
     {
         public string text;
@@ -31,7 +31,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
             this.url = url;
         }
     }
-    
+
     public static class ContentLicenseWidget
     {
         private static GUIStyle _labelStyle;
@@ -61,13 +61,13 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         public static void DrawRow(ContentLicense contentLicense)
         {
             InitStyles();
-            
+
             EditorGUILayout.BeginHorizontal();
 
             string rowString = $"{contentLicense.contentAuthor} \u2022 {contentLicense.contentName}";
-            
+
             GUILayout.Label(new GUIContent(rowString, contentLicense.contentName), _labelStyle);
-            
+
             if (contentLicense.tags != null)
             {
                 Color originalColor = GUI.backgroundColor;
@@ -89,11 +89,11 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
 
                 GUI.backgroundColor = originalColor;
             }
-        
+
             EditorGUILayout.EndHorizontal();
         }
     }
-    
+
     public abstract class DemoDownloaderTool : IEditorTool
     {
         private static readonly string PackageDirectory = Path.Combine("Library", "KINEMATION");
@@ -103,7 +103,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         private string _progressLabel = "";
         private bool _isDownloading = false;
         private bool _cancelledDownload = false;
-    
+
         private string _fullPackagePath;
         private List<ContentLicense> _contentLicences;
 
@@ -111,7 +111,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         {
             return string.Empty;
         }
-    
+
         protected virtual string GetPackageFileName()
         {
             return string.Empty;
@@ -121,7 +121,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         {
             return null;
         }
-        
+
         public virtual void Init()
         {
             _contentLicences = GetContentLicenses();
@@ -134,18 +134,19 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                 EditorGUILayout.HelpBox("This demo has third-party content:", MessageType.Warning);
                 foreach (var contentLicense in _contentLicences) ContentLicenseWidget.DrawRow(contentLicense);
             }
-            
+
             GUI.enabled = !_isDownloading;
             if (GUILayout.Button("Download and Import"))
             {
                 StartDownload();
             }
+
             GUI.enabled = true;
 
             if (!_isDownloading) return;
-            
+
             EditorGUILayout.Space(1f);
-            
+
             Rect rect = EditorGUILayout.GetControlRect(false);
             Rect barRect = rect;
             barRect.width *= 0.7f;
@@ -156,14 +157,14 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
             buttonRect.width *= 0.3f;
             buttonRect.width -= padding;
             buttonRect.x += barRect.width + padding;
-            
+
             EditorGUI.ProgressBar(barRect, _downloadProgress, _progressLabel);
             if (GUI.Button(buttonRect, "Stop", EditorStyles.miniButton))
             {
                 _webClient.CancelAsync();
                 _cancelledDownload = true;
             }
-            
+
             UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
         }
 
@@ -202,7 +203,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
             _cancelledDownload = false;
             _downloadProgress = 0f;
             _progressLabel = "Starting download...";
-            
+
             try
             {
                 _webClient.DownloadFileAsync(new Uri(GetPackageUrl()), _fullPackagePath);
@@ -241,7 +242,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                     Debug.LogError("Package file not found after download.");
                 }
             }
-            
+
             _webClient.Dispose();
             _webClient = null;
         }

@@ -14,7 +14,7 @@ internal static partial class Harness
     private static StrikeInfo Hit(int damage, int wear, params MaterialBonus[] bonuses)
         => new(damage, wear, bonuses, Vector3.zero, Vector3.back);
 
-    private static T FakeAsset<T>() where T : ScriptableObject
+    private static T FakeAsset<T>() where T : UnityEngine.Object
     {
         T asset = (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
         FieldInfo pointer = typeof(UnityEngine.Object).GetField("m_CachedPtr", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -94,7 +94,7 @@ internal static partial class Harness
         using DamageFeed feed = new();
         List<DamageReport> reports = new();
         using IDisposable listening = feed.Reports.Subscribe(reports.Add);
-        LocalHeldItemEffects effects = new(inventory, catalog, rewards, feed);
+        LocalHeldItemEffects effects = new(inventory, catalog, new DamageService(feed, rewards), new UnlimitedStamina());
         HeldItem axe = new("chop", Vector2Int.zero, "axe", null);
         MaterialBonus[] axeBonuses = { new(stone, 0.5f, 1f), new(wood, 2f, 1.5f) };
 

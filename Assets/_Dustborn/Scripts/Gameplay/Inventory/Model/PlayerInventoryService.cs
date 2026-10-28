@@ -113,23 +113,25 @@ public sealed class PlayerInventoryService : IDisposable
         bool useHotbar = player.Hotbar.GetAmount(stack.ItemId) > 0;
         int taken = stack.Wear > 0
             ? PickUpWorn(player, stack.ItemId, stack.Amount, stack.Wear, useHotbar)
-            : PickUpStack(player, stack.ItemId, stack.Amount, useHotbar);
+            : PickUpStack(player, stack.ItemId, stack.Amount);
 
         if (taken > 0)
             _pickedUp.OnNext(new ItemGain(ownerId, stack.WithAmount(taken)));
         return taken;
     }
 
-    private int PickUpStack(PlayerInventoryProxy player, string itemId, int amount, bool useHotbar)
+    private int PickUpStack(PlayerInventoryProxy player, string itemId, int amount)
     {
         int remaining = amount;
-        remaining -= _inventory.AddItemsToExistingStacks(player.Hotbar.OwnerId, itemId, remaining).ItemsAddedAmount;
-        if (remaining > 0)
-            remaining -= _inventory.AddItemsToExistingStacks(player.Backpack.OwnerId, itemId, remaining).ItemsAddedAmount;
-        if (remaining > 0 && useHotbar)
-            remaining -= _inventory.AddItemsToInventory(player.Hotbar.OwnerId, itemId, remaining).ItemsAddedAmount;
-        if (remaining > 0)
-            remaining -= _inventory.AddItemsToInventory(player.Backpack.OwnerId, itemId, remaining).ItemsAddedAmount;
+        foreach (PlayerStackStep step in PlayerStackPlacement.Route(player, itemId))
+        {
+            if (remaining == 0)
+                break;
+
+            remaining -= step.EmptySlots
+                ? _inventory.AddItemsToInventory(step.Grid.OwnerId, itemId, remaining).ItemsAddedAmount
+                : _inventory.AddItemsToExistingStacks(step.Grid.OwnerId, itemId, remaining).ItemsAddedAmount;
+        }
         return amount - remaining;
     }
 
@@ -142,8 +144,8 @@ public sealed class PlayerInventoryService : IDisposable
     private int PlaceWorn(IReadOnlyInventoryGrid grid, string itemId, int amount, int wear)
     {
         int placed = 0;
-        for (int x = 0; x < grid.Size.x && placed < amount; x++)
-            for (int y = 0; y < grid.Size.y && placed < amount; y++)
+        for (int y = 0; y < grid.Size.y && placed < amount; y++)
+            for (int x = 0; x < grid.Size.x && placed < amount; x++)
             {
                 Vector2Int coords = new(x, y);
                 if (!grid.GetSlot(coords).IsEmpty)
@@ -183,8 +185,8 @@ public sealed class PlayerInventoryService : IDisposable
         IReadOnlyInventoryGrid target = sourceId == player.Backpack.OwnerId ? player.Hotbar : player.Backpack;
         int capacity = target.CapacityFor(state.ItemId);
         for (int pass = 0; pass < 2; pass++)
-            for (int x = 0; x < target.Size.x; x++)
-                for (int y = 0; y < target.Size.y; y++)
+            for (int y = 0; y < target.Size.y; y++)
+                for (int x = 0; x < target.Size.x; x++)
                 {
                     InventorySlotState destination = target.GetSlot(new Vector2Int(x, y)).State.CurrentValue;
                     if ((pass == 0 && destination.ItemId != state.ItemId) || (pass == 1 && !destination.IsEmpty))
@@ -206,8 +208,28 @@ public sealed class PlayerInventoryService : IDisposable
     public bool Unequip(string ownerId, EquipmentSlot equipmentSlot, Vector2Int backpackSlot)
     {
         PlayerInventoryProxy player = GetPlayerInventory(ownerId);
-        
+
         return _inventory.MoveItems(player.Equipment.OwnerId, new Vector2Int((int)equipmentSlot, 0), player.Backpack.OwnerId, backpackSlot);
+    }
+
+    public bool MoveToBackpack(string ownerId, string sourceId, Vector2Int source, Vector2Int? preferred, out Vector2Int target)
+    {
+        PlayerInventoryProxy player = GetPlayerInventory(ownerId);
+        InventorySlotState state = _inventory.GetInventory(sourceId).GetSlot(source).State.CurrentValue;
+        Vector2Int? slot = preferred ?? FirstEmpty(player.Backpack);
+        target = slot ?? default;
+
+        return !state.IsEmpty && slot.HasValue &&
+            _inventory.MoveItems(sourceId, source, player.Backpack.OwnerId, slot.Value, state.Amount);
+    }
+
+    private static Vector2Int? FirstEmpty(IReadOnlyInventoryGrid grid)
+    {
+        for (int y = 0; y < grid.Size.y; y++)
+            for (int x = 0; x < grid.Size.x; x++)
+                if (grid.GetSlot(new Vector2Int(x, y)).IsEmpty)
+                    return new Vector2Int(x, y);
+        return null;
     }
 
     private void TrackPlayer(PlayerInventoryData data)

@@ -10,7 +10,7 @@ using UnityEngine;
 public class WaterStampTests
 {
     private const string PACK = "Assets/_Dustborn/Content/WaterStamps";
-    private const string DATABASE = "Assets/_Dustborn/Content/World/WaterStampDatabase.asset";
+    private const string DATABASE = "Assets/_Dustborn/Content/Configs/World/WaterStampDatabase.asset";
     private const int WORLD = 2048;
     private const float MAX_HEIGHT = 384f;
     private const long RAW_BYTES = 2097152;

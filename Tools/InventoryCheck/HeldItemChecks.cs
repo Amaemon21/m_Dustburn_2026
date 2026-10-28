@@ -100,7 +100,7 @@ internal static partial class Harness
         inventory.RegisterInventory(new InventoryGridData { OwnerId = "hands", Size = new Vector2Int(2, 1) });
         inventory.AddItemsToInventory("hands", Vector2Int.zero, "axe", 1);
         using DamageFeed feed = new();
-        LocalHeldItemEffects effects = new(inventory, catalog, new TestRewards(), feed);
+        LocalHeldItemEffects effects = new(inventory, catalog, new DamageService(feed, new TestRewards()), new UnlimitedStamina());
         HeldItem axe = new("hands", Vector2Int.zero, "axe", null);
         TestDamageable target = new();
 
@@ -125,6 +125,7 @@ internal static partial class Harness
         HeldItemConfig axeConfig = TestHeldItem(0.5f, 0.25f, new TestActionConfig(0.4f));
         HeldItemConfig pickConfig = TestHeldItem(0.5f, 0.25f, new TestActionConfig(0.4f));
         HeldItemConfig clubConfig = TestHeldItem(0.5f, 0.25f, new TestActionConfig(0.4f));
+        SetBackingField(clubConfig, nameof(HeldItemConfig.RunEndTime), 0.3f);
         HeldItem axe = new("hotbar", new Vector2Int(0, 0), "axe", axeConfig);
         HeldItem pick = new("hotbar", new Vector2Int(1, 0), "pick", pickConfig);
         HeldItem club = new("hotbar", new Vector2Int(2, 0), "club", clubConfig);
@@ -133,6 +134,7 @@ internal static partial class Harness
 
         hands.Tick(default, 0.1f);
         Check(presenter.Hidden == 1 && presenter.Shown.Count == 0, "nothing held hides the arms");
+        Check(presenter.Ticks == 1, "the hands tick their presenter every frame");
         hands.Hold(axe);
         hands.Tick(attack, 0.1f);
         Check(presenter.Shown.Count == 1 && ReferenceEquals(presenter.Shown[0], axeConfig) && presenter.Played[^1] == HandsMotion.Equip,
@@ -168,12 +170,28 @@ internal static partial class Harness
         int played = presenter.Played.Count;
         hands.Tick(walking, 0.1f);
         Check(presenter.Played.Count == played, "a held pose is not replayed");
-        hands.Tick(new HandsRequest { Moving = true, Running = true }, 0.1f);
-        Check(presenter.Played[^1] == HandsMotion.Run, "sprinting runs");
+        HandsRequest running = new() { Moving = true, Running = true };
+        hands.Tick(running, 0.1f);
+        Check(presenter.Played[^1] == HandsMotion.RunStart, "sprinting starts a run, the animation set chains it into Run");
+        played = presenter.Played.Count;
+        hands.Tick(running, 0.1f);
+        Check(presenter.Played.Count == played, "a run is not restarted");
+        hands.Tick(walking, 0.1f);
+        Check(presenter.Played[^1] == HandsMotion.RunEnd, "leaving a sprint ends the run");
+        hands.Tick(walking, 0.1f);
+        Check(presenter.Played[^1] == HandsMotion.RunEnd, "the run end is not cut by the next pose");
+        hands.Tick(walking, 0.25f);
+        Check(presenter.Played[^1] == HandsMotion.Walk, "walking follows the run end");
+        hands.Tick(running, 0.1f);
         hands.Tick(default, 0.1f);
-        Check(presenter.Played[^1] == HandsMotion.Idle, "stopping returns to idle");
+        played = presenter.Played.Count;
+        hands.Tick(running, 0.1f);
+        Check(presenter.Played.Count == played + 1 && presenter.Played[^1] == HandsMotion.RunStart, "sprinting again cuts the run end");
+        hands.Tick(default, 0.1f);
+        hands.Tick(default, 0.4f);
+        Check(presenter.Played[^1] == HandsMotion.RunEnd, "stopping ends the run and the animation set settles in idle");
         hands.Tick(new HandsRequest { Primary = true, Moving = true }, 0.1f);
-        Check(TestAction.Started == 3 && presenter.Played[^1] == HandsMotion.Idle, "a use takes over from the pose");
+        Check(TestAction.Started == 3 && presenter.Played[^1] != HandsMotion.Walk, "a use takes over from the pose");
         hands.Tick(walking, 0.5f);
         hands.Tick(walking, 0.1f);
         Check(presenter.Played[^1] == HandsMotion.Walk, "walking resumes after a use");
@@ -241,6 +259,8 @@ internal static partial class Harness
         public readonly List<HeldItemConfig> Shown = new();
         public readonly List<HandsMotion> Played = new();
         public int Hidden;
+        public int Ticks;
+        public int Impacts;
 
         public bool Show(HeldItemConfig config)
         {
@@ -251,7 +271,13 @@ internal static partial class Harness
         }
 
         public void Hide() => Hidden++;
-        public void Play(HandsMotion motion) => Played.Add(motion);
+        public void Impact(float shake) => Impacts++;
+        public void Tick(float deltaTime) => Ticks++;
+        public bool Play(HandsMotion motion)
+        {
+            Played.Add(motion);
+            return true;
+        }
         public void Dispose() { }
     }
 

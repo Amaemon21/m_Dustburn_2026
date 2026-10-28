@@ -21,7 +21,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
             {
                 return;
             }
-            
+
             AnimatorController animatorController = controller as AnimatorController;
             if (animatorController != null)
             {
@@ -32,7 +32,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     {
                         continue;
                     }
-                    
+
                     options.Add($"{parameters[i].name} (Animator)");
                 }
             }
@@ -41,13 +41,13 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
         private void AddInputNames(ref List<string> options, UserInputConfig config)
         {
             if (config == null) return;
-            
+
             foreach (var property in config.floatProperties)
             {
                 options.Add($"{property.name} (Input)");
             }
         }
-        
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             CurveSelectorAttribute curveAttribute = attribute as CurveSelectorAttribute;
@@ -55,14 +55,14 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
             {
                 return;
             }
-            
+
             KRig rig = (property.serializedObject.targetObject as IRigUser)?.GetRigAsset();
             if (rig == null)
             {
                 EditorGUI.PropertyField(position, property, label, true);
                 return;
             }
-            
+
             SerializedProperty name = property.FindPropertyRelative("name");
             SerializedProperty source = property.FindPropertyRelative("source");
             SerializedProperty mode = property.FindPropertyRelative("mode");
@@ -94,9 +94,9 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     AddInputNames(ref options, rig.inputConfig);
                 }
             }
-            
+
             name ??= property;
-            
+
             int index = options.IndexOf(name.stringValue);
 
             if (index < 0)
@@ -108,7 +108,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
             {
                 index = options.ToList().IndexOf(name.stringValue + " (Playables)");
             }
-            
+
             if (index < 0)
             {
                 index = options.ToList().IndexOf(name.stringValue + " (Input)");
@@ -116,7 +116,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
 
             Rect propertyRect = position;
             propertyRect.height = EditorGUIUtility.singleLineHeight;
-            
+
             index = EditorGUI.Popup(propertyRect, label.text, index, options.ToArray());
             string selection = index >= 0 ? options[index] : "None";
 
@@ -126,24 +126,24 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 {
                     source.intValue = 0;
                 }
-                
+
                 if (selection.EndsWith("(Playables)"))
                 {
                     source.intValue = 1;
                 }
-                
+
                 if (selection.EndsWith("(Input)"))
                 {
                     source.intValue = 2;
                 }
             }
-            
+
             selection = selection.Replace(" (Playables)", "");
             selection = selection.Replace(" (Animator)", "");
             selection = selection.Replace(" (Input)", "");
-            
+
             name.stringValue = selection;
-            
+
             if (mode != null)
             {
                 propertyRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;

@@ -24,7 +24,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 UserInputController controller = root.gameObject.GetComponentInChildren<UserInputController>();
                 config = controller == null ? null : controller.inputConfig;
             }
-            
+
             if (config == null)
             {
                 config = (property.serializedObject.targetObject as IRigUser)?.GetRigAsset().inputConfig;
@@ -35,13 +35,13 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                 EditorGUI.PropertyField(position, property, label, true);
                 return;
             }
-            
+
             int selectedIndex = -1;
             int indexOffset = 0;
-          
+
             List<string> properties = new List<string>();
             List<string> options = new List<string>();
-            
+
             int count = config.boolProperties.Count;
             for (int i = 0; i < count; i++)
             {
@@ -53,8 +53,9 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     selectedIndex = i + indexOffset;
                 }
             }
+
             indexOffset += count;
-            
+
             count = config.intProperties.Count;
             for (int i = 0; i < count; i++)
             {
@@ -66,8 +67,9 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     selectedIndex = i + indexOffset;
                 }
             }
+
             indexOffset += count;
-            
+
             count = config.floatProperties.Count;
             for (int i = 0; i < count; i++)
             {
@@ -79,8 +81,9 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     selectedIndex = i + indexOffset;
                 }
             }
+
             indexOffset += count;
-            
+
             count = config.vectorProperties.Count;
             for (int i = 0; i < count; i++)
             {
@@ -92,10 +95,10 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
                     selectedIndex = i + indexOffset;
                 }
             }
-            
-            selectedIndex = EditorGUI.Popup(position, label.text, selectedIndex, 
+
+            selectedIndex = EditorGUI.Popup(position, label.text, selectedIndex,
                 options.ToArray());
-            
+
             property.stringValue = selectedIndex == -1 ? "None" : properties[selectedIndex];
         }
     }

@@ -306,7 +306,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
             }
 
             EditorGUILayout.BeginHorizontal();
-            _showClipQueue = EditorGUILayout.Foldout(_showClipQueue, $"Queued Clips: {_clipQueue.Count}", 
+            _showClipQueue = EditorGUILayout.Foldout(_showClipQueue, $"Queued Clips: {_clipQueue.Count}",
                 true, _foldoutStyle);
             GUI.enabled = _clipQueue.Count > 0;
             if (GUILayout.Button("Clear", EditorStyles.miniButton, GUILayout.Width(52f)))
@@ -315,6 +315,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                 _queuedClipKeys.Clear();
                 _queueMessage = string.Empty;
             }
+
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
 
@@ -486,7 +487,8 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
 
             EditorGUILayout.Space();
 
-            content = new GUIContent("Is Additive", "If true, pose will be copied relative to the reference animation.");
+            content = new GUIContent("Is Additive",
+                "If true, pose will be copied relative to the reference animation.");
             _isAdditive = EditorGUILayout.Toggle(content, _isAdditive);
 
             GUI.enabled = _isAdditive;

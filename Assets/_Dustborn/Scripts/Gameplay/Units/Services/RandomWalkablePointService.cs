@@ -6,13 +6,13 @@ public class RandomWalkablePointService
     private const int MAX_ATTEMPTS = 20;
     
     private readonly UnitConfig _config;
-    private readonly Transform _wanderTransform;
+    private readonly Vector3 _wanderCenter;
     private readonly UnitFieldOfViewService _unitFieldOfViewService;
     
-    public RandomWalkablePointService(UnitConfig config, Transform wanderTransform, UnitFieldOfViewService unitFieldOfViewService)
+    public RandomWalkablePointService(UnitConfig config, Vector3 wanderCenter, UnitFieldOfViewService unitFieldOfViewService)
     {
         _config = config;
-        _wanderTransform = wanderTransform;
+        _wanderCenter = wanderCenter;
         _unitFieldOfViewService = unitFieldOfViewService;
     }
 
@@ -27,20 +27,20 @@ public class RandomWalkablePointService
                 continue;
             }
             
-            GraphNode node = AstarPath.active.GetNearest(randomPosition).node;
+            GraphNode node = AstarPath.active == null ? null : AstarPath.active.GetNearest(randomPosition).node;
             
-            if (node.Walkable)
+            if (node != null && node.Walkable)
             {
                 return (Vector3)node.position;
             }
         }
         
-        return _wanderTransform.position;
+        return _wanderCenter;
     }
     
     private Vector3 GetRandomWorldPoint()
     {
-        Vector3 center = _wanderTransform.position;
+        Vector3 center = _wanderCenter;
         float radius = _config.MaxDistance; 
         
         Vector2 random = Random.insideUnitCircle * radius;

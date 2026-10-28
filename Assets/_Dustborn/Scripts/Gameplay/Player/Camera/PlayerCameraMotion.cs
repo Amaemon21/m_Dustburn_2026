@@ -3,41 +3,77 @@ using DG.Tweening;
 using R3;
 using UnityEngine;
 
-public sealed class PlayerCameraMotion : IDisposable
+public sealed class PlayerCameraMotion : IViewImpact, IDisposable
 {
-    private const float STEP_SINE = -0.95f;
-
     private readonly Transform _pivot;
     private readonly Transform _tiltRoot;
+    private readonly TransformOffset _headBob;
+    private readonly TransformOffset _camera;
+    private readonly TransformOffset _arms;
     private readonly PlayerCameraConfig _config;
-    private readonly Subject<bool> _footstep = new();
+    private readonly CameraHeadBob _bob;
+    private readonly CameraShake _shake;
+    private readonly ArmsSway _sway;
     private readonly float _baseY;
     private float _crouchOffset;
-    private float _bobOffset;
-    private float _bobTimer;
     private Vector2 _targetTilt;
     private Tween _tiltTween;
-    private bool _leftFoot = true;
-    private bool _stepFired;
 
-    public Observable<bool> Footstep => _footstep;
+    public Observable<bool> Footstep => _bob.Footstep;
 
-    public PlayerCameraMotion(Transform pivot, Transform tiltRoot, PlayerCameraConfig config)
+    public PlayerCameraMotion(PlayerView view)
     {
-        _pivot = pivot;
-        _tiltRoot = tiltRoot;
-        _config = config;
-        _baseY = pivot.localPosition.y;
+        if (view == null)
+            throw new ArgumentNullException(nameof(view));
+
+        _pivot = view.CameraPivot;
+        _tiltRoot = view.TiltRoot;
+        _config = view.CameraMotion != null ? view.CameraMotion : throw new ArgumentException($"{nameof(PlayerView)} has no camera config", nameof(view));
+        _headBob = TransformOffset.Of(view.HeadBobRoot);
+        _camera = TransformOffset.Of(view.CameraRoot);
+        _arms = TransformOffset.Of(view.ArmsSwayRoot);
+        _bob = new CameraHeadBob(_config);
+        _shake = new CameraShake(_config);
+        _sway = new ArmsSway(_config.Arms);
+        _baseY = _pivot.localPosition.y;
+
+        if (_headBob == null || _camera == null || _arms == null)
+            Debug.LogWarning($"{nameof(PlayerCameraMotion)}: {nameof(PlayerView)} lacks HeadBobRoot, CameraRoot or ArmsSwayRoot, the missing layers fall back or stay still", view);
     }
 
-    public void Tick(in PlayerMovementResult movement, float deltaTime)
+    public void Impact(float strength)
+    {
+        _shake.Impact(strength);
+        _sway.Impact(strength);
+    }
+
+    public void Tick(in PlayerMovementResult movement, Vector2 turn, float deltaTime)
     {
         UpdateTilt(movement.Move);
         UpdateCrouchOffset(movement.IsCrouching, deltaTime);
-        UpdateBob(movement, deltaTime);
+        _bob.Tick(movement, deltaTime);
+        _shake.Tick(deltaTime);
+        _sway.Tick(movement, turn, _bob, deltaTime);
+        Apply();
+    }
 
-        Vector3 position = _pivot.localPosition;
-        _pivot.localPosition = new Vector3(position.x, _baseY + _crouchOffset + _bobOffset, position.z);
+    private void Apply()
+    {
+        Vector3 pivot = _pivot.localPosition;
+        float pivotBob = _headBob == null && _camera == null ? _bob.Position.y : 0f;
+        _pivot.localPosition = new Vector3(pivot.x, _baseY + _crouchOffset + pivotBob, pivot.z);
+
+        if (_headBob != null)
+        {
+            _headBob.Apply(_bob.Position, _bob.Rotation);
+            _camera?.Apply(Vector3.zero, _shake.Rotation);
+        }
+        else
+        {
+            _camera?.Apply(_bob.Position, _bob.Rotation + _shake.Rotation);
+        }
+
+        _arms?.Apply(_sway.Position, _sway.Rotation);
     }
 
     private void UpdateCrouchOffset(bool crouching, float deltaTime)
@@ -71,53 +107,9 @@ public sealed class PlayerCameraMotion : IDisposable
         _tiltRoot.localEulerAngles = new Vector3(tilt.x, euler.y, tilt.y);
     }
 
-    private void UpdateBob(in PlayerMovementResult movement, float deltaTime)
-    {
-        if (!movement.IsGrounded)
-            return;
-
-        float threshold = _config.MoveThreshold;
-        if (Mathf.Abs(movement.Move.x) <= threshold && Mathf.Abs(movement.Move.y) <= threshold)
-        {
-            ResetBob();
-            return;
-        }
-
-        float speed = movement.IsCrouching ? _config.CrouchBobSpeed : movement.IsSprinting ? _config.SprintBobSpeed : _config.WalkBobSpeed;
-        float amount = movement.IsCrouching ? _config.CrouchBobAmount : movement.IsSprinting ? _config.SprintBobAmount : _config.WalkBobAmount;
-
-        _bobTimer += deltaTime * speed;
-        float sine = Mathf.Sin(_bobTimer);
-        _bobOffset = sine * amount;
-        FireFootstep(sine, movement.IsCrouching);
-    }
-
-    private void FireFootstep(float sine, bool crouching)
-    {
-        if (sine >= STEP_SINE)
-        {
-            _stepFired = false;
-            return;
-        }
-        if (_stepFired || crouching)
-            return;
-
-        _footstep.OnNext(_leftFoot);
-        _leftFoot = !_leftFoot;
-        _stepFired = true;
-    }
-
-    private void ResetBob()
-    {
-        _bobOffset = 0f;
-        _bobTimer = 0f;
-        _stepFired = false;
-        _leftFoot = true;
-    }
-
     public void Dispose()
     {
         _tiltTween?.Kill();
-        _footstep.Dispose();
+        _bob.Dispose();
     }
 }

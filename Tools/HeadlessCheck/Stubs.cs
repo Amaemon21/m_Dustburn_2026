@@ -37,9 +37,11 @@ namespace UnityEngine
         private static readonly Vector3 upVector = new(0f, 1f, 0f);
         private static readonly Vector3 forwardVector = new(0f, 0f, 1f);
         private static readonly Vector3 zeroVector = new(0f, 0f, 0f);
+        private static readonly Vector3 oneVector = new(1f, 1f, 1f);
         public static Vector3 up => upVector;
         public static Vector3 forward => forwardVector;
         public static Vector3 zero => zeroVector;
+        public static Vector3 one => oneVector;
         public static Vector3 operator +(Vector3 a, Vector3 b) => new(a.x + b.x, a.y + b.y, a.z + b.z);
         public static Vector3 operator -(Vector3 a, Vector3 b) => new(a.x - b.x, a.y - b.y, a.z - b.z);
         public static Vector3 operator *(Vector3 a, float b) => new(a.x * b, a.y * b, a.z * b);
@@ -53,6 +55,21 @@ namespace UnityEngine
         public float sqrMagnitude => x * x + y * y + z * z;
         public float magnitude => (float)System.Math.Sqrt(sqrMagnitude);
         public void Normalize() { float m = magnitude; if (m > 1e-5f) { x /= m; y /= m; z /= m; } else { x = y = z = 0f; } }
+    }
+
+    public readonly struct Vector2Int : IEquatable<Vector2Int>
+    {
+        public readonly int x, y;
+        public Vector2Int(int x, int y) { this.x = x; this.y = y; }
+        public bool Equals(Vector2Int other) => x == other.x && y == other.y;
+        public override bool Equals(object other) => other is Vector2Int value && Equals(value);
+        public override int GetHashCode() => HashCode.Combine(x, y);
+    }
+
+    public struct Vector4
+    {
+        public float x, y, z, w;
+        public Vector4(float x, float y, float z, float w) { this.x = x; this.y = y; this.z = z; this.w = w; }
     }
 
     public struct Rect
@@ -128,6 +145,7 @@ namespace UnityEngine
         public static float Asin(float v) => (float)Math.Asin(v);
         public static float Tan(float v) => (float)Math.Tan(v);
         public static float LerpUnclamped(float a, float b, float t) => a + (b - a) * t;
+        public static float Repeat(float t, float length) => Clamp(t - (float)Math.Floor(t / length) * length, 0f, length);
         public static float DeltaAngle(float a, float b) { float d = (b - a) % 360f; if (d > 180f) d -= 360f; if (d < -180f) d += 360f; return d; }
     }
 
@@ -222,6 +240,7 @@ namespace UnityEngine
         public T GetComponent<T>() => default;
         public T GetComponentInChildren<T>() => default;
         public T[] GetComponentsInChildren<T>(bool includeInactive) => new T[0];
+        public void SetActive(bool value) { }
         public SceneManagement.Scene scene => default;
     }
 

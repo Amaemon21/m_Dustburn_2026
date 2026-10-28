@@ -136,16 +136,16 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     float scale = (sumOthers > 0) ? saturate((1.0 - targetNew) / sumOthers) : 0;
 
     [unroll]
-    for (int slice = 0; slice < 8; slice++) {
+    for (int slice2 = 0; slice2 < 8; slice2++) {
         [unroll]
-        for (int channel = 0; channel < 4; channel++) {
-            if (slice == TargetSlice && channel == TargetChannel)
-                colours[slice][channel] = targetNew;
+        for (int channel2 = 0; channel2 < 4; channel2++) {
+            if (slice2 == TargetSlice && channel2 == TargetChannel)
+            colours[slice2][channel2] = targetNew;
             else
-                colours[slice][channel] *= scale;
+            colours[slice2][channel2] *= scale;
         }
 
-        float4 colour = float4(colours[slice][0], colours[slice][1], colours[slice][2], colours[slice][3]);
-        WriteControl(slice, id.xy, colour);
+        float4 colour = float4(colours[slice2][0], colours[slice2][1], colours[slice2][2], colours[slice2][3]);
+        WriteControl(slice2, id.xy, colour);
     }
 }

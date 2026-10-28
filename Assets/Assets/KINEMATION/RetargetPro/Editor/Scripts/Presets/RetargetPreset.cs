@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 KINEMATION.
+// Copyright (c) 2026 KINEMATION.
 // All rights reserved.
 
 using System;
@@ -263,7 +263,8 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
             }
 
             _cachedPresets = _cachedPresets
-                .OrderBy(preset => preset is UnityHumanoidRetargetPreset ? 1 : 0)
+                .OrderBy(preset => preset is UnityHumanoidRetargetPreset ? 2 :
+                    preset is QuadrupedRetargetPreset ? 1 : 0)
                 .ToList();
 
             return _cachedPresets;
@@ -305,9 +306,13 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
                 return false;
             }
 
+            Animator animator = character != null ? character.GetComponentInChildren<Animator>(true) : null;
+            bool isHumanoid = animator != null && animator.isHuman;
             foreach (RetargetPreset candidate in GetPresets())
             {
-                if (!MatchesPresetSignature(rig, candidate))
+                if (isHumanoid && candidate is QuadrupedRetargetPreset) continue;
+                if (!(isHumanoid && candidate is UnityHumanoidRetargetPreset) &&
+                    !MatchesPresetSignature(rig, candidate))
                 {
                     continue;
                 }
@@ -316,14 +321,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
                 return true;
             }
 
-            Animator animator = character != null ? character.GetComponentInChildren<Animator>(true) : null;
-            if (animator == null || !animator.isHuman)
-            {
-                return false;
-            }
-
-            preset = GetPresets().FirstOrDefault(candidate => candidate is UnityHumanoidRetargetPreset);
-            return preset != null;
+            return false;
         }
 
         public static Dictionary<RetargetChainId, KRigElementChain> BuildBestChainMap(KRig rig, out bool hasPreset,
@@ -337,15 +335,26 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
         {
             hasPreset = TryMatchPreset(rig, out preset, character);
             return hasPreset
-                ? BuildChainMap(rig, preset, includeEmptyChains)
+                ? BuildChainMap(rig, preset, includeEmptyChains, character)
                 : new Dictionary<RetargetChainId, KRigElementChain>();
         }
 
         public static Dictionary<RetargetChainId, KRigElementChain> BuildChainMap(KRig rig, RetargetPreset preset,
-            bool includeEmptyChains = false)
+            bool includeEmptyChains = false, GameObject character = null)
         {
             var map = new Dictionary<RetargetChainId, KRigElementChain>();
             if (rig == null || preset == null) return map;
+
+            if (preset is UnityHumanoidRetargetPreset && character != null && rig.rigHierarchy != null)
+            {
+                Animator animator = character.GetComponentInChildren<Animator>(true);
+                HumanBone[] humanBones = animator != null && animator.isHuman
+                    ? animator.avatar.humanDescription.human : null;
+                if (humanBones != null && humanBones.Length > 0)
+                {
+                    return UnityHumanoidRetargetPreset.BuildAvatarChainMap(rig, humanBones, includeEmptyChains);
+                }
+            }
 
             var lookups = preset.GetChainLookups();
             var exactBoneChains = preset.GetExactBoneChains();
@@ -1277,7 +1286,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
         {
             return new[]
             {
-                MakeLookups(new[] { "ik_hand_gun" }),
+                MakeLookups(new[] { "pelvis" }, null, null, GeneralAvoid),
                 MakeLookups(new[] { "spine_01" }, null, null, GeneralAvoid),
                 MakeLookups(new[] { "upperarm" }, null, LeftPostfixes, ArmAvoid),
                 MakeLookups(new[] { "thigh" }, null, LeftPostfixes, LegAvoid),
@@ -1347,7 +1356,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
 
         private static readonly string[] TailAvoid =
         {
-            "spine", "leg", "arm", "neck", "head"
+            "spine", "leg", "arm", "neck", "head", "hair"
         };
 
         private static readonly string[] EarAvoid =
@@ -1412,6 +1421,107 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Presets
 
     public class UnityHumanoidRetargetPreset : RetargetPreset
     {
+        private static readonly Dictionary<RetargetChainId, HumanBodyBones[]> AvatarChains =
+            new Dictionary<RetargetChainId, HumanBodyBones[]>
+            {
+                { RetargetChainId.Root, Array.Empty<HumanBodyBones>() },
+                { RetargetChainId.Pelvis, new[] { HumanBodyBones.Hips } },
+                { RetargetChainId.RightLeg, new[] { HumanBodyBones.RightUpperLeg, HumanBodyBones.RightLowerLeg,
+                    HumanBodyBones.RightFoot } },
+                { RetargetChainId.LeftLeg, new[] { HumanBodyBones.LeftUpperLeg, HumanBodyBones.LeftLowerLeg,
+                    HumanBodyBones.LeftFoot } },
+                { RetargetChainId.Toes, new[] { HumanBodyBones.LeftToes, HumanBodyBones.RightToes } },
+                { RetargetChainId.Spine, new[] { HumanBodyBones.Spine, HumanBodyBones.Chest, HumanBodyBones.UpperChest } },
+                { RetargetChainId.Neck, new[] { HumanBodyBones.Neck, HumanBodyBones.Head } },
+                { RetargetChainId.RightArm, new[] { HumanBodyBones.RightShoulder, HumanBodyBones.RightUpperArm,
+                    HumanBodyBones.RightLowerArm, HumanBodyBones.RightHand } },
+                { RetargetChainId.LeftArm, new[] { HumanBodyBones.LeftShoulder, HumanBodyBones.LeftUpperArm,
+                    HumanBodyBones.LeftLowerArm, HumanBodyBones.LeftHand } },
+                { RetargetChainId.IndexFingers, new[] { HumanBodyBones.LeftIndexProximal,
+                    HumanBodyBones.LeftIndexIntermediate, HumanBodyBones.LeftIndexDistal,
+                    HumanBodyBones.RightIndexProximal, HumanBodyBones.RightIndexIntermediate,
+                    HumanBodyBones.RightIndexDistal } },
+                { RetargetChainId.MiddleFingers, new[] { HumanBodyBones.LeftMiddleProximal,
+                    HumanBodyBones.LeftMiddleIntermediate, HumanBodyBones.LeftMiddleDistal,
+                    HumanBodyBones.RightMiddleProximal, HumanBodyBones.RightMiddleIntermediate,
+                    HumanBodyBones.RightMiddleDistal } },
+                { RetargetChainId.RingFingers, new[] { HumanBodyBones.LeftRingProximal,
+                    HumanBodyBones.LeftRingIntermediate, HumanBodyBones.LeftRingDistal,
+                    HumanBodyBones.RightRingProximal, HumanBodyBones.RightRingIntermediate,
+                    HumanBodyBones.RightRingDistal } },
+                { RetargetChainId.PinkyFingers, new[] { HumanBodyBones.LeftLittleProximal,
+                    HumanBodyBones.LeftLittleIntermediate, HumanBodyBones.LeftLittleDistal,
+                    HumanBodyBones.RightLittleProximal, HumanBodyBones.RightLittleIntermediate,
+                    HumanBodyBones.RightLittleDistal } },
+                { RetargetChainId.ThumbFingers, new[] { HumanBodyBones.LeftThumbProximal,
+                    HumanBodyBones.LeftThumbIntermediate, HumanBodyBones.LeftThumbDistal,
+                    HumanBodyBones.RightThumbProximal, HumanBodyBones.RightThumbIntermediate,
+                    HumanBodyBones.RightThumbDistal } }
+            };
+
+        internal static Dictionary<RetargetChainId, KRigElementChain> BuildAvatarChainMap(KRig rig,
+            HumanBone[] humanBones, bool includeEmptyChains)
+        {
+            Dictionary<string, string> boneNames = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (HumanBone bone in humanBones)
+            {
+                if (!string.IsNullOrEmpty(bone.humanName) && !string.IsNullOrEmpty(bone.boneName))
+                {
+                    boneNames[bone.humanName] = bone.boneName;
+                }
+            }
+
+            string[] humanNames = HumanTrait.BoneName;
+            Dictionary<RetargetChainId, KRigElementChain> map = new Dictionary<RetargetChainId, KRigElementChain>();
+            foreach (var entry in AvatarChains)
+            {
+                KRigElementChain chain = new KRigElementChain
+                {
+                    chainName = RetargetPresetUtility.GetChainName(entry.Key)
+                };
+                foreach (HumanBodyBones humanBone in entry.Value)
+                {
+                    if (!boneNames.TryGetValue(humanNames[(int)humanBone], out string boneName)) continue;
+                    int position = rig.rigHierarchy.FindIndex(element => element.name == boneName);
+                    if (position >= 0)
+                    {
+                        chain.elementChain.Add(rig.rigHierarchy[position]);
+                    }
+                }
+
+                map[entry.Key] = chain;
+            }
+
+            // The Avatar maps hips, but a separate motion root must be found above them.
+            KRigElementChain pelvisChain = map[RetargetChainId.Pelvis];
+            if (pelvisChain.elementChain.Count > 0)
+            {
+                KRigElement pelvis = pelvisChain.elementChain[0];
+                int position = rig.rigHierarchy.FindIndex(element => element.index == pelvis.index);
+                int depth = pelvis.depth;
+                RetargetBoneNameLookups rootLookups = MakeLookups(RootQueries, null, null, GeneralAvoid);
+                for (int i = position - 1; i >= 0; i--)
+                {
+                    KRigElement ancestor = rig.rigHierarchy[i];
+                    if (ancestor.depth >= depth) continue;
+                    depth = ancestor.depth;
+                    if (!RetargetBoneLookupUtility.IsNameMatching(ancestor.name, rootLookups)) continue;
+                    map[RetargetChainId.Root].elementChain.Add(ancestor);
+                    break;
+                }
+            }
+
+            if (!includeEmptyChains)
+            {
+                foreach (RetargetChainId chainId in AvatarChains.Keys)
+                {
+                    if (map[chainId].elementChain.Count == 0) map.Remove(chainId);
+                }
+            }
+
+            return map;
+        }
+
         public override string GetName()
         {
             return "Unity Humanoid";

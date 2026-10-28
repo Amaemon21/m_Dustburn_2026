@@ -30,7 +30,8 @@ public sealed class PlayerSpawnService : IPlayerProvider, IDisposable
         if (view == null)
             throw new InvalidOperationException($"{nameof(PlayerSpawnService)}: player prefab '{_prefab.name}' has no {nameof(PlayerView)}");
 
-        Character = new PlayerCharacter(view, _hands.Create(view));
+        PlayerCameraMotion camera = new(view);
+        Character = new PlayerCharacter(view, _hands.Create(view, camera), camera);
 
         Debug.Log($"{nameof(PlayerSpawnService)}: player spawned at {position.x:0}, {position.y:0}, {position.z:0}");
 

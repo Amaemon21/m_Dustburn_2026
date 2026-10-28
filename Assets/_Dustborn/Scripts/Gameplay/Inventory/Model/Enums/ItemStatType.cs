@@ -4,5 +4,16 @@ public enum ItemStatType
     Bleeding,
     Duration,
     Weight,
-    Durability
+    Durability,
+    Stamina,
+    Food,
+    Water,
+    Infection,
+    Amount,
+    Damage,
+    SwingTime,
+    StaminaCost,
+    Reach,
+    ExtraRows,
+    CarryBonus
 }

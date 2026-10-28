@@ -130,7 +130,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.IKRetargeting
             Vector3 targetPose = targetChain.cachedTransforms[^1].position;
             
             Vector3 additive = sourceTip.position - sourceTransform.TransformPoint(sourcePose, true);
-            
+
             float scale = Mathf.Lerp(1f, chainScale, _asset.scaleWeight);
             additive = additive * scale + targetTransform.TransformPoint(targetPose, true);
             
@@ -160,6 +160,9 @@ namespace KINEMATION.RetargetPro.Runtime.Features.IKRetargeting
 
             GetJointTransform();
             _chainIKData.poleIndex = _jointIndex;
+
+            KTransform targetRoot = new KTransform(GetTargetRoot());
+            _ikPole = targetRoot.GetRelativeTransform(new KTransform(GetPoleTarget(), Quaternion.identity), false);
         }
 
         protected virtual void ApplyTwoBoneIK()
@@ -338,7 +341,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.IKRetargeting
 
         protected override void OnTransformHandlesSceneGUI()
         {
-            if (Mathf.Approximately(_asset.ikWeight, 0f))
+            if (_targetLength < 3 || Mathf.Approximately(_asset.ikWeight, 0f))
             {
                 return;
             }
@@ -348,23 +351,37 @@ namespace KINEMATION.RetargetPro.Runtime.Features.IKRetargeting
             KTransform pole = rootTransform.GetWorldTransform(_ikPole, false);
             Transform tip = targetChain.transformChain[^1];
             Transform joint = GetJointTransform();
-            
-            Vector3 effectorDelta = RenderHandle(ResolveEffectorOffsetSpace(), goal, out Vector3 goalHandlePosition);
-            if (effectorDelta.sqrMagnitude > 0f)
+
+            Color originalColor = Handles.color;
+            Handles.color = TargetBoneChainColor;
+            RenderTargetSelection(0, goal.position, rootTransform.rotation);
+            RenderTargetSelection(1, pole.position, rootTransform.rotation);
+            Handles.color = originalColor;
+
+            Vector3 goalHandlePosition = goal.position;
+            if (IsHandleSelected(0))
             {
-                Undo.RecordObject(_asset, "Adjust IK Goal");
-                _asset.effectorOffset += effectorDelta;
-                EditorUtility.SetDirty(_asset);
+                Vector3 effectorDelta = RenderHandle(ResolveEffectorOffsetSpace(), goal, out goalHandlePosition);
+                if (effectorDelta.sqrMagnitude > 0f)
+                {
+                    Undo.RecordObject(_asset, "Adjust IK Goal");
+                    _asset.effectorOffset += effectorDelta;
+                    EditorUtility.SetDirty(_asset);
+                }
             }
             DrawIKTargetLine(tip.position, goalHandlePosition);
             Handles.Label(goalHandlePosition, "IK Goal");
-            
-            Vector3 jointDelta = RenderJointOffsetHandle(pole, out Vector3 poleHandlePosition);
-            if (jointDelta.sqrMagnitude > 0f)
+
+            Vector3 poleHandlePosition = pole.position;
+            if (IsHandleSelected(1))
             {
-                Undo.RecordObject(_asset, "Adjust IK Pole");
-                _asset.jointOffset += jointDelta;
-                EditorUtility.SetDirty(_asset);
+                Vector3 jointDelta = RenderJointOffsetHandle(pole, out poleHandlePosition);
+                if (jointDelta.sqrMagnitude > 0f)
+                {
+                    Undo.RecordObject(_asset, "Adjust IK Pole");
+                    _asset.jointOffset += jointDelta;
+                    EditorUtility.SetDirty(_asset);
+                }
             }
             DrawIKTargetLine(joint.position, poleHandlePosition);
             Handles.Label(poleHandlePosition, "IK Pole");

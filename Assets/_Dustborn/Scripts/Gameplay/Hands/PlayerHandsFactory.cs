@@ -7,6 +7,6 @@ public sealed class PlayerHandsFactory
         _actions = actions;
     }
 
-    public PlayerHands Create(PlayerView view)
-        => new(new FirstPersonHandsPresenter(view), new PlayerAimSource(view), _actions, view.UnarmedHands);
+    public PlayerHands Create(PlayerView view, IViewImpact impact)
+        => new(new FirstPersonHandsPresenter(view, impact), new PlayerAimSource(view), _actions, view.UnarmedHands);
 }

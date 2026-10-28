@@ -17,11 +17,13 @@ public sealed class GameplayAssetLoader : SceneAssetLoader<GameplayAssets>
         PlayerInputSettings playerInput = await scope.LoadAsync<PlayerInputSettings>(_references.PlayerInput, token);
         UIInputSettings input = await scope.LoadAsync<UIInputSettings>(_references.UIInput, token);
         InteractSettings interaction = await scope.LoadAsync<InteractSettings>(_references.InteractionSettings, token);
+        PlayerVitalsConfig vitals = await scope.LoadAsync<PlayerVitalsConfig>(_references.PlayerVitals, token);
+        PlayerProgressionConfig progression = await scope.LoadAsync<PlayerProgressionConfig>(_references.PlayerProgression, token);
 
         GameObject player = await scope.LoadAsync<GameObject>(_references.PlayerPrefab, token);
         GameObject ui = await scope.LoadAsync<GameObject>(_references.GameplayUIPrefab, token);
 
-        return new GameplayAssets(items, inventory, units, playerInput, input, interaction,
+        return new GameplayAssets(items, inventory, units, playerInput, input, interaction, vitals, progression,
             player, ui.GetComponent<UIGameplayRootBinder>());
     }
 }

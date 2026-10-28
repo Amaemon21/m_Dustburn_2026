@@ -44,9 +44,12 @@ public enum WorldGenStage
     BakeSaveAssets,
     BakeTotal,
 
+    PreviewLoad,
     PreviewGeometry,
     PreviewDecor,
+    PreviewWater,
     PreviewPoi,
+    PreviewSwap,
     PreviewClear,
 
     RuntimeConstruct,
@@ -97,6 +100,24 @@ public enum WorldGenStage
     MapRoadAssemble,
     MapRoadPrepare,
     MapRoadJob,
+    MapShoreRegions,
+    MapShoreResurface,
+    MapShoreShelf,
+    MapShoreDistances,
+    MapShoreSeal,
+    MapCarveProfile,
+    MapCarveStamp,
+    RoadSurface,
+    ShorePlan,
+    PreviewTransient,
+    MapProps,
+    PropBatch,
+    PreviewProps,
+    RuntimeRecenter,
+    PropReground,
+    RecenterSwap,
+    GrassMeshSchedule,
+    GrassMeshUpload,
 
     Count
 }

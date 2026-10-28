@@ -18,18 +18,18 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         public Vector3 forward => rotation * Vector3.forward;
         public Vector3 up => rotation * Vector3.up;
         public Vector3 right => rotation * Vector3.right;
-        
+
         public Vector3 position;
         public Quaternion rotation;
         public Vector3 scale;
-        
+
         public KTransform(Vector3 newPos, Quaternion newRot, Vector3 newScale)
         {
             position = newPos;
             rotation = newRot;
             scale = newScale;
         }
-        
+
         public KTransform(Vector3 newPos, Quaternion newRot)
         {
             position = newPos;
@@ -49,10 +49,10 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
                 position = t.localPosition;
                 rotation = t.localRotation;
             }
-            
+
             scale = t.localScale;
         }
-        
+
         // Linearly interpolates translation and scale. Spherically interpolates rotation.
         public static KTransform Lerp(KTransform a, KTransform b, float alpha)
         {
@@ -103,12 +103,12 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         public Vector3 InverseTransformVector(Vector3 worldDirection, bool useScale)
         {
             Vector3 result = Quaternion.Inverse(rotation) * worldDirection;
-            
+
             if (useScale)
             {
                 result = Vector3.Scale(scale, result);
             }
-            
+
             return result;
         }
 

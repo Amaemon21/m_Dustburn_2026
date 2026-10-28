@@ -24,7 +24,6 @@ public static partial class StandingWaterMesh
         foreach (short owner in owners)
         {
             bool any = false;
-
             for (int k = 0; k < WaterMap.CELL_NODES; k++)
             {
                 values[k] = water.NodeValue(owner, water.DetailOwner(start + k), water.DetailGround(start + k));

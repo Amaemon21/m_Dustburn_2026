@@ -25,7 +25,7 @@ public sealed class WorldGenerationBake
     {
         long total = WorldGenProbe.Now;
         ValidatePaths();
-        WorldMapResult maps = new WorldMapPipeline(_config, _settings.Biomes, _settings.Pois).Generate(_progress);
+        WorldMapResult maps = new WorldMapPipeline(_config, _settings.Biomes, _settings.Pois, _settings.Props).Generate(_progress);
         BiomeMap biomes = maps.Biomes;
         HeightMap heights = maps.Heights;
         RoadNetwork roads = maps.Roads;
@@ -36,6 +36,12 @@ public sealed class WorldGenerationBake
         {
             if (placement.Prefab == null || !PrefabUtility.IsPartOfPrefabAsset(placement.Prefab))
                 throw new InvalidOperationException("Every POI must refer to a prefab asset before saving the world.");
+        }
+
+        foreach (PropPlacement prop in maps.Props)
+        {
+            if (prop.Prefab == null || !PrefabUtility.IsPartOfPrefabAsset(prop.Prefab))
+                throw new InvalidOperationException("Every prop in the PropDatabase must refer to a prefab asset before saving the world.");
         }
 
         _progress("Сохранение карт", 0.54f);
@@ -54,23 +60,22 @@ public sealed class WorldGenerationBake
 
         using (WorldGenProbe.Measure(WorldGenStage.BakeTextures))
         {
-            SaveTexture(BiomeMapTexture.Create(biomes, _settings.Biomes), _config.BiomeMapAssetPath);
-            SavePng(hillshade.GetAwaiter().GetResult(), _config.HeightMapPreviewPath);
+            GeneratedAssetFile.WriteAllBytes(_config.BiomeMapAssetPath, EncodeTexture(BiomeMapTexture.Create(biomes, _settings.Biomes)));
+            GeneratedAssetFile.WriteAllBytes(_config.HeightMapPreviewPath, hillshade.GetAwaiter().GetResult());
+            GeneratedAssetFile.WriteAllBytes(_config.RoadMaskAssetPath, roadMask.GetAwaiter().GetResult());
         }
 
         using (WorldGenProbe.Measure(WorldGenStage.BakeHeightRaw))
             GeneratedAssetFile.WriteAllBytes(_config.HeightMapAssetPath, raw.GetAwaiter().GetResult());
 
-        using (WorldGenProbe.Measure(WorldGenStage.BakeImport))
-            AssetDatabase.ImportAsset(_config.HeightMapAssetPath, ImportAssetOptions.ForceUpdate);
-
-        using (WorldGenProbe.Measure(WorldGenStage.BakeTextures))
-            SavePng(roadMask.GetAwaiter().GetResult(), _config.RoadMaskAssetPath);
-
         using (WorldGenProbe.Measure(WorldGenStage.BakeWaterAsset))
-        {
             GeneratedAssetFile.WriteAllBytes(_config.WaterMapAssetPath, water.GetAwaiter().GetResult());
-            AssetDatabase.ImportAsset(_config.WaterMapAssetPath, ImportAssetOptions.ForceUpdate);
+
+        using (WorldGenProbe.Measure(WorldGenStage.BakeImport))
+        {
+            ImportGenerated(_config.BiomeMapAssetPath, _config.HeightMapPreviewPath, _config.RoadMaskAssetPath,
+                _config.HeightMapAssetPath, _config.WaterMapAssetPath);
+            ConfigureTextures(_config.BiomeMapAssetPath, _config.HeightMapPreviewPath, _config.RoadMaskAssetPath);
         }
 
         RoadNetworkAsset network;
@@ -87,7 +92,7 @@ public sealed class WorldGenerationBake
         using (WorldGenProbe.Measure(WorldGenStage.BakePoiAsset))
         {
             placementAsset = LoadOrCreate<PoiPlacementAsset>(_config.PoiPlacementAssetPath);
-            placementAsset.EditorSetup(placements);
+            placementAsset.EditorSetup(placements, maps.Props);
             EditorUtility.SetDirty(placementAsset);
         }
 
@@ -112,6 +117,8 @@ public sealed class WorldGenerationBake
 
         if (material.Material == null || !result.StartsWith("splatmap:", StringComparison.Ordinal))
             throw new InvalidOperationException($"The ground material was not baked: {result}");
+
+        GroundLayerSetAsset.Save(_settings, material);
 
         WorldGenerationConfig snapshot = world.Config;
 
@@ -182,53 +189,54 @@ public sealed class WorldGenerationBake
         return ImageConversion.EncodeArrayToPNG(values, GraphicsFormat.R8_UNorm, (uint)resolution, (uint)resolution);
     }
 
-    private static void SaveTexture(Texture2D texture, string path)
+    private static byte[] EncodeTexture(Texture2D texture)
     {
-        byte[] png;
-
         try
         {
-            png = texture.EncodeToPNG();
+            return texture.EncodeToPNG();
         }
         finally
         {
             Object.DestroyImmediate(texture);
         }
-
-        SavePng(png, path);
     }
 
-    private static void SavePng(byte[] png, string path)
+    private static void ImportGenerated(params string[] paths)
     {
-        GeneratedAssetFile.WriteAllBytes(path, png);
+        AssetDatabase.StartAssetEditing();
 
-        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-
-        if (importer == null)
+        try
         {
-            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-            importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            foreach (string path in paths)
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
         }
-
-        if (importer == null)
-            throw new InvalidOperationException($"A generated texture could not be imported: {path}");
-
-        if (Configured(importer))
+        finally
         {
-            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-            return;
+            AssetDatabase.StopAssetEditing();
         }
+    }
 
-        importer.textureType = TextureImporterType.Default;
-        importer.npotScale = TextureImporterNPOTScale.None;
-        importer.filterMode = FilterMode.Point;
-        importer.wrapMode = TextureWrapMode.Clamp;
-        importer.mipmapEnabled = false;
-        importer.sRGBTexture = false;
-        importer.isReadable = true;
-        importer.maxTextureSize = 16384;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
-        importer.SaveAndReimport();
+    private static void ConfigureTextures(params string[] paths)
+    {
+        foreach (string path in paths)
+        {
+            if (AssetImporter.GetAtPath(path) is not TextureImporter importer)
+                throw new InvalidOperationException($"A generated texture could not be imported: {path}");
+
+            if (Configured(importer))
+                continue;
+
+            importer.textureType = TextureImporterType.Default;
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.mipmapEnabled = false;
+            importer.sRGBTexture = false;
+            importer.isReadable = true;
+            importer.maxTextureSize = 16384;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+        }
     }
 
     private static bool Configured(TextureImporter importer)

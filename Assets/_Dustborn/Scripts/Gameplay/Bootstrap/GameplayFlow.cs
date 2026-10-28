@@ -11,17 +11,19 @@ public sealed class GameplayFlow : ISceneFlow
     private readonly SceneTransition _transition;
     private readonly GameplayAssetLoader _assets;
     private readonly ISaveService _saveService;
+    private readonly GameSlotService _slots;
 
-    public GameplayFlow(SceneTransition transition, GameplayAssetLoader assets, ISaveService saveService)
+    public GameplayFlow(SceneTransition transition, GameplayAssetLoader assets, ISaveService saveService, GameSlotService slots)
     {
         _transition = transition;
         _assets = assets;
         _saveService = saveService;
+        _slots = slots;
     }
 
     public bool Handles(Scenes scene) => scene == Scenes.Gameplay || scene == Scenes.Gameplay_Test;
 
-    public SceneEnterParams DirectEnter(Scenes scene) => new GameplayEnterParams(SaveService.DEFAULT_SLOT, scene);
+    public SceneEnterParams DirectEnter(Scenes scene) => GameplayEnterParams.ForScene(scene);
 
     public async UniTask<SceneEnterParams> Run(SceneEnterParams enterParams, CancellationToken token)
     {
@@ -30,6 +32,9 @@ public sealed class GameplayFlow : ISceneFlow
 
         _saveService.SetActiveSlot(gameplay.SlotId);
         await _saveService.LoadScopeAsync(SaveScope.Slot, token);
+
+        if (gameplay.IsNewGame)
+            _slots.BeginNewGame(gameplay.NewGameName, gameplay.NewGameWorldId);
 
         GameplayEntryPoint entryPoint = await _transition.LoadScene<GameplayEntryPoint, GameplayEnterParams>(
             gameplay, _assets, ASSET_STATUS, SCENE_PROGRESS, token);

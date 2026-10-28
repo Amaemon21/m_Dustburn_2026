@@ -15,7 +15,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
 
         private void OnEnable()
         {
-            _rigComponent = (KRigComponent) target;
+            _rigComponent = (KRigComponent)target;
             _boneCount = _rigComponent.GetRigTransforms().Length;
         }
 

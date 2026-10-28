@@ -167,7 +167,7 @@ public class WaterStampDefinition
 
     public bool IsRiver => Kind == WaterStampKind.River;
 
-    public bool HasMask => MaskData != null && NativeResolution >= 2 && MaskData.dataSize == ExpectedBytes;
+    public bool HasMask => NativeResolution >= 2 && StampBytes.SizeOf(MaskData) == ExpectedBytes;
 
     public bool IsTraced => IsRiver
         ? Centerline != null && Centerline.Length >= 2 && CoreHalfWidths != null && CoreHalfWidths.Length == Centerline.Length && ChordLength > 0f

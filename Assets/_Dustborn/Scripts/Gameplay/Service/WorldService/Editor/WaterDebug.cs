@@ -9,7 +9,7 @@ using Debug = UnityEngine.Debug;
 
 public static class WaterDebug
 {
-    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/World/WorldBuildSettings.asset";
+    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
     private const string OUTPUT = "Temp/WaterDebug";
     private const int OVERVIEW = 2048;
     private const int DETAIL = 4096;

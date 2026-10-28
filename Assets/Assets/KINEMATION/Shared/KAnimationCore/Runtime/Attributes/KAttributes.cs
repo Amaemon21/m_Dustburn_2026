@@ -14,7 +14,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Attributes
         public bool useAnimator;
         public bool usePlayables;
         public bool useInput;
-        
+
         public CurveSelectorAttribute(bool useAnimator = true, bool usePlayables = true, bool useInput = true)
         {
             this.useAnimator = useAnimator;
@@ -25,14 +25,16 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Attributes
 
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public class InputProperty : PropertyAttribute { }
-    
+    public class InputProperty : PropertyAttribute
+    {
+    }
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class RigAssetSelectorAttribute : PropertyAttribute
     {
         public string assetName;
-        
+
         public RigAssetSelectorAttribute(string rigName = "")
         {
             assetName = rigName;
@@ -48,14 +50,18 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Attributes
             assetName = rigName;
         }
     }
-    
-    [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public class ReadOnlyAttribute : PropertyAttribute { }
 
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public class UnfoldAttribute : PropertyAttribute { }
+    public class ReadOnlyAttribute : PropertyAttribute
+    {
+    }
+
+    [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
+    public class UnfoldAttribute : PropertyAttribute
+    {
+    }
 
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
@@ -68,7 +74,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Attributes
             this.tabName = tabName;
         }
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Attributes")]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class CustomElementChainDrawerAttribute : PropertyAttribute
@@ -83,5 +89,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Attributes
         }
     }
 
-    public class KAttributes { }
+    public class KAttributes
+    {
+    }
 }

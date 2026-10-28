@@ -31,5 +31,6 @@
     <Reference Include="$(ScriptAssemblies)\Unity.Burst.dll"><Private>false</Private></Reference>
     <Reference Include="$(ScriptAssemblies)\Unity.Collections.dll"><Private>false</Private></Reference>
     <Reference Include="$(ScriptAssemblies)\Unity.Mathematics.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\Unity.Profiling.Core.dll"><Private>false</Private></Reference>
   </ItemGroup>
 </Project>

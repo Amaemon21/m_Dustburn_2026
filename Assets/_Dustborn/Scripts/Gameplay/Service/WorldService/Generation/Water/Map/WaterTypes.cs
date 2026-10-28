@@ -18,6 +18,8 @@ public struct WaterSample
     public float Width;
     public Vector2 Flow;
     public int Body;
+    public float Inside;
+    public float Lowest;
 
     public bool IsWater => Kind != WaterKind.None;
 }

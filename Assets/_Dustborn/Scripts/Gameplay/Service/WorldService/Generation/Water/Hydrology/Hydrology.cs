@@ -58,6 +58,8 @@ public sealed partial class Hydrology
     private const float SIMPLIFY_CELLS = 0.5f;
     private const int CHAIKIN_PASSES = 3;
     private const int BEND_PASSES = 6;
+    private const int FOLD_PASSES = 200;
+    private const float FOLD_WIDTHS = 0.75f;
     private const float BEND_MIN_RADIUS = 10f;
     private const float BEND_WIDTHS = 1.5f;
     private const int SETTLE_SMOOTHING = 3;

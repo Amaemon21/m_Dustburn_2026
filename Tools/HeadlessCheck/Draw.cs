@@ -293,7 +293,7 @@ static class Draw
         Png.Write(path, rgb, resolution, resolution);
     }
 
-    private static (byte, byte, byte) Palette(BiomeType type)
+    public static (byte, byte, byte) Palette(BiomeType type)
     {
         return type switch
         {

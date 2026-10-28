@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using R3;
 using UnityEngine;
 
-public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
+public sealed partial class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
 {
     private const int EQUIPMENT_CAPACITY = 1;
 
@@ -11,6 +11,8 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
     private readonly Subject<(string ItemId, int Amount)> _itemsAdded = new();
     private readonly Subject<(string ItemId, int Amount)> _itemsRemoved = new();
     private readonly ItemCatalog _catalog;
+    private Func<Vector2Int, bool> _locked;
+    private Func<Vector2Int, string, bool> _restriction;
     public InventoryGridKind Kind { get; }
 
     public string OwnerId { get; }
@@ -38,6 +40,12 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
     }
 
     public int CapacityFor(string itemId) => Kind == InventoryGridKind.Equipment ? EQUIPMENT_CAPACITY : _catalog.MaxStack(itemId);
+
+    public void Lock(Func<Vector2Int, bool> locked) => _locked = locked;
+
+    public bool IsLocked(Vector2Int coords) => _locked != null && _locked(coords);
+
+    public void Restrict(Func<Vector2Int, string, bool> accepts) => _restriction = accepts;
 
     public AddItemsToInventoryGridResult AddItems(string itemId, int amount = 1)
     {
@@ -97,7 +105,7 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         using IDisposable update = Proxy.DeferNotifications();
         ValidateItems(itemId, amount);
         InventorySlotProxy slot = Slot(coords);
-        if (slot.ItemId != itemId || slot.Amount < amount)
+        if (slot.ItemId != itemId || slot.Amount < amount || IsLocked(coords))
             return new RemoveItemsFromInventoryGridResult(OwnerId, amount, false);
         slot.Set(itemId, slot.Amount - amount, slot.Wear);
         return CompleteRemove(itemId, amount);
@@ -131,7 +139,7 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
             throw new ArgumentOutOfRangeException(nameof(amount));
         InventorySlotProxy from = Slot(source);
         InventorySlotProxy to = targetGrid.Slot(target);
-        if (ReferenceEquals(from, to) || from.IsEmpty || from.Amount < amount ||
+        if (ReferenceEquals(from, to) || from.IsEmpty || from.Amount < amount || IsLocked(source) || targetGrid.IsLocked(target) ||
             !targetGrid.Accepts(target, from.ItemId) || (!to.IsEmpty && (to.ItemId != from.ItemId || to.Wear != from.Wear)) ||
             amount > targetGrid.CapacityFor(from.ItemId) - to.Amount)
             return false;
@@ -154,12 +162,31 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         return true;
     }
 
+    public bool TransferTo(Vector2Int source, InventoryGrid targetGrid, Vector2Int target, int amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        InventorySlotProxy from = Slot(source);
+        InventorySlotProxy to = targetGrid.Slot(target);
+        if (ReferenceEquals(from, to) || from.IsEmpty || amount > from.Amount)
+            return false;
+
+        bool stacks = to.IsEmpty || (to.ItemId == from.ItemId && to.Wear == from.Wear);
+        if (!stacks)
+            return amount == from.Amount && SwapWith(source, targetGrid, target);
+
+        int moved = Math.Min(amount, targetGrid.CapacityFor(from.ItemId) - to.Amount);
+        return moved > 0 && MoveTo(source, targetGrid, target, moved);
+    }
+
     public bool SwapWith(Vector2Int first, InventoryGrid secondGrid, Vector2Int second)
     {
         InventorySlotProxy a = Slot(first);
         InventorySlotProxy b = secondGrid.Slot(second);
         if (ReferenceEquals(a, b))
             return true;
+        if (IsLocked(first) || secondGrid.IsLocked(second))
+            return false;
         if ((!b.IsEmpty && (!Accepts(first, b.ItemId) || b.Amount > CapacityFor(b.ItemId))) ||
             (!a.IsEmpty && (!secondGrid.Accepts(second, a.ItemId) || a.Amount > secondGrid.CapacityFor(a.ItemId))))
             return false;
@@ -211,7 +238,8 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
     }
 
     private bool Accepts(Vector2Int coords, string itemId)
-        => Kind != InventoryGridKind.Equipment || _catalog.CanEquip(itemId, (EquipmentSlot)coords.x);
+        => (Kind != InventoryGridKind.Equipment || _catalog.CanEquip(itemId, (EquipmentSlot)coords.x)) &&
+           (_restriction == null || _restriction(coords, itemId));
 
     private void ValidateKindSize(Vector2Int size)
     {
@@ -253,10 +281,11 @@ public sealed class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
         int capacity = CapacityFor(itemId);
         for (int i = 0; i < _slots.Count; i++)
         {
-            InventorySlotProxy slot = _slots[i];
+            Vector2Int coords = new(i % Size.x, i / Size.x);
+            InventorySlotProxy slot = _slots[InventoryGridLayout.IndexOf(coords, Size)];
             if (remaining == 0)
                 break;
-            if (!Accepts(InventoryGridLayout.CoordsOf(i, Size), itemId) ||
+            if (!Accepts(coords, itemId) ||
                 slot.IsEmpty != empty || (!empty && (slot.ItemId != itemId || slot.Wear != 0)))
                 continue;
             int added = Math.Min(remaining, capacity - slot.Amount);

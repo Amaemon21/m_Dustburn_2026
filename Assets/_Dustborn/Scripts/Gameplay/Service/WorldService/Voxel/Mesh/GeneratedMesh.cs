@@ -14,6 +14,8 @@ public class GeneratedMesh : MonoBehaviour
         if (holder == null)
             return;
 
+        holder.SetActive(false);
+
         foreach (GeneratedMesh owner in holder.GetComponentsInChildren<GeneratedMesh>(true))
             owner.Release();
 

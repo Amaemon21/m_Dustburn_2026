@@ -29,9 +29,24 @@ public sealed class BlockView : MonoBehaviour, IDamageableView, IDecorObject
 
     public void Remove()
     {
-        _service = null;
+        Detach();
         Destroy(gameObject);
     }
+
+    public void Detach()
+    {
+        _service?.Detach(this);
+        _service = null;
+        Id = null;
+        _localDestroyed?.Dispose();
+        _localDestroyed = null;
+        _local?.Dispose();
+        _local = null;
+    }
+
+#if UNITY_EDITOR
+    public void EditorSetup(BlockConfig config) => _config = config;
+#endif
 
     private IDamageable Local()
     {
@@ -45,9 +60,6 @@ public sealed class BlockView : MonoBehaviour, IDamageableView, IDecorObject
 
     private void OnDestroy()
     {
-        _service?.Detach(this);
-        _service = null;
-        _localDestroyed?.Dispose();
-        _local?.Dispose();
+        Detach();
     }
 }

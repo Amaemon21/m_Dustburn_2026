@@ -24,17 +24,19 @@ public sealed class InventoryGridViewModel : ViewModel
     public ReactiveCommand<(Vector2Int First, Vector2Int Second)> SwitchSlots { get; } = new();
     public InventoryOccupancyViewModel Occupancy { get; }
     public InventoryWeightViewModel Weight { get; }
+    public InventorySortViewModel Sorting { get; }
 
     public InventoryGridViewModel(IInventoryService inventory, string ownerId, ItemCatalog catalog,
-        InventoryDragDropViewModel dragDrop = null)
+        InventoryDragDropViewModel dragDrop = null, IReadOnlyInventoryWeight weight = null)
     {
         _inventory = inventory;
         _grid = inventory.GetInventory(ownerId);
         _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
         _dragDrop = dragDrop;
         Occupancy = new InventoryOccupancyViewModel(_grid);
-        Weight = new InventoryWeightViewModel(_catalog, _grid);
-        
+        Weight = weight != null ? new InventoryWeightViewModel(weight) : InventoryWeightViewModel.ForGrid(_catalog, _grid);
+        Sorting = new InventorySortViewModel(SortBy);
+
         Disposables.Add(SwitchSlots.Executed.Subscribe(pair => _inventory.SwitchSlots(OwnerId, pair.First, pair.Second)));
         RebuildSlots();
         Disposables.Add(_grid.SizeChanged.Subscribe(_ => RebuildSlots()));
@@ -47,9 +49,9 @@ public sealed class InventoryGridViewModel : ViewModel
         List<InventorySlotViewModel> next = new();
         IReadOnlyInventorySlot[,] slots = _grid.GetSlots();
         
-        for (int x = 0; x < Size.x; x++)
+        for (int y = 0; y < Size.y; y++)
         {
-            for (int y = 0; y < Size.y; y++)
+            for (int x = 0; x < Size.x; x++)
             {
                 next.Add(new InventorySlotViewModel(slots[x, y], new Vector2Int(x, y), _catalog, Activate, OwnerId,
                     _dragDrop, coordinates => _quickTransferRequested.OnNext(coordinates)));
@@ -65,6 +67,8 @@ public sealed class InventoryGridViewModel : ViewModel
         }
     }
 
+    public InventorySlotViewModel SlotAt(Vector2Int coordinates) => _slots.Value[coordinates.y * Size.x + coordinates.x];
+
     public void SelectSlot(Vector2Int? coordinates)
     {
         if (coordinates.HasValue && (coordinates.Value.x < 0 || coordinates.Value.y < 0 ||
@@ -75,9 +79,20 @@ public sealed class InventoryGridViewModel : ViewModel
         _selectedSlot.Value = coordinates;
     }
 
+    private void SortBy(InventorySortMode mode)
+    {
+        _dragDrop?.Cancel();
+        if (_selectedSlot.Value.HasValue)
+        {
+            SelectSlot(null);
+            _selectionCancelled.OnNext(Unit.Default);
+        }
+        _inventory.Sort(OwnerId, mode);
+    }
+
     private void Activate(Vector2Int coordinates)
     {
-        if (_slots.Value[InventoryGridLayout.IndexOf(coordinates, Size)].State.CurrentValue.IsEmpty)
+        if (SlotAt(coordinates).State.CurrentValue.IsEmpty)
         {
             SelectSlot(null);
             _selectionCancelled.OnNext(Unit.Default);
@@ -101,6 +116,7 @@ public sealed class InventoryGridViewModel : ViewModel
         SwitchSlots.Dispose();
         Occupancy.Dispose();
         Weight.Dispose();
+        Sorting.Dispose();
         base.OnDisposed();
     }
 }

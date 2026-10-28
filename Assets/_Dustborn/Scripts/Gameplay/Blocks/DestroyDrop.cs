@@ -35,4 +35,6 @@ public sealed class DestroyDrop
         if (MaxCount < MinCount)
             MaxCount = MinCount;
     }
+
+    public void ClearItem() => Item = null;
 }

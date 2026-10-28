@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2726466c72f439088b94a525b3786f4, type: 3}
+  m_Name: Rubber_ResourceInventoryItem
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceInventoryItem
+  <ItemId>k__BackingField: rubber
+  <ItemName>k__BackingField: "\u0420\u0435\u0437\u0438\u043D\u0430"
+  <Category>k__BackingField: 1
+  <Rarity>k__BackingField: 0
+  <Description>k__BackingField: "\u041A\u0443\u0441\u043A\u0438 \u043F\u043E\u043A\u0440\u044B\u0448\u0435\u043A."
+  <Icon>k__BackingField: {fileID: 0}
+  <PickUpPrefab>k__BackingField: {fileID: 33288299157843122, guid: 88696965edbe5d5488f6b4b2ed4fe6a0, type: 3}
+  <Held>k__BackingField: {fileID: 0}
+  <MaxStack>k__BackingField: 200
+  <Weight>k__BackingField: 0.3
+  <Durability>k__BackingField: 0
+  <ResourceCategory>k__BackingField: 0

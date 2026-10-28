@@ -8,7 +8,7 @@ using UnityEngine.Experimental.Rendering;
 
 public static class GroundSplatDebug
 {
-    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/World/WorldBuildSettings.asset";
+    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
     private const string OUTPUT = "Temp/GroundDebug";
     private const int WINDOW = 512;
     private const float SLOPE_SCALE = 60f;

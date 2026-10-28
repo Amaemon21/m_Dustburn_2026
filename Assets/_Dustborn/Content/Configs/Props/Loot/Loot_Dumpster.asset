@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fba787062ec9e428294f42f469676d, type: 3}
+  m_Name: Loot_Dumpster
+  m_EditorClassIdentifier: Assembly-CSharp::ContainerConfig
+  <InteractableName>k__BackingField: "\u041C\u0443\u0441\u043E\u0440\u043D\u044B\u0439
+    \u0431\u0430\u043A"
+  <Size>k__BackingField: {x: 5, y: 4}
+  <Loot>k__BackingField:
+  - <Item>k__BackingField: {fileID: 11400000, guid: 5907ff2519e4e0d47baa07b1bdf0675b, type: 2}
+    <Amount>k__BackingField: 2
+    <MaxAmount>k__BackingField: 6
+    <Chance>k__BackingField: 0.7
+  - <Item>k__BackingField: {fileID: 11400000, guid: 6dad61d3f546ec140b78c8319cf308e9, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 3
+    <Chance>k__BackingField: 0.4
+  - <Item>k__BackingField: {fileID: 11400000, guid: 84456463a7e76294e8854bdaff56359b, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 3
+    <Chance>k__BackingField: 0.4
+  - <Item>k__BackingField: {fileID: 11400000, guid: ff49fbeb6bf344349971161f4fb9ee9d, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 2
+    <Chance>k__BackingField: 0.2
+  - <Item>k__BackingField: {fileID: 11400000, guid: 4e70a647fd2a8944dbdecaf522802481, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 1
+    <Chance>k__BackingField: 0.15
+  - <Item>k__BackingField: {fileID: 11400000, guid: 246cdc592bed39e48b5e3cc485b89e78, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 1
+    <Chance>k__BackingField: 0.08
+  - <Item>k__BackingField: {fileID: 11400000, guid: 34ce4c0582b84184783a1d68ce8ce552, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 1
+    <Chance>k__BackingField: 0.08
+  <MaxStacks>k__BackingField: 3

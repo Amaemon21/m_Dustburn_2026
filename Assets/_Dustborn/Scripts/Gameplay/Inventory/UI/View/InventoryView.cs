@@ -10,6 +10,7 @@ public sealed class InventoryView : View<InventoryGridViewModel>
     [SerializeField, Required] private Transform _content;
     [SerializeField] private InventoryOccupancyView _occupancy;
     [SerializeField] private InventoryWeightView _weight;
+    [SerializeField] private InventorySortView _sort;
     private SlotViewPool<InventorySlotView> _pool;
 
     [Inject]
@@ -26,6 +27,8 @@ public sealed class InventoryView : View<InventoryGridViewModel>
             _occupancy.Bind(viewModel.Occupancy);
         if (_weight != null)
             _weight.Bind(viewModel.Weight);
+        if (_sort != null)
+            _sort.Bind(viewModel.Sorting);
     }
 
     private void BindSlots(IReadOnlyList<InventorySlotViewModel> slots)
@@ -53,5 +56,7 @@ public sealed class InventoryView : View<InventoryGridViewModel>
             _occupancy.Unbind();
         if (_weight != null)
             _weight.Unbind();
+        if (_sort != null)
+            _sort.Unbind();
     }
 }

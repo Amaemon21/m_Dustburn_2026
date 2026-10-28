@@ -19,7 +19,7 @@ public sealed class EquipmentView : View<InventoryGridViewModel>
         {
             foreach (SlotBinding slot in _slots)
             {
-                slot.View.Bind(slots[(int)slot.Slot]);
+                slot.View.Bind(viewModel.SlotAt(new Vector2Int((int)slot.Slot, 0)));
             }
         }));
     }

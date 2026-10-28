@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class VoxelDecorBuild
@@ -12,7 +13,19 @@ public class VoxelDecorBuild
 
     public bool Done { get; internal set; }
 
-    internal List<DecorInstance> Instances { get; } = new();
+    public Task Preparation { get; internal set; }
+    public bool Preparing => Preparation != null && !Preparation.IsCompleted || CardMesh != null && !CardMesh.IsCompleted;
+    internal GrassCardMeshBuild CardMesh { get; set; }
+
+    internal void ReleaseMesh()
+    {
+        CardMesh?.Dispose();
+        CardMesh = null;
+    }
+
+    internal List<DecorInstance> Instances { get; private set; } = new();
+    internal List<DecorInstance>[] Prepared { get; set; }
+    internal List<DecorInstance> Batch { get; } = new();
 
     internal int Layer { get; set; }
     internal int Cursor { get; set; }
@@ -47,6 +60,11 @@ public class VoxelDecorBuild
         };
     }
 
+    internal void Adopt(List<DecorInstance> instances)
+    {
+        Instances = instances;
+    }
+
     internal void NextLayer()
     {
         Layer++;
@@ -54,5 +72,6 @@ public class VoxelDecorBuild
         Placed = false;
 
         Instances.Clear();
+        Batch.Clear();
     }
 }

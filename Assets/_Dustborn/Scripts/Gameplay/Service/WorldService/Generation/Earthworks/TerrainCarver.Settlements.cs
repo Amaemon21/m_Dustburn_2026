@@ -25,7 +25,7 @@ public partial class TerrainCarver
             return;
 
         float[] level = SmoothGround(minX, minY, width, height, radius);
-        Dictionary<long, float> corners = CornerHeights(layout, level, minX, minY, width, height);
+        var corners = new TileGrid(layout, CornerHeights(layout, level, minX, minY, width, height));
 
         float maxFill = _config.MaxHubFill / _source.MaxHeight;
         float maxCut = _config.MaxHubCut / _source.MaxHeight;
@@ -42,7 +42,7 @@ public partial class TerrainCarver
 
                 layout.ToLocal(point, out float u, out float v);
 
-                if (!Surface(layout, corners, u, v, tileSize, skirt, out float target, out float weight))
+                if (!Surface(corners, u, v, tileSize, skirt, out float target, out float weight))
                     continue;
 
                 int index = line + column;
@@ -61,11 +61,11 @@ public partial class TerrainCarver
             CarveGatewayRamp(layout, corners, gateway, skirt);
     }
 
-    private void CarveGatewayRamp(SettlementLayout layout, Dictionary<long, float> corners, SettlementGateway gateway, float skirt)
+    private void CarveGatewayRamp(SettlementLayout layout, TileGrid corners, SettlementGateway gateway, float skirt)
     {
         layout.ToLocal(gateway.Port - gateway.Tangent * RAMP_PROBE, out float portU, out float portV);
 
-        if (!Surface(layout, corners, portU, portV, layout.TileSize, skirt, out float pad, out _))
+        if (!Surface(corners, portU, portV, layout.TileSize, skirt, out float pad, out _))
             return;
 
         float grade = _config.RoadMaxGrade * GRADE_MARGIN;
@@ -215,7 +215,7 @@ public partial class TerrainCarver
         return true;
     }
 
-    private static bool Surface(SettlementLayout layout, Dictionary<long, float> corners, float u, float v, float tileSize, float skirt,
+    private static bool Surface(TileGrid corners, float u, float v, float tileSize, float skirt,
         out float target, out float weight)
     {
         target = 0f;
@@ -225,7 +225,7 @@ public partial class TerrainCarver
         int i = Mathf.FloorToInt(u / tileSize + 0.5f);
         int j = Mathf.FloorToInt(v / tileSize + 0.5f);
 
-        if (layout.TileAt(i, j) != null)
+        if (corners.Has(i, j))
         {
             target = Bilinear(corners, i, j, (u - i * tileSize + half) / tileSize, (v - j * tileSize + half) / tileSize);
             weight = 1f;
@@ -241,7 +241,7 @@ public partial class TerrainCarver
         {
             for (int di = -1; di <= 1; di++)
             {
-                if (layout.TileAt(i + di, j + dj) == null)
+                if (!corners.Has(i + di, j + dj))
                     continue;
 
                 float outsideU = Mathf.Max(0f, Mathf.Abs(u - (i + di) * tileSize) - half);
@@ -270,10 +270,10 @@ public partial class TerrainCarver
         return weight > 0f;
     }
 
-    private static float Bilinear(Dictionary<long, float> corners, int i, int j, float s, float t)
+    private static float Bilinear(TileGrid corners, int i, int j, float s, float t)
     {
-        float bottom = Mathf.Lerp(corners[SettlementLayout.Key(i, j)], corners[SettlementLayout.Key(i + 1, j)], s);
-        float top = Mathf.Lerp(corners[SettlementLayout.Key(i, j + 1)], corners[SettlementLayout.Key(i + 1, j + 1)], s);
+        float bottom = Mathf.Lerp(corners.Corner(i, j), corners.Corner(i + 1, j), s);
+        float top = Mathf.Lerp(corners.Corner(i, j + 1), corners.Corner(i + 1, j + 1), s);
 
         return Mathf.Lerp(bottom, top, t);
     }

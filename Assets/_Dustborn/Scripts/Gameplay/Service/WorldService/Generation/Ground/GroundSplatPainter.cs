@@ -19,6 +19,7 @@ public class GroundSplatPainter : IDisposable
     private readonly int _cliffLayerIndex;
     private readonly int _roadLayerIndex;
     private readonly int _roadEdgeLayerIndex;
+    private readonly int _asphaltLayerIndex;
 
     private readonly int _weightResolution;
     private readonly int _biomeCount;
@@ -41,18 +42,22 @@ public class GroundSplatPainter : IDisposable
 
     public int RoadEdgeLayerIndex => _roadEdgeLayerIndex;
 
-    public GroundSplatPainter(WorldGenerationConfig config, BiomeDatabase biomes, BiomeWeightField weightField, IReadOnlyList<Road> roads)
+    public int AsphaltLayerIndex => _asphaltLayerIndex >= 0 ? _asphaltLayerIndex : _roadLayerIndex;
+
+    public GroundSplatPainter(WorldGenerationConfig config, BiomeDatabase biomes, BiomeWeightField weightField, IReadOnlyList<Road> roads,
+        IReadOnlyList<TerrainLayer> fixedLayers = null)
     {
         _config = config;
         _roads = roads;
         _weightResolution = weightField.Resolution;
         _biomeCount = biomes.Count;
 
-        var layers = new List<TerrainLayer>();
+        var layers = fixedLayers == null ? new List<TerrainLayer>() : new List<TerrainLayer>(fixedLayers);
 
         _cliffLayerIndex = Register(layers, config.CliffLayer);
-        _roadLayerIndex = RoadPaintIndex.HasRoads(roads) ? Register(layers, config.RoadLayer) : -1;
+        _roadLayerIndex = RoadPaintIndex.HasRoads(roads) ? Register(layers, config.RoadLayer != null ? config.RoadLayer : config.AsphaltLayer) : -1;
         _roadEdgeLayerIndex = _roadLayerIndex >= 0 ? Register(layers, config.RoadEdgeLayer) : -1;
+        _asphaltLayerIndex = _roadLayerIndex >= 0 && RoadPaintIndex.HasAsphalt(roads) ? Register(layers, config.AsphaltLayer) : -1;
 
         var rules = new List<GroundRule>();
         var starts = new int[biomes.Count];
@@ -86,6 +91,9 @@ public class GroundSplatPainter : IDisposable
             shores[biome] = registered;
         }
 
+        if (fixedLayers != null && layers.Count != fixedLayers.Count)
+            throw new System.InvalidOperationException($"The world needs {layers.Count - fixedLayers.Count} ground layers the shipped ground material does not have; rebake the ground material");
+
         _layers = layers.ToArray();
 
         _weights = weightField.ToNativeArray(Allocator.Persistent);
@@ -109,12 +117,12 @@ public class GroundSplatPainter : IDisposable
         float texel = (float)_config.WorldSize / resolution;
         RoadPaintIndex paint = PaintFor(texel);
 
-        var slope = new NativeArray<float>(steepness, Allocator.TempJob);
-        var elevation = new NativeArray<float>(height, Allocator.TempJob);
+        var slope = new NativeArray<float>(steepness, GenerationJobs.ALLOCATOR);
+        var elevation = new NativeArray<float>(height, GenerationJobs.ALLOCATOR);
         var shape = relief != null
-            ? new NativeArray<float>(relief, Allocator.TempJob)
-            : new NativeArray<float>(cells, Allocator.TempJob);
-        var wetness = new NativeArray<float>(Wetness(tileResolution, tileX * texel, tileY * texel, texel, height), Allocator.TempJob);
+            ? new NativeArray<float>(relief, GenerationJobs.ALLOCATOR)
+            : new NativeArray<float>(cells, GenerationJobs.ALLOCATOR);
+        var wetness = new NativeArray<float>(Wetness(tileResolution, tileX * texel, tileY * texel, texel, height), GenerationJobs.ALLOCATOR);
         var alphamaps = new NativeArray<float>(cells * _layers.Length, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 
         try
@@ -142,6 +150,7 @@ public class GroundSplatPainter : IDisposable
                 CliffLayer = _cliffLayerIndex,
                 RoadLayer = _roadLayerIndex,
                 RoadEdgeLayer = _roadEdgeLayerIndex,
+                AsphaltLayer = AsphaltLayerIndex,
                 Roads = paint.Paint,
                 CliffSlopeStart = _config.CliffSlopeStart,
                 CliffSlopeFull = _config.CliffSlopeFull,
@@ -153,7 +162,7 @@ public class GroundSplatPainter : IDisposable
                 OriginZ = tileY * texel
             };
 
-            job.Schedule(cells, BATCH_SIZE).Complete();
+            GenerationJobs.Run(job, cells, BATCH_SIZE);
 
             return alphamaps;
         }

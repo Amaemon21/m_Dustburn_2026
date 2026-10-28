@@ -20,4 +20,6 @@ public sealed class HarvestYield
     }
 
     public void ApplyDefaults() => Count = 1;
+
+    public void ClearItem() => Item = null;
 }

@@ -5,15 +5,17 @@ public sealed class PoiInstanceBuilder
 {
     private readonly IReadOnlyList<PoiPlacement> _placements;
     private readonly Transform _parent;
+    private readonly IWorldObjectHook _hook;
     private int _next;
 
     public bool Ready => _next >= _placements.Count;
     public float Progress => _placements.Count == 0 ? 1f : _next / (float)_placements.Count;
 
-    public PoiInstanceBuilder(IReadOnlyList<PoiPlacement> placements, Transform parent)
+    public PoiInstanceBuilder(IReadOnlyList<PoiPlacement> placements, Transform parent, IWorldObjectHook hook = null)
     {
         _placements = placements;
         _parent = parent;
+        _hook = hook;
     }
 
     public void BuildNext(int count)
@@ -34,6 +36,7 @@ public sealed class PoiInstanceBuilder
             GameObject instance = Create(placement.Prefab);
             instance.transform.SetPositionAndRotation(placement.PrefabPosition, Quaternion.Euler(0f, placement.Rotation, 0f));
             instance.name = $"{placement.Prefab.name}_{placement.District}";
+            _hook?.Spawned(instance, WorldObjectKey.Poi(_next));
             _next++;
         }
 
@@ -57,6 +60,8 @@ public sealed class PoiInstanceBuilder
         }
 #endif
 
-        return Object.Instantiate(prefab, _parent);
+        GameObject copy = Object.Instantiate(prefab, _parent);
+        MeshCombiner.FitMaterials(copy, prefab.name);
+        return copy;
     }
 }

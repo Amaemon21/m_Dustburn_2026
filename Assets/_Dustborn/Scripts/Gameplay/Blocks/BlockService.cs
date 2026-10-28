@@ -25,6 +25,12 @@ public sealed class BlockService : IDecorObjectHook, IDisposable
             Attach(view, key.ToString());
     }
 
+    public void Despawned(GameObject copy)
+    {
+        if (copy.TryGetComponent(out BlockView view))
+            view.Detach();
+    }
+
     public void Attach(BlockView view, string id)
     {
         if (view.Config == null)

@@ -6,12 +6,15 @@ public static partial class WaterShore
 {
     public static void Refresh(WaterMap water, HeightMap map)
     {
-        Classify(water, map, (cell, i, j) => StoredOwner(water, cell, i, j), cell => water.DetailSlot[cell] >= 0 || water.Kinds[cell] != 0);
-
-        for (int pass = 0; pass < SEAL_PASSES && Seal(water, map) > 0; pass++)
+        using (WorldGenProbe.Measure(WorldGenStage.MapShoreSeal))
+        {
             Classify(water, map, (cell, i, j) => StoredOwner(water, cell, i, j), cell => water.DetailSlot[cell] >= 0 || water.Kinds[cell] != 0);
 
-        Distances(water);
+            for (int pass = 0; pass < SEAL_PASSES && Seal(water, map) > 0; pass++)
+                Classify(water, map, (cell, i, j) => StoredOwner(water, cell, i, j), cell => water.DetailSlot[cell] >= 0 || water.Kinds[cell] != 0);
+        }
+
+        MeasureDistances(water);
     }
 
     private static short StoredOwner(WaterMap water, int cell, int i, int j)

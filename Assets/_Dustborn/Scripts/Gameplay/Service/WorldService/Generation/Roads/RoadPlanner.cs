@@ -36,6 +36,7 @@ public partial class RoadPlanner
     private const float BANK_PENALTY = 60f;
     private const int GATEWAY_TRIES = 6;
     private const int COMPARED_GATEWAYS = 3;
+    private const int MAX_PARALLEL_PLANS = 16;
     private const float TIGHT_CLEARANCE = 0.5f;
     private const float HARD_RELAX = 1.6f;
     private const float CROSS_RELAX = 1.25f;

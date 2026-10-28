@@ -1,25 +1,31 @@
 using System;
 using R3;
+using UnityEngine;
 
 public sealed class MainMenuExit : IMainMenuExit, IDisposable
 {
-    private readonly ISaveService _saveService;
     private readonly Subject<MainMenuExitParams> _requested = new();
 
     public Observable<MainMenuExitParams> Requested => _requested;
 
-    public MainMenuExit(ISaveService saveService)
+    public void NewGame(string slotId, string name, string worldId) => Enter(GameplayEnterParams.NewGame(slotId, name, worldId));
+
+    public void LoadGame(string slotId) => Enter(new GameplayEnterParams(slotId));
+
+    public void StartTestScene() => Enter(GameplayEnterParams.ForScene(Scenes.Gameplay_Test));
+
+    public void Quit()
     {
-        _saveService = saveService;
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
-    public void StartGame() => Enter(Scenes.Gameplay);
-
-    public void StartTestScene() => Enter(Scenes.Gameplay_Test);
-
-    private void Enter(Scenes scene)
+    private void Enter(GameplayEnterParams enterParams)
     {
-        _requested.OnNext(new MainMenuExitParams(new GameplayEnterParams(_saveService.ActiveSlot, scene)));
+        _requested.OnNext(new MainMenuExitParams(enterParams));
     }
 
     public void Dispose() => _requested.Dispose();

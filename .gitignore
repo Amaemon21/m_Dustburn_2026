@@ -111,6 +111,8 @@ Promts/
 CLAUDE.md
 AGENTS.md
 /Assets/_Dustborn/Generated/
+/Assets/StreamingAssets/Worlds/
+/Assets/StreamingAssets/Worlds.meta
 /Assets/Scenes/ProcedireTerrianGeneration_System.unity
 # Консольный харнесс генерации мира (Tools/HeadlessCheck) — его csproj нужен в репозитории
 !/Tools/HeadlessCheck/HeadlessCheck.csproj
@@ -121,10 +123,12 @@ AGENTS.md
 !/Tools/UnityCompileCheck/UnityCompileCheck.Utils.csproj
 !/Tools/UnityCompileCheck/UnityCompileCheck.Benchmarks.csproj
 !/Tools/UnityCompileCheck/UnityCompileCheck.BenchmarksEditor.csproj
+!/Tools/MainMenuTerrainCheck/MainMenuTerrainCheck.csproj
 
 # Performance harness projects: their csproj files are part of the harness
 !/Tools/UnityTestCompileCheck/UnityTestCompileCheck.csproj
 !/Tools/WorldGenPerf/CatalogDump/CatalogDump.csproj
+!/Tools/DecorStreamingCheck/DecorStreamingCheck.csproj
 
 # Performance harness output
 BenchmarkResults/

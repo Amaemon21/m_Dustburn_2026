@@ -42,8 +42,18 @@ public class RoadNetworkAsset : ScriptableObject
         return count;
     }
 
+    public static RoadNetworkAsset Create(RoadNetwork network)
+    {
+        var asset = CreateInstance<RoadNetworkAsset>();
+        asset.Fill(network);
+        return asset;
+    }
+
 #if UNITY_EDITOR
-    public void EditorSetup(RoadNetwork network)
+    public void EditorSetup(RoadNetwork network) => Fill(network);
+#endif
+
+    private void Fill(RoadNetwork network)
     {
         _hubs = new List<Hub>(network.Hubs);
         _roads = new List<Road>(network.Roads);
@@ -51,5 +61,4 @@ public class RoadNetworkAsset : ScriptableObject
         _junctions = new List<RoadJunction>(network.Junctions);
         _settlements = new List<SettlementRecord>(network.Settlements);
     }
-#endif
 }

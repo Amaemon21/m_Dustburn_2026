@@ -11,6 +11,7 @@ public abstract class ItemSlotViewModel : ViewModel
     private readonly ReactiveProperty<bool> _selected = new(false);
     private readonly ReactiveProperty<bool> _dragging = new(false);
     private readonly ReactiveProperty<int> _draggedAmount = new(0);
+    private readonly ReactiveProperty<Vector3?> _hover = new(null);
 
     public ReadOnlyReactiveProperty<InventorySlotState> State => _state;
     public ReadOnlyReactiveProperty<Sprite> Icon => _icon;
@@ -19,6 +20,7 @@ public abstract class ItemSlotViewModel : ViewModel
     public ReadOnlyReactiveProperty<bool> IsSelected => _selected;
     public ReadOnlyReactiveProperty<bool> IsDragging => _dragging;
     public ReadOnlyReactiveProperty<int> DraggedAmount => _draggedAmount;
+    public ReadOnlyReactiveProperty<Vector3?> Hover => _hover;
     public int DisplayAmount => Math.Max(0, _state.CurrentValue.Amount - _draggedAmount.CurrentValue);
     public ReactiveCommand<Unit> Select { get; } = new();
 
@@ -32,16 +34,8 @@ public abstract class ItemSlotViewModel : ViewModel
             InventoryItem item = catalog.GetItem(state.ItemId);
             _icon.Value = item == null ? null : item.Icon;
             _rarity.Value = item == null ? null : (ItemRarity?)item.Rarity;
-            _durability.Value = DurabilityOf(catalog, state);
+            _durability.Value = catalog.RemainingDurability(state);
         }));
-    }
-
-    private static float? DurabilityOf(ItemCatalog catalog, InventorySlotState state)
-    {
-        int durability = catalog.DurabilityOf(state.ItemId);
-        if (state.IsEmpty || durability == 0)
-            return null;
-        return Mathf.Clamp01((durability - state.Wear) / (float)durability);
     }
 
     protected internal void SetSelected(bool selected) => _selected.Value = selected;
@@ -49,6 +43,12 @@ public abstract class ItemSlotViewModel : ViewModel
     {
         _draggedAmount.Value = amount;
         _dragging.Value = amount > 0;
+    }
+
+    internal void SetHover(Vector3? anchor)
+    {
+        if (!IsDisposed)
+            _hover.Value = anchor;
     }
 
     protected override void OnDisposed()
@@ -61,6 +61,7 @@ public abstract class ItemSlotViewModel : ViewModel
         _selected.Dispose();
         _dragging.Dispose();
         _draggedAmount.Dispose();
+        _hover.Dispose();
         base.OnDisposed();
     }
 }

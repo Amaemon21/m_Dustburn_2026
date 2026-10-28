@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ public partial class VoxelTerrainBuilder
         {
             float size = plan.ChunkMetres(key.Lod);
 
-            VerticalRange(field, key, size, plan.VoxelSize(key.Lod), out int low, out int high);
+            field.ChunkRange(key, size, plan.VoxelSize(key.Lod), out int low, out int high);
 
             Transform column = NewColumn(key);
 
@@ -69,15 +70,18 @@ public partial class VoxelTerrainBuilder
                 ScheduleBatch(tasks, start + workers, workers, (bank ^ 1) * workers, meshers, meshes, handles);
 
                 for (int i = 0; i < count; i++)
-                {
                     handles[offset + i].Complete();
 
+                RoadSurfaceMesh.Geometry[] roads = RoadSurfaces(tasks, start, meshes, offset, count);
+
+                for (int i = 0; i < count; i++)
+                {
                     if (meshes[offset + i].IsEmpty)
                         continue;
 
                     ChunkTask task = tasks[start + i];
                     triangles += meshes[offset + i].TriangleCount;
-                    Spawn(meshes[offset + i], task.Column, $"Chunk {task.Key} y {task.Y}", colliders);
+                    Spawn(meshes[offset + i], task.Column, $"Chunk {task.Key} y {task.Y}", colliders, roads[i]);
                 }
             }
 
@@ -130,7 +134,33 @@ public partial class VoxelTerrainBuilder
         }
     }
 
-    private void Spawn(VoxelMesh source, Transform parent, string name, VoxelColliderQueue colliders)
+    private RoadSurfaceMesh.Geometry[] RoadSurfaces(List<ChunkTask> tasks, int start, VoxelMesh[] meshes, int offset, int count)
+    {
+        var surfaces = new RoadSurfaceMesh.Geometry[count];
+
+        if (_roadSurface == null || _roadMaterial == null)
+            return surfaces;
+
+        using (WorldGenProbe.Measure(WorldGenStage.RoadSurface))
+        {
+            var paved = new List<int>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                VoxelColumnKey key = tasks[start + i].Key;
+
+                if (!meshes[offset + i].IsEmpty && _roadSurface.Touches(key, _voxels.ChunkMetres * (1 << key.Lod)))
+                    paved.Add(i);
+            }
+
+            if (paved.Count > 0)
+                Parallel.For(0, paved.Count, k => surfaces[paved[k]] = _roadSurface.Build(meshes[offset + paved[k]]));
+        }
+
+        return surfaces;
+    }
+
+    private void Spawn(VoxelMesh source, Transform parent, string name, VoxelColliderQueue colliders, RoadSurfaceMesh.Geometry road)
     {
         var holder = new GameObject(name);
 
@@ -154,27 +184,9 @@ public partial class VoxelTerrainBuilder
 
         GeneratedMesh.Own(holder);
 
+        RoadSurfaceBuilder.Build(road, _roadMaterial, holder.transform);
+
         _chunks.Add(holder.GetComponent<MeshFilter>());
-    }
-
-    private void VerticalRange(VoxelDensityField field, VoxelColumnKey key, float size, float step, out int low, out int high)
-    {
-        float lowest = float.MaxValue;
-        float highest = float.MinValue;
-
-        for (float z = key.Z * size; z <= (key.Z + 1) * size; z += step)
-        {
-            for (float x = key.X * size; x <= (key.X + 1) * size; x += step)
-            {
-                float surface = field.Surface(x, z);
-
-                lowest = Mathf.Min(lowest, surface);
-                highest = Mathf.Max(highest, surface);
-            }
-        }
-
-        low = Mathf.FloorToInt(lowest / size) - 1;
-        high = Mathf.FloorToInt(highest / size) + 1;
     }
 
     private Transform NewColumn(VoxelColumnKey key)

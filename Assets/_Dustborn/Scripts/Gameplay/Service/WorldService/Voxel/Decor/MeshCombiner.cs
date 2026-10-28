@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class MeshCombiner
+public partial class MeshCombiner : IDisposable
 {
     private readonly struct Part
     {
@@ -24,18 +25,36 @@ public class MeshCombiner
 
     private readonly List<Part> _parts = new();
     private readonly List<Material> _materials = new();
+    private readonly DecorTint _tint;
+    private readonly bool _card;
 
     public PrefabProfile Profile { get; private set; }
 
     public IReadOnlyList<Material> Materials => _materials;
+    public bool IsCard => _card;
 
-    public MeshCombiner(GameObject prefab)
+    public GrassCardMeshBuild ScheduleCards(IReadOnlyList<DecorInstance> instances, int start, int count)
     {
+        return new GrassCardMeshBuild(instances, start, count, _tint);
+    }
+
+    public void AttachCards(GrassCardMeshBuild build, Transform parent, string name, ShadowCastingMode shadows)
+    {
+        Attach(build.Upload(name), new[] { _materials[0] }, parent, build.Origin, name, shadows);
+    }
+
+    public MeshCombiner(GameObject prefab, DecorTint tint)
+    {
+        _tint = tint;
+
         Profile = Probe(prefab);
     }
 
-    public MeshCombiner(Mesh mesh, Material material)
+    public MeshCombiner(Mesh mesh, Material material, DecorTint tint)
     {
+        _tint = tint;
+        _card = true;
+
         if (mesh == null || material == null)
         {
             Profile = PrefabProfile.Empty;
@@ -55,125 +74,28 @@ public class MeshCombiner
         };
     }
 
-    public static MeshCombiner Far(GameObject prefab)
+    private MeshCombiner(DecorTint tint)
     {
-        var combiner = new MeshCombiner(null, null);
+        _tint = tint;
 
-        if (prefab == null)
-            return combiner;
-
-        Renderer[] renderers = Coarsest(prefab);
-        Matrix4x4 toRoot = prefab.transform.worldToLocalMatrix;
-
-        foreach (Renderer renderer in renderers)
-        {
-            if (renderer is not MeshRenderer || !renderer.TryGetComponent(out MeshFilter filter) || filter.sharedMesh == null)
-                continue;
-
-            Matrix4x4 local = toRoot * filter.transform.localToWorldMatrix;
-            Material[] materials = renderer.sharedMaterials;
-
-            for (int sub = 0; sub < filter.sharedMesh.subMeshCount && sub < materials.Length; sub++)
-            {
-                if (materials[sub] != null)
-                    combiner._parts.Add(new Part(filter.sharedMesh, sub, WithInstancing(materials[sub]), local));
-            }
-        }
-
-        combiner.Profile = new PrefabProfile { HasMesh = combiner._parts.Count > 0, Instanceable = true };
-        return combiner;
+        Profile = PrefabProfile.Empty;
     }
 
-    public int InstanceParts(IReadOnlyList<DecorInstance> instances, Transform parent, string name, ShadowCastingMode shadows, float drawDistance)
+    public static Quaternion Orientation(in DecorInstance instance)
     {
-        if (_parts.Count == 0 || instances.Count == 0)
-            return 0;
+        Quaternion turn = Quaternion.Euler(0f, instance.Rotation, 0f);
 
-        Vector3 origin = instances[0].Position;
-        var bounds = new Bounds(origin, Vector3.zero);
-        var placements = new Matrix4x4[instances.Count];
+        if (instance.Lean <= 0f)
+            return turn;
 
-        for (int i = 0; i < instances.Count; i++)
-        {
-            DecorInstance instance = instances[i];
-            placements[i] = Matrix4x4.TRS(instance.Position, Quaternion.Euler(0f, instance.Rotation, 0f), new Vector3(instance.Scale, instance.Height, instance.Scale));
-            bounds.Encapsulate(instance.Position);
-        }
+        Vector3 normal = new Vector3(-instance.Slope.x, 1f, -instance.Slope.y).normalized;
 
-        bounds.Expand(16f);
-
-        foreach (Part part in _parts)
-        {
-            var matrices = new Matrix4x4[placements.Length];
-
-            for (int i = 0; i < placements.Length; i++)
-                matrices[i] = placements[i] * part.Local;
-
-            var holder = new GameObject(name);
-            holder.transform.SetParent(parent, false);
-            holder.transform.localPosition = origin;
-            holder.AddComponent<VoxelDecorRenderer>().Setup(part.Mesh, part.Material, matrices, bounds, shadows, drawDistance, part.SubMesh);
-        }
-
-        return _parts.Count;
+        return Quaternion.FromToRotation(Vector3.up, Vector3.Slerp(Vector3.up, normal, instance.Lean)) * turn;
     }
 
-    private static Renderer[] Coarsest(GameObject prefab)
+    public static Matrix4x4 Placement(in DecorInstance instance)
     {
-        LODGroup group = prefab.GetComponentInChildren<LODGroup>(true);
-
-        if (group == null)
-            return prefab.GetComponentsInChildren<Renderer>(true);
-
-        LOD[] lods = group.GetLODs();
-
-        for (int i = lods.Length - 1; i >= 0; i--)
-        {
-            if (lods[i].renderers != null && lods[i].renderers.Length > 0)
-                return lods[i].renderers;
-        }
-
-        return prefab.GetComponentsInChildren<Renderer>(true);
-    }
-
-    private static Material WithInstancing(Material material)
-    {
-        if (material.enableInstancing)
-            return material;
-
-        if (!Instancing.TryGetValue(material, out Material copy) || copy == null)
-            Instancing[material] = copy = new Material(material) { name = material.name + " (instanced)", enableInstancing = true, hideFlags = HideFlags.DontSave };
-
-        return copy;
-    }
-
-    public int Instance(IReadOnlyList<DecorInstance> instances, Transform parent, string name, ShadowCastingMode shadows, float drawDistance)
-    {
-        var matrices = new Matrix4x4[instances.Count];
-
-        Vector3 origin = instances[0].Position;
-        var bounds = new Bounds(origin, Vector3.zero);
-
-        for (int i = 0; i < instances.Count; i++)
-        {
-            DecorInstance instance = instances[i];
-
-            matrices[i] = Matrix4x4.TRS(instance.Position, Quaternion.Euler(0f, instance.Rotation, 0f),
-                new Vector3(instance.Scale, instance.Height, instance.Scale)) * _parts[0].Local;
-
-            bounds.Encapsulate(instance.Position);
-        }
-
-        var holder = new GameObject(name);
-
-        holder.transform.SetParent(parent, false);
-        holder.transform.localPosition = origin;
-
-        bounds.Expand(4f);
-
-        holder.AddComponent<VoxelDecorRenderer>().Setup(_parts[0].Mesh, _materials[0], matrices, bounds, shadows, drawDistance);
-
-        return 1;
+        return Matrix4x4.TRS(instance.Position, Orientation(instance), new Vector3(instance.Scale, instance.Height, instance.Scale));
     }
 
     public int Combine(IReadOnlyList<DecorInstance> instances, int vertexBudget, Transform parent, string name, ShadowCastingMode shadows)
@@ -194,25 +116,30 @@ public class MeshCombiner
 
     private bool Build(IReadOnlyList<DecorInstance> instances, int start, int count, Transform parent, string name, ShadowCastingMode shadows)
     {
-        var buckets = new List<CombineInstance>[_materials.Count];
-
-        for (int i = 0; i < buckets.Length; i++)
-            buckets[i] = new List<CombineInstance>();
-
         Vector3 origin = instances[start].Position;
+
+        if (_card)
+        {
+            Attach(GrassCardFactory.Batch(instances, start, count, origin, _tint, name), new[] { _materials[0] }, parent, origin, name, shadows);
+
+            return true;
+        }
+
+        int slots = _materials.Count * DecorTint.LEVELS;
+        var buckets = new List<CombineInstance>[slots];
 
         for (int i = 0; i < count; i++)
         {
             DecorInstance instance = instances[start + i];
+            int level = _tint.Level(instance.Shade);
 
-            Matrix4x4 world = Matrix4x4.TRS(
-                instance.Position - origin,
-                Quaternion.Euler(0f, instance.Rotation, 0f),
-                new Vector3(instance.Scale, instance.Height, instance.Scale));
+            Matrix4x4 world = Matrix4x4.TRS(instance.Position - origin, Orientation(instance), new Vector3(instance.Scale, instance.Height, instance.Scale));
 
             foreach (Part part in _parts)
             {
-                buckets[_materials.IndexOf(part.Material)].Add(new CombineInstance
+                int slot = level * _materials.Count + _materials.IndexOf(part.Material);
+
+                (buckets[slot] ??= new List<CombineInstance>()).Add(new CombineInstance
                 {
                     mesh = part.Mesh,
                     subMeshIndex = part.SubMesh,
@@ -222,30 +149,58 @@ public class MeshCombiner
         }
 
         var merged = new List<CombineInstance>();
+        var materials = new List<Material>();
 
-        for (int i = 0; i < buckets.Length; i++)
+        for (int slot = 0; slot < slots; slot++)
         {
-            if (buckets[i].Count == 0)
+            if (buckets[slot] == null)
                 continue;
 
-            var slice = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+            var slice = new Mesh { indexFormat = IndexFormat.UInt32 };
 
-            slice.CombineMeshes(buckets[i].ToArray(), true, true);
+            slice.CombineMeshes(buckets[slot].ToArray(), true, true);
+
+            if (slice.vertexCount == 0 || slice.GetIndexCount(0) == 0)
+            {
+                UnityEngine.Object.DestroyImmediate(slice);
+                continue;
+            }
 
             merged.Add(new CombineInstance { mesh = slice, subMeshIndex = 0, transform = Matrix4x4.identity });
+            materials.Add(Variant(_materials[slot % _materials.Count], slot / _materials.Count));
         }
 
         if (merged.Count == 0)
             return false;
 
-        var mesh = new Mesh { name = name, indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+        var mesh = new Mesh { name = name, indexFormat = IndexFormat.UInt32 };
 
         mesh.CombineMeshes(merged.ToArray(), false, false);
         mesh.RecalculateBounds();
 
-        foreach (CombineInstance slice in merged)
-            Object.DestroyImmediate(slice.mesh);
+        Bounds bounds = mesh.bounds;
 
+        bounds.Expand(2f * WIND_MARGIN);
+        mesh.bounds = bounds;
+
+        foreach (CombineInstance slice in merged)
+            UnityEngine.Object.DestroyImmediate(slice.mesh);
+
+        if (mesh.subMeshCount < materials.Count)
+        {
+            if (Misfits.Add(name))
+                Debug.LogWarning($"{name}: combined decor came out with {mesh.subMeshCount} submeshes for {materials.Count} materials, the extra materials are dropped");
+
+            materials.RemoveRange(mesh.subMeshCount, materials.Count - mesh.subMeshCount);
+        }
+
+        Attach(mesh, materials.ToArray(), parent, origin, name, shadows);
+
+        return true;
+    }
+
+    private static void Attach(Mesh mesh, Material[] materials, Transform parent, Vector3 origin, string name, ShadowCastingMode shadows)
+    {
         var holder = new GameObject(name);
 
         holder.transform.SetParent(parent, false);
@@ -255,12 +210,10 @@ public class MeshCombiner
 
         MeshRenderer renderer = holder.AddComponent<MeshRenderer>();
 
-        renderer.sharedMaterials = _materials.ToArray();
+        renderer.sharedMaterials = materials;
         renderer.shadowCastingMode = shadows;
 
         GeneratedMesh.Own(holder);
-
-        return true;
     }
 
     private PrefabProfile Probe(GameObject prefab)

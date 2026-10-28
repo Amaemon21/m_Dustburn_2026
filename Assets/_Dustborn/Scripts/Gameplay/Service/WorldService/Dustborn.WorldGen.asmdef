@@ -7,6 +7,7 @@
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Mathematics",
+        "Unity.Profiling.Core",
         "com.williamschack.Repetitionless.Runtime",
         "com.williamschack.Repetitionless.Editor"
     ],

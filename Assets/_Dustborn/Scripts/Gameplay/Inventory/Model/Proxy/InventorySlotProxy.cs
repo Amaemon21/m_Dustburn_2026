@@ -3,7 +3,7 @@ using R3;
 
 public sealed class InventorySlotProxy : IReadOnlyInventorySlot, IDisposable
 {
-    public const int MAX_AMOUNT = 999;
+    public const int MAX_AMOUNT = 6000;
     private readonly ReactiveProperty<InventorySlotState> _state;
     private readonly Subject<Unit> _changed = new();
     private readonly Func<string, int, bool> _accepts;

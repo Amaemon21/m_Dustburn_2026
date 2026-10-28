@@ -73,16 +73,7 @@ public sealed class InventoryDragDropViewModel : ViewModel
                 !source.State.CurrentValue.Equals(_sourceState))
                 return false;
 
-            InventorySlotState destination = target.State.CurrentValue;
-            bool stacks = destination.ItemId == state.ItemId && destination.Wear == state.Wear;
-            if (!destination.IsEmpty && !stacks)
-                return state.Amount == _sourceState.Amount &&
-                    _inventory.SwapSlots(source.OwnerId, source.Coordinates, target.OwnerId, target.Coordinates);
-
-            IReadOnlyInventoryGrid grid = _inventory.GetInventory(target.OwnerId);
-            int amount = Math.Min(state.Amount, grid.CapacityFor(state.ItemId) - destination.Amount);
-            return amount > 0 && _inventory.MoveItems(source.OwnerId, source.Coordinates,
-                target.OwnerId, target.Coordinates, amount);
+            return _inventory.Transfer(source.OwnerId, source.Coordinates, target.OwnerId, target.Coordinates, state.Amount);
         }
         finally
         {

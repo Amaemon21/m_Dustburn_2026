@@ -145,7 +145,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
             ikTarget.position = ikTarget.TransformPoint(effectorOffset, false);
             
             KTransform rootBone = new KTransform(targetRoot);
-            
+
             pole = new KTransform(mid);
             pole.position = KAnimationMath.MoveInSpace(rootBone, pole, poleOffset, 1f);
             
@@ -271,6 +271,11 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
             _targetRightArmChain.CacheTransforms(ESpaceType.ComponentSpace, targetRoot);
             _targetLeftArmChain.CacheTransforms(ESpaceType.ComponentSpace, targetRoot);
 
+            _rightHandIk = new KTransform(_targetRightArmChain.transformChain[^1]);
+            _leftHandIk = new KTransform(_targetLeftArmChain.transformChain[^1]);
+            _rightPole = new KTransform(_targetRightArmChain.transformChain[^2]);
+            _leftPole = new KTransform(_targetLeftArmChain.transformChain[^2]);
+
             float sourceRightArmLength = GetFinalArmLength(_sourceRightArmChain);
             float sourceLeftArmLength = GetFinalArmLength(_sourceLeftArmChain);
             float targetRightArmLength = GetFinalArmLength(_targetRightArmChain);
@@ -311,104 +316,6 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
         }
 
 #if UNITY_EDITOR
-        private static float GetSelectionHandleSize(Vector3 position)
-        {
-            return Mathf.Max(0.03f, HandleUtility.GetHandleSize(position) * 0.08f);
-        }
-
-        private static float SignedTriangleArea(Vector2 point, Vector2 vertex1, Vector2 vertex2)
-        {
-            return (point.x - vertex2.x) * (vertex1.y - vertex2.y) -
-                   (vertex1.x - vertex2.x) * (point.y - vertex2.y);
-        }
-
-        private static bool IsPointInTriangle(Vector2 point, Vector2 vertex1, Vector2 vertex2, Vector2 vertex3)
-        {
-            if (Mathf.Abs(SignedTriangleArea(vertex1, vertex2, vertex3)) <= 0.001f)
-            {
-                return false;
-            }
-
-            float area1 = SignedTriangleArea(point, vertex1, vertex2);
-            float area2 = SignedTriangleArea(point, vertex2, vertex3);
-            float area3 = SignedTriangleArea(point, vertex3, vertex1);
-
-            bool hasNegative = area1 < 0f || area2 < 0f || area3 < 0f;
-            bool hasPositive = area1 > 0f || area2 > 0f || area3 > 0f;
-            return !(hasNegative && hasPositive);
-        }
-
-        private static bool IsMouseInsideProjectedQuad(Vector2 mousePosition, Vector3 center, Vector3 axis1,
-            Vector3 axis2)
-        {
-            Vector2 vertex1 = HandleUtility.WorldToGUIPoint(center - axis1 - axis2);
-            Vector2 vertex2 = HandleUtility.WorldToGUIPoint(center + axis1 - axis2);
-            Vector2 vertex3 = HandleUtility.WorldToGUIPoint(center + axis1 + axis2);
-            Vector2 vertex4 = HandleUtility.WorldToGUIPoint(center - axis1 + axis2);
-
-            return IsPointInTriangle(mousePosition, vertex1, vertex2, vertex3) ||
-                   IsPointInTriangle(mousePosition, vertex1, vertex3, vertex4);
-        }
-
-        private static bool IsMouseInsideProjectedCube(Vector3 position, Quaternion rotation, float size)
-        {
-            Vector2 mousePosition = Event.current.mousePosition;
-            float halfSize = size * 0.5f;
-
-            Vector3 right = rotation * Vector3.right * halfSize;
-            Vector3 up = rotation * Vector3.up * halfSize;
-            Vector3 forward = rotation * Vector3.forward * halfSize;
-
-            return IsMouseInsideProjectedQuad(mousePosition, position + forward, right, up) ||
-                   IsMouseInsideProjectedQuad(mousePosition, position - forward, right, up) ||
-                   IsMouseInsideProjectedQuad(mousePosition, position + right, forward, up) ||
-                   IsMouseInsideProjectedQuad(mousePosition, position - right, forward, up) ||
-                   IsMouseInsideProjectedQuad(mousePosition, position + up, right, forward) ||
-                   IsMouseInsideProjectedQuad(mousePosition, position - up, right, forward);
-        }
-
-        private static void WireCubeHandleCap(int controlId, Vector3 position, Quaternion rotation, float size,
-            EventType eventType)
-        {
-            switch (eventType)
-            {
-                case EventType.Layout:
-                    float distance = IsMouseInsideProjectedCube(position, rotation, size)
-                        ? 0f
-                        : HandleUtility.DistanceToCube(position, rotation, size);
-                    HandleUtility.AddControl(controlId, distance);
-                    break;
-                case EventType.Repaint:
-                    Matrix4x4 originalMatrix = Handles.matrix;
-                    try
-                    {
-                        Handles.matrix = Matrix4x4.TRS(position, rotation, Vector3.one);
-                        Handles.DrawWireCube(Vector3.zero, Vector3.one * size);
-                    }
-                    finally
-                    {
-                        Handles.matrix = originalMatrix;
-                    }
-                    break;
-            }
-        }
-
-        private static bool RenderBoneSelectionCube(Vector3 position, Quaternion rotation, float size, bool isActive)
-        {
-            return !isActive && Handles.Button(position, rotation, size, size, WireCubeHandleCap);
-        }
-
-        private void SelectHandle(bool weapon, bool rightHand, bool leftHand, bool rightPole, bool leftPole)
-        {
-            Undo.RecordObject(_asset, "Select FPS Retarget Handle");
-            _asset.enableWeaponHandle = weapon;
-            _asset.enableRightHandHandle = rightHand;
-            _asset.enableLeftHandle = leftHand;
-            _asset.enableRightPole = rightPole;
-            _asset.enableLeftPole = leftPole;
-            EditorUtility.SetDirty(_asset);
-        }
-
         private Vector3 RenderHandle(Transform space, Transform bone, out Vector3 handlePosition)
         {
             handlePosition = KTransformHandles.PositionHandle(bone.position, space.rotation, 
@@ -460,43 +367,16 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
             Transform rightHand = _targetRightArmChain.transformChain[^1];
             Transform leftHand = _targetLeftArmChain.transformChain[^1];
 
-            float weaponHandleSize = GetSelectionHandleSize(weapon.position);
-            float rightHandHandleSize = GetSelectionHandleSize(rightHand.position);
-            float leftHandHandleSize = GetSelectionHandleSize(leftHand.position);
-            float rightPoleHandleSize = GetSelectionHandleSize(rightHand.parent.position);
-            float leftPoleHandleSize = GetSelectionHandleSize(leftHand.parent.position);
             var color = Handles.color;
             Handles.color = Color.cyan;
+
+            RenderTargetSelection(0, weapon.position, root.rotation);
+            RenderTargetSelection(1, _rightHandIk.position, weapon.rotation);
+            RenderTargetSelection(2, _leftHandIk.position, weapon.rotation);
+            RenderTargetSelection(3, _rightPole.position, root.rotation);
+            RenderTargetSelection(4, _leftPole.position, root.rotation);
             
-            if (RenderBoneSelectionCube(weapon.position, root.rotation, weaponHandleSize, _asset.enableWeaponHandle))
-            {
-                SelectHandle(true, false, false, false, false);
-            }
-            
-            if (RenderBoneSelectionCube(rightHand.position, weapon.rotation, rightHandHandleSize,
-                    _asset.enableRightHandHandle))
-            {
-                SelectHandle(false, true, false, false, false);
-            }
-            
-            if (RenderBoneSelectionCube(leftHand.position, weapon.rotation, leftHandHandleSize, _asset.enableLeftHandle))
-            {
-                SelectHandle(false, false, true, false, false);
-            }
-            
-            if (RenderBoneSelectionCube(rightHand.parent.position, root.rotation, rightPoleHandleSize,
-                    _asset.enableRightPole))
-            {
-                SelectHandle(false, false, false, true, false);
-            }
-            
-            if (RenderBoneSelectionCube(leftHand.parent.position, root.rotation, leftPoleHandleSize,
-                    _asset.enableLeftPole))
-            {
-                SelectHandle(false, false, false, false, true);
-            }
-            
-            if (_asset.enableWeaponHandle)
+            if (IsHandleSelected(0))
             {
                 Vector3 delta = RenderHandle(root, weapon, out Vector3 weaponHandlePosition);
                 if (delta.sqrMagnitude > 0f)
@@ -508,7 +388,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
                 DrawTargetLine(weapon.position, weaponHandlePosition);
             }
             
-            if (_asset.enableRightHandHandle)
+            if (IsHandleSelected(1))
             {
                 Vector3 delta = RenderHandHandle(weapon, _rightHandIk, out Vector3 rightHandHandlePosition);
                 if (delta.sqrMagnitude > 0f)
@@ -520,7 +400,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
                 DrawTargetLine(rightHand.position, rightHandHandlePosition);
             }
 
-            if (_asset.enableLeftHandle)
+            if (IsHandleSelected(2))
             {
                 Vector3 delta = RenderHandHandle(weapon, _leftHandIk, out Vector3 leftHandHandlePosition);
                 if (delta.sqrMagnitude > 0f)
@@ -532,7 +412,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
                 DrawTargetLine(leftHand.position, leftHandHandlePosition);
             }
 
-            if (_asset.enableRightPole)
+            if (IsHandleSelected(3))
             {
                 Vector3 delta = RenderPoleHandle(root, _rightPole, out Vector3 rightPoleHandlePosition);
                 if (delta.sqrMagnitude > 0f)
@@ -544,7 +424,7 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
                 DrawTargetLine(rightHand.parent.position, rightPoleHandlePosition);
             }
             
-            if (_asset.enableLeftPole)
+            if (IsHandleSelected(4))
             {
                 Vector3 delta = RenderPoleHandle(root, _leftPole, out Vector3 leftPoleHandlePosition);
                 if (delta.sqrMagnitude > 0f)
@@ -557,12 +437,12 @@ namespace KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting
             }
             
             Handles.color = Color.white;
-            if (!_asset.enableWeaponHandle) Handles.Label(weapon.position, "Gun Goal");
-            if (!_asset.enableRightHandHandle) Handles.Label(rightHand.position, "Right Hand Goal");
-            if (!_asset.enableLeftHandle) Handles.Label(leftHand.position, "Left Hand Goal");
+            if (!IsHandleSelected(0)) Handles.Label(weapon.position, "Gun Goal");
+            if (!IsHandleSelected(1)) Handles.Label(_rightHandIk.position, "Right Hand Goal");
+            if (!IsHandleSelected(2)) Handles.Label(_leftHandIk.position, "Left Hand Goal");
             
-            if (!_asset.enableRightPole) Handles.Label(rightHand.parent.position, "Right Pole");
-            if (!_asset.enableLeftPole) Handles.Label(leftHand.parent.position, "Left Pole");
+            if (!IsHandleSelected(3)) Handles.Label(_rightPole.position, "Right Pole");
+            if (!IsHandleSelected(4)) Handles.Label(_leftPole.position, "Left Pole");
             Handles.color = color;
         }
 #endif

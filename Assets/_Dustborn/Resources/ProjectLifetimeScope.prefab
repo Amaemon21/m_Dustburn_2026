@@ -48,6 +48,25 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  _projectAssets:
+    <UIRootPrefab>k__BackingField:
+      m_AssetGUID: be9d8066bb1805946ad4503f7a913816
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    <MainMenuUIPrefab>k__BackingField:
+      m_AssetGUID: fe6ba2431c5f00a4197b532922f0693d
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    <WorldBuildSettings>k__BackingField:
+      m_AssetGUID: b0e5a311609546ec9cab600e1c245af0
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
   _gameplayAssets:
     <InventoryItems>k__BackingField:
       m_AssetGUID: 596bed0fab8a00f428818d56b8040605
@@ -61,32 +80,8 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    <UIInput>k__BackingField:
-      m_AssetGUID: 9bd26e0ef2287a24cb32c1e417cb7c04
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
-    <PlayerPrefab>k__BackingField:
-      m_AssetGUID: 11b4bc3e160f29e4297b85ceab60ab72
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
     <UnitDatabase>k__BackingField:
       m_AssetGUID: 65386ae60850fcd449f5c553427ce694
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
-    <GameplayUIPrefab>k__BackingField:
-      m_AssetGUID: 446752671a76f3f439e39f5e7da47e6d
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
-    <InteractionSettings>k__BackingField:
-      m_AssetGUID: d2febfddeeaff8f4d9095897708a96dc
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
@@ -97,15 +92,38 @@ MonoBehaviour:
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-  _projectAssets:
-    <UIRootPrefab>k__BackingField:
-      m_AssetGUID: be9d8066bb1805946ad4503f7a913816
+    <UIInput>k__BackingField:
+      m_AssetGUID: 9bd26e0ef2287a24cb32c1e417cb7c04
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
-    <MainMenuUIPrefab>k__BackingField:
-      m_AssetGUID: fe6ba2431c5f00a4197b532922f0693d
+    <InteractionSettings>k__BackingField:
+      m_AssetGUID: d2febfddeeaff8f4d9095897708a96dc
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    <PlayerVitals>k__BackingField:
+      m_AssetGUID: dcd623396fae0e6449ec70b29ddb0115
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    <PlayerProgression>k__BackingField:
+      m_AssetGUID: ffabfc561068ca64eba9485bcba34db3
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    <PlayerPrefab>k__BackingField:
+      m_AssetGUID: 11b4bc3e160f29e4297b85ceab60ab72
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    <GameplayUIPrefab>k__BackingField:
+      m_AssetGUID: 446752671a76f3f439e39f5e7da47e6d
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 

@@ -18,7 +18,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         private List<IEditorTool> _tools;
         private readonly List<DisplayCategoryNode> _categories = new List<DisplayCategoryNode>();
         private IEditorTool _selectedTool;
-        
+
         private const float RowHeight = 18f;
         private const float Indent = 16f;
         private const float HoverPad = 4f;
@@ -28,7 +28,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         private GUIStyle _docsLinkStyle;
 
         [SerializeField] private string selectedToolTypeName;
-        
+
         [MenuItem(KEditorUtility.EditorToolsPath)]
         public static void CreateWindow()
         {
@@ -52,7 +52,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
 
                 var toolInstance = Activator.CreateInstance(toolType) as IEditorTool;
                 if (toolInstance == null) continue;
-                
+
                 toolInstance.Init();
                 _tools.Add(toolInstance);
             }
@@ -119,6 +119,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                                 nextGroup = new DisplayGroupNode { label = segment };
                                 categoryNode.groups.Add(nextGroup);
                             }
+
                             currentGroup = nextGroup;
                         }
                         else
@@ -129,6 +130,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                                 nextGroup = new DisplayGroupNode { label = segment };
                                 currentGroup.groups.Add(nextGroup);
                             }
+
                             currentGroup = nextGroup;
                         }
                     }
@@ -185,7 +187,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         private void RenderToolsList()
         {
             EditorGUILayout.BeginVertical(_toolWindowStyle);
-            
+
             foreach (var categoryNode in _categories)
             {
                 EditorGUILayout.LabelField(categoryNode.label, KEditorUtility.boldLabel);
@@ -199,10 +201,10 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                 {
                     DrawTool(toolNode, 0);
                 }
-                
+
                 EditorGUILayout.Space();
             }
-            
+
             EditorGUILayout.EndVertical();
         }
 
@@ -269,7 +271,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
         private void RenderTool()
         {
             EditorGUILayout.BeginVertical(_toolWindowStyle);
-            
+
             if (_selectedTool == null)
             {
                 EditorGUILayout.HelpBox("Select a tool on the left to get started.", MessageType.Info);
@@ -280,19 +282,19 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
 
                 var content = EditorGUIUtility.TrTextContent("Documentation");
                 var size = _docsLinkStyle.CalcSize(content);
-                var rect = GUILayoutUtility.GetRect(size.x, size.y, _docsLinkStyle, 
+                var rect = GUILayoutUtility.GetRect(size.x, size.y, _docsLinkStyle,
                     GUILayout.ExpandWidth(false));
 
                 if (GUI.Button(rect, "Documentation", _docsLinkStyle))
                 {
                     string url = _selectedTool.GetDocsURL();
-                    if(!string.IsNullOrEmpty(url)) Application.OpenURL(url);
+                    if (!string.IsNullOrEmpty(url)) Application.OpenURL(url);
                 }
 
                 EditorGUILayout.Space(2f);
                 EditorGUILayout.HelpBox(_selectedTool.GetToolDescription(), MessageType.Info);
                 EditorGUILayout.Space();
-                
+
                 _selectedTool.Render();
             }
 
@@ -310,9 +312,9 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Tools
                     richText = true
                 };
             }
-            
+
             if (_docsLinkStyle != null) return;
-            
+
             bool isProSkin = EditorGUIUtility.isProSkin;
             string hexNormal = isProSkin ? "#60A5FA" : "#2563EB";
             string hexHover = isProSkin ? "#93C5FD" : "#1D4ED8";

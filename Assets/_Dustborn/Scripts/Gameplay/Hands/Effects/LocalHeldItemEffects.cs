@@ -1,23 +1,21 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 public sealed class LocalHeldItemEffects : IHeldItemEffects
 {
-    private const float DROP_OFFSET = 0.4f;
-
     private readonly IInventoryService _inventory;
     private readonly ItemCatalog _catalog;
-    private readonly IItemRewards _rewards;
-    private readonly DamageFeed _feed;
-    private readonly List<InventorySlotState> _yields = new();
+    private readonly DamageService _damage;
+    private readonly IPlayerStamina _stamina;
 
-    public LocalHeldItemEffects(IInventoryService inventory, ItemCatalog catalog, IItemRewards rewards, DamageFeed feed)
+    public LocalHeldItemEffects(IInventoryService inventory, ItemCatalog catalog, DamageService damage, IPlayerStamina stamina)
     {
         _inventory = inventory;
         _catalog = catalog;
-        _rewards = rewards;
-        _feed = feed;
+        _damage = damage;
+        _stamina = stamina;
     }
+
+    public bool CanExert(float stamina) => _stamina.CanSpend(stamina);
+
+    public void Exert(float stamina) => _stamina.Spend(stamina);
 
     public bool IsUsable(HeldItem item)
     {
@@ -35,28 +33,8 @@ public sealed class LocalHeldItemEffects : IHeldItemEffects
         if (!IsUsable(item))
             return;
         if (target != null && !target.IsDestroyed)
-            Damage(target, strike);
+            _damage.Apply(target, new DamageHit(strike.Damage, strike.Bonuses, strike.Point, strike.Normal));
         if (!item.IsEmpty && strike.Wear > 0)
             _inventory.AddWear(item.OwnerId, item.Coordinates, item.ItemId, strike.Wear);
-    }
-
-    private void Damage(IDamageable target, in StrikeInfo strike)
-    {
-        MaterialBonus bonus = MaterialBonus.Find(strike.Bonuses, target.Material);
-        int damage = bonus == null ? strike.Damage : Mathf.RoundToInt(strike.Damage * bonus.Damage);
-        DamageResult result = target.TakeDamage(damage);
-
-        if (target is IHarvestable harvestable)
-            Harvest(harvestable, result, bonus == null ? 1f : bonus.Harvest, strike.Point + strike.Normal * DROP_OFFSET);
-
-        _feed.Publish(new DamageReport(target, result));
-    }
-
-    private void Harvest(IHarvestable harvestable, DamageResult result, float multiplier, Vector3 dropOrigin)
-    {
-        _yields.Clear();
-        harvestable.Harvest(result, multiplier, _yields);
-        foreach (InventorySlotState stack in _yields)
-            _rewards.Give(stack, dropOrigin);
     }
 }

@@ -30,7 +30,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
 
         public void OnGUI()
         {
-            var host = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, 
+            var host = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none,
                 GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             OnGUI(host);
         }
@@ -58,7 +58,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
                 splitterRect = new Rect(0f, firstRect.yMax, rect.width, splitterSize);
                 secondRect = new Rect(0f, splitterRect.yMax, rect.width, secondSize);
             }
-            
+
             // First pane
             GUILayout.BeginArea(firstRect);
             _firstScroll = EditorGUILayout.BeginScrollView(_firstScroll);

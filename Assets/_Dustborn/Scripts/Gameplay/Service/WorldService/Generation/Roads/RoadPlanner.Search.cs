@@ -7,16 +7,76 @@ using UnityEngine;
 
 public partial class RoadPlanner
 {
-    private List<int> Search(SearchPlan plan, out Endpoint source, out Endpoint goal)
+    private struct SearchOutcome
     {
-        source = null;
-        goal = null;
+        public List<int> States;
+        public Endpoint Source;
+        public Endpoint Goal;
+        public bool Aborted;
+    }
 
+    private sealed class SearchBatch
+    {
+        public JobHandle[] Handles;
+        public bool[] Done;
+    }
+
+    private SearchBatch StartSearches(List<SearchPlan> plans)
+    {
         PrepareSearch();
         _search.Penalty.CopyFrom(_penalty);
         _search.Blocked.CopyFrom(_blocked);
+        System.Threading.Interlocked.Exchange(ref SearchStop.Flag.Data, 0);
 
-        var job = new SearchJob
+        int count = Mathf.Min(plans.Count, MAX_PARALLEL_PLANS);
+        var batch = new SearchBatch { Handles = new JobHandle[count], Done = new bool[count] };
+
+        for (int i = 0; i < count; i++)
+            batch.Handles[i] = GenerationJobs.Schedule(Job(plans[i], _search.Scratch(i)));
+
+        GenerationJobs.Flush();
+        return batch;
+    }
+
+    private SearchOutcome FinishSearch(SearchBatch batch, List<SearchPlan> plans, int index)
+    {
+        if (index >= batch.Handles.Length)
+            return SearchOne(plans[index]);
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapRoadJob))
+            GenerationJobs.Complete(batch.Handles[index]);
+
+        batch.Done[index] = true;
+        SearchOutcome outcome = Read(_search.Scratch(index));
+
+        return outcome.Aborted ? SearchOne(plans[index]) : outcome;
+    }
+
+    private void StopSearches(SearchBatch batch)
+    {
+        System.Threading.Interlocked.Exchange(ref SearchStop.Flag.Data, 1);
+
+        for (int i = 0; i < batch.Handles.Length; i++)
+        {
+            if (!batch.Done[i])
+                GenerationJobs.Complete(batch.Handles[i]);
+        }
+    }
+
+    private SearchOutcome SearchOne(SearchPlan plan)
+    {
+        System.Threading.Interlocked.Exchange(ref SearchStop.Flag.Data, 0);
+        SearchScratch scratch = _search.Scratch(MAX_PARALLEL_PLANS);
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapRoadJob))
+            GenerationJobs.Run(Job(plan, scratch));
+
+        return Read(scratch);
+    }
+
+    private SearchJob Job(SearchPlan plan, SearchScratch scratch)
+    {
+        return new SearchJob
         {
             StepCost = _search.StepCost,
             Grade = _search.Grade,
@@ -39,16 +99,16 @@ public partial class RoadPlanner
             CorridorTangent = _search.CorridorTangent,
             Sources = _search.Sources,
             Goals = _search.Goals,
-            Cost = _search.Cost,
-            Previous = _search.Previous,
-            Closed = _search.Closed,
-            HeapItems = _search.HeapItems,
-            HeapPriorities = _search.HeapPriorities,
-            SourceIndex = _search.SourceIndex,
-            StepMask = _search.StepMask,
-            ReachMark = _search.ReachMark,
-            ReachQueue = _search.ReachQueue,
-            Result = _search.Result,
+            Cost = scratch.Cost,
+            Previous = scratch.Previous,
+            Closed = scratch.Closed,
+            HeapItems = scratch.HeapItems,
+            HeapPriorities = scratch.HeapPriorities,
+            SourceIndex = scratch.SourceIndex,
+            StepMask = scratch.StepMask,
+            ReachMark = scratch.ReachMark,
+            ReachQueue = scratch.ReachQueue,
+            Result = scratch.Result,
             Resolution = _resolution,
             SourceCount = _sources.Count,
             HardGrade = plan.HardGrade,
@@ -61,29 +121,34 @@ public partial class RoadPlanner
             JunctionPenalty = _config.JunctionPenalty,
             Exact = plan.Exact
         };
+    }
 
-        using (WorldGenProbe.Measure(WorldGenStage.MapRoadJob))
-            job.Schedule().Complete();
+    private SearchOutcome Read(SearchScratch scratch)
+    {
+        if (scratch.Result[2] != 0)
+            return new SearchOutcome { Aborted = true };
 
-        int bestState = _search.Result[0];
-        int bestGoal = _search.Result[1];
+        int bestState = scratch.Result[0];
+        int bestGoal = scratch.Result[1];
 
         if (bestState < 0)
-            return null;
+            return default;
 
         var path = new List<int>();
 
-        for (int state = bestState; state >= 0; state = _search.Previous[state])
+        for (int state = bestState; state >= 0; state = scratch.Previous[state])
             path.Add(state);
 
         path.Reverse();
 
         int first = path[0] / STATES;
 
-        source = _sources[Mathf.Max(0, _search.SourceIndex[first])];
-        goal = _goals[bestGoal];
-
-        return path;
+        return new SearchOutcome
+        {
+            States = path,
+            Source = _sources[Mathf.Max(0, scratch.SourceIndex[first])],
+            Goal = _goals[bestGoal]
+        };
     }
 
     private void PrepareSearch()

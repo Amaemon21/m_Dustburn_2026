@@ -172,6 +172,7 @@ public partial class WorldGenerationWindow
         Property(settings, "Biomes", "Набор биомов");
         Property(settings, "Pois", "Набор зданий");
         Property(settings, "Voxels", "Параметры вокселей");
+        Property(settings, "DecorEdits", "Ручные правки деревьев и камней");
         WorldBuildSettings selected = EditorGUILayout.ObjectField("Набор настроек мира", _settings, typeof(WorldBuildSettings), false) as WorldBuildSettings;
         EditorGUI.indentLevel--;
 

@@ -8,7 +8,7 @@ public sealed class SaveRegistry
 
     public IReadOnlyCollection<SaveSection> Sections => _byType.Values;
 
-    public SaveRegistry Register<T>(string key, SaveScope scope, string fileName = null) where T : class, new()
+    public SaveRegistry Register<T>(string key, SaveScope scope, string fileName = null, string legacyFileName = null) where T : class, new()
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Save section key must not be empty");
@@ -35,7 +35,7 @@ public sealed class SaveRegistry
                 throw new InvalidOperationException($"File '{file}' already holds a section with key '{key}'");
         }
 
-        SaveSection section = new SaveSection(type, key, file, scope);
+        SaveSection section = new SaveSection(type, key, file, scope, legacyFileName);
         _byType.Add(type, section);
         siblings.Add(section);
 

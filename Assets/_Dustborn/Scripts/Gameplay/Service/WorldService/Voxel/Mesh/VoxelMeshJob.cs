@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Fast)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Fast, DisableSafetyChecks = true)]
 public struct VoxelMeshJob : IJob
 {
     private const int NONE = -1;
@@ -154,46 +154,7 @@ public struct VoxelMeshJob : IJob
         if (!Straddles(slotX, slotY, slotZ))
             return NONE;
 
-        var position = new Vector3(origin.x + (slotX - 0.5f) * scale, 0f, origin.z + (slotZ - 0.5f) * scale);
-
-        Stitch(ref position, origin, scale, slotX, slotZ);
-
-        position.y = Surface(position.x, position.z, origin, scale);
-
-        return Add(position);
-    }
-
-    private void Stitch(ref Vector3 position, Vector3 origin, float scale, int slotX, int slotZ)
-    {
-        bool edgeX = slotX == 0 || slotX == Size;
-        bool edgeZ = slotZ == 0 || slotZ == Size;
-
-        if (!edgeX && !edgeZ)
-            return;
-
-        if (edgeX)
-        {
-            position.x = origin.x + slotX * scale;
-
-            if (!edgeZ)
-                position.z = Node(ChunkZ, slotZ, slotX == 0 ? VoxelColumnKey.MORPH_MIN_X : VoxelColumnKey.MORPH_MAX_X) * scale;
-        }
-
-        if (edgeZ)
-        {
-            position.z = origin.z + slotZ * scale;
-
-            if (!edgeX)
-                position.x = Node(ChunkX, slotX, slotZ == 0 ? VoxelColumnKey.MORPH_MIN_Z : VoxelColumnKey.MORPH_MAX_Z) * scale;
-        }
-
-    }
-
-    private int Node(int chunk, int slot, int morph)
-    {
-        int node = chunk * Size + slot;
-
-        return (Morph & morph) != 0 ? node & ~1 : node;
+        return Add(Field.MeshVertex(ChunkX, ChunkZ, Size, scale, Morph, slotX, slotZ));
     }
 
     private bool Straddles(int slotX, int slotY, int slotZ)

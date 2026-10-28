@@ -18,6 +18,11 @@ public static class WorldBuildBudget
             throw new InvalidOperationException("Generated maps cannot exceed 16384 samples per side. Increase the map cell size.");
 
         var plan = new VoxelStreamPlan(settings.Voxels, settings.LodCount, settings.NearDistance, config.WorldSize, water);
+        ValidatePlan(plan, center, colliders, settings.MemoryBudget);
+    }
+
+    public static void ValidatePlan(VoxelStreamPlan plan, Vector2 center, bool colliders, int memoryBudget)
+    {
         var columns = new List<VoxelColumnKey>();
         plan.Around(center, columns);
         var budget = new VoxelBudget();
@@ -28,7 +33,7 @@ public static class WorldBuildBudget
             budget += VoxelBudget.Estimate(plan.VoxelSize(key.Lod), size * size, colliders);
         }
 
-        if (budget.Megabytes > settings.MemoryBudget)
-            throw new InvalidOperationException($"World geometry requires about {budget.Megabytes:0} MB; its budget is {settings.MemoryBudget} MB. Reduce the detail radius or raise the geometry budget.");
+        if (budget.Megabytes > memoryBudget)
+            throw new InvalidOperationException($"World geometry requires about {budget.Megabytes:0} MB; its budget is {memoryBudget} MB. Reduce the detail radius or raise the geometry budget.");
     }
 }

@@ -19,7 +19,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
         public string propertyName;
         public string targetTypeName;
 
-        public CustomEditorCurveData(string relativePath, string propertyName, string targetTypeName, 
+        public CustomEditorCurveData(string relativePath, string propertyName, string targetTypeName,
             AnimationCurve curve)
         {
             this.relativePath = relativePath;
@@ -28,12 +28,13 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
             this.curve = curve;
         }
     }
-    
+
     public class CurveProcessorUtility
     {
         public const string CustomCurvePrefix = "Curve";
         private const string StableCurvePrefix = "CurveId";
         private const string QuerySeparator = "~";
+
         private static readonly FieldInfo ClipInternalIdField = typeof(ModelImporterClipAnimation).GetField(
             "internalID", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -53,7 +54,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
                 this.curveData = curveData;
             }
         }
-        
+
         public static bool ApplyCurvesFromImporter(AnimationClip clip, ModelImporter importer)
         {
             if (clip == null || importer == null)
@@ -62,7 +63,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
             }
 
             if (!importer.importAnimatedCustomProperties) return false;
-            
+
             bool appliedAny = false;
             foreach (CustomEditorCurveData curveData in GetCurvesForClip(clip, importer).Values)
             {
@@ -151,7 +152,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
 
             return changed;
         }
-        
+
         public static void WriteCurvesToImporter(AnimationClip clip, ModelImporter importer,
             List<CustomEditorCurveData> customCurves)
         {
@@ -174,12 +175,12 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
                 .Where(property => !ShouldRemoveCurveQuery(property, clip.name, hasLocalFileId,
                     localFileId, rewrittenBindings, isSingleClipImporter, false))
                 .ToList();
-            
+
             foreach (CustomEditorCurveData curveData in validCustomCurves)
             {
                 extraUserProperties.Add(CreateCurveQuery(clip.name, hasLocalFileId, localFileId, curveData));
             }
-            
+
             string[] newProperties = extraUserProperties.ToArray();
 
             if (!existingProperties.SequenceEqual(newProperties))
@@ -190,7 +191,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
             if (!importer.importAnimatedCustomProperties) importer.importAnimatedCustomProperties = true;
             importer.SaveAndReimport();
         }
-        
+
         public static bool TrySavingToFBX(AnimationClip clip, List<CustomEditorCurveData> customCurves)
         {
             if (!TryGetModelImporter(clip, out ModelImporter importer))
@@ -216,7 +217,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
 
             return importer != null;
         }
-        
+
         private static bool TryParseCurveQuery(string property, out CurveQuery curveQuery)
         {
             curveQuery = default;
@@ -446,7 +447,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.CurveImporter
                 return false;
             }
         }
-        
+
         private static bool IsValidCurveData(CustomEditorCurveData curveData, bool requireCurve)
         {
             if (requireCurve && curveData.curve == null)

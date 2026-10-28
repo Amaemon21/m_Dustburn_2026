@@ -25,8 +25,8 @@ public sealed class ContainerScreenService
     public void Open(string containerId, ContainerConfig config)
     {
         IReadOnlyInventoryGrid grid = _containers.GetOrCreate(containerId, config);
-        ContainerScreenViewModel viewModel = new(_inventory, _containers, _player.Proxy, _players, _catalog, _drops,
-            grid.OwnerId, config.InteractableName);
+        ContainerScreenViewModel viewModel = new(_inventory, _containers, _player.Proxy, _player.Weight, _players,
+            _catalog, _drops, grid.OwnerId, config.InteractableName);
         try
         {
             _windows.Open(CONTAINER_WINDOW, viewModel);

@@ -25,20 +25,20 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Attributes
 
             KRig rig = (property.serializedObject.targetObject as IRigUser)?.GetRigAsset();
             SerializedProperty assetProp = property.serializedObject.FindProperty(chainSelectorAttribute.assetName);
-            
+
             if (rig == null || assetProp != null)
             {
                 if (assetProp == null) return;
                 rig = assetProp.objectReferenceValue as KRig;
             }
-            
+
             if (rig == null)
             {
                 EditorGUI.PropertyField(position, property, label, true);
                 return;
             }
 
-            List<string> options = new List<string> {"None"};
+            List<string> options = new List<string> { "None" };
             var chainNames = rig.rigElementChains.Select(chain => chain.chainName).ToArray();
             options.AddRange(chainNames);
 

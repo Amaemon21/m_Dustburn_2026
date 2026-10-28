@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NaughtyAttributes;
+using Unity.Profiling;
 using UnityEngine;
 
 public partial class VoxelTerrainStreamer : MonoBehaviour
@@ -8,20 +9,10 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     [BoxGroup("Source"), SerializeField] private WorldGenerationConfig _config;
     [BoxGroup("Source"), SerializeField] private VoxelConfig _voxels;
 
-    [BoxGroup("Source"), Required("Assets/_Dustborn/Generated/HeightMap.bytes"), SerializeField]
-    private TextAsset _heightMap;
+    private byte[] _heights;
 
     [BoxGroup("Rendering"), SerializeField] private Material _material;
-
-    [BoxGroup("Rendering"), SerializeField] private bool _useRepetitionless = true;
-
-    [BoxGroup("Rendering"), ShowIf(nameof(_useRepetitionless)), SerializeField]
-    private string _repetitionlessMaterialPath = "Assets/_Dustborn/Generated/VoxelMaterial.mat";
-
-    [BoxGroup("Rendering"), MinValue(256)]
-    [Tooltip("Side of the world control textures. Match it to the height map: at HeightCellSize 2 over a 4096 m world that is 2048, two metres per texel and exactly the resolution the splat is derived from. Going finer only upsamples, and every step doubles both the texture and the buffer the bake needs.")]
-    [SerializeField]
-    private int _controlResolution = 4096;
+    [BoxGroup("Rendering"), SerializeField] private Material _roadMaterial;
 
     [BoxGroup("Decor"), SerializeField] private bool _spawnDecor = true;
 
@@ -30,7 +21,7 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), SerializeField] private Texture2D _roadMask;
     [BoxGroup("Decor"), SerializeField] private RoadNetworkAsset _roads;
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), SerializeField] private PoiPlacementAsset _poiPlacement;
-    [SerializeField, HideInInspector] private TextAsset _water;
+    [SerializeField, HideInInspector] private DecorEditsAsset _decorEdits;
 
     [BoxGroup("Decor"), ShowIf(nameof(_spawnDecor)), MinValue(1024), SerializeField]
     private int _batchVertexBudget = 48000;
@@ -79,9 +70,13 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     private int _collidersPerFrame = 32;
 
     [BoxGroup("World"), MinValue(0.5f)]
-    [Tooltip("Milliseconds per frame spent placing decor once the world is up. That is grass following the viewer; the trees and rocks are placed with the world and never move.")]
+    [Tooltip("Shared milliseconds per frame for updating, creating, activating and recycling decor while playing.")]
     [SerializeField]
-    private float _decorBudget = 6f;
+    private float _decorBudget = 2f;
+
+    [BoxGroup("World"), MinValue(0.1f), SerializeField]
+    [Tooltip("Milliseconds per frame for swapping groups of ready terrain columns.")]
+    private float _recenterBudget = 1f;
 
     [BoxGroup("World"), MinValue(1)]
     [Tooltip("Children destroyed per frame when a patch of grass leaves the circle around the viewer.")]
@@ -98,7 +93,10 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     [SerializeField]
     private float _preloadBudget = 60f;
 
-    private const int DECOR_SLICE = 48;
+    private const int DECOR_SLICE = 1;
+    private static ProfilerCounterValue<int> PhysicsSteps = new(ProfilerCategory.Physics,
+        "Dustborn Physics Steps Per Frame", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+    private int _physicsSteps;
 
     private readonly Dictionary<VoxelColumnKey, Column> _loaded = new();
     private readonly Dictionary<Vector2Int, VoxelColumnKey> _cover = new();
@@ -107,14 +105,17 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     private readonly List<VoxelColumnKey> _wanted = new();
     private readonly Queue<VoxelColumnKey> _pending = new();
     private readonly List<PendingChunk> _inFlight = new();
+    private readonly List<Paving> _paving = new();
     private readonly Queue<VoxelDecorBuild> _decorQueue = new();
-    private readonly Queue<GameObject> _demolishing = new();
+    private readonly Queue<VoxelDecorDemolition> _demolishing = new();
 
     private VoxelDensityField _field;
     private VoxelDecorSpawner _decor;
     private VoxelMeshQueue _queue;
     private VoxelColliderQueue _colliders;
     private VoxelStreamPlan _plan;
+    private RoadSurfaceMesh _roadSurface;
+    private Vector2 _groundCenter;
 
     private bool _planned;
     private bool _ready;
@@ -127,6 +128,7 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     private bool _hasActive;
 
     private readonly System.Diagnostics.Stopwatch _clock = new();
+    private readonly System.Diagnostics.Stopwatch _decorClock = new();
 
     private Comparison<VoxelColumnKey> _byDistance;
     private Vector2 _sortOrigin;
@@ -136,6 +138,11 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     public IDecorObjectHook DecorHook { get; set; }
 
     public bool Initialized => _plan != null;
+
+    public void ValidateBudget(int memoryBudget)
+    {
+        WorldBuildBudget.ValidatePlan(_plan, _groundCenter, true, memoryBudget);
+    }
 
     public float Progress => _wantedAtStart <= 0 || _queue == null
         ? 0f
@@ -156,7 +163,9 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         HeightMap map;
 
         using (WorldGenProbe.Measure(WorldGenStage.RuntimeDecodeHeights))
-            map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
+            map = HeightMap.FromRaw16(_heights, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
+
+        _heights = null;
 
         float lowest;
 
@@ -170,13 +179,19 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
             _colliders = new VoxelColliderQueue(_collidersPerFrame);
         }
 
-        WaterMap water = WaterMapFormat.Load(_water);
+        WaterMap water = _waterMap;
+        _roadSurface = _roadMaterial != null ? new RoadSurfaceMesh(_roads?.Paved(), water) : null;
 
         using (WorldGenProbe.Measure(WorldGenStage.RuntimeDecorSetup))
             _decor = CreateDecor(water);
 
         _byDistance = ByDistance;
         _plan = new VoxelStreamPlan(_voxels, _lodCount, _nearDistance, _config.WorldSize, water);
+        _groundCenter = new Vector2(_viewer.position.x, _viewer.position.z);
+        _shoreSamples = water == null ? null : VoxelShorePlan.Samples(water);
+
+        using (WorldGenProbe.Measure(WorldGenStage.ShorePlan))
+            VoxelShorePlan.Refine(_field.Sampler, _plan, _groundCenter, _voxels.ChunkSize, _shoreSamples);
 
         Rings();
 
@@ -189,18 +204,20 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         WorldGenProbe.Mark(WorldGenMilestone.RuntimeConstructed);
     }
 
-    public void Configure(WorldBuildSettings settings, BakedWorld world, Transform viewer)
+    public void Configure(WorldBuildSettings settings, WorldData world, Transform viewer)
     {
         _config = world.Config;
         _voxels = settings.Voxels;
-        _heightMap = world.HeightMap;
+        _heights = world.Heights;
         _material = world.Material;
+        _roadMaterial = settings.RoadMaterial;
         _biomes = world.Biomes;
         _biomeMap = world.BiomeMap;
         _roadMask = world.RoadMask;
         _roads = world.Roads;
         _poiPlacement = world.Placement;
-        _water = world.Water;
+        _waterMap = world.Water;
+        _decorEdits = settings.DecorEdits;
         _viewer = viewer;
         _spawnDecor = settings.SpawnDecor;
         _grassDensity = settings.GrassDensity;
@@ -210,12 +227,15 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         _meshWorkers = settings.MeshWorkers;
         _colliderMaxLod = Mathf.Max(0, settings.LodCount - 1);
         _decorBudget = settings.DecorBudget;
+        _recenterBudget = settings.RecenterBudget;
         _preload = true;
         _preloadBudget = settings.LoadingBudget;
     }
 
     private void OnDisable()
     {
+        _physicsSteps = 0;
+        StopRecentering();
         _colliders?.Dispose();
         _colliders = null;
         Unload();
@@ -232,14 +252,20 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         _decor = null;
         _plan = null;
         _field = null;
+        _roadSurface = null;
         _ready = false;
         _wantedAtStart = 0;
     }
+
+    private void FixedUpdate() => _physicsSteps++;
 
     private void Update()
     {
         if (_plan == null || _viewer == null)
             return;
+
+        PhysicsSteps.Value = _physicsSteps;
+        _physicsSteps = 0;
 
         Vector3 position = _viewer.position;
         var ground = new Vector2(position.x, position.z);
@@ -252,10 +278,13 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         using (WorldGenProbe.Measure(WorldGenStage.RuntimeCollect))
             Collect();
 
+        using (WorldGenProbe.Measure(WorldGenStage.RoadSurface))
+            FinishPaving();
+
         if (!_planned)
         {
             using (WorldGenProbe.Measure(WorldGenStage.RuntimePlan))
-                Plan(ground);
+                Plan(_groundCenter);
 
             WorldGenProbe.Mark(WorldGenMilestone.Planned);
         }
@@ -271,8 +300,13 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
                 Dispatch();
         }
 
+        _decorClock.Restart();
+
         using (WorldGenProbe.Measure(WorldGenStage.RuntimeSow))
             Sow(ground);
+
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeDemolish))
+            Demolish();
 
         using (WorldGenProbe.Measure(WorldGenStage.RuntimeDecorate))
             Decorate();
@@ -280,8 +314,8 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         using (WorldGenProbe.Measure(WorldGenStage.RuntimeSettle))
             Settle();
 
-        using (WorldGenProbe.Measure(WorldGenStage.RuntimeDemolish))
-            Demolish();
+        using (WorldGenProbe.Measure(WorldGenStage.RuntimeRecenter))
+            Recenter(ground);
 
         using (WorldGenProbe.Measure(WorldGenStage.ColliderDispatch))
             _colliders.Dispatch();
@@ -295,41 +329,8 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
         if (_decorQueue.Count == 0 && _decorAtStart > 0)
             WorldGenProbe.Mark(WorldGenMilestone.InitialDecor);
 
-        if (_decorQueue.Count == 0 && _demolishing.Count == 0 && _planned)
+        if (_decorQueue.Count == 0 && _demolishing.Count == 0 && _regrow.Count == 0 && _planned)
             WorldGenProbe.Remark(WorldGenMilestone.DecorSettled);
-    }
-
-    [Button("Bake Ground Material")]
-    public void BakeMaterial()
-    {
-        if (_config == null || _heightMap == null)
-        {
-            Debug.LogError("Voxel terrain: assign the WorldGenerationConfig and HeightMap.bytes before baking the material", this);
-            return;
-        }
-
-        HeightMap map = HeightMap.FromRaw16(_heightMap.bytes, _config.HeightMapResolution, _config.WorldSize, _config.MaxHeight);
-
-        var request = new VoxelGroundMaterial.Request
-        {
-            Config = _config,
-            Biomes = _biomes,
-            BiomeMap = _biomeMap,
-            Roads = _roads == null ? null : _roads.Paved(),
-            Map = map,
-            ControlResolution = _controlResolution,
-            UseRepetitionless = _useRepetitionless,
-            MaterialPath = _repetitionlessMaterialPath,
-            Material = _material
-        };
-
-        Debug.Log($"Voxel ground material: {VoxelGroundMaterial.Bake(request, this)}", this);
-
-        _material = request.Material;
-
-#if UNITY_EDITOR
-        UnityEditor.EditorUtility.SetDirty(this);
-#endif
     }
 
     [Button("Rebuild World")]
@@ -352,6 +353,10 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
     [Button("Unload Everything")]
     public void Unload()
     {
+        StopRecentering();
+        StopPreparing();
+        ForgetRegrowth();
+
         foreach (KeyValuePair<VoxelColumnKey, Column> pair in _loaded)
         {
             GeneratedMesh.Destroy(pair.Value.Root);
@@ -366,15 +371,23 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
             ring.Planted = false;
         }
 
+        foreach (GameObject replaced in _replacing.Values)
+            GeneratedMesh.Destroy(replaced);
+
+        _replacing.Clear();
+
         while (_demolishing.Count > 0)
         {
-            GeneratedMesh.Destroy(_demolishing.Dequeue());
+            GeneratedMesh.Destroy(_demolishing.Dequeue().Root);
         }
+
+        _decor?.ClearPool();
 
         _loaded.Clear();
         _cover.Clear();
         _pending.Clear();
         _inFlight.Clear();
+        _paving.Clear();
         _decorQueue.Clear();
 
         _hasActive = false;
@@ -398,9 +411,9 @@ public partial class VoxelTerrainStreamer : MonoBehaviour
 
     private bool Validate()
     {
-        if (_config == null || _voxels == null || _heightMap == null)
+        if (_config == null || _voxels == null || _heights == null)
         {
-            Debug.LogError("Voxel terrain: assign the WorldGenerationConfig, the VoxelConfig and HeightMap.bytes", this);
+            Debug.LogError("Voxel terrain: Configure it with a world before enabling it; it needs the config, the VoxelConfig and the raw heights", this);
             return false;
         }
 

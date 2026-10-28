@@ -5,21 +5,28 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
 
+#if UNITY_6000_5_OR_NEWER
+using Unity.Scripting.LifecycleManagement;
+#endif
+
 namespace Repetitionless.Editor.Updating
 {
+#if UNITY_6000_5_OR_NEWER
+    [NoAutoStaticsCleanup]
+#endif
     internal static class UpdateChecker
     {
         [Serializable]
         private struct GithubTagResponse
         {
             // Only name is needed
-            public string name;
+            public string Name;
         }
 
         [Serializable]
         private struct GithubTagResponseArray
         {
-            public GithubTagResponse[] items;
+            public GithubTagResponse[] Items;
         }
 
         private static HttpClient _client = new HttpClient();
@@ -53,8 +60,10 @@ namespace Repetitionless.Editor.Updating
             // JSONUtility cannot read root json arrays, put the array in an object
             string wrappedJson = $"{{\"items\":{getContentTask.Result}}}";
             GithubTagResponseArray responseJson = JsonUtility.FromJson<GithubTagResponseArray>(wrappedJson);
+            if (responseJson.Items == null || responseJson.Items.Length == 0)
+                return "";
 
-            _versionCache = responseJson.items[0].name;
+            _versionCache = responseJson.Items[0].Name;
             return _versionCache;
         }
 

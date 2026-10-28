@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fba787062ec9e428294f42f469676d, type: 3}
+  m_Name: Loot_Military
+  m_EditorClassIdentifier: Assembly-CSharp::ContainerConfig
+  <InteractableName>k__BackingField: "\u0410\u0440\u043C\u0435\u0439\u0441\u043A\u0438\u0439
+    \u044F\u0449\u0438\u043A"
+  <Size>k__BackingField: {x: 4, y: 3}
+  <Loot>k__BackingField:
+  - <Item>k__BackingField: {fileID: 11400000, guid: 4e70a647fd2a8944dbdecaf522802481, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 3
+    <Chance>k__BackingField: 0.6
+  - <Item>k__BackingField: {fileID: 11400000, guid: ae1ad0d4a134f284c9206a8ac053c154, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 2
+    <Chance>k__BackingField: 0.5
+  - <Item>k__BackingField: {fileID: 11400000, guid: bc20a71d15df010489690b52c897e419, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 2
+    <Chance>k__BackingField: 0.4
+  - <Item>k__BackingField: {fileID: 11400000, guid: ca64ebb84b9df6f45a6cecee8a59c8f5, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 2
+    <Chance>k__BackingField: 0.3
+  - <Item>k__BackingField: {fileID: 11400000, guid: 84456463a7e76294e8854bdaff56359b, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 3
+    <Chance>k__BackingField: 0.3
+  - <Item>k__BackingField: {fileID: 11400000, guid: 34ce4c0582b84184783a1d68ce8ce552, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 2
+    <Chance>k__BackingField: 0.3
+  - <Item>k__BackingField: {fileID: 11400000, guid: f18383d23a3844788281b3eccf68db6c, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 1
+    <Chance>k__BackingField: 0.05
+  - <Item>k__BackingField: {fileID: 11400000, guid: dbf038e2d61f452e8f4e07baf45b59fe, type: 2}
+    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 1
+    <Chance>k__BackingField: 0.03
+  <MaxStacks>k__BackingField: 3

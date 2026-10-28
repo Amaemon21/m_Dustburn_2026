@@ -30,21 +30,32 @@ public static class WaterSurfaceBuilder
 
         if (offshoreReach > 0f)
             parts.Add(WaterMeshes.Offshore(water, parts, offshoreReach));
-        int triangles = 0, frozen = 0;
+        int triangles = 0, frozen = 0, skirts = 0;
 
         foreach (WaterMeshPart part in parts)
         {
             var holder = new GameObject(part.Name);
             holder.transform.SetParent(root.transform, false);
 
+            if (part.Frozen)
+            {
+                holder.AddComponent<MeshCollider>().sharedMesh = Collider(part);
+                frozen++;
+            }
+
+            var vertices = new List<Vector3>(part.Vertices);
+            var uv = new List<Vector2>(part.Frozen ? WorldUv(part.Vertices) : part.Uv);
+            var indices = new List<int>(part.Triangles);
+            skirts += WaterSkirt.Append(water, vertices, uv, indices);
+
             var mesh = new Mesh { name = part.Name };
 
-            if (part.Vertices.Count > 65000)
+            if (vertices.Count > 65000)
                 mesh.indexFormat = IndexFormat.UInt32;
 
-            mesh.SetVertices(part.Vertices);
-            mesh.SetUVs(0, part.Frozen ? WorldUv(part.Vertices) : part.Uv);
-            mesh.SetTriangles(part.Triangles, 0);
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uv);
+            mesh.SetTriangles(indices, 0);
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
 
@@ -54,18 +65,12 @@ public static class WaterSurfaceBuilder
             renderer.sharedMaterial = part.Frozen && ice != null ? ice : material;
             renderer.shadowCastingMode = ShadowCastingMode.Off;
 
-            if (part.Frozen)
-            {
-                holder.AddComponent<MeshCollider>().sharedMesh = Collider(part);
-                frozen++;
-            }
-
             GeneratedMesh.Own(holder);
             triangles += part.Triangles.Count / 3;
         }
 
         Debug.Log($"Water: {water.Rivers.Count} rivers, {water.Bodies.Count} lakes and ponds, sea at {water.SeaLevel:0} m, "
-            + $"{parts.Count} meshes ({frozen} frozen), {triangles} triangles");
+            + $"{parts.Count} meshes ({frozen} frozen), {triangles} triangles, {skirts} shore skirt quads");
 
         return root;
     }

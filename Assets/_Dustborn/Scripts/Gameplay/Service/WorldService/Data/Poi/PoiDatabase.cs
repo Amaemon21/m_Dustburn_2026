@@ -16,6 +16,13 @@ public class PoiDatabase : ScriptableObject
 
     [ShowNativeProperty] public string Coverage => DescribeCoverage();
 
+    private void OnValidate()
+    {
+        _definitions ??= new List<PoiDefinition>();
+        ListDuplicates.Clear(_definitions, definition => definition, index => _definitions[index] = null, this, "Definitions");
+        ListDuplicates.Warn(_definitions, definition => definition.Prefab, this, "Definitions (by Prefab)");
+    }
+
     public bool IsValid()
     {
         if (_definitions.Count == 0)
@@ -54,7 +61,7 @@ public class PoiDatabase : ScriptableObject
             if (definition == null || definition.Prefab == null)
                 continue;
 
-            if (!TryMeasure(definition.Prefab, out Bounds bounds))
+            if (!PrefabBounds.TryMeasure(definition.Prefab, out Bounds bounds))
             {
                 Debug.LogWarning($"{definition.name}: prefab {definition.Prefab.name} has no MeshFilter with a mesh, its size is left as is", definition);
                 skipped++;
@@ -70,44 +77,6 @@ public class PoiDatabase : ScriptableObject
         UnityEditor.AssetDatabase.SaveAssets();
 
         Debug.Log($"Measured {measured} POI, skipped {skipped}. Footprint comes from the prefab meshes, PivotOffset is the offset of the footprint centre from the origin, GroundOffset lifts the bottom of the model onto the pad", this);
-    }
-
-    private static bool TryMeasure(GameObject prefab, out Bounds bounds)
-    {
-        bounds = default;
-
-        bool any = false;
-        Matrix4x4 toRoot = prefab.transform.worldToLocalMatrix;
-
-        foreach (MeshFilter filter in prefab.GetComponentsInChildren<MeshFilter>(true))
-        {
-            if (filter.sharedMesh == null || !filter.TryGetComponent(out MeshRenderer renderer) || !renderer.enabled)
-                continue;
-
-            Matrix4x4 matrix = toRoot * filter.transform.localToWorldMatrix;
-            Bounds local = filter.sharedMesh.bounds;
-
-            for (int corner = 0; corner < 8; corner++)
-            {
-                var offset = new Vector3(
-                    (corner & 1) == 0 ? local.min.x : local.max.x,
-                    (corner & 2) == 0 ? local.min.y : local.max.y,
-                    (corner & 4) == 0 ? local.min.z : local.max.z);
-
-                Vector3 point = matrix.MultiplyPoint3x4(offset);
-
-                if (!any)
-                {
-                    bounds = new Bounds(point, Vector3.zero);
-                    any = true;
-                    continue;
-                }
-
-                bounds.Encapsulate(point);
-            }
-        }
-
-        return any;
     }
 #endif
 

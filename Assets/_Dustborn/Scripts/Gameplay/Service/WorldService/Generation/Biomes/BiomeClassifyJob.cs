@@ -10,7 +10,7 @@ public struct BiomeSeed
     public byte Biome;
 }
 
-[BurstCompile(CompileSynchronously = true)]
+[BurstCompile(CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct BiomeClassifyJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<BiomeSeed> Seeds;

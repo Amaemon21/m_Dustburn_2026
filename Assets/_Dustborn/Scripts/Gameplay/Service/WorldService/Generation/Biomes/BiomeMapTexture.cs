@@ -90,6 +90,14 @@ public static class BiomeMapTexture
             wrapMode = TextureWrapMode.Clamp
         };
 
+        texture.SetPixels32(Pixels(map, biomes));
+        texture.Apply(false, false);
+
+        return texture;
+    }
+
+    public static Color32[] Pixels(BiomeMap map, BiomeDatabase biomes)
+    {
         Color32[] palette = new Color32[biomes.Count];
 
         for (int i = 0; i < biomes.Count; i++)
@@ -105,9 +113,6 @@ public static class BiomeMapTexture
             pixels[i] = index < palette.Length ? palette[index] : UnknownColor;
         }
 
-        texture.SetPixels32(pixels);
-        texture.Apply(false, false);
-
-        return texture;
+        return pixels;
     }
 }

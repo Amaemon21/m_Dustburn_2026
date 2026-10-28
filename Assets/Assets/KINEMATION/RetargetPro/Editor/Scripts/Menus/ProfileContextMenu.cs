@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 KINEMATION.
+// Copyright (c) 2026 KINEMATION.
 // All rights reserved.
 
 using System.Collections.Generic;
@@ -277,7 +277,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Menus
             if (RetargetPresetUtility.TryMatchPreset(tempRig, out RetargetPreset preset, character))
             {
                 Dictionary<RetargetChainId, KRigElementChain> chainMap =
-                    RetargetPresetUtility.BuildChainMap(tempRig, preset);
+                    RetargetPresetUtility.BuildChainMap(tempRig, preset, character: character);
                 IReadOnlyList<RetargetChainId> supportedChainIds =
                     RetargetPresetUtility.GetSupportedChainIds(preset);
 

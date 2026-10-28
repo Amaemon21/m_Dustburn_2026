@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -17,6 +18,7 @@ public class WorldGenerator : MonoBehaviour
 
     private WorldRuntimeLoader _loader;
     private IDecorObjectHook _decorHook;
+    private IWorldObjectHook _objectHook;
     private bool[] _previousEnabled;
     private string _error;
     private bool _completed;
@@ -26,10 +28,12 @@ public class WorldGenerator : MonoBehaviour
     public Transform Viewer => _viewer;
     public GameObject PreviewRoot => _previewRoot;
     public bool Ready => _loader != null && _loader.Ready;
+    public bool Failed => _error != null;
     public float Progress => _loader == null ? 0f : _loader.Progress;
     public string Status => _error ?? (Ready ? "Мир готов" : _loader?.Stage ?? "Ожидание загрузки");
 
     public event Action WorldReady;
+    public event Action<IReadOnlyList<Vector2Int>, float> GroundChanged;
 
     private void OnEnable()
     {
@@ -39,29 +43,34 @@ public class WorldGenerator : MonoBehaviour
         LoadWorld();
     }
 
-    public void SetViewer(Transform viewer)
+    public void LoadWorld(WorldData world, Transform viewer, IDecorObjectHook decorHook, IWorldObjectHook objectHook)
     {
-        if (_loader != null)
-        {
-            Debug.LogWarning($"{nameof(WorldGenerator)}: the viewer cannot change once the world has started loading", this);
-            return;
-        }
+        if (_loader != null || _error != null)
+            throw new InvalidOperationException($"{nameof(WorldGenerator)}: the world has already started loading without the gameplay viewer and hooks; turn off Load On Start on '{name}'");
 
         _viewer = viewer;
-    }
-
-    public void SetDecorHook(IDecorObjectHook hook)
-    {
-        if (_loader != null)
-        {
-            Debug.LogWarning($"{nameof(WorldGenerator)}: the decor hook cannot change once the world has started loading", this);
-            return;
-        }
-
-        _decorHook = hook;
+        _decorHook = decorHook;
+        _objectHook = objectHook;
+        Load(world);
     }
 
     public void LoadWorld()
+    {
+        if (!Application.isPlaying || _loader != null)
+            return;
+
+        try
+        {
+            Load(WorldData.FromBaked(_world));
+        }
+        catch (Exception exception)
+        {
+            _error = "Мир не загружен. Проверьте сохранённую генерацию.";
+            Debug.LogException(exception, this);
+        }
+    }
+
+    private void Load(WorldData world)
     {
         if (!Application.isPlaying || _loader != null)
             return;
@@ -75,7 +84,8 @@ public class WorldGenerator : MonoBehaviour
 
         try
         {
-            _loader = new WorldRuntimeLoader(_settings, _world, _viewer, transform, _decorHook);
+            _loader = new WorldRuntimeLoader(_settings, world, _viewer, transform, _decorHook, _objectHook);
+            _loader.GroundChanged += ForwardGround;
         }
         catch (Exception exception)
         {
@@ -86,14 +96,14 @@ public class WorldGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (_loader == null || _completed || _error != null)
+        if (_loader == null || _error != null)
             return;
 
         try
         {
             _loader.Tick();
 
-            if (!Ready)
+            if (_completed || !Ready)
                 return;
 
             _completed = true;
@@ -114,6 +124,8 @@ public class WorldGenerator : MonoBehaviour
         _loader = null;
         ResumeGameplay();
     }
+
+    private void ForwardGround(IReadOnlyList<Vector2Int> cells, float cellSize) => GroundChanged?.Invoke(cells, cellSize);
 
     private void PauseGameplay()
     {

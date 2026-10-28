@@ -17,9 +17,12 @@ public class UnitController : IDisposable
     private CancellationTokenSource _behaviourCancellation;
 
     private readonly ReactiveProperty<UnitState> _state = new(UnitState.Wander);
+    private readonly Subject<UnitController> _died = new();
 
     public UnitState State => _state.Value;
+    public bool IsDead => _state.Value == UnitState.Dead;
     public bool CanSeePlayer => _detectionService.CanSeePlayer();
+    public Observable<UnitController> Died => _died;
 
     public UnitController(
         UnitMovementService movementService,
@@ -43,6 +46,7 @@ public class UnitController : IDisposable
 
         _compositeDisposable.Add(Observable
             .EveryUpdate()
+            .Where(_ => !IsDead)
             .Select(_ => _detectionService.CanSeePlayer())
             .DistinctUntilChanged()
             .Where(canSee => canSee)
@@ -51,7 +55,13 @@ public class UnitController : IDisposable
         _compositeDisposable.Add(_state.Subscribe(SelectState));
 
         _compositeDisposable.Add(_chaseService.OnPlayerLost
+            .Where(_ => !IsDead)
             .Subscribe(_ => _state.Value = UnitState.Wander));
+
+        _compositeDisposable.Add(_health.Health
+            .Where(health => health <= 0)
+            .Take(1)
+            .Subscribe(_ => _state.Value = UnitState.Dead));
     }
 
     private void SelectState(UnitState state)
@@ -66,6 +76,11 @@ public class UnitController : IDisposable
 
             case UnitState.Chase:
                 _chaseService.Chase(token).Forget();
+                break;
+
+            case UnitState.Dead:
+                _movementService.Stop();
+                _died.OnNext(this);
                 break;
         }
     }
@@ -84,6 +99,7 @@ public class UnitController : IDisposable
     {
         _compositeDisposable.Dispose();
         _state.Dispose();
+        _died.Dispose();
         _health.Dispose();
 
         _behaviourCancellation?.Cancel();

@@ -11,10 +11,18 @@ public sealed class FuelTable : ScriptableObject
     {
         [field: SerializeField, Required] public InventoryItem Item { get; private set; }
         [field: SerializeField, Min(0.1f)] public float BurnSeconds { get; private set; } = 10f;
+
+        public void ClearItem() => Item = null;
     }
 
     [SerializeField, BoxGroup("Fuel"), Label("Entries"), HorizontalLine(2f, EColor.Orange)]
     private Entry[] _entries = Array.Empty<Entry>();
 
     public IReadOnlyList<Entry> Entries => _entries;
+
+    private void OnValidate()
+    {
+        _entries ??= Array.Empty<Entry>();
+        ListDuplicates.Clear(_entries, entry => entry.Item, index => _entries[index].ClearItem(), this, "Entries");
+    }
 }

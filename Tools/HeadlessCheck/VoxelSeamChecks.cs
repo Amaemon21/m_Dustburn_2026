@@ -64,7 +64,7 @@ static class VoxelSeamChecks
 
     private static void CheckReal(float viewerX, float viewerZ)
     {
-        const string CONTENT = "../../Assets/_Dustborn/Content/World";
+        const string CONTENT = "../../Assets/_Dustborn/Content/Configs/World";
 
         var config = AssetReader.Load<WorldGenerationConfig>($"{CONTENT}/WorldGenerationConfig.asset");
         byte[] bytes = System.IO.File.ReadAllBytes("../../Assets/_Dustborn/Generated/HeightMap.bytes");

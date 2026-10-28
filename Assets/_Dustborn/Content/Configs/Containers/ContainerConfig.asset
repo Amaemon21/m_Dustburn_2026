@@ -24,3 +24,15 @@ MonoBehaviour:
     <Amount>k__BackingField: 5
   - <Item>k__BackingField: {fileID: 11400000, guid: 96626c25c42249aca4e931e641b4cf09, type: 2}
     <Amount>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: ba56db55ad9227d45ab63b65d016673c, type: 2}
+    <Amount>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: f18383d23a3844788281b3eccf68db6c, type: 2}
+    <Amount>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: ae74ab2966ba41659ec4ff570964c599, type: 2}
+    <Amount>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: 0415818731524703bf5d194b738b5cfb, type: 2}
+    <Amount>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: dbf038e2d61f452e8f4e07baf45b59fe, type: 2}
+    <Amount>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: af5a9366b3a347148e0c6bc93e3610dd, type: 2}
+    <Amount>k__BackingField: 1

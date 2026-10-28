@@ -4,5 +4,7 @@ public interface IHeldItemPresenter : IDisposable
 {
     bool Show(HeldItemConfig config);
     void Hide();
-    void Play(HandsMotion motion);
+    bool Play(HandsMotion motion);
+    void Impact(float shake);
+    void Tick(float deltaTime);
 }

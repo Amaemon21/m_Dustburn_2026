@@ -9,8 +9,8 @@ public static class TerrainStampImporter
 {
     private const string MANIFEST_PATH = "Assets/_Dustborn/Content/TerrainStamps/terrain_height_stamps/manifest.json";
     private const string DATA_FOLDER = "Assets/_Dustborn/Content/TerrainStamps/TerrainStampData";
-    private const string DATABASE_PATH = "Assets/_Dustborn/Content/World/TerrainStampDatabase.asset";
-    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/World/WorldBuildSettings.asset";
+    private const string DATABASE_PATH = "Assets/_Dustborn/Content/Configs/World/TerrainStampDatabase.asset";
+    private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
 
     [Serializable]
     private class Manifest

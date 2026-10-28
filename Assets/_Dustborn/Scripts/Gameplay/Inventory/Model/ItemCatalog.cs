@@ -9,6 +9,7 @@ public sealed class ItemCatalog
     private readonly Dictionary<string, HashSet<EquipmentSlot>> _equipment = new();
     private readonly Dictionary<string, int> _maxStacks = new();
     private readonly Dictionary<string, int> _durabilities = new();
+    private readonly Dictionary<string, float> _weights = new();
     private readonly Dictionary<string, InventoryItem> _items = new();
 
     public ItemCatalog()
@@ -34,10 +35,13 @@ public sealed class ItemCatalog
 
             _items.Add(item.ItemId, item);
             SetMaxStack(item.ItemId, item.MaxStack);
+            SetWeight(item.ItemId, item.Weight);
             if (item.WearsOut)
                 SetDurability(item.ItemId, item.Durability);
 
-            if (item is EquipmentInventoryItem equipmentItem)
+            if (item is BackpackInventoryItem)
+                RegisterEquipment(item.ItemId, EquipmentSlot.Backpack);
+            else if (item is EquipmentInventoryItem equipmentItem)
                 RegisterEquipment(item.ItemId, equipmentItem.EquipmentSlot);
         }
     }
@@ -99,16 +103,31 @@ public sealed class ItemCatalog
         return !state.IsEmpty && durability > 0 && state.Wear >= durability;
     }
 
+    public float? RemainingDurability(InventorySlotState state)
+    {
+        int durability = DurabilityOf(state.ItemId);
+        if (state.IsEmpty || durability == 0)
+            return null;
+        return Mathf.Clamp01((durability - state.Wear) / (float)durability);
+    }
+
     public bool CanEquip(string itemId, EquipmentSlot slot)
         => itemId != null && _equipment.TryGetValue(itemId, out HashSet<EquipmentSlot> allowed) && allowed.Contains(slot);
 
     public Sprite GetIcon(string itemId) => GetItem(itemId)?.Icon;
 
-    public float WeightOf(string itemId)
+    public void SetWeight(string itemId, float weight)
     {
-        InventoryItem item = GetItem(itemId);
-        return item == null ? 0f : item.Weight;
+        if (string.IsNullOrWhiteSpace(itemId))
+            throw new ArgumentException("Item id is required", nameof(itemId));
+        if (weight < 0f)
+            throw new ArgumentOutOfRangeException(nameof(weight), $"Item '{itemId}' weighs {weight}, it must not be negative");
+
+        _weights[itemId] = weight;
     }
+
+    public float WeightOf(string itemId)
+        => itemId != null && _weights.TryGetValue(itemId, out float weight) ? weight : 0f;
 
     public InventoryItem GetItem(string itemId)
         => itemId != null && _items.TryGetValue(itemId, out InventoryItem item) ? item : null;

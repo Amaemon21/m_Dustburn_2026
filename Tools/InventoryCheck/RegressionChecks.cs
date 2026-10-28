@@ -59,7 +59,7 @@ internal static partial class Harness
         inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "axe");
         inventory.AddWear(player.Hotbar.OwnerId, new Vector2Int(0, 0), "axe", 4);
         TestDrops drops = new(inventory);
-        using InventoryTabViewModel tab = new(inventory, player, players, catalog, drops);
+        using InventoryTabViewModel tab = new(inventory, player, players, catalog, drops, null, null, null);
         InventorySlotViewModel wood = tab.Backpack.Slots.CurrentValue[0];
         InventorySlotViewModel axe = tab.Hotbar.Grid.Slots.CurrentValue[0];
 
@@ -113,7 +113,7 @@ internal static partial class Harness
         PlayerInventoryProxy player = players.GetOrCreatePlayerInventory("shortcuts", new Vector2Int(5, 1), 2);
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(0, 0), "helmet", 2);
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(1, 0), "wood", 20);
-        using InventoryTabViewModel tab = new(inventory, player, players, catalog, null);
+        using InventoryTabViewModel tab = new(inventory, player, players, catalog, null, null, null, null);
         using HudHotbarViewModel hud = new(player, players, catalog);
         tab.Backpack.Slots.CurrentValue[0].QuickTransfer.Execute(Unit.Default);
         Check(player.Equipment.GetAmount("helmet") == 1 && player.Backpack.GetAmount("helmet") == 1,
@@ -195,7 +195,7 @@ internal static partial class Harness
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(2, 0), "stone", 1);
         inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(3, 0), "iron", 5);
         inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "wood", 90);
-        using InventoryTabViewModel tab = new(inventory, player, players, catalog, null);
+        using InventoryTabViewModel tab = new(inventory, player, players, catalog, null, null, null, null);
         InventoryDragDropViewModel drag = tab.DragDrop;
         InventorySlotViewModel wood = tab.Backpack.Slots.CurrentValue[0];
         InventorySlotViewModel helmet = tab.Backpack.Slots.CurrentValue[1];
@@ -248,8 +248,50 @@ internal static partial class Harness
         Check(!drag.IsDragging && helmet.IsDisposed, "grid rebuild cancels drag before disposing slots");
     }
 
+    private static void VerifySelectedItemInfoAcrossRows()
+    {
+        SaveService saves = new(InventoryRegistry(), new MemoryStorage(), ProjectSerializer());
+        using InventoryRepository repository = new(saves);
+        using InventoryService inventory = new(repository, new ItemCatalog());
+        inventory.RegisterInventory(new InventoryGridData { OwnerId = "rows", Size = new Vector2Int(2, 2) });
+        inventory.AddItemsToInventory("rows", new Vector2Int(1, 0), "wood", 1);
+        inventory.AddItemsToInventory("rows", new Vector2Int(0, 1), "stone", 1);
+        using InventoryGridViewModel grid = new(inventory, "rows", new ItemCatalog());
+        using InventoryItemInfoViewModel info = new(new ItemCatalog(), grid);
+        foreach (InventorySlotViewModel slot in grid.Slots.CurrentValue)
+            Check(ReferenceEquals(grid.SlotAt(slot.Coordinates), slot), "every slot view model is found by its coordinates");
+        grid.SlotAt(new Vector2Int(1, 0)).Select.Execute(Unit.Default);
+        Check(info.State.CurrentValue.ItemId == "wood", "item info shows the clicked slot, not the slot at the same index in the other order");
+        grid.SlotAt(new Vector2Int(0, 1)).Select.Execute(Unit.Default);
+        Check(info.State.CurrentValue.ItemId == "stone", "item info follows a slot on the second row");
+    }
+
+    private static void VerifySelectionAcrossGrids()
+    {
+        SaveService saves = new(InventoryRegistry(), new MemoryStorage(), ProjectSerializer());
+        using InventoryRepository repository = new(saves);
+        using InventoryService inventory = new(repository, new ItemCatalog());
+        using PlayerInventoryService players = new(repository, inventory);
+        PlayerInventoryProxy player = players.GetOrCreatePlayerInventory("selection", new Vector2Int(3, 1), 3);
+        inventory.AddItemsToInventory(player.Backpack.OwnerId, new Vector2Int(0, 0), "wood", 10);
+        inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "wood", 5);
+        inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(1, 0), "stone", 5);
+        using InventoryTabViewModel tab = new(inventory, player, players, new ItemCatalog(), null, null, null, null);
+        InventorySlotViewModel backpackWood = tab.Backpack.SlotAt(new Vector2Int(0, 0));
+
+        backpackWood.Select.Execute(Unit.Default);
+        tab.Hotbar.Grid.SlotAt(new Vector2Int(1, 0)).Select.Execute(Unit.Default);
+        Check(!tab.Backpack.SelectedSlot.CurrentValue.HasValue && !backpackWood.IsSelected.CurrentValue &&
+            tab.Hotbar.Grid.SelectedSlot.CurrentValue == new Vector2Int(1, 0), "selecting in another grid moves the one selection frame there");
+        tab.Hotbar.Grid.SlotAt(new Vector2Int(0, 0)).Select.Execute(Unit.Default);
+        Check(player.Backpack.GetAmount("wood") == 10 && player.Hotbar.GetSlot(new Vector2Int(0, 0)).State.CurrentValue.Amount == 5 &&
+            tab.ItemInfo.State.CurrentValue.ItemId == "wood", "clicking a slot only selects it and never moves an earlier selected stack");
+    }
+
     private static void VerifySelectedItemInfo()
     {
+        VerifySelectedItemInfoAcrossRows();
+        VerifySelectionAcrossGrids();
         SaveService saves = new(InventoryRegistry(), new MemoryStorage(), ProjectSerializer());
         using InventoryRepository repository = new(saves);
         using InventoryService inventory = new(repository, new ItemCatalog());

@@ -2,7 +2,7 @@ using NaughtyAttributes;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "WorldGenerationConfig", menuName = "World/World Generation Config")]
-public class WorldGenerationConfig : ScriptableObject
+public partial class WorldGenerationConfig : ScriptableObject
 {
     public const string RESOURCES_PATH = "WorldGenerationConfig";
 
@@ -356,6 +356,10 @@ public class WorldGenerationConfig : ScriptableObject
     [field: Tooltip("Ground of the verge beside the roadway, RoadVergeWidth metres wide. Leave it empty and the verge is painted with RoadLayer too.")]
     public TerrainLayer RoadEdgeLayer { get; private set; }
 
+    [field: SerializeField, Foldout("Terrain layers")]
+    [field: Tooltip("Asphalt for highways, arterials and local streets. Falls back to RoadLayer when unassigned. DirtAccess uses RoadLayer.")]
+    public TerrainLayer AsphaltLayer { get; private set; }
+
     [field: SerializeField, Foldout("Terrain layers"), MinValue(0f)]
     [field: Tooltip("Metres of verge painted past the edge of the carriageway.")]
     public float RoadVergeWidth { get; private set; } = 2.5f;
@@ -454,6 +458,16 @@ public class WorldGenerationConfig : ScriptableObject
     {
         return profile == null ? 0 : profile.Count;
     }
+
+#if UNITY_EDITOR
+    public void EditorTakeTerrainLayers(WorldGenerationConfig source)
+    {
+        CliffLayer = source.CliffLayer;
+        RoadLayer = source.RoadLayer;
+        RoadEdgeLayer = source.RoadEdgeLayer;
+        AsphaltLayer = source.AsphaltLayer;
+    }
+#endif
 
     [Button("Reroll Seed")]
     private void RerollSeed()

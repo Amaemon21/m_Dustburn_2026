@@ -99,4 +99,9 @@ public class SettlementTypeProfile
 
         return Mathf.Sqrt(tiles / Mathf.PI) * tileSize + tileSize * 0.5f;
     }
+
+    internal void ScaleCount(float factor, int minimum)
+    {
+        Count = Mathf.Max(minimum, Mathf.RoundToInt(Count * factor));
+    }
 }

@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct CoastWaveJob : IJobParallelFor
 {
     [WriteOnly, NativeDisableParallelForRestriction] public NativeArray<float> Wander;

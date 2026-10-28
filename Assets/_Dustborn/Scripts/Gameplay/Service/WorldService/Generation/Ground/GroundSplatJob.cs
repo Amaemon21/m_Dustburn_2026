@@ -25,7 +25,7 @@ public struct GroundRule
     public float DetailSign;
 }
 
-[BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true)]
+[BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true, DisableSafetyChecks = true)]
 public struct GroundSplatJob : IJobParallelFor
 {
     private const float COVERED = 1e-5f;
@@ -55,6 +55,7 @@ public struct GroundSplatJob : IJobParallelFor
     public int CliffLayer;
     public int RoadLayer;
     public int RoadEdgeLayer;
+    public int AsphaltLayer;
 
     public RoadPaint Roads;
 
@@ -79,9 +80,10 @@ public struct GroundSplatJob : IJobParallelFor
 
         float surface = 0f;
         float verge = 0f;
+        float asphalt = 0f;
 
         if (RoadLayer >= 0)
-            Roads.Cover(RoadSegments, RoadCellStart, RoadCellItems, worldX, worldZ, out surface, out verge);
+            Roads.Cover(RoadSegments, RoadCellStart, RoadCellItems, worldX, worldZ, out surface, out verge, out asphalt);
 
         int origin = index * LayerCount;
 
@@ -101,7 +103,11 @@ public struct GroundSplatJob : IJobParallelFor
         }
 
         if (RoadLayer >= 0)
-            Alphamaps[origin + RoadLayer] += surface;
+        {
+            asphalt = math.min(surface, asphalt);
+            Alphamaps[origin + RoadLayer] += math.max(0f, surface - asphalt);
+            Alphamaps[origin + (AsphaltLayer >= 0 ? AsphaltLayer : RoadLayer)] += asphalt;
+        }
 
         if (RoadEdgeLayer >= 0)
             Alphamaps[origin + RoadEdgeLayer] += verge;

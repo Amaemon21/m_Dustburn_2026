@@ -42,7 +42,14 @@ public static class WorldGenerationEditorRun
         (WorldGenStage.BakeSplat, "Расчёт текстур поверхности"),
         (WorldGenStage.BakePersist, "Запись текстур поверхности"),
         (WorldGenStage.BakeSaveAssets, "Сохранение ассетов"),
+        (WorldGenStage.PreviewLoad, "Загрузка карт"),
+        (WorldGenStage.ShorePlan, "Детализация берегов"),
         (WorldGenStage.PreviewGeometry, "Геометрия и коллизия"),
+        (WorldGenStage.RoadSurface, "Асфальт дорог"),
+        (WorldGenStage.PreviewWater, "Вода и край мира"),
+        (WorldGenStage.PreviewPoi, "Здания POI"),
+        (WorldGenStage.PreviewTransient, "Пометка предпросмотра"),
+        (WorldGenStage.PreviewSwap, "Замена предпросмотра"),
         (WorldGenStage.PreviewDecor, "Растительность")
     };
 
@@ -50,7 +57,11 @@ public static class WorldGenerationEditorRun
     private static readonly List<StageTime> DETAILS = new();
     private static readonly Stopwatch CLOCK = new();
 
+    private const double BAR_INTERVAL = 0.1d;
+
     private static string _stage;
+    private static string _barStage;
+    private static double _barShown;
     private static double _stageStart;
 
     public static bool Busy { get; private set; }
@@ -84,6 +95,7 @@ public static class WorldGenerationEditorRun
         TotalSeconds = 0d;
         LastRunGenerated = generate;
         _stage = null;
+        _barStage = null;
         CLOCK.Restart();
         Mark("Подготовка");
 
@@ -126,19 +138,40 @@ public static class WorldGenerationEditorRun
             if (!terrain.Build((stage, fraction) => Report(stage, 0.65f + fraction * 0.28f)))
                 throw new InvalidOperationException("The terrain preview was refused. Check its memory budget and source maps.");
 
-            MakeTransient(terrainRoot);
+            using (WorldGenProbe.Measure(WorldGenStage.PreviewTransient))
+                MakeTransient(terrainRoot);
 
             var buildings = new GameObject("Здания POI");
             buildings.transform.SetParent(preview.transform, false);
             var pois = new PoiInstanceBuilder(world.Placement.Placements, buildings.transform);
 
-            while (!pois.Ready)
+            using (WorldGenProbe.Measure(WorldGenStage.PreviewPoi))
             {
-                Report("Размещение зданий POI", 0.93f + pois.Progress * 0.07f);
-                pois.BuildNext(16);
+                while (!pois.Ready)
+                {
+                    Report("Размещение зданий POI", 0.93f + pois.Progress * 0.04f);
+                    pois.BuildNext(16);
+                }
+            }
+
+            var propsRoot = new GameObject("Машины, хлам и тайники");
+            propsRoot.transform.SetParent(preview.transform, false);
+            float cull = settings.Props == null ? 0f : settings.Props.CullScreenHeight;
+            var props = new PropInstanceBuilder(world.Placement.Props, propsRoot.transform, terrainRoot.transform, cull, settings.Voxels.ChunkMetres);
+
+            using (WorldGenProbe.Measure(WorldGenStage.PreviewProps))
+            {
+                while (!props.Ready)
+                {
+                    Report("Машины, хлам и тайники", 0.97f + props.Progress * 0.03f);
+                    props.BuildNext(256);
+                }
+
+                MakeTransient(propsRoot);
             }
 
             Mark("Замена предпросмотра в сцене");
+            using WorldGenProbe.Span swap = WorldGenProbe.Measure(WorldGenStage.PreviewSwap);
             Undo.IncrementCurrentGroup();
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Обновить мир в сцене");
@@ -151,15 +184,17 @@ public static class WorldGenerationEditorRun
             Assign(owner, "_biomes", null);
             Assign(owner, "_pois", null);
             terrainRoot.transform.SetParent(null, false);
+            propsRoot.transform.SetParent(null, false);
             Undo.RegisterCreatedObjectUndo(preview, "Создать предпросмотр мира");
             terrainRoot.transform.SetParent(preview.transform, false);
+            propsRoot.transform.SetParent(preview.transform, false);
             Undo.CollapseUndoOperations(undoGroup);
             preview = null;
             EditorSceneManager.MarkSceneDirty(owner.gameObject.scene);
             SceneView.RepaintAll();
             Progress = 1f;
             string elapsed = FormatTime(CLOCK.Elapsed.TotalSeconds);
-            Status = generate ? $"Мир сохранён за {elapsed}. Зданий POI: {world.Placement.Placements.Count}" : $"Предпросмотр обновлён за {elapsed}";
+            Status = generate ? $"Мир сохранён за {elapsed}. Зданий POI: {world.Placement.Placements.Count}, машин, хлама и тайников: {world.Placement.Props.Count}" : $"Предпросмотр обновлён за {elapsed}";
         }
         catch (OperationCanceledException)
         {
@@ -301,6 +336,14 @@ public static class WorldGenerationEditorRun
         Mark(stage);
         Status = stage;
         Progress = Mathf.Clamp01(progress);
+
+        double now = CLOCK.Elapsed.TotalSeconds;
+
+        if (stage == _barStage && now - _barShown < BAR_INTERVAL)
+            return;
+
+        _barStage = stage;
+        _barShown = now;
 
         if (EditorUtility.DisplayCancelableProgressBar("Генерация мира", $"{stage} — {Progress:P0}", Progress))
             throw new OperationCanceledException();

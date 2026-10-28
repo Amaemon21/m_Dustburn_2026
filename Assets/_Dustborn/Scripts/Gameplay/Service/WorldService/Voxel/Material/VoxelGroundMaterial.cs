@@ -17,6 +17,7 @@ public static class VoxelGroundMaterial
         public bool UseRepetitionless = true;
         public string MaterialPath;
         public Material Material;
+        public TerrainLayer[] Layers;
     }
 
     public static string Bake(Request request, Object context)
@@ -71,6 +72,7 @@ public static class VoxelGroundMaterial
                 request.Material.SetTexture($"_Control{i}", stored[i]);
             }
 
+            request.Layers = painter.Layers;
             request.Material.SetFloat("_LayersCount", painter.Layers.Length);
             request.Material.SetFloat("_UVSpace", 1f);
 
@@ -125,6 +127,7 @@ public static class VoxelGroundMaterial
         }
 
         string stem = System.IO.Path.ChangeExtension(request.MaterialPath, null);
+        var paths = new string[controls.Length];
         var stored = new Texture2D[controls.Length];
 
         for (int i = 0; i < controls.Length; i++)
@@ -134,13 +137,28 @@ public static class VoxelGroundMaterial
             if (UnityEditor.AssetDatabase.LoadMainAssetAtPath(legacy) != null)
                 UnityEditor.AssetDatabase.DeleteAsset(legacy);
 
-            string path = $"{stem}_Control{i}.png";
+            paths[i] = $"{stem}_Control{i}.png";
+            System.IO.File.WriteAllBytes(paths[i], encoded[i].GetAwaiter().GetResult());
+        }
 
-            System.IO.File.WriteAllBytes(path, encoded[i].GetAwaiter().GetResult());
-            stored[i] = ImportControl(path);
+        UnityEditor.AssetDatabase.StartAssetEditing();
+
+        try
+        {
+            foreach (string path in paths)
+                UnityEditor.AssetDatabase.ImportAsset(path, UnityEditor.ImportAssetOptions.ForceUpdate);
+        }
+        finally
+        {
+            UnityEditor.AssetDatabase.StopAssetEditing();
+        }
+
+        for (int i = 0; i < controls.Length; i++)
+        {
+            stored[i] = LoadControl(paths[i]);
 
             if (stored[i] == null)
-                throw new System.InvalidOperationException($"The control texture was written but could not be imported: {path}");
+                throw new System.InvalidOperationException($"The control texture was written but could not be imported: {paths[i]}");
 
             Object.DestroyImmediate(controls[i]);
         }
@@ -152,10 +170,8 @@ public static class VoxelGroundMaterial
     }
 
 #if UNITY_EDITOR
-    private static Texture2D ImportControl(string path)
+    private static Texture2D LoadControl(string path)
     {
-        UnityEditor.AssetDatabase.ImportAsset(path, UnityEditor.ImportAssetOptions.ForceUpdate);
-
         if (UnityEditor.AssetImporter.GetAtPath(path) is UnityEditor.TextureImporter importer && !ControlImportReady(importer))
         {
             importer.textureType = UnityEditor.TextureImporterType.Default;

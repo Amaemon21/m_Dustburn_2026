@@ -363,7 +363,7 @@ MonoBehaviour:
   _layout: {fileID: 8092574190207279454}
   _icon: {fileID: 4522867970462362933}
   _text: {fileID: 1202087907303970074}
-  _experienceIcon: {fileID: 0}
+  _experienceIcon: {fileID: 21300000, guid: 2ef36a0186d549749822364b8c197822, type: 3}
   _slideOffset: {x: 80, y: 0}
   _expandDuration: 0.12
   _appearDuration: 0.25

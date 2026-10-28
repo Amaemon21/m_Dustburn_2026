@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
@@ -13,4 +14,5 @@ public interface ISaveStorage
     UniTask DeleteAsync(string relativePath, CancellationToken token);
     UniTask DeleteDirectoryAsync(string relativePath, CancellationToken token);
     UniTask<string[]> ListDirectoriesAsync(string relativePath, CancellationToken token);
+    UniTask<DateTime?> LastWriteTimeAsync(string relativeDirectory, string searchPattern, CancellationToken token);
 }

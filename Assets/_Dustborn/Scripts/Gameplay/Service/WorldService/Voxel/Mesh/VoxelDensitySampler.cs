@@ -141,6 +141,125 @@ public struct VoxelDensitySampler
         return math.lerp(bottom, top, tz);
     }
 
+    public Vector3 MeshVertex(int chunkX, int chunkZ, int size, float voxelSize, int morph, int x, int z)
+    {
+        float originX = chunkX * size * voxelSize;
+        float originZ = chunkZ * size * voxelSize;
+        float wx = originX + (x - 0.5f) * voxelSize;
+        float wz = originZ + (z - 0.5f) * voxelSize;
+        bool edgeX = x == 0 || x == size;
+        bool edgeZ = z == 0 || z == size;
+
+        if (edgeX)
+        {
+            wx = originX + x * voxelSize;
+
+            if (!edgeZ)
+            {
+                int node = chunkZ * size + z;
+                int face = x == 0 ? VoxelColumnKey.MORPH_MIN_X : VoxelColumnKey.MORPH_MAX_X;
+                wz = ((morph & face) != 0 ? node & ~1 : node) * voxelSize;
+            }
+        }
+
+        if (edgeZ)
+        {
+            wz = originZ + z * voxelSize;
+
+            if (!edgeX)
+            {
+                int node = chunkX * size + x;
+                int face = z == 0 ? VoxelColumnKey.MORPH_MIN_Z : VoxelColumnKey.MORPH_MAX_Z;
+                wx = ((morph & face) != 0 ? node & ~1 : node) * voxelSize;
+            }
+        }
+
+        return new Vector3(wx, Height(wx, wz, voxelSize, morph, originX, originZ, MorphSpan(size, voxelSize), voxelSize * 2f), wz);
+    }
+
+    public float Drawn(float x, float z, float voxelSize, int morph, float originX, float originZ, int size, out Vector2 slope)
+    {
+        float chunk = size * voxelSize;
+        int chunkX = (int)math.round(originX / chunk);
+        int chunkZ = (int)math.round(originZ / chunk);
+        int cellX = DrawnCell((x - originX) / voxelSize, size);
+        int cellZ = DrawnCell((z - originZ) / voxelSize, size);
+
+        for (int ring = 0; ring <= 1; ring++)
+        {
+            for (int dz = -ring; dz <= ring; dz++)
+            {
+                for (int dx = -ring; dx <= ring; dx++)
+                {
+                    if (ring > 0 && dx == 0 && dz == 0)
+                        continue;
+
+                    int nearX = cellX + dx;
+                    int nearZ = cellZ + dz;
+
+                    if (nearX < 0 || nearZ < 0 || nearX >= size || nearZ >= size)
+                        continue;
+
+                    if (DrawnQuad(chunkX, chunkZ, size, voxelSize, morph, nearX, nearZ, x, z, out float height, out slope))
+                        return height;
+                }
+            }
+        }
+
+        float span = MorphSpan(size, voxelSize);
+        float coarse = voxelSize * 2f;
+        float step = voxelSize * 0.5f;
+
+        slope = new Vector2(
+            (Height(x + step, z, voxelSize, morph, originX, originZ, span, coarse) - Height(x - step, z, voxelSize, morph, originX, originZ, span, coarse)) / (2f * step),
+            (Height(x, z + step, voxelSize, morph, originX, originZ, span, coarse) - Height(x, z - step, voxelSize, morph, originX, originZ, span, coarse)) / (2f * step));
+
+        return Height(x, z, voxelSize, morph, originX, originZ, span, coarse);
+    }
+
+    private static int DrawnCell(float local, int size)
+    {
+        return math.clamp((int)math.floor(local + 0.5f), 0, size - 1);
+    }
+
+    private bool DrawnQuad(int chunkX, int chunkZ, int size, float voxelSize, int morph, int cellX, int cellZ, float x, float z, out float height,
+        out Vector2 slope)
+    {
+        Vector3 first = MeshVertex(chunkX, chunkZ, size, voxelSize, morph, cellX, cellZ);
+        Vector3 second = MeshVertex(chunkX, chunkZ, size, voxelSize, morph, cellX, cellZ + 1);
+        Vector3 third = MeshVertex(chunkX, chunkZ, size, voxelSize, morph, cellX + 1, cellZ + 1);
+        Vector3 fourth = MeshVertex(chunkX, chunkZ, size, voxelSize, morph, cellX + 1, cellZ);
+
+        return OnTriangle(first, second, third, x, z, out height, out slope) || OnTriangle(first, third, fourth, x, z, out height, out slope);
+    }
+
+    private static bool OnTriangle(Vector3 a, Vector3 b, Vector3 c, float x, float z, out float height, out Vector2 slope)
+    {
+        const float TOLERANCE = -1e-4f;
+
+        height = 0f;
+        slope = Vector2.zero;
+
+        float area = (b.x - a.x) * (c.z - a.z) - (c.x - a.x) * (b.z - a.z);
+
+        if (math.abs(area) < 1e-8f)
+            return false;
+
+        float towardB = ((x - a.x) * (c.z - a.z) - (c.x - a.x) * (z - a.z)) / area;
+        float towardC = ((b.x - a.x) * (z - a.z) - (x - a.x) * (b.z - a.z)) / area;
+        float towardA = 1f - towardB - towardC;
+
+        if (towardA < TOLERANCE || towardB < TOLERANCE || towardC < TOLERANCE)
+            return false;
+
+        height = towardA * a.y + towardB * b.y + towardC * c.y;
+        slope = new Vector2(
+            ((b.y - a.y) * (c.z - a.z) - (b.z - a.z) * (c.y - a.y)) / area,
+            ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) / area);
+
+        return true;
+    }
+
     public bool Fill(Vector3 origin, float voxelSize, int samples, NativeArray<float> columns, NativeArray<float> density, int morph = 0, int size = 0)
     {
         float lowest = float.MaxValue;

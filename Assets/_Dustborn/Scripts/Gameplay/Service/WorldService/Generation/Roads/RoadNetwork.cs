@@ -46,6 +46,8 @@ public class Road
     }
 
     public float HalfWidth => Width * 0.5f;
+
+    public RoadSurface Surface => RoadKindProfile.SurfaceOf(Kind);
 }
 
 [Serializable]

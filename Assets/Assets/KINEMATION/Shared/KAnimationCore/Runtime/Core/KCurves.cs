@@ -35,7 +35,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
                 y = AnimationCurve.Constant(timeStart, timeEnd, value),
                 z = AnimationCurve.Constant(timeStart, timeEnd, value)
             };
-            
+
             return result;
         }
 
@@ -45,10 +45,10 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
 
             float curveTime = KCurves.GetCurveLength(x);
             maxTime = curveTime > maxTime ? curveTime : maxTime;
-        
+
             curveTime = KCurves.GetCurveLength(y);
             maxTime = curveTime > maxTime ? curveTime : maxTime;
-        
+
             curveTime = KCurves.GetCurveLength(z);
             maxTime = curveTime > maxTime ? curveTime : maxTime;
 
@@ -78,7 +78,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             z = new AnimationCurve(keyFrame);
         }
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Core")]
     [Serializable]
     public enum EEaseFunc
@@ -88,7 +88,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         Cubic,
         Custom
     }
-    
+
     [MovedFrom("KINEMATION.KAnimationCore.Runtime.Core")]
     [Serializable]
     public struct EaseMode
@@ -102,13 +102,13 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             curve = AnimationCurve.Linear(0f, 0f, 1f, 0f);
         }
     }
-    
+
     public class KCurves
     {
         public static float GetCurveLength(AnimationCurve curve)
         {
             float length = 0f;
-            
+
             if (curve != null)
             {
                 length = curve[curve.length - 1].time;
@@ -116,7 +116,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
 
             return length;
         }
-        
+
         public static float EaseSine(float a, float b, float alpha)
         {
             return Mathf.Lerp(a, b, -(Mathf.Cos(Mathf.PI * alpha) - 1) / 2);
@@ -133,7 +133,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             alpha = curve?.Evaluate(alpha) ?? alpha;
             return Mathf.Lerp(a, b, alpha);
         }
-        
+
         public static float Ease(float a, float b, float alpha, EaseMode ease)
         {
             alpha = Mathf.Clamp01(alpha);
@@ -142,12 +142,12 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             {
                 return EaseSine(a, b, alpha);
             }
-            
+
             if (ease.easeFunc == EEaseFunc.Cubic)
             {
                 return EaseCubic(a, b, alpha);
             }
-            
+
             if (ease.easeFunc == EEaseFunc.Custom)
             {
                 return EaseCurve(a, b, alpha, ease.curve);

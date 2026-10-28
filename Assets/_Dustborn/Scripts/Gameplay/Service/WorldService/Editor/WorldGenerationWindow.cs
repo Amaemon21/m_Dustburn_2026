@@ -5,7 +5,7 @@ using UnityEngine;
 
 public partial class WorldGenerationWindow : EditorWindow
 {
-    public const string DEFAULT_SETTINGS_PATH = "Assets/_Dustborn/Content/World/WorldBuildSettings.asset";
+    public const string DEFAULT_SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
 
     private const float TIMINGS_HEIGHT = 220f;
     private const double MIN_SHOWN_SECONDS = 0.05d;
@@ -22,7 +22,8 @@ public partial class WorldGenerationWindow : EditorWindow
         ("Отладка раскраски земли", "Мир/Отладка раскраски земли"),
         ("Отладка стыков LOD", "Мир/Отладка стыков LOD"),
         ("Импорт штампов рельефа", "Мир/Импорт штампов рельефа"),
-        ("Импорт штампов воды", "Мир/Импорт штампов воды")
+        ("Импорт штампов воды", "Мир/Импорт штампов воды"),
+        ("Правка деревьев и камней", "Мир/Правка деревьев и камней")
     };
 
     [SerializeField] private WorldGenerator _owner;

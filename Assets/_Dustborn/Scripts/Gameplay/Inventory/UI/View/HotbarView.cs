@@ -26,7 +26,7 @@ public class HotbarView : View<HotbarViewModel>
         UnbindSlots();
         IReadOnlyList<HotbarViewSlot> views = _pool.Show(slots.Count);
         for (int i = 0; i < slots.Count; i++)
-            views[i].Bind(slots[i], i);
+            views[i].Bind(slots[i], slots[i].Coordinates.x);
     }
 
     private void UnbindSlots()

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 KINEMATION.
+// Copyright (c) 2026 KINEMATION.
 // All rights reserved.
 
 using System;
@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using KINEMATION.RetargetPro.Editor.Scripts.Mapping;
 using KINEMATION.RetargetPro.Runtime;
+using KINEMATION.RetargetPro.Runtime.Features.FPSRetargeting;
 using KINEMATION.Shared.FbxExporter.Editor;
+using KINEMATION.Shared.KAnimationCore.Editor.CurveImporter;
 using KINEMATION.Shared.KAnimationCore.Runtime.Core;
 using KINEMATION.Shared.KAnimationCore.Runtime.Rig;
 using UnityEditor;
@@ -42,7 +44,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
         public GameObject SourcePreviewInstance => _sourceCharacterInstance;
         public GameObject TargetPreviewInstance => _targetCharacterInstance;
         public bool HasPreviewCharacters => _sourceCharacterInstance != null && _targetCharacterInstance != null;
-        
+
         private static readonly string[] AnimationBakeOutputOptions =
         {
             "Animation Clip (.anim)",
@@ -57,19 +59,21 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
         private static readonly HashSet<string> HumanoidMusclePropertyNames = BuildHumanoidMusclePropertyNames();
 
         public Action<RetargetProfile> onProfileChanged;
-        
+
         private GameObject _sourceCharacter;
         private GameObject _targetCharacter;
         private GameObject _itemModel;
-        
+
         private GameObject _sourceCharacterInstance;
         private GameObject _targetCharacterInstance;
+        private Dictionary<Transform, KTransform> _sourceInitialPose;
+        private Dictionary<Transform, KTransform> _targetInitialPose;
         private GameObject _itemInstance;
         private GameObject _itemAttachmentInstance;
 
         public RetargetProfile retargetProfile;
         private RetargetProfile _cachedRetargetProfile;
-        
+
         private bool _copyClipSettings = true;
         private bool _useRootMotion = true;
         private string _selectedBakerId = string.Empty;
@@ -78,7 +82,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
         private bool _sourceRigComponentTemporary;
         private bool _targetRigComponentTemporary;
         private Scene _previewScene;
-        
+
         private float _frameRate = DefaultBakeFrameRate;
         private int _loopCount = DefaultLoopCount;
         private bool _useSourceFrameRateByDefault = true;
@@ -100,7 +104,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
         private KTransform _rootMotionDelta = KTransform.Identity;
         private bool _hasPreviewRootMotionReferencePose;
         private bool _hasPreviewRootMotionDelta;
-        
+
         public string GetTargetName()
         {
             string result = "RetargetResult";
@@ -398,12 +402,12 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
             {
                 DestroyEditor(ref _sourcePreviewEditor);
             }
-            
+
             if (_targetPreviewEditor != null && _targetPreviewEditor.serializedObject.targetObject != null)
             {
                 DestroyEditor(ref _targetPreviewEditor);
             }
-            
+
             _sourcePreviewEditor = null;
             _targetPreviewEditor = null;
 
@@ -768,7 +772,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
             _sourcePreviewAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             return true;
         }
-        
+
         private void DestroyCharacterInstances()
         {
             if (_itemInstance != null)
@@ -795,6 +799,8 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
             _itemAttachmentInstance = null;
             _sourceCharacterInstance = null;
             _targetCharacterInstance = null;
+            _sourceInitialPose = null;
+            _targetInitialPose = null;
             _sourcePreviewAnimator = null;
             _hasPreviewRootMotionReferencePose = false;
             _hasPreviewRootMotionDelta = false;
@@ -839,6 +845,11 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
                 ReleasePreviewCharacters();
                 return false;
             }
+
+            _sourceInitialPose = _sourceCharacterInstance.GetComponentsInChildren<Transform>(true)
+                .ToDictionary(bone => bone, bone => new KTransform(bone, false));
+            _targetInitialPose = _targetCharacterInstance.GetComponentsInChildren<Transform>(true)
+                .ToDictionary(bone => bone, bone => new KTransform(bone, false));
 
             bool sourceAnimatorReady = true;
             if (!EnsureSourcePreviewAnimatorConfigured(out string sourceAnimatorError))
@@ -1044,7 +1055,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
 
             return true;
         }
-        
+
         public void RetargetAtTime(AnimationClip clip, AnimationClip itemClip, float time)
         {
             RetargetAtTime(clip, itemClip, time, KTransform.Identity);
@@ -1056,7 +1067,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
             {
                 return;
             }
-            
+
             clip.SampleAnimation(_sourceCharacterInstance, time);
             CachePreviewRootMotionDelta();
             RestorePreviewRootMotionReferencePose();
@@ -2126,7 +2137,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
 
         private void SetProfileSavePath(string path)
         {
-            if (retargetProfile == null 
+            if (retargetProfile == null
                 || string.Equals(retargetProfile.saveFolderPath, path, StringComparison.Ordinal))
             {
                 return;
@@ -2183,6 +2194,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
                     return false;
                 }
 
+                ApplyProfileReferencePoses();
                 RetargetComponent = new RetargetProComponent();
                 RetargetComponent.Initialize(_sourceCharacterInstance, _targetCharacterInstance, retargetProfile,
                     _sourceRigComponent, _targetRigComponent);
@@ -2287,7 +2299,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
                 Debug.LogError("RetargetAnimBaker: Rig Component is NULL!");
                 return null;
             }
-            
+
             // Bake paths relative to the target character root (not preview anchors/scene roots).
             GameObject bakeRoot = _targetCharacterInstance != null
                 ? _targetCharacterInstance
@@ -2530,7 +2542,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
                 {
                     _targetRigComponent.ApplyHierarchyCachedPose();
                 }
-                
+
                 bakeRoot.transform.rotation = originalRootRotation;
             }
         }
@@ -2716,6 +2728,43 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
             return fallback;
         }
 
+        private bool PreserveFpsWeaponCurves(ModelImporter importer, string clipName)
+        {
+            if (retargetProfile?.retargetFeatures == null || _targetRigComponent == null) return false;
+
+            var weaponPaths = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var feature in retargetProfile.retargetFeatures)
+            {
+                if (feature is not FPSRetargetFeature fps || fps.targetWeapon?.elementChain == null) continue;
+                foreach (KRigElement element in fps.targetWeapon.elementChain)
+                {
+                    if (string.IsNullOrEmpty(element.name)) continue;
+                    Transform bone = _targetRigComponent.GetRigTransform(element.name);
+                    if (bone == null || bone == _targetRigComponent.transform) continue;
+                    string path = AnimationUtility.CalculateTransformPath(bone, _targetRigComponent.transform);
+                    weaponPaths[path] = path;
+                    // Non-skeleton children can retain the model root in the exported hierarchy.
+                    weaponPaths[$"{_targetRigComponent.name}/{path}"] = path;
+                }
+            }
+
+            if (weaponPaths.Count == 0) return false;
+            AnimationClip genericClip = FindImportedAnimationClip(importer.assetPath, clipName);
+            if (genericClip == null) return false;
+
+            var curves = new List<CustomEditorCurveData>();
+            foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(genericClip))
+            {
+                if (binding.type != typeof(Transform) || !weaponPaths.TryGetValue(binding.path, out string path)) continue;
+                curves.Add(new CustomEditorCurveData(path, binding.propertyName,
+                    typeof(Transform).AssemblyQualifiedName, AnimationUtility.GetEditorCurve(genericClip, binding)));
+            }
+
+            // Store the baked local tracks before Humanoid conversion strips custom bone animation.
+            return curves.Count > 0 &&
+                   CurveProcessorUtility.CopyCurvesToImporter(genericClip, importer, clipName, curves);
+        }
+
         private bool TryConfigureFbxImportSettings(string fbxAssetPath, AnimationClip sourceClip, float sourceStartTime,
             float sourceEndTime, bool importAsHumanoid, string importedClipName, out string error)
         {
@@ -2798,7 +2847,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
                 return true;
             }
 
-            changed = false;
+            changed = PreserveFpsWeaponCurves(importer, importedClipName);
             if (importer.animationType != ModelImporterAnimationType.Human)
             {
                 importer.animationType = ModelImporterAnimationType.Human;
@@ -3138,7 +3187,7 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
             RefreshPreviewEditors();
             onProfileChanged?.Invoke(retargetProfile);
         }
-        
+
         private void ApplyProfileReferencePoses()
         {
             if (retargetProfile == null)
@@ -3146,25 +3195,40 @@ namespace KINEMATION.RetargetPro.Editor.Scripts.Bakers
                 return;
             }
 
-            if (_sourceCharacterInstance != null && retargetProfile.sourcePose != null)
-            {
-                retargetProfile.sourcePose.SampleAnimation(_sourceCharacterInstance, 0f);
-            }
-
-            if (_targetCharacterInstance != null && retargetProfile.targetPose != null)
-            {
-                retargetProfile.targetPose.SampleAnimation(_targetCharacterInstance, 0f);
-            }
+            ApplyReferencePose(_sourceCharacterInstance, _sourceRigComponent, _sourceInitialPose, retargetProfile.sourcePose);
+            ApplyReferencePose(_targetCharacterInstance, _targetRigComponent, _targetInitialPose, retargetProfile.targetPose);
 
             if (_itemInstance != null && retargetProfile.clipItemAnimation != null)
             {
                 retargetProfile.clipItemAnimation.SampleAnimation(_itemInstance, 0f);
             }
-            
+
             CachePreviewRootMotionReferencePose();
             RestorePreviewRootMotionReferencePose();
         }
-        
+
+        private static void ApplyReferencePose(GameObject instance, KRigComponent rigComponent,
+            Dictionary<Transform, KTransform> initialPose, AnimationClip pose)
+        {
+            if (instance == null || initialPose == null) return;
+            foreach (var entry in initialPose)
+            {
+                if (entry.Key == null) continue;
+                entry.Key.localPosition = entry.Value.position;
+                entry.Key.localRotation = entry.Value.rotation;
+                entry.Key.localScale = entry.Value.scale;
+            }
+
+            if (pose != null)
+            {
+                pose.SampleAnimation(instance, 0f);
+            }
+            else
+            {
+                RetargetAutoTPose.Apply(rigComponent);
+            }
+        }
+
         private void CleanupBaker()
         {
             if (IsInitialized && _sourceRigComponent != null)

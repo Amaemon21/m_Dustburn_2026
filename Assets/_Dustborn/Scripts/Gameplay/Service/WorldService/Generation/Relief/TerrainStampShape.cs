@@ -36,7 +36,7 @@ public sealed class TerrainStampShape
 
     public static TerrainStampShape From(TerrainStampDefinition definition)
     {
-        return Decode(definition.HeightData.bytes, definition.NativeResolution, definition.Operation);
+        return Decode(StampBytes.Of(definition.HeightData), definition.NativeResolution, definition.Operation);
     }
 
     public ushort Raw(int column, int row)

@@ -12,9 +12,10 @@ public sealed class WorldMapResult
     public List<SettlementLayout> Settlements { get; }
     public WaterMap Water { get; }
     public List<TerrainStampPlacement> Stamps { get; }
+    public List<PropPlacement> Props { get; }
 
     public WorldMapResult(BiomeMap biomes, HeightMap heights, RoadNetwork roads, float[] roadMask, List<PoiPlacement> placements,
-        List<SettlementLayout> settlements, WaterMap water, List<TerrainStampPlacement> stamps)
+        List<SettlementLayout> settlements, WaterMap water, List<TerrainStampPlacement> stamps, List<PropPlacement> props)
     {
         Biomes = biomes;
         Heights = heights;
@@ -24,6 +25,21 @@ public sealed class WorldMapResult
         Settlements = settlements;
         Water = water;
         Stamps = stamps;
+        Props = props ?? new List<PropPlacement>();
+    }
+}
+
+public readonly struct WorldMapStep
+{
+    public readonly string Title;
+    public readonly float Progress;
+    public readonly WorldMapResult Result;
+
+    public WorldMapStep(string title, float progress, WorldMapResult result)
+    {
+        Title = title;
+        Progress = progress;
+        Result = result;
     }
 }
 
@@ -36,6 +52,7 @@ public sealed class WorldMapPipeline
     private readonly WorldGenerationConfig _config;
     private readonly BiomeDatabase _biomes;
     private readonly PoiDatabase _pois;
+    private readonly PropDatabase _props;
 
     private sealed class Context
     {
@@ -52,6 +69,8 @@ public sealed class WorldMapPipeline
         public TerrainCarver Carver;
         public float[] RoadMask;
         public List<PoiPlacement> Placements;
+        public PropDatabase PropSet;
+        public List<PropPlacement> Props;
     }
 
     private readonly struct Stage
@@ -76,38 +95,49 @@ public sealed class WorldMapPipeline
         new("Поселения и кварталы", 0.32f, Settlements),
         new("Дороги между поселениями", 0.38f, Highways),
         new("Врезка дорог и улиц", 0.42f, CarveRoads),
-        new("Участки и здания", 0.47f, Buildings)
+        new("Участки и здания", 0.47f, Buildings),
+        new("Согласование воды с рельефом", 0.5f, ReconcileWater),
+        new("Машины, хлам и тайники", 0.52f, Props)
     };
 
-    public WorldMapPipeline(WorldGenerationConfig config, BiomeDatabase biomes, PoiDatabase pois)
+    public WorldMapPipeline(WorldGenerationConfig config, BiomeDatabase biomes, PoiDatabase pois, PropDatabase props = null)
     {
         _config = config;
         _biomes = biomes;
         _pois = pois;
+        _props = props;
     }
 
     public WorldMapResult Generate(Action<string, float> progress = null, CancellationToken cancellationToken = default, HeightMap relief = null)
     {
-        void Report(string stage, float fraction)
+        foreach (WorldMapStep step in Steps(relief))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            progress?.Invoke(stage, fraction);
+            progress?.Invoke(step.Title, step.Progress);
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (step.Result != null)
+                return step.Result;
         }
 
+        throw new InvalidOperationException("The map pipeline ended without a result");
+    }
+
+    public IEnumerable<WorldMapStep> Steps(HeightMap relief = null)
+    {
         long total = WorldGenProbe.Now;
-        var context = new Context { Config = _config, BiomeSet = _biomes, Pois = _pois, Heights = relief };
+        var context = new Context { Config = _config, BiomeSet = _biomes, Pois = _pois, PropSet = _props, Heights = relief };
 
         foreach (Stage stage in Stages)
         {
-            Report(stage.Title, stage.Progress);
+            yield return new WorldMapStep(stage.Title, stage.Progress, null);
             stage.Run(context);
         }
 
-        Report(DONE, DONE_PROGRESS);
         WorldGenProbe.Record(WorldGenStage.MapTotal, total, WorldGenProbe.Now, context.Placements.Count);
 
-        return new WorldMapResult(context.Biomes, context.Heights, context.Roads, context.RoadMask, context.Placements, context.Settlements, context.Water, context.Relief.Stamps);
+        yield return new WorldMapStep(DONE, DONE_PROGRESS, new WorldMapResult(context.Biomes, context.Heights, context.Roads,
+            context.RoadMask, context.Placements, context.Settlements, context.Water, context.Relief.Stamps, context.Props));
     }
 
     private static void Biomes(Context context)
@@ -205,6 +235,11 @@ public sealed class WorldMapPipeline
 
         using (WorldGenProbe.Measure(WorldGenStage.MapApplyHeights))
             placer.ApplyHeights(context.Heights);
+    }
+
+    private static void ReconcileWater(Context context)
+    {
+        WorldGenerationConfig config = context.Config;
 
         using (WorldGenProbe.Measure(WorldGenStage.MapCarveRivers))
             RiverCarver.Restore(context.Heights, context.Water, config.Water.BridgeMinWidth, context.RoadMask);
@@ -217,6 +252,19 @@ public sealed class WorldMapPipeline
 
         using (WorldGenProbe.Measure(WorldGenStage.MapWaterCrossings))
             WaterCrossings.Finish(context.Water, context.Heights, config, context.Carver.Bridges);
+    }
+
+    private static void Props(Context context)
+    {
+        if (context.PropSet == null)
+        {
+            context.Props = new List<PropPlacement>();
+            return;
+        }
+
+        using (WorldGenProbe.Measure(WorldGenStage.MapProps))
+            context.Props = new PropPlacer(context.Config, context.PropSet, context.BiomeSet, context.Biomes, context.Heights,
+                context.Water, context.Roads, context.Placements).Place();
     }
 
     private static List<Road> Combined(IEnumerable<Road> first, IEnumerable<Road> second)
@@ -283,6 +331,7 @@ public sealed class WorldMapPipeline
         if (stamps != null)
             UnityEngine.Debug.Log(water.Stamps.Summary());
 
+        LakeBeds.Level(carved, water);
         LakeBeds.Deepen(carved, water);
 
         RiverEnds.Label(water, settings.RiverStartArea * 1e6f);
@@ -296,18 +345,19 @@ public sealed class WorldMapPipeline
         (byte[] Kinds, short[] BodyIds) ownership = water.Ownership();
         (bool Start, bool End)[] loose = RiverEnds.Loose(water);
         var cache = new RiverCarver.CarveCache();
+        var stampCache = new WaterStampCarver.CarveCache();
 
         for (int round = 1; ; round++)
         {
             WaterLevels levels = WaterLevels.Of(water, loose);
-            HeightMap carved = CarveWater(heights, water, stamps, settings, loose, cache);
+            HeightMap carved = CarveWater(heights, water, stamps, settings, loose, cache, stampCache);
             loose = RiverEnds.Loose(water);
             int changes = levels.Changes(water, loose);
 
             if (changes == 0)
             {
                 if (round > 1)
-                    UnityEngine.Debug.Log($"Water levels settled after {round} carving rounds, {cache.Reused} of {cache.Reused + cache.Computed} river tiles reused");
+                    UnityEngine.Debug.Log($"Water levels settled after {round} carving rounds, {cache.Reused} of {cache.Reused + cache.Computed} river tiles and {stampCache.Reused} of {stampCache.Reused + stampCache.Computed} stamp tiles reused");
 
                 return carved;
             }
@@ -322,7 +372,7 @@ public sealed class WorldMapPipeline
         }
     }
 
-    private static HeightMap CarveWater(HeightMap heights, WaterMap water, WaterStampLibrary stamps, WaterGenerationSettings settings, (bool Start, bool End)[] loose, RiverCarver.CarveCache cache)
+    private static HeightMap CarveWater(HeightMap heights, WaterMap water, WaterStampLibrary stamps, WaterGenerationSettings settings, (bool Start, bool End)[] loose, RiverCarver.CarveCache cache, WaterStampCarver.CarveCache stampCache)
     {
         HeightMap carved;
 
@@ -332,7 +382,7 @@ public sealed class WorldMapPipeline
         if (stamps != null)
         {
             using (WorldGenProbe.Measure(WorldGenStage.MapWaterStampCarve))
-                WaterStampCarver.Carve(carved, heights, water, stamps);
+                WaterStampCarver.Carve(carved, heights, water, stamps, stampCache);
         }
 
         LakeBeds.SmoothShores(carved, water);

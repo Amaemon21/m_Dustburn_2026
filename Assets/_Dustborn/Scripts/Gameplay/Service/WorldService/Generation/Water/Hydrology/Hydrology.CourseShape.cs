@@ -85,8 +85,18 @@ public sealed partial class Hydrology
 
     private void Bend(List<Vector2> points, List<float> areas, float maxWidth)
     {
-        for (int pass = 0; pass < BEND_PASSES; pass++)
+        Relax(points, areas, maxWidth, BEND_MIN_RADIUS, BEND_WIDTHS, BEND_PASSES);
+        Relax(points, areas, maxWidth, 0f, FOLD_WIDTHS, FOLD_PASSES);
+    }
+
+    private void Relax(List<Vector2> points, List<float> areas, float maxWidth, float minRadius, float widths, int passes)
+    {
+        bool moved = true;
+
+        for (int pass = 0; pass < passes && moved; pass++)
         {
+            moved = false;
+
             for (int i = 1; i + 1 < points.Count; i++)
             {
                 Vector2 before = points[i] - points[i - 1];
@@ -95,10 +105,11 @@ public sealed partial class Hydrology
                 float chord = 0.5f * (first + second);
                 float turn = first * second < 1e-8f ? 0f : Mathf.Acos(Mathf.Clamp(Vector2.Dot(before, after) / (first * second), -1f, 1f));
 
-                if (turn < 1e-4f || chord / turn >= Mathf.Max(BEND_MIN_RADIUS, BEND_WIDTHS * Width(areas[i], maxWidth)))
+                if (turn < 1e-4f || chord / turn >= Mathf.Max(minRadius, widths * Width(areas[i], maxWidth)))
                     continue;
 
                 points[i] = Vector2.Lerp(points[i], 0.5f * (points[i - 1] + points[i + 1]), 0.5f);
+                moved = true;
             }
         }
     }

@@ -25,6 +25,7 @@ public sealed class PlayerHands : IDisposable
     private Phase _phase = Phase.Hidden;
     private HandsMotion _pose = HandsMotion.Idle;
     private float _timer;
+    private float _poseHold;
 
     public PlayerHands(IHeldItemPresenter presenter, IAimSource aim, ItemActionFactory actions, HeldItemConfig unarmed)
     {
@@ -53,13 +54,15 @@ public sealed class PlayerHands : IDisposable
                 break;
             case Phase.Ready:
                 TryUse(request);
-                Pose(request);
+                Pose(request, deltaTime);
                 break;
             case Phase.Using:
                 if (!_active.Tick(deltaTime))
                     Finish();
                 break;
         }
+
+        _presenter.Tick(deltaTime);
     }
 
     private void Leave()
@@ -98,11 +101,12 @@ public sealed class PlayerHands : IDisposable
             return;
         }
 
-        ItemActionContext context = new(_desired, _presenter, _aim);
+        ItemActionContext context = new(_desired, _config, _presenter, _aim);
         _primary = _actions.Create(_config.Primary, context);
         _secondary = _actions.Create(_config.Secondary, context);
         _presenter.Play(HandsMotion.Equip);
         _pose = HandsMotion.Idle;
+        _poseHold = 0f;
         _timer = _config.DrawTime;
         _phase = Phase.Drawing;
     }
@@ -116,17 +120,44 @@ public sealed class PlayerHands : IDisposable
         _active = action;
         _active.Start();
         _pose = HandsMotion.Idle;
+        _poseHold = 0f;
         _phase = Phase.Using;
     }
 
-    private void Pose(in HandsRequest request)
+    private void Pose(in HandsRequest request, float deltaTime)
     {
         HandsMotion pose = request.Running ? HandsMotion.Run : request.Moving ? HandsMotion.Walk : HandsMotion.Idle;
-        if (_phase != Phase.Ready || pose == _pose)
+        if (_phase != Phase.Ready)
             return;
+
+        _poseHold -= deltaTime;
+        if (pose == _pose || _poseHold > 0f && pose != HandsMotion.Run)
+            return;
+
+        if (pose == HandsMotion.Run)
+        {
+            StartRun();
+            return;
+        }
+
+        if (_pose == HandsMotion.Run && _presenter.Play(HandsMotion.RunEnd))
+        {
+            _pose = HandsMotion.Idle;
+            _poseHold = _config.RunEndTime;
+            return;
+        }
 
         _pose = pose;
         _presenter.Play(pose);
+    }
+
+    private void StartRun()
+    {
+        if (!_presenter.Play(HandsMotion.RunStart))
+            _presenter.Play(HandsMotion.Run);
+
+        _pose = HandsMotion.Run;
+        _poseHold = 0f;
     }
 
     private void Finish()

@@ -3,11 +3,18 @@ using System;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_6000_5_OR_NEWER
+using Unity.Scripting.LifecycleManagement;
+#endif
+
 namespace Repetitionless.Editor.Utilities.GUI
 {
     /// <summary>
     /// Many GUI functions to make inspector creation easier without MaterialProperties
     /// </summary>
+#if UNITY_6000_5_OR_NEWER
+    [NoAutoStaticsCleanup]
+#endif
     public static class GUIUtilities
     {
         // Constants

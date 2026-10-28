@@ -12,7 +12,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Rig
     public struct KRigElement
     {
         public bool HasSelection => index > -1;
-        
+
         public string name;
         [HideInInspector] public int index;
         public int depth;

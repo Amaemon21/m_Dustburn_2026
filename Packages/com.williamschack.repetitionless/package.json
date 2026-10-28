@@ -1,7 +1,7 @@
 {
   "name": "com.williamschack.repetitionless",
   "displayName": "Repetitionless",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "unity": "2021.3",
   "unityRelease": "26f1",
   "description": "Remove visible texture tiling in seconds with a drop in replacement for materials and terrains. Fully compatible with Built-In, URP, and HDRP",

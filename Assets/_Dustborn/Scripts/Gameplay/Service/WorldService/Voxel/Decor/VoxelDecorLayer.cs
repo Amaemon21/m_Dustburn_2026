@@ -18,19 +18,21 @@ public enum DecorScope
 public readonly struct DecorSurface
 {
     public Vector2 Origin { get; }
-    public float Span { get; }
+    public int Size { get; }
     public float VoxelSize { get; }
     public int Morph { get; }
 
-    public DecorSurface(Vector2 origin, float span, float voxelSize, int morph)
+    public DecorSurface(Vector2 origin, int size, float voxelSize, int morph)
     {
         Origin = origin;
-        Span = span;
+        Size = size;
         VoxelSize = voxelSize;
         Morph = morph;
     }
 
-    public bool IsPlain => Span <= 0f;
+    public float Span => VoxelDensitySampler.MorphSpan(Size, VoxelSize);
+
+    public bool IsPlain => Size <= 0 || VoxelSize <= 0f;
 }
 
 public readonly struct GrassCardStyle : System.IEquatable<GrassCardStyle>
@@ -48,7 +50,6 @@ public readonly struct GrassCardStyle : System.IEquatable<GrassCardStyle>
     public float TextureShading { get; }
     public float Translucency { get; }
     public float WrapLight { get; }
-    public float Variation { get; }
 
     public float WindStrength { get; }
     public float WindSpeed { get; }
@@ -69,7 +70,6 @@ public readonly struct GrassCardStyle : System.IEquatable<GrassCardStyle>
         TextureShading = layer.TextureShading;
         Translucency = layer.Translucency;
         WrapLight = layer.WrapLight;
-        Variation = layer.ColorVariation;
         WindStrength = layer.WindStrength;
         WindSpeed = layer.WindSpeed;
         Flutter = layer.Flutter;
@@ -90,7 +90,6 @@ public readonly struct GrassCardStyle : System.IEquatable<GrassCardStyle>
         TextureShading = 0.85f;
         Translucency = 0.18f;
         WrapLight = 0.25f;
-        Variation = 0.08f;
         WindStrength = 0.08f;
         WindSpeed = 1.4f;
         Flutter = 0.0025f;
@@ -105,7 +104,7 @@ public readonly struct GrassCardStyle : System.IEquatable<GrassCardStyle>
             && Same(Flowers, other.Flowers) && Same(TipTint, other.TipTint)
             && SnowAmount == other.SnowAmount && RootDarkening == other.RootDarkening
             && TextureShading == other.TextureShading && Translucency == other.Translucency
-            && WrapLight == other.WrapLight && Variation == other.Variation
+            && WrapLight == other.WrapLight
             && WindStrength == other.WindStrength && WindSpeed == other.WindSpeed
             && Flutter == other.Flutter && Roundness == other.Roundness && NormalUp == other.NormalUp;
     }
@@ -121,7 +120,7 @@ public readonly struct GrassCardStyle : System.IEquatable<GrassCardStyle>
 
         hash = hash * 397 ^ (Mask == null ? 0 : Mask.GetHashCode());
         hash = hash * 397 ^ Leaves.r.GetHashCode() ^ Leaves.g.GetHashCode() ^ Leaves.b.GetHashCode();
-        hash = hash * 397 ^ SnowAmount.GetHashCode() ^ WindStrength.GetHashCode() ^ Variation.GetHashCode();
+        hash = hash * 397 ^ SnowAmount.GetHashCode() ^ WindStrength.GetHashCode() ^ RootDarkening.GetHashCode();
 
         return hash;
     }
@@ -213,7 +212,7 @@ public class VoxelDecorLayer
             MaxScale = layer.MaxWidth,
             Squash = 0f,
             HeightScale = HeightRatio(layer),
-            Tint = layer.LeavesColor,
+            Tint = Color.white,
             TintVariance = layer.ColorVariation,
             Style = new GrassCardStyle(layer.Card, layer.Mask, layer),
             Footprint = spacing * 0.5f,

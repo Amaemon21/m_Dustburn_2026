@@ -15,11 +15,14 @@ public sealed class PlayerLook
         _pitch = Mathf.DeltaAngle(0f, pitchPivot.localEulerAngles.x);
     }
 
-    public void Tick(Vector2 delta)
+    public Vector2 Tick(Vector2 delta)
     {
         Vector2 scaled = delta * _config.LookSensitivity;
+        float pitch = Mathf.Clamp(_pitch - scaled.y, -_config.PitchLimit, _config.PitchLimit);
+        Vector2 turn = new(pitch - _pitch, scaled.x);
+        _pitch = pitch;
         _body.Rotate(Vector3.up * scaled.x);
-        _pitch = Mathf.Clamp(_pitch - scaled.y, -_config.PitchLimit, _config.PitchLimit);
         _pitchPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+        return turn;
     }
 }

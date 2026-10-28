@@ -16,7 +16,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
         private int _paramId;
         private float _paramStartValue;
         private bool _isInitialized;
-        
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             if (!_isInitialized)
@@ -24,10 +24,10 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
                 _paramId = Animator.StringToHash(paramName);
                 _isInitialized = true;
             }
-            
+
             _paramStartValue = animator.GetFloat(_paramId);
         }
-        
+
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             int nextHash = animator.GetNextAnimatorStateInfo(layerIndex).fullPathHash;
@@ -35,7 +35,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             {
                 return;
             }
-        
+
             float alpha = 0f;
             if (animator.IsInTransition(layerIndex))
             {
@@ -45,10 +45,10 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Core
             {
                 alpha = 1f;
             }
-        
+
             animator.SetFloat(_paramId, KCurves.Ease(_paramStartValue, paramTargetValue, alpha, easeMode));
         }
-        
+
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
         }

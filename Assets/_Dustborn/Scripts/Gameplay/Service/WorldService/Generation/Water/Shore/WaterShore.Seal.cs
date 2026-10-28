@@ -7,6 +7,8 @@ public static partial class WaterShore
 {
     public const float SEAL_DEPTH = 4f;
     public const float SEAL_RAMP = 0.5f;
+    public const float SEAL_RIVER_RAMP = 0.8f;
+    private const float SEAL_RIVER_STEP = 0.05f;
     private const float SEAL_RIVER_PAD = 2f;
     private const int SEAL_PASSES = 3;
     private const int SEAL_REACH = 3;
@@ -48,6 +50,7 @@ public static partial class WaterShore
         public float[] Level = new float[0];
         public float[] Wet = new float[0];
         public float[] Dry = new float[0];
+        public float[] Inside = new float[0];
 
         public int Left;
         public int Bottom;
@@ -63,6 +66,7 @@ public static partial class WaterShore
             Level = new float[size];
             Wet = new float[size];
             Dry = new float[size];
+            Inside = new float[size];
         }
     }
 
@@ -106,6 +110,12 @@ public static partial class WaterShore
                             continue;
 
                         target = window.Level[local] + WaterMap.MESH_UNDERLAP - SEAL_RAMP * window.Dry[local] * texel;
+                        break;
+                    case RIVER:
+                        if (window.Dry[local] > SEAL_REACH)
+                            continue;
+
+                        target = window.Level[local] + WaterMap.MESH_UNDERLAP - SEAL_RIVER_RAMP * window.Inside[local];
                         break;
                     default:
                         continue;
@@ -167,7 +177,10 @@ public static partial class WaterShore
                 }
                 else
                 {
-                    window.State[local] = water.TryRiver(x, z, out _) ? RIVER : DRY;
+                    bool river = water.TryRiver(x, z, out WaterSample sample);
+                    window.State[local] = river ? RIVER : DRY;
+                    window.Level[local] = river ? sample.Surface : 0f;
+                    window.Inside[local] = river && sample.Lowest >= sample.Surface - SEAL_RIVER_STEP ? sample.Inside : float.PositiveInfinity;
                 }
 
                 bool dry = window.State[local] == DRY;

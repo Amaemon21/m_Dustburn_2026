@@ -11,6 +11,8 @@ public class UnitSpawnPoint : MonoBehaviour
     [field: SerializeField] public int MaxUnits {get; private set;} = 1;
     [field: SerializeField] public float SpawnDelay {get; private set;} = 1f;
 
+    public UnitSpawnRequest ToRequest() => new(UnitType, transform.position, transform.rotation, MaxUnits, SpawnDelay);
+
 #if UNITY_EDITOR
     private const float MARKER_RADIUS = 0.4f;
     private const float MARKER_HEIGHT = 1.6f;

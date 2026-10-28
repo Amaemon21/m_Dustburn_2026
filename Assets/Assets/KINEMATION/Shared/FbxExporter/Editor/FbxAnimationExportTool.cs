@@ -316,6 +316,7 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                     }
                 }
             }
+
             EditorGUILayout.EndHorizontal();
         }
 

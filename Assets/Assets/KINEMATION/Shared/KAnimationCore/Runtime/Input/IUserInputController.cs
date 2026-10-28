@@ -9,7 +9,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
     public interface IUserInputController
     {
         public void Initialize();
-        
+
         public int GetPropertyIndex(string propertyName);
 
         public void SetValue(string propertyName, object value);

@@ -18,19 +18,20 @@ using TreeViewStateBase = UnityEditor.IMGUI.Controls.TreeViewState;
 namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
 {
     public delegate void OnItemClicked(KRigElement selection);
+
     public delegate void OnSelectionChanged(KRigElement[] selectedItems);
-    
+
     public class RigTreeView : TreeViewBase
     {
         public OnItemClicked onItemClicked;
-        
+
         public float singleRowHeight = 0f;
         public bool useToggle;
-        
+
         private List<TreeViewItemBase> _treeItems;
         private KRigElement[] _originalItems;
         private bool[] _selectedItems;
-        
+
         public RigTreeView(TreeViewStateBase state) : base(state)
         {
             _treeItems = new List<TreeViewItemBase>();
@@ -50,6 +51,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
                     newElement.index = index;
                     toggledItems.Add(newElement);
                 }
+
                 index++;
             }
 
@@ -59,7 +61,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
         public void InitializeTreeItems(KRigElement[] hierarchy)
         {
             _treeItems.Clear();
-            
+
             int count = hierarchy.Length;
             _originalItems = new KRigElement[count];
 
@@ -68,32 +70,32 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
             {
                 _treeItems.Add(new TreeViewItemBase(i + 1, hierarchy[i].depth + depthOffset, hierarchy[i].name));
             }
-            
+
             hierarchy.CopyTo(_originalItems, 0);
-            
+
             _selectedItems = new bool[count];
             var selection = GetSelection();
-            
+
             foreach (var index in selection)
             {
                 if (index <= 0 || index > count)
                 {
                     Debug.LogWarning($"RigTreeView: Invalid selection index ({index}). " +
-                        "The rig hierarchy may be out of date. Consider updating the skeleton.");
+                                     "The rig hierarchy may be out of date. Consider updating the skeleton.");
                     continue;
                 }
-                
+
                 _selectedItems[index - 1] = true;
             }
         }
-        
+
         public void Filter(string query)
         {
             int depthOffset = useToggle ? 1 : 0;
-            
+
             _treeItems.Clear();
             query = query.ToLower().Trim();
-            
+
             int count = _originalItems.Length;
             for (int i = 0; i < count; i++)
             {
@@ -103,12 +105,12 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
                         _originalItems[i].name));
                     continue;
                 }
-                
+
                 if (!_originalItems[i].name.ToLower().Trim().Contains(query)) continue;
-                
+
                 _treeItems.Add(new TreeViewItemBase(i + 1, depthOffset, _originalItems[i].name));
             }
-            
+
             Reload();
         }
 
@@ -116,19 +118,19 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
         {
             // 0 is the root ID, -1 means the root has no parent
             var root = new TreeViewItemBase { id = 0, depth = -1, displayName = "Root" };
-            
+
             // Utility method to setup the parent/children relationship
             SetupParentsAndChildrenFromDepths(root, _treeItems);
 
             return root;
         }
-        
+
         protected override void RowGUI(RowGUIArgs args)
         {
             Color darkGrey = new Color(0.2f, 0.2f, 0.2f);
             Color lightGrey = new Color(0.25f, 0.25f, 0.25f);
             Color blue = new Color(115f / 255f, 147f / 255f, 179f / 255f, 0.25f);
-            
+
             bool isSelected = args.selected;
             if (args.rowRect.Contains(Event.current.mousePosition)) isSelected = true;
 
@@ -162,7 +164,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
                 Rect buttonRect = args.rowRect;
                 float indent = GetContentIndent(args.item);
                 buttonRect.x += indent;
-                
+
                 if (GUI.Button(buttonRect, args.item.displayName, EditorStyles.label))
                 {
                     var element = _originalItems[args.item.id - 1];
@@ -172,7 +174,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
 
                 return;
             }
-            
+
             base.RowGUI(args);
         }
     }
@@ -187,18 +189,18 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
             rigTreeView.Reload();
             rigTreeView.ExpandAll();
         }
-        
+
         public void Render()
         {
             float maxHeight = rigTreeView.singleRowHeight + rigTreeView.totalHeight;
             float height = Mathf.Max(rigTreeView.singleRowHeight * 2f, maxHeight);
-            
+
             EditorGUILayout.BeginHorizontal();
             Rect parentRect = GUILayoutUtility.GetRect(0f, 0f, 0f, height);
             EditorGUILayout.EndHorizontal();
-            
+
             float padding = 7f;
-            
+
             GUI.Box(parentRect, "", EditorStyles.helpBox);
 
             parentRect.x += padding;
@@ -206,7 +208,7 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Rig
 
             parentRect.width -= 2f * padding;
             parentRect.height -= 2f * padding;
-        
+
             rigTreeView.OnGUI(parentRect);
         }
     }

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae00d5700b1c2724f8a488287fe6fc30, type: 3}
+  m_Name: PlayerVitalsConfig
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerVitalsConfig
+  <Health>k__BackingField:
+    <Max>k__BackingField: 100
+    <RegenPerSecond>k__BackingField: 0.017
+    <RegenFoodThreshold>k__BackingField: 0.02
+    <RegenWaterThreshold>k__BackingField: 0.02
+  <Stamina>k__BackingField:
+    <Max>k__BackingField: 100
+    <RegenPerSecond>k__BackingField: 10
+    <RegenDelay>k__BackingField: 0
+    <SprintCostPerSecond>k__BackingField: 14.5
+    <JumpCost>k__BackingField: 20
+    <ExhaustionRecovery>k__BackingField: 0
+  <Metabolism>k__BackingField:
+    <MaxFood>k__BackingField: 100
+    <FoodDecayPerMinute>k__BackingField: 0.5
+    <FoodPerStamina>k__BackingField: 0.00408
+    <HungryThreshold>k__BackingField: 0.02
+    <StarvationDamagePerSecond>k__BackingField: 0.25
+    <MaxWater>k__BackingField: 100
+    <WaterDecayPerMinute>k__BackingField: 0.667
+    <WaterPerStamina>k__BackingField: 0.00453
+    <ThirstyThreshold>k__BackingField: 0.02
+    <DehydrationDamagePerSecond>k__BackingField: 0.25
+    <LowSupplyStaminaRegen>k__BackingField: 0.9
+  <MaxInfection>k__BackingField: 100

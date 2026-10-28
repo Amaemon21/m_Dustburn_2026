@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
+#if UNITY_6000_5_OR_NEWER
+using Unity.Scripting.LifecycleManagement;
+#endif
+
 namespace Repetitionless.Editor.Processors
 {
     using Data;
@@ -10,6 +14,9 @@ namespace Repetitionless.Editor.Processors
     /// <summary>
     /// Checks for when the colour space is changed then handles update any repetitionless materials that require repacking
     /// </summary>
+#if UNITY_6000_5_OR_NEWER
+    [NoAutoStaticsCleanup]
+#endif
     public static class RepetitionlessColourSpaceUpdater
     {
         private static ColorSpace _colourSpace = ColorSpace.Uninitialized;
@@ -19,6 +26,7 @@ namespace Repetitionless.Editor.Processors
         /// </summary>
         internal static void Initialize()
         {
+            EditorApplication.projectChanged -= ProjectChanged;
             _colourSpace = PlayerSettings.colorSpace;
             EditorApplication.projectChanged += ProjectChanged;
         }

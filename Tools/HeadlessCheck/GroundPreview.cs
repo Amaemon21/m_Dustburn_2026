@@ -11,7 +11,7 @@ using UnityEngine;
 // и карты из Generated/, правила — через тот же GroundSplatPainter. Вид сверху, без Unity.
 static class GroundPreview
 {
-    const string WORLD = "Assets/_Dustborn/Content/World";
+    const string WORLD = "Assets/_Dustborn/Content/Configs/World";
     const string CONTENT = "Assets/_Dustborn/Content";
     const string GENERATED = "Assets/_Dustborn/Generated";
 
@@ -102,7 +102,7 @@ static class GroundPreview
         var config = AssetReader.Load<WorldGenerationConfig>(configPath);
         string[] configLines = File.ReadAllLines(configPath);
 
-        foreach (string slot in new[] { "CliffLayer", "RoadLayer", "RoadEdgeLayer" })
+        foreach (string slot in new[] { "CliffLayer", "RoadLayer", "RoadEdgeLayer", "AsphaltLayer" })
             SetField(config, slot, LayerRef(TopLevel(configLines, slot)));
 
         var settings = AssetReader.Load<WorldBuildSettings>(Path.Combine(_root, WORLD, "WorldBuildSettings.asset"));

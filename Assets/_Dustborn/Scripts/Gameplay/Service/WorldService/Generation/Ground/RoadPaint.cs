@@ -9,6 +9,7 @@ public struct RoadPaintSegment
     public float2 From;
     public float2 To;
     public float HalfWidth;
+    public bool Asphalt;
 }
 
 public struct RoadPaint
@@ -24,10 +25,11 @@ public struct RoadPaint
     public float Texel;
 
     public void Cover(NativeArray<RoadPaintSegment> segments, NativeArray<int> cellStart, NativeArray<int> cellItems,
-        float worldX, float worldZ, out float carriage, out float verge)
+        float worldX, float worldZ, out float carriage, out float verge, out float asphalt)
     {
         carriage = 0f;
         verge = 0f;
+        asphalt = 0f;
 
         if (!Enabled)
             return;
@@ -41,7 +43,7 @@ public struct RoadPaint
 
         float outer = VergeWidth + Softness * 0.5f;
 
-        if (EdgeDistance(segments, cellItems, first, last, new float2(worldX, worldZ), outer + Texel) >= outer + Texel)
+        if (EdgeDistance(segments, cellItems, first, last, new float2(worldX, worldZ), outer + Texel, out _) >= outer + Texel)
             return;
 
         float step = Texel / SUPERSAMPLES;
@@ -53,10 +55,11 @@ public struct RoadPaint
             {
                 var point = new float2(worldX + origin + u * step, worldZ + origin + v * step);
 
-                Profile(EdgeDistance(segments, cellItems, first, last, point, outer), out float surface, out float shoulder);
+                Profile(EdgeDistance(segments, cellItems, first, last, point, outer, out float asphaltDistance), out float surface, out float shoulder);
 
                 carriage += surface;
                 verge += shoulder;
+                asphalt += Carriage(asphaltDistance);
             }
         }
 
@@ -64,12 +67,12 @@ public struct RoadPaint
 
         carriage /= samples;
         verge /= samples;
+        asphalt /= samples;
     }
 
     public void Profile(float distance, out float carriage, out float verge)
     {
-        float half = Softness * 0.5f;
-        float road = 1f - math.saturate((distance - VergeWidth + half) / Softness);
+        float road = Road(distance);
 
         if (!SplitVerge)
         {
@@ -78,19 +81,30 @@ public struct RoadPaint
             return;
         }
 
-        carriage = math.min(road, 1f - math.saturate((distance + half) / Softness));
+        carriage = Carriage(distance);
         verge = road - carriage;
     }
 
+    public float Carriage(float distance)
+    {
+        return math.min(Road(distance), 1f - math.saturate((distance + Softness * 0.5f) / Softness));
+    }
+
+    private float Road(float distance)
+    {
+        return 1f - math.saturate((distance - VergeWidth + Softness * 0.5f) / Softness);
+    }
+
     private static float EdgeDistance(NativeArray<RoadPaintSegment> segments, NativeArray<int> cellItems, int first, int last,
-        float2 point, float limit)
+        float2 point, float limit, out float asphalt)
     {
         float best = limit;
+        asphalt = limit;
 
         for (int i = first; i < last; i++)
         {
             RoadPaintSegment segment = segments[cellItems[i]];
-            float reach = best + segment.HalfWidth;
+            float reach = (segment.Asphalt ? asphalt : best) + segment.HalfWidth;
 
             if (reach <= 0f)
                 continue;
@@ -104,7 +118,12 @@ public struct RoadPaint
             if (distanceSqr >= reach * reach)
                 continue;
 
-            best = math.sqrt(distanceSqr) - segment.HalfWidth;
+            float distance = math.sqrt(distanceSqr) - segment.HalfWidth;
+
+            if (segment.Asphalt)
+                asphalt = distance;
+
+            best = math.min(best, distance);
         }
 
         return best;
@@ -187,12 +206,25 @@ public sealed class RoadPaintIndex : IDisposable
 
     public static bool HasRoads(IReadOnlyList<Road> roads)
     {
+        return Has(roads, false);
+    }
+
+    public static bool HasAsphalt(IReadOnlyList<Road> roads)
+    {
+        return Has(roads, true);
+    }
+
+    private static bool Has(IReadOnlyList<Road> roads, bool asphaltOnly)
+    {
         if (roads == null)
             return false;
 
         foreach (Road road in roads)
         {
-            if (road?.Points != null && road.Points.Length >= 2 && road.Width > 0f)
+            if (road?.Points == null || road.Points.Length < 2 || road.Width <= 0f)
+                continue;
+
+            if (!asphaltOnly || road.Surface == RoadSurface.Asphalt)
                 return true;
         }
 
@@ -218,14 +250,16 @@ public sealed class RoadPaintIndex : IDisposable
             if (road?.Points == null || road.Points.Length < 2 || road.Width <= 0f)
                 continue;
 
+            bool asphalt = road.Surface == RoadSurface.Asphalt;
+
             for (int i = 0; i < road.Points.Length - 1; i++)
-                AddOffBridges(segments, road.Points[i], road.Points[i + 1], road.Width * 0.5f, water);
+                AddOffBridges(segments, road.Points[i], road.Points[i + 1], road.Width * 0.5f, asphalt, water);
         }
 
         return segments;
     }
 
-    private static void AddOffBridges(List<RoadPaintSegment> segments, Vector2 from, Vector2 to, float halfWidth, WaterMap water)
+    private static void AddOffBridges(List<RoadPaintSegment> segments, Vector2 from, Vector2 to, float halfWidth, bool asphalt, WaterMap water)
     {
         int pieces = water == null || water.Crossings.Count == 0 ? 1 : Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(from, to) / BRIDGE_STEP));
         int start = -1;
@@ -242,7 +276,7 @@ public sealed class RoadPaintIndex : IDisposable
 
             Vector2 a = Vector2.Lerp(from, to, start / (float)pieces);
             Vector2 b = Vector2.Lerp(from, to, piece / (float)pieces);
-            segments.Add(new RoadPaintSegment { From = new float2(a.x, a.y), To = new float2(b.x, b.y), HalfWidth = halfWidth });
+            segments.Add(new RoadPaintSegment { From = new float2(a.x, a.y), To = new float2(b.x, b.y), HalfWidth = halfWidth, Asphalt = asphalt });
             start = -1;
         }
     }

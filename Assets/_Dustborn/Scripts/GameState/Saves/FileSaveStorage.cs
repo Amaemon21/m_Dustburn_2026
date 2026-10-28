@@ -78,6 +78,12 @@ public sealed class FileSaveStorage : ISaveStorage
         }, cancellationToken: token);
     }
 
+    public UniTask<DateTime?> LastWriteTimeAsync(string relativeDirectory, string searchPattern, CancellationToken token)
+    {
+        string fullPath = ResolvePath(relativeDirectory);
+        return UniTask.RunOnThreadPool(() => LastWriteTime(fullPath, searchPattern), cancellationToken: token);
+    }
+
     public UniTask<string> ReadBackupAsync(string relativePath, CancellationToken token)
     {
         string fullPath = ResolvePath(relativePath) + BACKUP_EXTENSION;
@@ -150,6 +156,23 @@ public sealed class FileSaveStorage : ISaveStorage
             File.Copy(temp, fullPath, true);
             File.Delete(temp);
         }
+    }
+
+    private static DateTime? LastWriteTime(string directory, string searchPattern)
+    {
+        if (!Directory.Exists(directory))
+            return null;
+
+        DateTime? latest = null;
+
+        foreach (string file in Directory.GetFiles(directory, searchPattern))
+        {
+            DateTime written = File.GetLastWriteTimeUtc(file);
+            if (latest == null || written > latest.Value)
+                latest = written;
+        }
+
+        return latest;
     }
 
     private static void DeleteIfExists(string fullPath)

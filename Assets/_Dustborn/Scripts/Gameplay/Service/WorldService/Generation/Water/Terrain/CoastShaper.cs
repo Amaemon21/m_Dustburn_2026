@@ -116,11 +116,11 @@ public static partial class CoastShaper
 
     private static float[] Wander(WorldGenerationConfig config, int size, float step)
     {
-        var wander = new NativeArray<float>(size * size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        var wander = new NativeArray<float>(size * size, GenerationJobs.ALLOCATOR, NativeArrayOptions.UninitializedMemory);
 
         try
         {
-            new CoastWaveJob
+            GenerationJobs.Run(new CoastWaveJob
             {
                 Wander = wander,
                 Size = size,
@@ -128,7 +128,7 @@ public static partial class CoastShaper
                 Period = Width(config) * WAVE_PERIOD,
                 Offset = FractalNoise.Offset(config.Seed, STREAM),
                 Axis = FractalNoise.Axis(config.Seed, STREAM)
-            }.Schedule(size, 1).Complete();
+            }, size, 1);
 
             var field = new float[size * size];
             wander.CopyTo(field);

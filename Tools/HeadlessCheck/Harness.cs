@@ -38,6 +38,47 @@ static class Harness
         }
 
         Console.WriteLine($"  {"итого",-22} {total,6} мс");
+        ReportProbe();
+    }
+
+    static uint RoadFingerprint(IEnumerable<Road> roads)
+    {
+        uint hash = 2166136261u;
+
+        foreach (Road road in roads)
+        {
+            foreach (Vector2 point in road.Points)
+            {
+                hash = (hash ^ (uint)BitConverter.SingleToInt32Bits(point.x)) * 16777619u;
+                hash = (hash ^ (uint)BitConverter.SingleToInt32Bits(point.y)) * 16777619u;
+            }
+
+            hash = (hash ^ (uint)BitConverter.SingleToInt32Bits(road.Width)) * 16777619u;
+        }
+
+        return hash;
+    }
+
+    static void ReportProbe()
+    {
+        var rows = new List<(WorldGenStage Stage, double Ms, int Count)>();
+
+        for (var stage = (WorldGenStage)0; stage < WorldGenStage.Count; stage++)
+        {
+            WorldGenStageStat stat = WorldGenProbe.Stat(stage);
+
+            if (stat.Count > 0)
+                rows.Add((stage, WorldGenProbe.ToMs(stat.Ticks), stat.Count));
+        }
+
+        rows.Sort((a, b) => b.Ms.CompareTo(a.Ms));
+        Console.WriteLine("этапы WorldGenProbe:");
+
+        foreach ((WorldGenStage stage, double ms, int count) in rows)
+        {
+            if (ms >= 50d)
+                Console.WriteLine($"  {stage,-28} {ms,9:0} мс ({count})");
+        }
     }
 
     static void Tune(string property, object value)
@@ -74,6 +115,12 @@ static class Harness
 
     static void Main(string[] args)
     {
+        if (Array.IndexOf(args, "--runtime-streaming") >= 0)
+        {
+            RuntimeStreamingChecks.Run();
+            return;
+        }
+
         if (MonoRewrite.Wanted(args))
         {
             MonoRewrite.Run(args);
@@ -83,6 +130,36 @@ static class Harness
         if (Array.IndexOf(args, "--noise-parity") >= 0)
         {
             NoiseParityChecks.Run();
+            return;
+        }
+
+        if (Array.IndexOf(args, "--road-view") >= 0)
+        {
+            RoadView.Run(args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--voxel-recenter") >= 0)
+        {
+            RecenterChecks.Run(args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--preview-cost") >= 0)
+        {
+            PreviewCost.Run(args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--decor-ground") >= 0)
+        {
+            DecorGroundChecks.Run(args);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--water-terrain") >= 0)
+        {
+            WaterTerrainChecks.Run(args);
             return;
         }
 
@@ -122,9 +199,16 @@ static class Harness
             return;
         }
 
+        if (Array.IndexOf(args, "--road-shader") >= 0)
+        {
+            RoadShaderChecks.Run();
+            return;
+        }
+
         if (Array.IndexOf(args, "--road-paint") >= 0)
         {
             RoadPaintChecks.Run();
+            RoadSurfaceMeshChecks.Run();
             return;
         }
 
@@ -148,11 +232,11 @@ static class Harness
 
         if (Array.IndexOf(args, "--stamp-parity") >= 0)
         {
-            BakeParity.Stamps("../../Assets/_Dustborn/Content/World/WaterStampDatabase.asset");
+            BakeParity.Stamps("../../Assets/_Dustborn/Content/Configs/World/WaterStampDatabase.asset");
             return;
         }
 
-        const string CONTENT = "../../Assets/_Dustborn/Content/World";
+        const string CONTENT = "../../Assets/_Dustborn/Content/Configs/World";
 
         _config = AssetReader.Load<WorldGenerationConfig>($"{CONTENT}/WorldGenerationConfig.asset");
         StampLoader.Attach(_config);
@@ -164,6 +248,12 @@ static class Harness
 
         if (Array.IndexOf(args, "--stamped") >= 0)
             WaterStampLoader.Attach(_config);
+
+        if (Array.IndexOf(args, "--variation") >= 0)
+        {
+            VariationRun.Run(ArgumentAfter(args, "--variation"), _config, biomes, pois, ArgumentAfter(args, "--preview"));
+            return;
+        }
 
         if (Array.IndexOf(args, "--pipeline-smoke") >= 0)
         {
@@ -207,6 +297,7 @@ static class Harness
 
         if (Array.IndexOf(args, "--grass-density") >= 0)
         {
+            CheckGrassTuft();
             CheckGrassDensity(biomes);
             return;
         }
@@ -227,6 +318,13 @@ static class Harness
         Draw.Biomes("unity_biomes.png", biomeMap, biomes);
 
         HeightMap raw = RawHeights(ArgumentAfter(args, "--raw-cache"), biomes, biomeMap);
+
+        if (Array.IndexOf(args, "--relief-only") >= 0)
+        {
+            ReportStages();
+            return;
+        }
+
         WaterMap water = null;
         raw = Stage("вода", () => WorldMapPipeline.Hydrate(_config, raw, out water, out _, WaterClimate.From(biomeMap, biomes)));
         ReportWater(water);
@@ -278,6 +376,12 @@ static class Harness
         RiverCarver.Restore(final, water, _config.Water.BridgeMinWidth, roadMask);
         WaterShore.Refresh(water, final);
         WaterCrossings.Finish(water, final, _config, carver.Bridges);
+        Console.WriteLine($"контрольные суммы земли: поселения {GenerationChecksum.Of(padded.Heights)}, улицы {GenerationChecksum.Of(withStreets.Heights)}, "
+            + $"трассы {GenerationChecksum.Of(roadsMap.Heights)}, итог {GenerationChecksum.Of(final.Heights)}, маска {GenerationChecksum.Of(roadMask)}, "
+            + $"дороги {RoadFingerprint(network.Roads):X8}, улицы {RoadFingerprint(network.Streets):X8}, здания {placements.Count}, вода {GenerationChecksum.Of(water.Kinds)}");
+
+        if (Array.IndexOf(args, "--props") >= 0)
+            PropPlacementChecks.Report(_config, biomes, biomeMap, final, water, network, placements);
         WaterPolicyAudit.Result policy = WaterPolicyAudit.Measure(_config, biomeMap, biomes, final, water, crossed);
         Console.WriteLine(policy.Describe());
         ReportCrossings(water);
@@ -924,7 +1028,264 @@ static class Harness
         Console.WriteLine($"  отбраковано всего {placer.Rejected} кандидатов (уклон, высота, дорога, подошва дома, вес биома, пятно)");
 
         ReportCombinePlan();
+        CheckGrassTuft();
+        CheckDecorTint(placer);
+        CheckDecorEdits(placer, field);
+        CheckDecorOnMesh(placer, field, voxels);
         CheckRingDecor(voxels, placer);
+    }
+
+    static void CheckDecorOnMesh(VoxelDecorPlacer placer, VoxelDensityField field, VoxelConfig voxels)
+    {
+        const float TOLERANCE = 0.01f;
+
+        using var mesh = new VoxelMesh();
+        using var mesher = new VoxelChunkMesher(voxels, field);
+
+        var problems = new List<string>();
+        var instances = new List<DecorInstance>();
+        int placed = 0;
+        float floating = 0f;
+        float sunk = 0f;
+
+        foreach (int lod in new[] { 0, 2, 4 })
+        {
+            foreach (int morph in new[] { 0, VoxelColumnKey.MORPH_MAX_X | VoxelColumnKey.MORPH_MIN_Z })
+            {
+                float voxel = voxels.VoxelSize * (1 << lod);
+                float span = voxels.ChunkMetres * (1 << lod);
+                int column = Mathf.FloorToInt(1100f / span);
+                var key = new VoxelColumnKey(column, column, lod, 0, morph);
+                var frame = new DecorSurface(new Vector2(column * span, column * span), voxels.ChunkSize, voxel, morph);
+                List<DecorGroundChecks.Triangle> triangles = DecorGroundChecks.MeshColumn(mesher, mesh, field, key, span, voxel);
+
+                for (int layer = 0; layer < placer.Layers.Count; layer++)
+                {
+                    bool tree = placer.Layers[layer].Kind == DecorKind.Tree;
+
+                    instances.Clear();
+                    placer.Place(layer, frame.Origin, span, instances, frame);
+
+                    foreach (DecorInstance instance in instances)
+                    {
+                        if (!DecorGroundChecks.TryHeight(triangles, instance.Position.x, instance.Position.z, out float ground))
+                            continue;
+
+                        float gap = instance.Position.y - ground;
+                        float allowed = tree ? VoxelDecorPlacer.TrunkSink(instance.Slope, instance.Scale) : 0f;
+
+                        placed++;
+                        floating = Mathf.Max(floating, gap);
+                        sunk = Mathf.Max(sunk, -gap - allowed);
+
+                        if (gap > TOLERANCE || -gap - allowed > TOLERANCE)
+                            problems.Add($"lod {lod} morph {morph}: {placer.Layers[layer].Kind} at ({instance.Position.x:0.0}, {instance.Position.z:0.0}) is {gap:0.000} m off the drawn ground");
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine($"декор на нарисованной земле: {placed} экземпляров на lod 0, 2, 4 с морфом и без, висит до {floating * 100f:0.0} см, "
+            + $"утоплено сверх ствола до {sunk * 100f:0.0} см");
+
+        foreach (string problem in problems.Take(10))
+            Console.WriteLine($"  ПРОВАЛ: {problem}");
+
+        if (problems.Count > 0)
+            Environment.ExitCode = 1;
+    }
+
+    static void CheckDecorEdits(VoxelDecorPlacer placer, VoxelDensityField field)
+    {
+        const float PATCH = 32f;
+        const int PATCHES = 6;
+
+        var origin = new Vector2(1024f, 1024f);
+        var problems = new List<string>();
+        int layer = -1;
+
+        for (int i = 0; i < placer.Layers.Count && layer < 0; i++)
+        {
+            if (placer.Layers[i].Kind == DecorKind.Tree && TileDecor(placer, i, origin, PATCH, PATCHES).Count >= 3)
+                layer = i;
+        }
+
+        if (layer < 0)
+        {
+            Console.WriteLine("  ПРОВАЛ: правки декора — нет слоя деревьев хотя бы с тремя экземплярами");
+            Environment.ExitCode = 1;
+            return;
+        }
+
+        List<DecorInstance> before = TileDecor(placer, layer, origin, PATCH, PATCHES);
+        GameObject prefab = placer.Layers[layer].Prefab;
+        DecorInstance removed = before[0];
+        DecorInstance moved = before[1];
+        DecorInstance foreign = before[2];
+
+        var target = new Vector2(origin.x + PATCH * PATCHES - 7.3f, origin.y + 5.1f);
+
+        if (Mathf.FloorToInt((moved.Position.x - origin.x) / PATCH) == PATCHES - 1 && Mathf.FloorToInt((moved.Position.z - origin.y) / PATCH) == 0)
+            target = new Vector2(origin.x + 5.1f, origin.y + PATCH * PATCHES - 7.3f);
+
+        DecorInstance pose = moved;
+        pose.Position = new Vector3(target.x, 0f, target.y);
+        pose.Rotation = 42f;
+        pose.Scale *= 1.3f;
+        pose.Height *= 1.3f;
+
+        var removedKey = new DecorKey(layer, removed.CellX, removed.CellY);
+        var movedKey = new DecorKey(layer, moved.CellX, moved.CellY);
+        var foreignKey = new DecorKey(layer, foreign.CellX, foreign.CellY);
+
+        var edits = new List<DecorEdit>
+        {
+            DecorEdit.Removal(removedKey, prefab, new Vector2(removed.Position.x, removed.Position.z)),
+            DecorEdit.Moved(movedKey, prefab, new Vector2(moved.Position.x, moved.Position.z), pose),
+            DecorEdit.Removal(foreignKey, new GameObject { name = "Other" }, new Vector2(foreign.Position.x, foreign.Position.z))
+        };
+
+        var index = new DecorEditIndex(edits, placer.Layers);
+
+        placer.Edits = index;
+
+        List<DecorInstance> after = TileDecor(placer, layer, origin, PATCH, PATCHES);
+        var session = new DecorEditSession(field, placer, _config.Seed);
+
+        int movedCopies = 0;
+        bool removedLeft = false;
+        bool foreignLeft = false;
+
+        foreach (DecorInstance instance in after)
+        {
+            var key = new DecorKey(layer, instance.CellX, instance.CellY);
+
+            removedLeft |= key.Equals(removedKey);
+            foreignLeft |= key.Equals(foreignKey);
+
+            if (!key.Equals(movedKey))
+                continue;
+
+            movedCopies++;
+
+            if (Mathf.Abs(instance.Position.x - target.x) > 1e-4f || Mathf.Abs(instance.Position.z - target.y) > 1e-4f)
+                problems.Add($"the moved tree stands at ({instance.Position.x:0.00}, {instance.Position.z:0.00}), not at ({target.x:0.00}, {target.y:0.00})");
+
+            float ground = field.Drawn(target.x, target.y, default, out Vector2 slope) - VoxelDecorPlacer.TrunkSink(slope, pose.Scale);
+
+            if (Mathf.Abs(instance.Position.y - ground) > 1e-3f)
+                problems.Add($"the moved tree stands {instance.Position.y - ground:0.000} m off its ground");
+
+            if (instance.Rotation != 42f || Mathf.Abs(instance.Scale - pose.Scale) > 1e-5f)
+                problems.Add("the moved tree lost its rotation or scale");
+        }
+
+        if (index.Ignored != 1)
+            problems.Add($"{index.Ignored} edits ignored, expected only the one with a foreign prefab");
+
+        if (after.Count != before.Count - 1)
+            problems.Add($"{after.Count} trees after the edits, expected {before.Count - 1}");
+
+        if (removedLeft)
+            problems.Add("the removed tree is still placed");
+
+        if (!foreignLeft)
+            problems.Add("an edit made for another prefab removed a tree");
+
+        if (movedCopies != 1)
+            problems.Add($"the moved tree is placed {movedCopies} times across the patches");
+
+        if (!session.TryPick(target, 3f, out DecorPick pick) || !pick.Key.Equals(movedKey))
+            problems.Add("a click on the moved tree does not pick it");
+
+        if (session.TryPick(new Vector2(removed.Position.x, removed.Position.z), 0.25f, out pick) && pick.Key.Equals(removedKey))
+            problems.Add("a click picks the removed tree");
+
+        var asset = new DecorEditsAsset();
+
+        asset.Set(_config.Seed + 1, edits[0]);
+
+        if (DecorEditIndex.For(asset, _config.Seed, placer.Layers) != null)
+            problems.Add("edits made on another seed are applied");
+
+        placer.Edits = null;
+
+        Console.WriteLine($"правки декора: {before.Count} деревьев на {PATCH * PATCHES:0} м, удалено 1, перенесено 1 через границу участка, "
+            + $"после правок {after.Count}, правка с чужим префабом пропущена");
+
+        foreach (string problem in problems)
+            Console.WriteLine($"  ПРОВАЛ: {problem}");
+
+        if (problems.Count > 0)
+            Environment.ExitCode = 1;
+    }
+
+    static List<DecorInstance> TileDecor(VoxelDecorPlacer placer, int layer, Vector2 origin, float patch, int patches)
+    {
+        var instances = new List<DecorInstance>();
+
+        for (int z = 0; z < patches; z++)
+        {
+            for (int x = 0; x < patches; x++)
+                placer.Place(layer, origin + new Vector2(x * patch, z * patch), patch, instances);
+        }
+
+        return instances;
+    }
+
+    static void CheckDecorTint(VoxelDecorPlacer placer)
+    {
+        var instances = new List<DecorInstance>();
+        var problems = new List<string>();
+        int total = 0;
+        float worst = 0f;
+
+        var neutral = new DecorTint(Color.white, 0f);
+
+        if (!neutral.IsNeutral || neutral.LevelShade(neutral.Level(1f)) != 1f)
+            problems.Add("a white tint without variance must leave the material alone");
+
+        if (new DecorTint(new Color(0.9f, 0.9f, 0.9f), 0f).IsNeutral)
+            problems.Add("a grey tint without variance was taken for neutral");
+
+        for (int layer = 0; layer < placer.Layers.Count; layer++)
+        {
+            var tint = DecorTint.Of(placer.Layers[layer]);
+            float mean = 0f;
+
+            for (int level = 0; level < DecorTint.LEVELS; level++)
+                mean += tint.LevelShade(level) / DecorTint.LEVELS;
+
+            if (Mathf.Abs(mean - 1f) > 1e-5f)
+                problems.Add($"layer {layer}: the shade levels average {mean:0.0000}, not 1");
+
+            instances.Clear();
+            placer.Place(layer, new Vector2(1024f, 1024f), 256f, instances);
+
+            foreach (DecorInstance instance in instances)
+            {
+                total++;
+
+                if (instance.Shade < 1f - tint.Variance - 1e-5f || instance.Shade > 1f + tint.Variance + 1e-5f)
+                    problems.Add($"layer {layer}: shade {instance.Shade:0.000} outside ±{tint.Variance:0.00}");
+
+                float error = Mathf.Abs(tint.LevelShade(tint.Level(instance.Shade)) - instance.Shade);
+
+                if (tint.Variance > 0f)
+                    worst = Mathf.Max(worst, error / tint.Variance);
+            }
+        }
+
+        if (worst > 1f / DecorTint.LEVELS + 1e-4f)
+            problems.Add($"a stepped material is {worst * 100f:0}% of the variance away from its instance, over half a step");
+
+        Console.WriteLine($"оттенок декора: {total} экземпляров, {DecorTint.LEVELS} ступени материала, худший шаг до экземпляра {worst * 100f:0}% разброса");
+
+        foreach (string problem in problems.Take(10))
+            Console.WriteLine($"  ПРОВАЛ: {problem}");
+
+        if (problems.Count > 0)
+            Environment.ExitCode = 1;
     }
 
     // Сколько декора живёт вокруг игрока при стриминге. Трава ограничена ближними кольцами,
@@ -1015,8 +1376,8 @@ static class Harness
         Verdict("префаб без меша", new PrefabProfile { HasMesh = false }, 500, false);
         Verdict("трава без Read/Write", new PrefabProfile { HasMesh = true, Vertices = 60, Instanceable = true }, 2400, false);
         Verdict("камень без Read/Write", new PrefabProfile { HasMesh = true, Vertices = 900 }, 500, false);
-        Verdict("карточка травы", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 8, Instanceable = true }, 900, false, true);
-        Verdict("карточка травы, три штуки", new PrefabProfile { HasMesh = true, Readable = true, Vertices = 8, Instanceable = true }, 3, false, true);
+        Verdict("пучок травы", new PrefabProfile { HasMesh = true, Readable = true, Vertices = GrassTuft.VERTICES, Instanceable = true }, 900, false, true);
+        Verdict("пучок травы, три штуки", new PrefabProfile { HasMesh = true, Readable = true, Vertices = GrassTuft.VERTICES, Instanceable = true }, 3, false, true);
     }
 
     static void Verdict(string label, PrefabProfile profile, int instances, bool colliders, bool distanceCulled = false)
@@ -1120,6 +1481,88 @@ static class Harness
             triangles += part.Triangles.Count / 3;
 
         Console.WriteLine($"  меши воды: {parts.Count} частей, {triangles} треугольников за {clock.ElapsedMilliseconds} мс");
+    }
+
+    static void CheckGrassTuft()
+    {
+        var problems = new List<string>();
+        var size = new Vector2(1.1f, 1.2f);
+        var slope = new Vector2(0.4f, -0.25f);
+        float splay = GrassTuft.SPLAY * Mathf.Deg2Rad;
+        float spread = 0f;
+
+        foreach (float yaw in new[] { 0f, 37f, 211f })
+        {
+            float leanX = 0f, leanZ = 0f;
+
+            for (int plane = 0; plane < GrassTuft.PLANES; plane++)
+            {
+                Vector3 normal = GrassTuft.Normal(yaw, plane);
+                Vector3 tangent = GrassTuft.Tangent(yaw, plane);
+
+                float length = Mathf.Sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+                float across = normal.x * tangent.x + normal.y * tangent.y + normal.z * tangent.z;
+
+                if (Mathf.Abs(length - 1f) > 1e-4f || Mathf.Abs(across) > 1e-4f)
+                    problems.Add($"yaw {yaw}, plane {plane}: normal {length:0.0000} long, {across:0.0000} along the tangent");
+
+                if (GrassTuft.Visibility(normal.y) < 1f)
+                    problems.Add($"yaw {yaw}, plane {plane}: a plane dissolves when the tuft is seen from straight above");
+
+                Vector3 top = GrassTuft.Offset(yaw, plane, new Vector2(0.5f, 1f), size, Vector2.zero);
+
+                leanX += top.x;
+                leanZ += top.z;
+
+                foreach (Vector2 corner in GrassTuft.Corners)
+                {
+                    Vector3 flat = GrassTuft.Offset(yaw, plane, corner, size, Vector2.zero);
+                    Vector3 sheared = GrassTuft.Offset(yaw, plane, corner, size, slope);
+                    float ground = slope.x * sheared.x + slope.y * sheared.z;
+
+                    if (corner.y == 0f && Mathf.Abs(sheared.y - ground) > 1e-5f)
+                        problems.Add($"yaw {yaw}, plane {plane}: a bottom corner hangs {sheared.y - ground:0.000} m over a sloped ground");
+
+                    if (corner.y > 0f && Mathf.Abs(flat.y - size.y * Mathf.Cos(splay)) > 1e-4f)
+                        problems.Add($"yaw {yaw}, plane {plane}: the top stands at {flat.y:0.000} m instead of the splayed height");
+                }
+            }
+
+            spread = Mathf.Max(spread, Mathf.Sqrt(leanX * leanX + leanZ * leanZ));
+        }
+
+        int fewest = GrassTuft.PLANES;
+
+        for (int degrees = 0; degrees < 360; degrees++)
+        {
+            float angle = degrees * Mathf.Deg2Rad;
+            int visible = 0;
+
+            for (int plane = 0; plane < GrassTuft.PLANES; plane++)
+            {
+                Vector3 normal = GrassTuft.Normal(0f, plane);
+
+                if (GrassTuft.Visibility(Mathf.Sin(angle) * normal.x + Mathf.Cos(angle) * normal.z) >= 0.999f)
+                    visible++;
+            }
+
+            fewest = Math.Min(fewest, visible);
+        }
+
+        if (fewest < 2)
+            problems.Add($"from some side only {fewest} planes stay whole after the edge-on dissolve");
+
+        if (spread > 1e-4f)
+            problems.Add($"the splayed planes lean {spread:0.000} to one side instead of spreading evenly");
+
+        Console.WriteLine($"пучок травы: {GrassTuft.PLANES} плоскости через {GrassTuft.PLANE_STEP:0}°, развал {GrassTuft.SPLAY:0}°, "
+            + $"{GrassTuft.VERTICES} вершин; сбоку видно минимум {fewest} плоскости, сверху все {GrassTuft.PLANES}");
+
+        foreach (string problem in problems.Take(10))
+            Console.WriteLine($"  ПРОВАЛ: {problem}");
+
+        if (problems.Count > 0)
+            Environment.ExitCode = 1;
     }
 
     static void CheckGrassDensity(BiomeDatabase biomes)
@@ -2183,7 +2626,7 @@ static class Harness
 
     static PoiDatabase BuildDatabase()
     {
-        PoiDatabase database = AssetReader.LoadPois("../../Assets/_Dustborn/Content/World/PoiDatabase.asset", "../../Assets/_Dustborn");
+        PoiDatabase database = AssetReader.LoadPois("../../Assets/_Dustborn/Content/Configs/World/PoiDatabase.asset", "../../Assets/_Dustborn");
 
         Console.WriteLine($"database valid={database.IsValid()} coverage={database.Coverage}");
 

@@ -8,11 +8,11 @@ namespace KINEMATION.Shared.KAnimationCore.Editor.Widgets
     public struct KToolbarTab
     {
         public delegate void KOnTabRendered();
-        
+
         public string name;
         public KOnTabRendered onTabRendered;
     }
-    
+
     public class KToolbarWidget
     {
         private int _toolbarIndex = 0;

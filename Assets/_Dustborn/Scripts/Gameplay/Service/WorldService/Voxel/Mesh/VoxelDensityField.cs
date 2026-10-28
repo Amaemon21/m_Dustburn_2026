@@ -39,6 +39,41 @@ public class VoxelDensityField : IDisposable
             frame.VoxelSize * 2f);
     }
 
+    public float Drawn(float x, float z, DecorSurface frame)
+    {
+        return Drawn(x, z, frame, out _);
+    }
+
+    public float Drawn(float x, float z, DecorSurface frame, out Vector2 slope)
+    {
+        if (!frame.IsPlain)
+            return Sampler.Drawn(x, z, frame.VoxelSize, frame.Morph, frame.Origin.x, frame.Origin.y, frame.Size, out slope);
+
+        slope = new Vector2(Sampler.Surface(x + 0.5f, z) - Sampler.Surface(x - 0.5f, z), Sampler.Surface(x, z + 0.5f) - Sampler.Surface(x, z - 0.5f));
+
+        return Sampler.Surface(x, z);
+    }
+
+    public void ChunkRange(VoxelColumnKey key, float size, float step, out int low, out int high)
+    {
+        float lowest = float.MaxValue;
+        float highest = float.MinValue;
+
+        for (float z = key.Z * size; z <= (key.Z + 1) * size; z += step)
+        {
+            for (float x = key.X * size; x <= (key.X + 1) * size; x += step)
+            {
+                float surface = Surface(x, z);
+
+                lowest = Mathf.Min(lowest, surface);
+                highest = Mathf.Max(highest, surface);
+            }
+        }
+
+        low = Mathf.FloorToInt(lowest / size) - 1;
+        high = Mathf.FloorToInt(highest / size) + 1;
+    }
+
     public float Sample(float x, float y, float z)
     {
         return Sampler.Sample(x, y, z);

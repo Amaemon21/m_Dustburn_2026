@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28eca333fbd14d5399cdd0b8b2085b23, type: 3}
+  m_Name: ItemStatStyles
+  m_EditorClassIdentifier: Assembly-CSharp::ItemStatStyleSet
+  _icons:
+  - Type: 0
+    Icon: {fileID: 21300000, guid: 7da3ab1b4ef5df743b2b017dd721f7e7, type: 3}
+  - Type: 1
+    Icon: {fileID: 21300000, guid: beeb4715e4bc7fc4b84797e2652410b6, type: 3}
+  - Type: 2
+    Icon: {fileID: 21300000, guid: a2c7e49a4d8604148a4989c60a1806ad, type: 3}
+  - Type: 3
+    Icon: {fileID: 21300000, guid: 823928eb77987b24080c8be752416aef, type: 3}
+  - Type: 4
+    Icon: {fileID: 21300000, guid: fdb5ec758539f4a4aa63c5810effe656, type: 3}
+  - Type: 5
+    Icon: {fileID: 21300000, guid: f138afa6766da26468f1a7fe08f82bbc, type: 3}
+  - Type: 6
+    Icon: {fileID: 21300000, guid: 44d707d094aaf7c43a98e8bf87a80143, type: 3}
+  - Type: 7
+    Icon: {fileID: 21300000, guid: eda02377ec9c46048be9c3b90ddcc577, type: 3}
+  - Type: 8
+    Icon: {fileID: 21300000, guid: fa89334a54b3c954eb8b4d9bef0a75d6, type: 3}
+  - Type: 9
+    Icon: {fileID: 21300000, guid: 4e5e48673baf32248b38b31c770aa10f, type: 3}
+  - Type: 10
+    Icon: {fileID: 0}
+  - Type: 11
+    Icon: {fileID: 21300000, guid: a2c7e49a4d8604148a4989c60a1806ad, type: 3}
+  - Type: 12
+    Icon: {fileID: 21300000, guid: f138afa6766da26468f1a7fe08f82bbc, type: 3}
+  - Type: 13
+    Icon: {fileID: 21300000, guid: 2d6adcd289b0eed4ca3f36fa6eb6c614, type: 3}
+  - Type: 14
+    Icon: {fileID: 21300000, guid: 4e5e48673baf32248b38b31c770aa10f, type: 3}
+  - Type: 15
+    Icon: {fileID: 21300000, guid: 823928eb77987b24080c8be752416aef, type: 3}
+  _neutral: {r: 1, g: 1, b: 1, a: 1}
+  _good: {r: 0.56, g: 0.84, b: 0.44, a: 1}
+  _bad: {r: 0.9, g: 0.38, b: 0.32, a: 1}

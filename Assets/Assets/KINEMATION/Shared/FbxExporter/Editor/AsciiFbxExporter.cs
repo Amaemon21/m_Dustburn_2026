@@ -45,7 +45,9 @@ namespace KINEMATION.Shared.FbxExporter.Editor
         private const int ScaleY = 7;
         private const int ScaleZ = 8;
         private static readonly string[] AnimatorRootPositionPropertyNames = { "RootT.x", "RootT.y", "RootT.z" };
-        private static readonly string[] AnimatorRootRotationPropertyNames = { "RootQ.x", "RootQ.y", "RootQ.z", "RootQ.w" };
+
+        private static readonly string[] AnimatorRootRotationPropertyNames =
+            { "RootQ.x", "RootQ.y", "RootQ.z", "RootQ.w" };
 
         [Serializable]
         public sealed class ExportOptions
@@ -752,6 +754,7 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                     CollectExportNodes(exportInstance.transform, exportInstance.transform, -1, exportNodes,
                         skeletonTransforms);
                 }
+
                 AssignTrackIndices(rootTrack, exportNodes);
 
                 ClipCurveLookup clipCurveLookup = BuildClipCurveLookup(options.clip);
@@ -759,7 +762,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
 
                 if (!stripRootNode)
                 {
-                    ApplyExportRootDefaults(exportInstance.transform, exportNodes, rootMotionCurves, normalizedStartTime);
+                    ApplyExportRootDefaults(exportInstance.transform, exportNodes, rootMotionCurves,
+                        normalizedStartTime);
                 }
 
                 List<float> sampleTimes = BuildSampleTimes(normalizedStartTime, normalizedEndTime, sampleRate,
@@ -1014,7 +1018,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                 absoluteTimes, curveAnchors);
         }
 
-        private static void AddNodeCurveSampleTimes(IReadOnlyList<ExportNode> exportNodes, float startTime, float endTime,
+        private static void AddNodeCurveSampleTimes(IReadOnlyList<ExportNode> exportNodes, float startTime,
+            float endTime,
             ICollection<float> absoluteTimes, List<float> curveAnchors)
         {
             if (exportNodes == null)
@@ -1148,7 +1153,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
         }
 
         private static bool CaptureSamples(AnimationClip clip, GameObject exportInstance, ExportRootTrack rootTrack,
-            RootMotionCurves rootMotionCurves, List<ExportNode> exportNodes, IReadOnlyList<float> sampleTimes, float startTime,
+            RootMotionCurves rootMotionCurves, List<ExportNode> exportNodes, IReadOnlyList<float> sampleTimes,
+            float startTime,
             PoseBuffer poseBuffer, out string error)
         {
             error = string.Empty;
@@ -1344,7 +1350,9 @@ namespace KINEMATION.Shared.FbxExporter.Editor
             {
                 parentIndex = parentIndex,
                 exportName = exportName,
-                sourcePath = clipRoot != null ? AnimationUtility.CalculateTransformPath(transform, clipRoot) : string.Empty,
+                sourcePath = clipRoot != null
+                    ? AnimationUtility.CalculateTransformPath(transform, clipRoot)
+                    : string.Empty,
                 transform = transform,
                 isSkeletonNode = skeletonTransforms == null || skeletonTransforms.Count == 0 ||
                                  skeletonTransforms.Contains(transform),
@@ -1385,7 +1393,6 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                 if (renderer.rootBone != null)
                 {
                     AddTransformTree(GetTopmostChildUnder(renderer.rootBone, root.transform), result);
-                    continue;
                 }
 
                 Transform[] bones = renderer.bones;
@@ -1522,7 +1529,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
             var curves = new AnimationCurve[propertyNames.Length];
             for (int i = 0; i < propertyNames.Length; i++)
             {
-                EditorCurveBinding binding = EditorCurveBinding.FloatCurve(string.Empty, typeof(Animator), propertyNames[i]);
+                EditorCurveBinding binding =
+                    EditorCurveBinding.FloatCurve(string.Empty, typeof(Animator), propertyNames[i]);
                 curves[i] = AnimationUtility.GetEditorCurve(clip, binding);
                 if (curves[i] == null)
                 {
@@ -1574,9 +1582,12 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                 ExportNode node = exportNodes[i];
                 string path = node.sourcePath ?? string.Empty;
 
-                node.sourcePositionX = FindTransformCurve(clipCurveLookup, path, "localPosition.x", "m_LocalPosition.x");
-                node.sourcePositionY = FindTransformCurve(clipCurveLookup, path, "localPosition.y", "m_LocalPosition.y");
-                node.sourcePositionZ = FindTransformCurve(clipCurveLookup, path, "localPosition.z", "m_LocalPosition.z");
+                node.sourcePositionX =
+                    FindTransformCurve(clipCurveLookup, path, "localPosition.x", "m_LocalPosition.x");
+                node.sourcePositionY =
+                    FindTransformCurve(clipCurveLookup, path, "localPosition.y", "m_LocalPosition.y");
+                node.sourcePositionZ =
+                    FindTransformCurve(clipCurveLookup, path, "localPosition.z", "m_LocalPosition.z");
 
                 node.sourceScaleX = FindTransformCurve(clipCurveLookup, path, "localScale.x", "m_LocalScale.x");
                 node.sourceScaleY = FindTransformCurve(clipCurveLookup, path, "localScale.y", "m_LocalScale.y");
@@ -1591,7 +1602,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
             }
         }
 
-        private static AnimationCurve FindTransformCurve(ClipCurveLookup lookup, string path, params string[] propertyNames)
+        private static AnimationCurve FindTransformCurve(ClipCurveLookup lookup, string path,
+            params string[] propertyNames)
         {
             if (lookup == null || propertyNames == null)
             {
@@ -1600,7 +1612,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
 
             for (int i = 0; i < propertyNames.Length; i++)
             {
-                if (lookup.transformCurves.TryGetValue(MakeCurveLookupKey(path, propertyNames[i]), out AnimationCurve curve))
+                if (lookup.transformCurves.TryGetValue(MakeCurveLookupKey(path, propertyNames[i]),
+                        out AnimationCurve curve))
                 {
                     return curve;
                 }
@@ -1966,8 +1979,10 @@ namespace KINEMATION.Shared.FbxExporter.Editor
             builder.AppendLine("\t\tP: \"CoordAxisSign\", \"int\", \"Integer\", \"\",1");
             builder.AppendLine("\t\tP: \"OriginalUpAxis\", \"int\", \"Integer\", \"\",-1");
             builder.AppendLine("\t\tP: \"OriginalUpAxisSign\", \"int\", \"Integer\", \"\",1");
-            builder.AppendLine($"\t\tP: \"UnitScaleFactor\", \"double\", \"Number\", \"\",{FormatFloat(FbxFileUnitScaleFactor)}");
-            builder.AppendLine($"\t\tP: \"OriginalUnitScaleFactor\", \"double\", \"Number\", \"\",{FormatFloat(FbxFileUnitScaleFactor)}");
+            builder.AppendLine(
+                $"\t\tP: \"UnitScaleFactor\", \"double\", \"Number\", \"\",{FormatFloat(FbxFileUnitScaleFactor)}");
+            builder.AppendLine(
+                $"\t\tP: \"OriginalUnitScaleFactor\", \"double\", \"Number\", \"\",{FormatFloat(FbxFileUnitScaleFactor)}");
             builder.AppendLine("\t\tP: \"AmbientColor\", \"ColorRGB\", \"Color\", \"\",0,0,0");
             builder.AppendLine("\t\tP: \"DefaultCamera\", \"KString\", \"\", \"\", \"Producer Perspective\"");
             builder.AppendLine($"\t\tP: \"TimeMode\", \"enum\", \"\", \"\",{FbxCustomTimeMode}");
@@ -2085,6 +2100,7 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                 builder.AppendLine("\t\t}");
                 builder.AppendLine("\t}");
             }
+
             builder.AppendLine("\tObjectType: \"AnimationStack\" {");
             builder.AppendLine("\t\tCount: 1");
             builder.AppendLine("\t}");
@@ -2348,26 +2364,38 @@ namespace KINEMATION.Shared.FbxExporter.Editor
             if (document.rootTrack != null)
             {
                 builder.AppendLine($"\tC: \"OO\",{document.sceneRootModelId},0");
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.translationNode.id},{document.sceneRootModelId},\"Lcl Translation\"");
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.rotationNode.id},{document.sceneRootModelId},\"Lcl Rotation\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.translationNode.id},{document.sceneRootModelId},\"Lcl Translation\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.rotationNode.id},{document.sceneRootModelId},\"Lcl Rotation\"");
                 builder.AppendLine($"\tC: \"OO\",{document.rootTrack.translationNode.id},{document.animationLayerId}");
                 builder.AppendLine($"\tC: \"OO\",{document.rootTrack.rotationNode.id},{document.animationLayerId}");
 
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.translationNode.xCurve.id},{document.rootTrack.translationNode.id},\"d|X\"");
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.translationNode.yCurve.id},{document.rootTrack.translationNode.id},\"d|Y\"");
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.translationNode.zCurve.id},{document.rootTrack.translationNode.id},\"d|Z\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.translationNode.xCurve.id},{document.rootTrack.translationNode.id},\"d|X\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.translationNode.yCurve.id},{document.rootTrack.translationNode.id},\"d|Y\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.translationNode.zCurve.id},{document.rootTrack.translationNode.id},\"d|Z\"");
 
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.rotationNode.xCurve.id},{document.rootTrack.rotationNode.id},\"d|X\"");
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.rotationNode.yCurve.id},{document.rootTrack.rotationNode.id},\"d|Y\"");
-                builder.AppendLine($"\tC: \"OP\",{document.rootTrack.rotationNode.zCurve.id},{document.rootTrack.rotationNode.id},\"d|Z\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.rotationNode.xCurve.id},{document.rootTrack.rotationNode.id},\"d|X\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.rotationNode.yCurve.id},{document.rootTrack.rotationNode.id},\"d|Y\"");
+                builder.AppendLine(
+                    $"\tC: \"OP\",{document.rootTrack.rotationNode.zCurve.id},{document.rootTrack.rotationNode.id},\"d|Z\"");
 
                 if (document.includeScaleCurves && document.rootTrack.scaleNode != null)
                 {
-                    builder.AppendLine($"\tC: \"OP\",{document.rootTrack.scaleNode.id},{document.sceneRootModelId},\"Lcl Scaling\"");
+                    builder.AppendLine(
+                        $"\tC: \"OP\",{document.rootTrack.scaleNode.id},{document.sceneRootModelId},\"Lcl Scaling\"");
                     builder.AppendLine($"\tC: \"OO\",{document.rootTrack.scaleNode.id},{document.animationLayerId}");
-                    builder.AppendLine($"\tC: \"OP\",{document.rootTrack.scaleNode.xCurve.id},{document.rootTrack.scaleNode.id},\"d|X\"");
-                    builder.AppendLine($"\tC: \"OP\",{document.rootTrack.scaleNode.yCurve.id},{document.rootTrack.scaleNode.id},\"d|Y\"");
-                    builder.AppendLine($"\tC: \"OP\",{document.rootTrack.scaleNode.zCurve.id},{document.rootTrack.scaleNode.id},\"d|Z\"");
+                    builder.AppendLine(
+                        $"\tC: \"OP\",{document.rootTrack.scaleNode.xCurve.id},{document.rootTrack.scaleNode.id},\"d|X\"");
+                    builder.AppendLine(
+                        $"\tC: \"OP\",{document.rootTrack.scaleNode.yCurve.id},{document.rootTrack.scaleNode.id},\"d|Y\"");
+                    builder.AppendLine(
+                        $"\tC: \"OP\",{document.rootTrack.scaleNode.zCurve.id},{document.rootTrack.scaleNode.id},\"d|Z\"");
                 }
             }
 
@@ -2572,7 +2600,8 @@ namespace KINEMATION.Shared.FbxExporter.Editor
                 for (int i = 0; i < 24 && !reader.EndOfStream; i++)
                 {
                     string line = reader.ReadLine();
-                    if (line != null && (line.IndexOf(ExporterDisplayName, StringComparison.Ordinal) >= 0 || line.IndexOf(LegacyExporterDisplayName, StringComparison.Ordinal) >= 0))
+                    if (line != null && (line.IndexOf(ExporterDisplayName, StringComparison.Ordinal) >= 0 ||
+                                         line.IndexOf(LegacyExporterDisplayName, StringComparison.Ordinal) >= 0))
                     {
                         return true;
                     }
@@ -2659,6 +2688,5 @@ namespace KINEMATION.Shared.FbxExporter.Editor
 
             return changed;
         }
-
     }
 }

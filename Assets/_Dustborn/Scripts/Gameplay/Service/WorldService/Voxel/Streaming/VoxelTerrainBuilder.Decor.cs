@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -6,16 +7,77 @@ public partial class VoxelTerrainBuilder
 {
     private string SpawnDecor(VoxelDensityField field, VoxelStreamPlan plan, System.Action<string, float> progress)
     {
+        VoxelDecorPlacer placer = CreatePlacer(field, out string problem);
+
+        if (placer == null)
+            return problem;
+
+        var spawner = new VoxelDecorSpawner(placer, _voxels, _batchVertexBudget, _decorColliders) { FarDecor = _decorEverywhere };
+        var clock = Stopwatch.StartNew();
+
+        _decor = spawner;
+        var builds = new List<VoxelDecorBuild>(_columns.Count);
+
+        foreach (VoxelColumnKey key in _columns)
+        {
+            float size = plan.ChunkMetres(key.Lod);
+
+            if (!_roots.TryGetValue(key, out Transform column))
+                continue;
+
+            var bucket = new GameObject($"Decor {key}");
+
+            bucket.transform.SetParent(column, false);
+
+            var origin = new Vector2(key.X * size, key.Z * size);
+            var frame = new DecorSurface(origin, _voxels.ChunkSize, plan.VoxelSize(key.Lod), key.Morph);
+
+            bucket.AddComponent<VoxelDecorBucket>().Setup(origin, size, key.Lod, frame);
+
+            builds.Add(new VoxelDecorBuild(origin, size, bucket.transform, key.Lod, frame));
+        }
+
+        progress?.Invoke("Трава, деревья и камни", 0.7f);
+        spawner.Prepare(builds);
+
+        for (int i = 0; i < builds.Count; i++)
+        {
+            progress?.Invoke("Трава, деревья и камни", 0.7f + 0.3f * i / Mathf.Max(1, builds.Count));
+
+            spawner.Spawn(builds[i]);
+        }
+
+        clock.Stop();
+
+        Debug.Log($"Decor layers of the voxel terrain:\n{spawner.Describe()}", this);
+
+        return $"decor: {spawner.Placed} placed, {spawner.Combined} combined into {spawner.Batches} batches, "
+            + $"{spawner.Instanced} instanced, {spawner.Instantiated} left as objects, {clock.ElapsedMilliseconds} ms";
+    }
+
+    private VoxelDecorPlacer CreatePlacer(VoxelDensityField field, out string problem)
+    {
+        problem = null;
+
         if (!_spawnDecor)
-            return "no decor";
+        {
+            problem = "no decor";
+            return null;
+        }
 
         if (_biomes == null || !_biomes.IsValid() || _biomeMap == null)
-            return "no decor: assign the BiomeDatabase and the BiomeMap texture";
+        {
+            problem = "no decor: assign the BiomeDatabase and the BiomeMap texture";
+            return null;
+        }
 
         BiomeMap biomeMap = BiomeMapTexture.Read(_biomeMap, _biomes, _config.WorldSize);
 
         if (biomeMap == null)
-            return "no decor";
+        {
+            problem = "no decor";
+            return null;
+        }
 
         if (_poiPlacement == null)
             Debug.LogWarning("Grass and trees will grow through the houses: PoiPlacement.asset is not assigned", this);
@@ -28,48 +90,19 @@ public partial class VoxelTerrainBuilder
         var filter = new DecorFilter(_config, weightField, _biomes.Count, roadMask, roadMaskResolution,
             _poiPlacement == null ? null : _poiPlacement.Placements, WidestFootprint());
 
-        filter.Water = _waterMap;
+        filter.Water = _waterMap ??= WaterMapFormat.Load(_water);
 
         var placer = new VoxelDecorPlacer(_config, _biomes, field, filter, _grassDensity);
 
         if (placer.Layers.Count == 0)
-            return "no decor: no biome has trees, rocks or grass with a prefab";
-
-        var spawner = new VoxelDecorSpawner(placer, _voxels, _batchVertexBudget, _decorColliders) { FarDecor = _decorEverywhere };
-        var clock = Stopwatch.StartNew();
-
-        _decor = spawner;
-        int completed = 0;
-
-        foreach (VoxelColumnKey key in _columns)
         {
-            progress?.Invoke("Трава, деревья и камни", 0.7f + 0.3f * completed++ / Mathf.Max(1, _columns.Count));
-            float size = plan.ChunkMetres(key.Lod);
-
-            if (!_roots.TryGetValue(key, out Transform column))
-                continue;
-
-            var bucket = new GameObject($"Decor {key}");
-
-            bucket.transform.SetParent(column, false);
-
-            var origin = new Vector2(key.X * size, key.Z * size);
-            var frame = new DecorSurface(origin,
-                VoxelDensitySampler.MorphSpan(_voxels.ChunkSize, plan.VoxelSize(key.Lod)),
-                plan.VoxelSize(key.Lod), key.Morph);
-
-            spawner.Spawn(origin, size, bucket.transform, key.Lod, frame);
-
-            if (bucket.transform.childCount == 0)
-                GeneratedMesh.Destroy(bucket);
+            problem = "no decor: no biome has trees, rocks or grass with a prefab";
+            return null;
         }
 
-        clock.Stop();
+        placer.Edits = DecorEditIndex.For(_decorEdits, _config.Seed, placer.Layers);
 
-        Debug.Log($"Decor layers of the voxel terrain:\n{spawner.Describe()}", this);
-
-        return $"decor: {spawner.Placed} placed, {spawner.Combined} combined into {spawner.Batches} batches, "
-            + $"{spawner.Instanced} instanced, {spawner.Instantiated} left as objects, {clock.ElapsedMilliseconds} ms";
+        return placer;
     }
 
     private float WidestFootprint()

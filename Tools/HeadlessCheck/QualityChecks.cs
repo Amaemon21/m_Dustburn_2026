@@ -5,7 +5,7 @@ using System.Reflection;
 
 public static class QualityChecks
 {
-    private const string CONTENT = "../../Assets/_Dustborn/Content/World";
+    private const string CONTENT = "../../Assets/_Dustborn/Content/Configs/World";
 
     public static void Run()
     {
@@ -25,7 +25,7 @@ public static class QualityChecks
             throw new InvalidOperationException("No field carries the Quality attribute.");
 
         if (mismatches.Count > 0)
-            throw new InvalidOperationException($"{mismatches.Count} quality fields differ between the assets in Content/World and the code defaults.");
+            throw new InvalidOperationException($"{mismatches.Count} quality fields differ between the assets in Content/Configs/World and the code defaults.");
     }
 
     private static int Compare<T>(string path, List<string> mismatches) where T : new()

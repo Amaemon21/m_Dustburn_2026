@@ -22,7 +22,7 @@ internal static partial class Harness
         int addedEvents = 0;
         using IDisposable added = grid.ItemsAdded.Subscribe(value => addedEvents += value.Amount);
         Check(grid.AddItems("wood", 250).ItemsAddedAmount == 250, "stack overflow");
-        Check(grid.GetSlots()[0, 0].Amount == 99 && grid.GetSlots()[1, 0].Amount == 52, "slot ordering");
+        Check(grid.GetSlots()[0, 0].Amount == 99 && grid.GetSlots()[1, 0].Amount == 99 && grid.GetSlots()[0, 1].Amount == 52, "slots fill row by row");
         Check(grid.AddItems("stone", 200).ItemsNotAddedAmount == 101, "partial capacity");
         Check(addedEvents == 349, "actual added notifications");
         Check(!grid.RemoveItems("wood", 251).Success && grid.GetAmount("wood") == 250, "atomic failed removal");
@@ -46,11 +46,11 @@ internal static partial class Harness
             proxy.AddItemsToInventory("player", new Vector2Int(1, 0), "wood", 7);
             proxy.AddItemsToInventory("chest", "stone", 20);
             using InventoryGridViewModel viewModel = new(proxy, "player", new ItemCatalog());
-            Check(viewModel.Slots.CurrentValue[2].State.CurrentValue.Amount == 7, "initial view model state");
+            Check(viewModel.Slots.CurrentValue[1].State.CurrentValue.Amount == 7, "initial view model state");
             proxy.AddItemsToInventory("player", "wood", 2);
-            Check(viewModel.Slots.CurrentValue[2].State.CurrentValue.Amount == 9, "reactive view model update");
+            Check(viewModel.Slots.CurrentValue[1].State.CurrentValue.Amount == 9, "reactive view model update");
             proxy.SwitchSlots("player", new Vector2Int(1, 0), new Vector2Int(0, 1));
-            Check(viewModel.Slots.CurrentValue[1].State.CurrentValue.Amount == 9, "switch notification");
+            Check(viewModel.Slots.CurrentValue[2].State.CurrentValue.Amount == 9, "switch notification");
             IReadOnlyList<InventorySlotViewModel> previous = viewModel.Slots.CurrentValue;
             proxy.SetSize("player", new Vector2Int(3, 2));
             Check(previous[0].IsDisposed && viewModel.Slots.CurrentValue.Count == 6, "resize disposes slot view models");
@@ -87,17 +87,35 @@ internal static partial class Harness
         VerifyEntityProxies();
         VerifyInventoryTransactions();
         VerifySelectedItemInfo();
+        VerifyItemNameHover();
+        VerifyInventorySort();
+        VerifyItemInfoStats();
         VerifyInventoryDragDrop();
         VerifyInventoryShortcuts();
         VerifyPickupStackPriority();
         VerifyItemDrop();
         VerifyItemStackLimits();
         VerifyItemWear();
+        VerifyStatModifiers();
+        VerifyInventoryWeight();
+        VerifyHotbarWeighsNothing();
+        VerifyCarryZones();
+        VerifyBackpack();
+        VerifyDragSwing();
+        await VerifyVitals();
+        await VerifyStamina();
+        await VerifyStaminaWithoutPauses();
+        await VerifyMetabolism();
+        await VerifyProgression();
+        await VerifyExperienceNotifications();
+        await VerifyPlayerStatus();
         await VerifyWearSave();
         await VerifyDroppedItemSave();
         VerifyHeldItemSelection();
         VerifyHeldItemEffects();
         VerifyPlayerHands();
+        VerifyClipFader();
+        VerifyHandsMotionPlayer();
         VerifyBlockHarvest();
         VerifyStrikeHarvest();
         await VerifyBlockSave();
@@ -105,6 +123,8 @@ internal static partial class Harness
         VerifyItemNotifications();
         await VerifyPlayerInventory();
         await VerifyLegacyEquipmentLayout();
+        await VerifyWorldSave();
+        VerifyConfigLists();
 
         using WindowService windows = new();
         await VerifySaveRecovery();
@@ -182,11 +202,16 @@ internal static partial class Harness
 
             using WindowService windows = new();
             windows.Register(PlayerMenuService.PLAYER_MENU_WINDOW, new TestWindowPresenter());
-            using PlayerMenuService screen = new(new PlayerMenuViewModelFactory(inventory, players, catalog, null), windows);
+            using InventoryWeightService weights = new(catalog);
+            using Stat carryCapacity = new(45f, 0f);
+            weights.Register(player.OwnerId, carryCapacity, player.Backpack, player.Hotbar, player.Equipment);
+            using PlayerMenuService screen = new(new PlayerMenuViewModelFactory(inventory, players, weights, catalog, null, null, null, null), windows);
             screen.OpenInventory(player.OwnerId);
             Check(screen.IsPlayerMenuOpen.CurrentValue && windows.TryGet(PlayerMenuService.PLAYER_MENU_WINDOW, out _), "player menu opens");
             windows.TryGet(PlayerMenuService.PLAYER_MENU_WINDOW, out WindowViewModel window);
             PlayerMenuScreenViewModel menu = (PlayerMenuScreenViewModel)window;
+            Check(menu.Inventory.Backpack.Weight.HasLimit && menu.Inventory.Backpack.Weight.Capacity.Value.CurrentValue == 45f, "player menu backpack shows the carry limit");
+            Check(!menu.Inventory.Equipment.Weight.HasLimit, "other player grids keep their own unlimited weight");
             menu.SelectTab.Execute(PlayerMenuTab.Map);
             Check(menu.SelectedTab.CurrentValue == PlayerMenuTab.Map, "placeholder tab switches");
             screen.OpenInventory(player.OwnerId);
@@ -194,7 +219,7 @@ internal static partial class Harness
             players.SelectHotbarSlot(player.OwnerId, 2);
             Check(player.Origin.SelectedHotbarSlot == 2 && ReferenceEquals(player.Origin, saves.Get<InventoryData>().Players[0]),
                 "player proxy selection immediately updates saved origin");
-            Check(menu.Inventory.Hotbar.Grid.SelectedSlot.CurrentValue == new Vector2Int(2, 0), "hotbar selection reactive");
+            Check(!menu.Inventory.Hotbar.Grid.SelectedSlot.CurrentValue.HasValue, "active hotbar slot does not select a cell in the inventory hotbar");
             Check(hud.Slots[2].IsSelected.CurrentValue && !hud.Slots[0].IsSelected.CurrentValue, "HUD shares selected hotbar slot");
             menu.Inventory.Backpack.Slots.CurrentValue[0].Select.Execute(Unit.Default);
             menu.Inventory.Equipment.Slots.CurrentValue[(int)EquipmentSlot.Headwear].Select.Execute(Unit.Default);
@@ -214,6 +239,12 @@ internal static partial class Harness
             menu.Inventory.Hotbar.Grid.Slots.CurrentValue[2].Select.Execute(Unit.Default);
             Check(player.Hotbar.GetAmount("wood") == 0 && !menu.Inventory.ItemInfo.HasItem,
                 "empty hotbar click cancels item info instead of transferring a stack");
+            inventory.AddItemsToInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "stone", 1);
+            menu.Inventory.Hotbar.Grid.SlotAt(new Vector2Int(0, 0)).Select.Execute(Unit.Default);
+            Check(menu.Inventory.ItemInfo.State.CurrentValue.ItemId == "stone" && player.SelectedHotbarSlot.CurrentValue == 2 &&
+                hud.Slots[2].IsSelected.CurrentValue, "inventory hotbar click shows the item and leaves the held slot alone");
+            menu.Inventory.Hotbar.Grid.SlotAt(new Vector2Int(0, 0)).Select.Execute(Unit.Default);
+            inventory.RemoveItemsFromInventory(player.Hotbar.OwnerId, new Vector2Int(0, 0), "stone", 1);
             Vector2Int woodSource = default;
             foreach (InventorySlotViewModel slot in menu.Inventory.Backpack.Slots.CurrentValue)
                 if (slot.State.CurrentValue.ItemId == "wood")
@@ -335,5 +366,6 @@ internal static partial class Harness
         public UniTask DeleteAsync(string path, CancellationToken token) { Files.Remove(path); return UniTask.CompletedTask; }
         public UniTask DeleteDirectoryAsync(string path, CancellationToken token) => UniTask.CompletedTask;
         public UniTask<string[]> ListDirectoriesAsync(string path, CancellationToken token) => UniTask.FromResult(Array.Empty<string>());
+        public UniTask<DateTime?> LastWriteTimeAsync(string path, string pattern, CancellationToken token) => UniTask.FromResult<DateTime?>(null);
     }
 }

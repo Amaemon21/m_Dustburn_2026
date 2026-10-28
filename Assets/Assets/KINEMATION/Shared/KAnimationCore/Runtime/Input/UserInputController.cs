@@ -12,7 +12,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
     public class UserInputController : MonoBehaviour
     {
         [SerializeField] public UserInputConfig inputConfig;
-        
+
         protected List<object> _inputProperties;
         protected Dictionary<string, int> _inputPropertyMap;
         protected (int, float, float)[] _floatsToInterpolate;
@@ -25,11 +25,11 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
         protected virtual void Update()
         {
             if (_floatsToInterpolate == null) return;
-            
+
             foreach (var tuple in _floatsToInterpolate)
             {
-                float value = (float) _inputProperties[tuple.Item1];
-                
+                float value = (float)_inputProperties[tuple.Item1];
+
                 if (Mathf.Approximately(value, tuple.Item3))
                 {
                     value = tuple.Item3;
@@ -39,11 +39,11 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
                     float alpha = KMath.ExpDecayAlpha(Time.deltaTime, tuple.Item2);
                     value = Mathf.LerpUnclamped(value, tuple.Item3, alpha);
                 }
-                
+
                 _inputProperties[tuple.Item1] = value;
             }
         }
-        
+
         public virtual void Initialize()
         {
 #if UNITY_EDITOR
@@ -53,31 +53,31 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
             _inputPropertyMap = new Dictionary<string, int>();
 
             List<(int, float, float)> floatsToInterpolate = new List<(int, float, float)>();
-            
+
             int index = 0;
-            
+
             foreach (var property in inputConfig.boolProperties)
             {
                 _inputProperties.Add(property.defaultValue);
                 _inputPropertyMap.TryAdd(property.name, index);
                 index++;
-                
+
 #if UNITY_EDITOR
                 _propertyNames.Add((property.name, null));
 #endif
             }
-            
+
             foreach (var property in inputConfig.intProperties)
             {
                 _inputProperties.Add(property.defaultValue);
                 _inputPropertyMap.TryAdd(property.name, index);
                 index++;
-                
+
 #if UNITY_EDITOR
                 _propertyNames.Add((property.name, null));
 #endif
             }
-            
+
             foreach (var property in inputConfig.floatProperties)
             {
                 _inputProperties.Add(property.defaultValue);
@@ -87,9 +87,9 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
                 {
                     floatsToInterpolate.Add((index, property.interpolationSpeed, property.defaultValue));
                 }
-                
+
                 index++;
-                
+
 #if UNITY_EDITOR
                 _propertyNames.Add((property.name, null));
 #endif
@@ -99,13 +99,13 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
             {
                 _floatsToInterpolate = floatsToInterpolate.ToArray();
             }
-            
+
             foreach (var property in inputConfig.vectorProperties)
             {
                 _inputProperties.Add(property.defaultValue);
                 _inputPropertyMap.TryAdd(property.name, index);
                 index++;
-                
+
 #if UNITY_EDITOR
                 _propertyNames.Add((property.name, null));
 #endif
@@ -118,7 +118,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
             {
                 return index;
             }
-            
+
             return -1;
         }
 
@@ -131,7 +131,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
         {
             return GetValue<T>(GetPropertyIndex(propertyName));
         }
-        
+
         public virtual void SetValue(int propertyIndex, object value)
         {
             if (propertyIndex < 0 || propertyIndex > _inputProperties.Count - 1)
@@ -154,12 +154,12 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
                 if (floatToInterpolateIndex != -1)
                 {
                     var tuple = _floatsToInterpolate[floatToInterpolateIndex];
-                    tuple.Item3 = (float) value;
+                    tuple.Item3 = (float)value;
                     _floatsToInterpolate[floatToInterpolateIndex] = tuple;
                     return;
                 }
             }
-            
+
             _inputProperties[propertyIndex] = value;
         }
 
@@ -169,13 +169,13 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
             {
                 return default(T);
             }
-            
-            return (T) _inputProperties[propertyIndex];
+
+            return (T)_inputProperties[propertyIndex];
         }
 
 #if UNITY_EDITOR
         protected List<(string, object)> _propertyNames;
-        
+
         public virtual (string, object)[] GetPropertyBindings()
         {
             if (_propertyNames == null) return null;
@@ -188,7 +188,7 @@ namespace KINEMATION.Shared.KAnimationCore.Runtime.Input
                 item.Item2 = _inputProperties[i];
                 _propertyNames[i] = item;
             }
-            
+
             return _propertyNames.ToArray();
         }
 #endif

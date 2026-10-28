@@ -6,15 +6,26 @@ using UnityEngine;
 public class PoiPlacementAsset : ScriptableObject
 {
     [SerializeField] private List<PoiPlacement> _placements = new();
+    [SerializeField] private List<PropPlacement> _props = new();
 
     public IReadOnlyList<PoiPlacement> Placements => _placements;
+    public IReadOnlyList<PropPlacement> Props => _props ??= new List<PropPlacement>();
 
     [ShowNativeProperty] public string PlacementStatus => Describe();
 
+    public static PoiPlacementAsset Create(IEnumerable<PoiPlacement> placements, IEnumerable<PropPlacement> props)
+    {
+        var asset = CreateInstance<PoiPlacementAsset>();
+        asset._placements = new List<PoiPlacement>(placements);
+        asset._props = new List<PropPlacement>(props ?? new List<PropPlacement>());
+        return asset;
+    }
+
 #if UNITY_EDITOR
-    public void EditorSetup(IEnumerable<PoiPlacement> placements)
+    public void EditorSetup(IEnumerable<PoiPlacement> placements, IEnumerable<PropPlacement> props)
     {
         _placements = new List<PoiPlacement>(placements);
+        _props = new List<PropPlacement>(props ?? new List<PropPlacement>());
     }
 #endif
 
@@ -35,7 +46,7 @@ public class PoiPlacementAsset : ScriptableObject
                 missingPrefabs++;
         }
 
-        var text = new System.Text.StringBuilder($"{_placements.Count} items");
+        var text = new System.Text.StringBuilder($"{_placements.Count} items, {Props.Count} props");
 
         foreach (KeyValuePair<DistrictType, int> pair in counts)
             text.Append($", {pair.Key}: {pair.Value}");
