@@ -4,11 +4,6 @@ using UnityEngine.UI;
 
 namespace Dustborn.UI
 {
-    /// <summary>
-    /// Supplies local UI coordinates, sprite atlas bounds and a stable seed.
-    /// Does not instantiate materials or perform per-frame work.
-    /// Reserves UV1, UV2 and UV3 on the Image mesh.
-    /// </summary>
     [ExecuteAlways]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]

@@ -8,7 +8,14 @@ public static class WorldPreviewImage
         IReadOnlyList<PoiPlacement> buildings)
     {
         Color32[] pixels = WorldPreviewPainter.Paint(biomes, biomeMap, heights, water, roads, buildings);
-        uint size = WorldPreviewPainter.RESOLUTION;
+        return Encode(pixels, WorldPreviewPainter.RESOLUTION);
+    }
+
+    public static byte[] Encode(WorldPreviewLayers layers) => Encode(layers.Compose(WorldPreviewLayer.All), layers.Resolution);
+
+    public static byte[] Encode(Color32[] pixels, int resolution)
+    {
+        uint size = (uint)resolution;
         return ImageConversion.EncodeArrayToPNG(WorldPixels.Rgba(pixels), GraphicsFormat.R8G8B8A8_SRGB, size, size);
     }
 
@@ -25,5 +32,15 @@ public static class WorldPreviewImage
 
         WorldData.Release(texture);
         return null;
+    }
+
+    public static Texture2D Create(int resolution)
+    {
+        return new Texture2D(resolution, resolution, TextureFormat.RGBA32, false)
+        {
+            name = "WorldPreview",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
     }
 }

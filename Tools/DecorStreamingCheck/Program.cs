@@ -16,6 +16,7 @@ static class Program
         Check("combined layers yield after one mesh batch", CombinedBatches);
         Check("instanced layers yield after 256 copies", InstancedBatches);
         Check("pooled copies rebind before activation without inflating bounds", Reuse);
+        Check("winter foliage varies and reuses materials without frosting its source", WinterAppearance);
         Check("pool isolates layers and limits retained objects", PoolLimits);
         Check("destroyed pooled objects release their capacity", DestroyedPoolEntry);
         Check("deferred demolition visits each child once", DeferredDemolition);
@@ -64,7 +65,7 @@ static class Program
             placer.Layers.Add(new VoxelDecorLayer { Prefab = prefab, Kind = DecorKind.Tree });
             placer.Data.Add(Enumerable.Range(0, count).Select(i => new DecorInstance
             {
-                CellX = i, CellY = i + 10, Scale = 1f, Height = 1f, Shade = i % 4,
+                CellX = i, CellY = i + 10, Scale = 1f, Height = 1f, Shade = 1f + (i % 3 - 1) * 0.05f,
                 Position = new Vector3(i, 0f, 0f)
             }).ToList());
         }
@@ -138,14 +139,45 @@ static class Program
             Require(spawner.Recycle(copy), "Live copy was not recycled.");
             Require(!copy.activeSelf && hook.Live.Count == 0, "Returned copy remained bound or active.");
             DecorInstance next = placer.Data[0][0];
-            next.Shade = i % 4;
+            next.Shade = 1f + (i % 3 - 1) * 0.05f;
             placer.Data[0][0] = next;
             spawner.Spawn(Build(patch));
             Require(patch.transform.GetChild(0).gameObject == copy, "Pool failed to reuse its copy.");
-            Require(copy.GetComponent<MeshRenderer>().sharedMaterials[0].name == "Tree0/shade" + i % 4, "Tint compounded across pool reuse.");
+            float shade = copy.GetComponent<MeshRenderer>().sharedMaterials[0].GetColor("_BaseColor").r;
+            float expected = 1f + (i % 3 - 1) * 0.04f;
+            Require(Math.Abs(shade - expected) < 0.0001f, "Tint compounded across pool reuse.");
         }
         Require(spawner.Instantiated == 1 && spawner.Reused == 20, "Pool still instantiated on reuse.");
         Require(copy.GetComponent<MeshRenderer>().localBounds.Width == bounds, "Wind bounds expanded on every reuse.");
+    }
+
+    private static void WinterAppearance()
+    {
+        GameObject prefab = Prefab("Pine");
+        Material source = prefab.GetComponent<MeshRenderer>().sharedMaterials[0];
+        source.SetColor("_Leaf_Base_Color", Color.white);
+        source.SetColor("_Frosting_Color", Color.white);
+        source.SetFloat("_Enable_Frosting", 0f);
+        source.SetFloat("_Frosting_Height", 10f);
+        source.SetFloat("_Frosting_Falloff", 50f);
+        var placer = Placer((prefab, 6), (prefab, 1));
+        placer.Layers[0].SnowMin = 0.24f;
+        placer.Layers[0].SnowMax = 0.96f;
+        placer.Layers[0].TintVariance = 0f;
+        placer.Layers[1].TintVariance = 0f;
+        using var spawner = new VoxelDecorSpawner(placer, new(), 48000, false);
+        var root = new GameObject("Winter and forest");
+        spawner.Spawn(Build(root));
+        Material[] materials = root.transform.Children.Select(child => child.gameObject.GetComponent<MeshRenderer>().sharedMaterials[0]).ToArray();
+        Require(materials.Length == 7, "An authored tree was lost during material variation.");
+        Require(materials.Take(6).All(material => material.GetFloat("_Enable_Frosting") == 1f), "A winter copy has no frost.");
+        Require(materials.Take(6).Select(material => material.GetFloat("_Frosting_Height")).Distinct().Count() == 3, "Snow-only variation collapsed to one material.");
+        Require(materials[0].GetFloat("_Frosting_Height") > materials[2].GetFloat("_Frosting_Height"), "Heavy frost must reach more of the foliage.");
+        for (int i = 0; i < 3; i++)
+            Require(ReferenceEquals(materials[i], materials[i + 3]), "Copies of one frost level created separate materials.");
+        Require(ReferenceEquals(materials[6], source) && source.GetFloat("_Enable_Frosting") == 0f && source.GetFloat("_Frosting_Height") == 10f,
+            "Winter trees changed the forest material shared by another biome.");
+        Require(!spawner.Use(Placer((prefab, 6), (prefab, 1))), "A changed layer retained the previous frost palette.");
     }
 
     private static void PoolLimits()

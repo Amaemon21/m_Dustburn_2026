@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public sealed class WorldPreparation : IGameplayPreparation
 {
@@ -65,6 +64,7 @@ public sealed class WorldPreparation : IGameplayPreparation
         if (_placement.TryGet(out Vector3 position, out float yaw))
             return _player.Spawn(position, Quaternion.Euler(0f, yaw, 0f));
 
-        return _player.Spawn(WorldSpawnPoint.Find(world), Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
+        float facing = world.Gameplay?.Facing ?? (uint)world.Config.Seed % 360u;
+        return _player.Spawn(WorldSpawnPoint.Find(world), Quaternion.Euler(0f, facing, 0f));
     }
 }

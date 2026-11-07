@@ -14,7 +14,6 @@ public static class WaterDebug
     private const int OVERVIEW = 2048;
     private const int DETAIL = 4096;
 
-    [MenuItem("Мир/Предпросмотр воды и штампов")]
     public static void Preview()
     {
         var settings = AssetDatabase.LoadAssetAtPath<WorldBuildSettings>(SETTINGS_PATH);
@@ -41,21 +40,13 @@ public static class WaterDebug
         }
     }
 
-    [MenuItem("Мир/Вода и штампы в сцене")]
-    private static void ToggleGizmos()
+    public static void ToggleGizmos()
     {
         WorldFeatureGizmos.Visible = !WorldFeatureGizmos.Visible;
         SceneView.RepaintAll();
     }
 
-    [MenuItem("Мир/Вода и штампы в сцене", true)]
-    private static bool ValidateGizmos()
-    {
-        Menu.SetChecked("Мир/Вода и штампы в сцене", WorldFeatureGizmos.Visible);
-        return true;
-    }
-
-    private static string Run(WorldBuildSettings settings)
+private static string Run(WorldBuildSettings settings)
     {
         WorldGenerationConfig config = settings.Config;
         var clock = Stopwatch.StartNew();

@@ -19,3 +19,12 @@ MonoBehaviour:
   <FootprintWidth>k__BackingField: 5.59886
   <FootprintDepth>k__BackingField: 7.913352
   <Weight>k__BackingField: 0.4
+  <Gameplay>k__BackingField:
+    Tier: 3
+    Category: 2
+    LootProfile: 2
+    ThreatProfile: 2
+    MinDistanceFromSpawn: 400
+    UniqueGroup: 
+    Biomes: []
+    RequiredConnection: 1

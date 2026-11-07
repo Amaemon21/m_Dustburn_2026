@@ -4,8 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 
-// Читает скалярные поля из Unity .asset (YAML), чтобы харнесс гонял настоящий конфиг,
-// а не дефолты из кода. Вложенные блоки, ссылки на ассеты и списки пропускаются.
 static class AssetReader
 {
     public static T Load<T>(string path) where T : new()
@@ -28,6 +26,20 @@ static class AssetReader
 
         foreach (string line in File.ReadAllLines(path))
         {
+            if (nested != null && line.StartsWith("    ") && !line.StartsWith("     ") && !line.StartsWith("    <"))
+            {
+                int colon = line.IndexOf(':');
+                if (colon > 4)
+                {
+                    FieldInfo field = nested.GetType().GetField(line.Substring(4, colon - 4), BindingFlags.Public | BindingFlags.Instance);
+                    string value = line.Substring(colon + 1).Trim();
+                    if (field != null && TryParse(field.FieldType, value, out object parsed))
+                        field.SetValue(nested, parsed);
+                }
+
+                continue;
+            }
+
             if (nested != null && line.StartsWith("    <") && !line.StartsWith("     "))
             {
                 if (AssignLine(nested, line, 5))
@@ -276,5 +288,136 @@ static class AssetReader
             .SetValue(database, list);
 
         return database;
+    }
+
+    public static HashSet<UnityEngine.GameObject> LoadStarterDecor(BiomeDatabase biomes, string folder, string content)
+    {
+        string wood = ReadMetaGuid(Path.Combine(content, "Configs/Block/BlockDamage/Wood_BlockConfig.asset.meta"));
+        var woodGuids = new HashSet<string>();
+        foreach (string path in Directory.EnumerateFiles(Path.Combine(content, "Prefabs/World/Trees"), "*.prefab"))
+        {
+            if (File.ReadAllText(path).Contains("guid: " + wood, StringComparison.Ordinal))
+                woodGuids.Add(ReadMetaGuid(path + ".meta"));
+        }
+
+        var harvestable = new HashSet<UnityEngine.GameObject>();
+        for (int i = 0; i < biomes.Count; i++)
+        {
+            BiomeDefinition biome = biomes.Get(i);
+            string[] lines = File.ReadAllLines(Path.Combine(folder, biome.name + ".asset"));
+            biome.Trees.Clear();
+            biome.Rocks.Clear();
+            biome.Grass.Clear();
+            ReadScatter("Trees", biome.Trees);
+            ReadScatter("Rocks", biome.Rocks);
+            foreach (Dictionary<string, string> item in ReadList(lines, "  <Grass>k__BackingField:"))
+            {
+                var grass = new GrassLayer();
+                if (RefGuid(item, "Card") != null)
+                    Assign(grass, "Card", new UnityEngine.Texture2D(1, 1, UnityEngine.TextureFormat.RGBA32, false));
+                if (RefGuid(item, "Mask") != null)
+                    Assign(grass, "Mask", new UnityEngine.Texture2D(1, 1, UnityEngine.TextureFormat.RGBA32, false));
+                if (RefGuid(item, "Prefab") != null)
+                    Assign(grass, "Prefab", new UnityEngine.GameObject());
+                foreach (var (name, value) in item)
+                    Assign(grass, name, value);
+                biome.Grass.Add(grass);
+            }
+
+            void ReadScatter(string name, List<ScatterLayer> layers)
+            {
+                foreach (Dictionary<string, string> item in ReadList(lines, $"  <{name}>k__BackingField:"))
+                {
+                    string guid = RefGuid(item, "Prefab");
+                    if (guid == null)
+                        continue;
+                    var prefab = new UnityEngine.GameObject { name = guid };
+                    var layer = new ScatterLayer();
+                    Assign(layer, "Prefab", prefab);
+                    foreach (var (key, value) in item)
+                        Assign(layer, key, value);
+                    layers.Add(layer);
+                    if (woodGuids.Contains(guid))
+                        harvestable.Add(prefab);
+                }
+            }
+        }
+
+        return harvestable;
+    }
+
+    public static PropDatabase LoadProps(string path, string content)
+    {
+        PropDatabase database = Load<PropDatabase>(path);
+        var names = new Dictionary<string, string>();
+        foreach (string meta in Directory.EnumerateFiles(Path.Combine(content, "Prefabs/World/Props"), "*.prefab.meta", SearchOption.AllDirectories))
+            names.Add(ReadMetaGuid(meta), Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(meta)));
+
+        var definitions = new List<PropDefinition>();
+        foreach (Dictionary<string, string> item in ReadList(File.ReadAllLines(path), "  _definitions:"))
+        {
+            string guid = RefGuid(item, "Prefab");
+            if (guid == null)
+                continue;
+            if (!names.TryGetValue(guid, out string name))
+                throw new InvalidOperationException($"Missing prop prefab {guid}");
+            var definition = new PropDefinition();
+            Assign(definition, "Prefab", new UnityEngine.GameObject { name = name });
+            foreach (var (key, value) in item)
+                Assign(definition, key, value);
+            definitions.Add(definition);
+        }
+
+        typeof(PropDatabase).GetField("_definitions", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(database, definitions);
+        return database;
+    }
+
+    public static List<Dictionary<string, string>> ReadList(string[] lines, string header)
+    {
+        var items = new List<Dictionary<string, string>>();
+        int start = Array.IndexOf(lines, header);
+        if (start < 0)
+            return items;
+
+        Dictionary<string, string> current = null;
+        for (int i = start + 1; i < lines.Length; i++)
+        {
+            string line = lines[i];
+            if (line.StartsWith("  - ", StringComparison.Ordinal))
+            {
+                current = new Dictionary<string, string>();
+                items.Add(current);
+            }
+            else if (!line.StartsWith("    ", StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            string body = line.Substring(4);
+            int close = body.IndexOf(">k__BackingField:", StringComparison.Ordinal);
+            if (current != null && body.StartsWith("<", StringComparison.Ordinal) && close >= 0)
+                current[body.Substring(1, close - 1)] = body.Substring(close + 17).Trim();
+        }
+
+        return items;
+    }
+
+    private static string RefGuid(Dictionary<string, string> values, string name)
+    {
+        if (!values.TryGetValue(name, out string value))
+            return null;
+        int guid = value.IndexOf("guid: ", StringComparison.Ordinal);
+        return guid < 0 ? null : value.Substring(guid + 6, 32);
+    }
+
+    private static string ReadMetaGuid(string path)
+    {
+        foreach (string line in File.ReadLines(path))
+        {
+            if (line.StartsWith("guid: ", StringComparison.Ordinal))
+                return line.Substring(6).Trim();
+        }
+
+        throw new InvalidOperationException($"No GUID in {path}");
     }
 }

@@ -14,6 +14,14 @@ public class PoiPlacer
     private readonly HeightMap _map;
     private readonly WaterMap _water;
     private readonly RoadProximity _roads;
+    private readonly BiomeDatabase _biomes;
+    private readonly BiomeMap _biomeMap;
+    private readonly HashSet<string> _uniqueGroups = new();
+    private Vector2 _pickPosition;
+    private BiomeType _pickBiome;
+    private bool _hasBiome;
+    private bool _pickRoad;
+    private readonly Vector2? _start;
 
     private readonly List<PoiPlacement> _placements = new();
     private readonly List<float> _groundOffsets = new();
@@ -29,13 +37,20 @@ public class PoiPlacer
     public int EmptyRuralSites { get; private set; }
     public int RuralPlaced { get; private set; }
 
-    public PoiPlacer(WorldGenerationConfig config, PoiDatabase pois, HeightMap map, WaterMap water, RoadProximity roads)
+    public PoiPlacer(WorldGenerationConfig config, PoiDatabase pois, HeightMap map, WaterMap water, RoadProximity roads,
+        BiomeDatabase biomes = null, BiomeMap biomeMap = null, Vector2? start = null)
     {
         _config = config;
         _pois = pois;
         _map = map;
         _water = water;
         _roads = roads;
+        _biomes = biomes;
+        _biomeMap = biomeMap;
+        _start = start;
+
+        foreach (PoiDefinition definition in pois.Definitions)
+            definition?.Gameplay?.Validate();
 
         if (_roads == null || _roads.SegmentCount == 0)
             Debug.LogWarning("Road geometry was not passed in: buildings may end up standing on the highway");
@@ -46,6 +61,7 @@ public class PoiPlacer
         _placements.Clear();
         _groundOffsets.Clear();
         _world.Clear();
+        _uniqueGroups.Clear();
 
         _skippedSteep = 0;
         _skippedNoFit = 0;
@@ -97,6 +113,7 @@ public class PoiPlacer
 
     private bool PlaceOnLot(Lot lot, ref Random random)
     {
+        _pickPosition = lot.Center;
         PoiDefinition definition = Pick(lot.District, lot.Width - 2f * _config.LotMargin, lot.Depth - _config.LotSetback - _config.LotMargin, ref random);
 
         if (definition == null)
@@ -105,10 +122,14 @@ public class PoiPlacer
             return false;
         }
 
-        float offset = lot.Depth * 0.5f - _config.LotSetback - definition.FootprintDepth * 0.5f;
-
-        Vector2 position = lot.Center + lot.Forward * offset;
+        Vector2 position = PositionOnLot(_config, lot, definition);
         float street = SampleMeters(lot.FrontEdge);
+
+        if (!AllowsAt(definition, position))
+        {
+            _skippedNoFit++;
+            return false;
+        }
 
         if (IsOnRoad(position, definition.Footprint, lot.Forward))
         {
@@ -145,6 +166,7 @@ public class PoiPlacer
 
             for (int building = 0; building < site.Buildings; building++)
             {
+                _pickPosition = site.Anchor;
                 PoiDefinition definition = Pick(DistrictType.Rural, float.MaxValue, RURAL_DEPTH_BUDGET, ref random);
 
                 if (definition == null)
@@ -157,6 +179,9 @@ public class PoiPlacer
                     lateral = side * (Mathf.Abs(lateral) + definition.FootprintWidth + _config.LotGap);
 
                 Vector2 position = site.Anchor + arrival * depthOffset + site.Tangent * lateral;
+                if (!AllowsAt(definition, position))
+                    continue;
+
                 var footprint = new Lot(position, definition.FootprintWidth + 2f * _config.LotMargin, definition.FootprintDepth + 2f * _config.LotMargin, site.Forward, DistrictType.Rural);
 
                 if (index.Overlaps(footprint, OVERLAP_SHRINK))
@@ -190,8 +215,13 @@ public class PoiPlacer
     {
         float rotation = Mathf.Atan2(forward.x, forward.y) * Mathf.Rad2Deg;
 
-        _placements.Add(new PoiPlacement(definition.Prefab, position, rotation, definition.Footprint, district, definition.PivotOffset));
+        var placement = new PoiPlacement(definition.Prefab, position, rotation, definition.Footprint, district, definition.PivotOffset);
+        placement.SetGameplay(definition.Gameplay, unchecked((int)((uint)_config.Seed * 2246822519u ^ (uint)_placements.Count * 3266489917u)));
+        _placements.Add(placement);
         _groundOffsets.Add(definition.GroundOffset);
+
+        if (!string.IsNullOrEmpty(placement.Gameplay.UniqueGroup))
+            _uniqueGroups.Add(placement.Gameplay.UniqueGroup);
 
         _world.Add(definition);
         _settlement.Add(definition);
@@ -259,6 +289,11 @@ public class PoiPlacer
 
     private PoiDefinition Pick(DistrictType district, float maxWidth, float maxDepth, ref Random random)
     {
+        _hasBiome = _biomeMap != null && _biomes != null;
+        if (_hasBiome)
+            _pickBiome = _biomes.Get(_biomeMap.SampleWorld(new Vector3(_pickPosition.x, 0f, _pickPosition.y))).Type;
+
+        _pickRoad = _roads != null && _roads.IsWithin(_pickPosition, _config.TileSize);
         foreach (DistrictType candidate in LotSubdivider.Fallback(district))
         {
             PoiDefinition definition = PickExact(candidate, maxWidth, maxDepth, ref random);
@@ -309,6 +344,30 @@ public class PoiPlacer
         if (definition.FootprintWidth > maxWidth || definition.FootprintDepth > maxDepth)
             return false;
 
+        PoiGameplay gameplay = definition.Gameplay;
+        if (gameplay != null)
+        {
+            if (_start.HasValue)
+            {
+                float square = (_pickPosition - _start.Value).sqrMagnitude;
+                float distance = gameplay.MinDistanceFromSpawn + definition.Footprint.magnitude * 0.5f;
+                if (square < distance * distance)
+                    return false;
+
+                if (!gameplay.Starter && square < _config.Gameplay.StarterMaxDistance * _config.Gameplay.StarterMaxDistance)
+                    return false;
+            }
+
+            if (!string.IsNullOrEmpty(gameplay.UniqueGroup) && _uniqueGroups.Contains(gameplay.UniqueGroup))
+                return false;
+
+            if (_hasBiome && !gameplay.Allows(_pickBiome))
+                return false;
+
+            if ((gameplay.RequiredConnection == PoiConnection.Road && !_pickRoad) || (gameplay.RequiredConnection == PoiConnection.Remote && _pickRoad))
+                return false;
+        }
+
         return HasRoom(definition);
     }
 
@@ -320,9 +379,35 @@ public class PoiPlacer
         return definition.MaxPerSettlement <= 0 || _settlement.Count(definition) < definition.MaxPerSettlement;
     }
 
+    private bool AllowsAt(PoiDefinition definition, Vector2 point)
+    {
+        PoiGameplay gameplay = definition.Gameplay;
+        if (gameplay == null)
+            return true;
+
+        if (_hasBiome && !gameplay.Allows(_biomes.Get(_biomeMap.SampleWorld(new Vector3(point.x, 0f, point.y))).Type))
+            return false;
+
+        if (_start.HasValue)
+        {
+            float square = (point - _start.Value).sqrMagnitude;
+            if (square < gameplay.MinDistanceFromSpawn * gameplay.MinDistanceFromSpawn)
+                return false;
+        }
+
+        bool road = _roads != null && _roads.IsWithin(point, _config.TileSize);
+        return (gameplay.RequiredConnection != PoiConnection.Road || road) && (gameplay.RequiredConnection != PoiConnection.Remote || !road);
+    }
+
     private static float Score(PoiDefinition definition)
     {
         return definition.Weight * definition.FootprintArea;
+    }
+
+    public static Vector2 PositionOnLot(WorldGenerationConfig config, Lot lot, PoiDefinition definition)
+    {
+        float offset = lot.Depth * 0.5f - config.LotSetback - definition.FootprintDepth * 0.5f;
+        return lot.Center + lot.Forward * offset;
     }
 
     private float SampleMeters(Vector2 position)

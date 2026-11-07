@@ -6,6 +6,8 @@
   <ItemGroup>
     <Compile Include="$(SharedUtils)\**\*.cs" />
     <Reference Include="$(ScriptAssemblies)\UnityEngine.UI.dll"><Private>false</Private></Reference>
+    <Reference Include="$(ScriptAssemblies)\Unity.TextMeshPro.dll"><Private>false</Private></Reference>
+    <Reference Include="$(SharedUtils)\..\..\..\Plugins\Demigiant\DOTween\DOTween.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.UIModule.dll"><Private>false</Private></Reference>
     <Reference Include="$(UnityManaged)\UnityEngine\UnityEngine.TextRenderingModule.dll"><Private>false</Private></Reference>
   </ItemGroup>

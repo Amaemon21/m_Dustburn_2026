@@ -4,6 +4,12 @@ using UnityEngine;
 [CustomEditor(typeof(WorldGenerator))]
 public class WorldGeneratorEditor : Editor
 {
+    [MenuItem("CONTEXT/WorldGenerator/Open World Generation")]
+    private static void Open(MenuCommand command)
+    {
+        WorldGenerationWindow.Open((WorldGenerator)command.context);
+    }
+
     public override void OnInspectorGUI()
     {
         var owner = (WorldGenerator)target;

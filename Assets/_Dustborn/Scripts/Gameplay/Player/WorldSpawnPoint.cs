@@ -1,63 +1,47 @@
+using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public static class WorldSpawnPoint
 {
-    private const int SPAWN_ATTEMPTS = 64;
-    private const float EDGE_MARGIN = 256f;
-    private const float SHORE_MARGIN = 4f;
-    private const float GROUND_CLEARANCE = 3f;
-
     public static Vector3 Find(WorldData world)
     {
-        WorldGenerationConfig config = world.Config;
-
-        int resolution = config.HeightMapResolution;
-        float cellSize = config.WorldSize / (float)(resolution - 1);
-        float dryGround = config.SeaLevel + SHORE_MARGIN;
-
-        float low = Mathf.Min(EDGE_MARGIN, config.WorldSize * 0.25f);
-        float high = config.WorldSize - low;
-
-        byte[] raw = world.Heights;
-        WaterMap water = world.Water;
-
-        Vector3 highest = Vector3.zero;
-        float highestGround = float.NegativeInfinity;
-
-        for (int attempt = 0; attempt < SPAWN_ATTEMPTS; attempt++)
+        if (world.Gameplay != null)
         {
-            float x = Random.Range(low, high);
-            float z = Random.Range(low, high);
-            float ground = Sample(raw, resolution, cellSize, config.MaxHeight, x, z);
-            var candidate = new Vector3(x, ground + GROUND_CLEARANCE, z);
-
-            if (ground >= dryGround && (water == null || !water.IsWet(x, z, ground, SHORE_MARGIN)))
-                return candidate;
-
-            if (ground <= highestGround)
-                continue;
-
-            highestGround = ground;
-            highest = candidate;
+            world.Gameplay.Validate(world.Config.WorldSize, world.Placement.Placements.Count);
+            return world.Gameplay.Spawn;
         }
 
-        Debug.LogWarning($"{nameof(WorldSpawnPoint)}: no dry ground in {SPAWN_ATTEMPTS} tries, spawning at the highest one, {highestGround:0.0} m against a sea level of {config.SeaLevel:0.0} m");
+        if (world.BiomeMap == null || world.Biomes == null)
+            throw new InvalidOperationException("A world needs a readable biome map to choose a safe start.");
 
-        return highest;
-    }
+        WorldGenerationConfig config = world.Config;
+        BiomeMap biomes = BiomeMapTexture.Read(world.BiomeMap, world.Biomes, config.WorldSize);
+        if (biomes == null)
+            throw new InvalidOperationException("The world biome map could not be read.");
 
-    private static float Sample(byte[] raw, int resolution, float cellSize, float maxHeight, float worldX, float worldZ)
-    {
-        int x = Mathf.Clamp(Mathf.RoundToInt(worldX / cellSize), 0, resolution - 1);
-        int y = Mathf.Clamp(Mathf.RoundToInt(worldZ / cellSize), 0, resolution - 1);
-        int index = (y * resolution + x) * 2;
+        byte[] raw = world.Heights;
+        int resolution = config.HeightMapResolution;
+        if (raw.LongLength != (long)resolution * resolution * sizeof(ushort))
+            throw new InvalidOperationException("The world height data does not match its resolution.");
 
-        if (index < 0 || index + 1 >= raw.Length)
-            return 0f;
+        float cell = config.WorldSize / (float)(resolution - 1);
+        float Sample(float x, float z)
+        {
+            float u = Mathf.Clamp(x / cell, 0f, resolution - 1.001f);
+            float v = Mathf.Clamp(z / cell, 0f, resolution - 1.001f);
+            int left = (int)u, bottom = (int)v;
+            float Read(int column, int row)
+            {
+                int index = (row * resolution + column) * 2;
+                return (raw[index] | raw[index + 1] << 8) * (config.MaxHeight / ushort.MaxValue);
+            }
 
-        int value = raw[index] | (raw[index + 1] << 8);
+            return Mathf.Lerp(Mathf.Lerp(Read(left, bottom), Read(left + 1, bottom), u - left),
+                Mathf.Lerp(Read(left, bottom + 1), Read(left + 1, bottom + 1), u - left), v - bottom);
+        }
 
-        return value / (float)ushort.MaxValue * maxHeight;
+        var roads = world.Roads == null ? null : new RoadProximity(world.Roads.Paved(), config.WorldSize, 64f);
+        return new GameplayLandmarkPlanner(config, world.Biomes, biomes, Sample, world.Water,
+            world.Placement?.Placements, roads).Plan(false).Spawn;
     }
 }

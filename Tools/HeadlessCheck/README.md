@@ -1,5 +1,15 @@
 # HeadlessCheck
 
+`dotnet run -c Release -- --gameplay` checks deterministic starts over 32 seeds, walkable starter POI, threat indexing, biome fallback, invalid-map rejection, cancellation, POI snapshots, world-file round trips, legacy files without gameplay data and placement/road fingerprint sensitivity. The file round trips use the offline JSON adapter; Unity serialization and rendering still need an in-editor check by the project owner.
+
+Gameplay planning first reserves a start against candidate lots, excludes unsuitable POI from its surroundings, and validates the final carved terrain and actual buildings before props are placed or the map is saved. New maps persist `gameplay.json`; older maps keep their existing fingerprints and use a deterministic terrain search when starting a new playthrough. Existing saved player positions take precedence. The building preview layer marks the start with a yellow cross and shades higher-tier POI darker.
+
+`dotnet run -c Release -- --start-audit` generates 24 worlds at 4096 m with the authored settings. It checks the approach the player faces, reachable harvestable wood within 100 m, and a single accessible starter supply crate after the placement file round trip. Use `--seeds 1337,106066` to select specific worlds or `--height-cell 2` for a faster sweep at coarser terrain resolution.
+
+`WorldGenerationConfig.Gameplay` controls the safe radius, starter distances, minimum starter POI count and maximum walking slope. Forest is preferred whenever the biome exists. Worlds explicitly without forest use their actual dry biome; worlds with settlement generation turned off do not require starter POI. Failed validation rejects generation instead of exporting an underwater or isolated start. The plan reserves safe-area and POI threat data; enemy spawning and item tables remain owned by gameplay and are not synthesized by map generation.
+
+The reference 8 km settlement mix requests one city, three towns, six country towns and four ghost towns. The authored config and C# defaults agree. Smaller/larger maps and the menu amount setting continue to scale these counts. The first suitable country-town site prefers forest; every site must still pass the original terrain, spacing and water checks.
+
 Compiles and runs the world generation layers without Unity.
 
 - `Stubs.cs` — Unity API stubs (UnityEngine, UnityEditor, NaughtyAttributes). `Mathf`, `Vector2` and `Vector3` follow Unity's own code; in the default mode their bodies are replaced by Unity's IL.
@@ -52,6 +62,7 @@ dotnet run -c Release -- --relief-only [--stamped]
 - A run that gets past the buildings prints `контрольные суммы земли`: checksums of the ground after settlements, streets, highways and pads, the road mask, fingerprints of the road and street polylines, the POI count and the water kinds. Run the previous build from a copy of `bin/` beside the new one: a speed-up that leaves the world alone must leave that line untouched.
 - `--settlements-only` stops after the buildings, skipping voxels and decor. `--raw-cache` saves the raw height map on the first run and reads it on the next ones; relief is nearly all of a run. The cache does not know which relief settings made it, so delete it after touching relief or the seed.
 - `--problem-dir <dir>` renders a zoom of the first problems of every violation kind and prints, per problem, the route record, the gateway description, the crossing segments, a curve trace, or a grade trace of every road near the point taken from the carver's own profiles (`TerrainCarver.Profiles`) in carve order.
+- `--variation-checks` generates biome maps and coarse relief from `WorldVariation`s and fails on biome shares off by more than 4% in any layout, a wrong centre biome, a non-deterministic world, plains as steep as mountains, or crater/rift/canyon counts short of the request.
 - `--pipeline-smoke` runs the real pipeline twice on a 512 m world and requires identical results, working cancellation and zero hard road violations.
 - `--road-topology` fails on a fingerprint mismatch between two runs of one seed, on any hard violation, on an implausible network, or on a medium world slower than 120 s. It writes `road_topology_small.png` and `road_topology_medium.png`; with `--problem-dir <dir>` a failing world lists its first problems of each kind, traces them and writes zooms named `<world>_<seed>_<kind>_<n>.png`.
 - `--preview-cost` loads `Generated/` and times what the editor preview does before decor: the LOD plan, `VoxelShorePlan` (with a fingerprint of the resulting columns, so a refactor can prove it plans the same world), meshing every chunk and clipping the asphalt surface per chunk, with the slowest chunk. `--shore-only` stops after the plan.

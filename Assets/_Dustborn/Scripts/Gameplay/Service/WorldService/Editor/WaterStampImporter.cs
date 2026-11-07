@@ -14,7 +14,6 @@ public static class WaterStampImporter
     private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
     private const string DATABASE_PROPERTY = "<Water>k__BackingField.<Stamps>k__BackingField.<Database>k__BackingField";
 
-    [MenuItem("Мир/Импорт штампов воды")]
     public static void Import()
     {
         try

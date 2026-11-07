@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public sealed class ConfirmDialogView : View<ConfirmDialogViewModel>
 {
     [SerializeField, Required] private TMP_Text _text;
+    [SerializeField, Required] private TMP_Text _confirmLabel;
     [SerializeField, Required] private Button _confirmButton;
     [SerializeField, Required] private Button _cancelButton;
 
@@ -14,6 +15,8 @@ public sealed class ConfirmDialogView : View<ConfirmDialogViewModel>
     {
         bindings.Add(viewModel.IsOpen.Subscribe(gameObject.SetActive));
         bindings.Add(viewModel.Text.Subscribe(text => _text.text = text));
+        bindings.Add(viewModel.CanCancel.Subscribe(_cancelButton.gameObject.SetActive));
+        bindings.Add(viewModel.ConfirmLabel.Subscribe(label => _confirmLabel.text = label));
         _confirmButton.BindCommand(viewModel.Confirm, bindings);
         _cancelButton.BindCommand(viewModel.Cancel, bindings);
     }

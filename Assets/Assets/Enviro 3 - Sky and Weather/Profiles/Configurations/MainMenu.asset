@@ -195,9 +195,9 @@ MonoBehaviour:
   active: 1
   Settings:
     volumetrics: 1
-    steps: 32
-    quality: 1
-    scattering: 0.2
+    steps: 64
+    quality: 2
+    scattering: 0.14
     scatteringMultiplier:
       serializedVersion: 2
       m_Curve:
@@ -222,8 +222,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    extinction: 0.009
-    anistropy: 0.5
+    extinction: 0.004
+    anistropy: 0.4
     maxRange: 800
     maxRangePointSpot: 60
     noiseIntensity: 0
@@ -236,26 +236,26 @@ MonoBehaviour:
     floatingPointOriginMod: {x: 0, y: 0, z: 0}
     globalFogHeight: 0
     fogDensity: 0.28
-    fogHeightFalloff: 0.018
-    fogHeight: 8
-    fogDensity2: 0.12
-    fogHeightFalloff2: 0.085
-    fogHeight2: 1
-    fogMaxOpacity: 0.78
-    startDistance: 25
+    fogHeightFalloff: 0.025
+    fogHeight: 10
+    fogDensity2: 0.28
+    fogHeightFalloff2: 0.18
+    fogHeight2: 2.5
+    fogMaxOpacity: 0.9
+    startDistance: 22
     fogColorBlend: 0.55
-    fogColorMod: {r: 0.94, g: 0.9, b: 0.86, a: 1}
+    fogColorMod: {r: 0.85, g: 0.92, b: 1, a: 1}
     blockScattering: 0
     ambientColorGradient:
       serializedVersion: 2
-      key0: {r: 0.08, g: 0.1, b: 0.14, a: 1}
-      key1: {r: 0.58, g: 0.64, b: 0.67, a: 1}
-      key2: {r: 0.58, g: 0.64, b: 0.67, a: 1}
-      key3: {r: 0.58, g: 0.64, b: 0.67, a: 1}
-      key4: {r: 0.58, g: 0.64, b: 0.67, a: 1}
-      key5: {r: 0.58, g: 0.64, b: 0.67, a: 1}
-      key6: {r: 0.58, g: 0.64, b: 0.67, a: 1}
-      key7: {r: 0.58, g: 0.64, b: 0.67, a: 1}
+      key0: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key1: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key2: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key3: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key4: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key5: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key6: {r: 0.16, g: 0.205, b: 0.27, a: 1}
+      key7: {r: 0.16, g: 0.205, b: 0.27, a: 1}
       ctime0: 0
       ctime1: 65535
       ctime2: 0
@@ -347,6 +347,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   customFogDensityModifer: 1
   fogMat: {fileID: 0}
   volumetricsMat: {fileID: 0}
@@ -387,7 +390,7 @@ MonoBehaviour:
     defaultSkyReflectionTex: {fileID: 0}
   preset: {fileID: 11400000, guid: da668770e38694d49af97ecfd05fd7eb, type: 2}
   showReflectionControls: 1
-  lastReflectionUpdate: 5.7750015
+  lastReflectionUpdate: 22.025
   lastReflectionUpdatePos: {x: 0, y: 0, z: 0}
 --- !u!114 &-2780709178333184838
 MonoBehaviour:
@@ -455,12 +458,12 @@ MonoBehaviour:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 1}
       key1: {r: 0, g: 0, b: 0, a: 1}
-      key2: {r: 0.18743324, g: 0.27322546, b: 0.49056602, a: 0}
-      key3: {r: 0, g: 0, b: 0, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key2: {r: 0, g: 0, b: 0, a: 1}
+      key3: {r: 0, g: 0, b: 0, a: 1}
+      key4: {r: 0, g: 0, b: 0, a: 1}
+      key5: {r: 0, g: 0, b: 0, a: 1}
+      key6: {r: 0, g: 0, b: 0, a: 1}
+      key7: {r: 0, g: 0, b: 0, a: 1}
       ctime0: 0
       ctime1: 32768
       ctime2: 65535
@@ -483,14 +486,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     frontColorGradient1:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.016509429, g: 0.021462252, b: 0.066037714, a: 1}
-      key2: {r: 0.11814703, g: 0.14878513, b: 0.4245283, a: 0}
-      key3: {r: 0.6226415, g: 0.32617846, b: 0.27901387, a: 0}
-      key4: {r: 0.50271446, g: 0.5662443, b: 0.745283, a: 0}
-      key5: {r: 1.2720131, g: 1.331453, b: 1.4562767, a: 0}
-      key6: {r: 1.2720131, g: 1.331453, b: 1.4562767, a: 0}
-      key7: {r: 1.2720131, g: 1.331453, b: 1.4562767, a: 0}
+      key0: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key1: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key2: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key3: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key4: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key5: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key6: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
+      key7: {r: 0.014828294, g: 0.019276775, b: 0.05931317, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 21781
@@ -513,14 +516,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     frontColorGradient2:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.0146404365, g: 0.019780159, b: 0.066037714, a: 1}
-      key2: {r: 0.12589, g: 0.15198022, b: 0.38679248, a: 0}
-      key3: {r: 0.6415094, g: 0.39747813, b: 0.26326096, a: 0}
-      key4: {r: 0.34282663, g: 0.4525284, b: 0.6792453, a: 0}
-      key5: {r: 0.4764151, g: 0.6458101, b: 1, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key1: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key2: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key3: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key4: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key5: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key6: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
+      key7: {r: 0.013149618, g: 0.017765969, b: 0.05931317, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 23130
@@ -543,14 +546,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     frontColorGradient3:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.010457456, g: 0.013281485, b: 0.047169805, a: 1}
-      key2: {r: 0.112896055, g: 0.14217246, b: 0.4056604, a: 0}
-      key3: {r: 0.3773585, g: 0.3652376, b: 0.35777858, a: 0}
-      key4: {r: 0.21560162, g: 0.36202627, b: 0.5377358, a: 0}
-      key5: {r: 0.15806337, g: 0.40404686, b: 0.9056604, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key1: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key2: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key3: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key4: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key5: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key6: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
+      key7: {r: 0.009392586, g: 0.011929047, b: 0.04236656, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 23323
@@ -573,14 +576,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     frontColorGradient4:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.008721959, g: 0.011945723, b: 0.03773582, a: 1}
-      key2: {r: 0.12896048, g: 0.15503518, b: 0.3962264, a: 0}
-      key3: {r: 0.16398183, g: 0.34142488, b: 0.5188679, a: 0}
-      key4: {r: 0.14276282, g: 0.29724503, b: 0.45172718, a: 0}
-      key5: {r: 0.12495552, g: 0.30849513, b: 0.6792453, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key1: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key2: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key3: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key4: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key5: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key6: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
+      key7: {r: 0.007833812, g: 0.0107293045, b: 0.033893228, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 22552
@@ -603,14 +606,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     frontColorGradient5:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.0060074786, g: 0.009723211, b: 0.028301895, a: 1}
-      key2: {r: 0.13349947, g: 0.15872619, b: 0.3773585, a: 0}
-      key3: {r: 0.06541474, g: 0.26604164, b: 0.6603774, a: 0}
-      key4: {r: 0.05502618, g: 0.22379138, b: 0.5555024, a: 0}
-      key5: {r: 0.055535786, g: 0.13623697, b: 0.3018868, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key1: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key2: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key3: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key4: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key5: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key6: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
+      key7: {r: 0.005395744, g: 0.008733108, b: 0.025419947, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 23516
@@ -635,12 +638,12 @@ MonoBehaviour:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 1}
       key1: {r: 0, g: 0, b: 0, a: 1}
-      key2: {r: 0.18743324, g: 0.27322546, b: 0.49056602, a: 0}
-      key3: {r: 0, g: 0, b: 0, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key2: {r: 0, g: 0, b: 0, a: 1}
+      key3: {r: 0, g: 0, b: 0, a: 1}
+      key4: {r: 0, g: 0, b: 0, a: 1}
+      key5: {r: 0, g: 0, b: 0, a: 1}
+      key6: {r: 0, g: 0, b: 0, a: 1}
+      key7: {r: 0, g: 0, b: 0, a: 1}
       ctime0: 0
       ctime1: 29491
       ctime2: 65535
@@ -663,14 +666,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     backColorGradient1:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.010946958, g: 0.015512637, b: 0.05660379, a: 1}
-      key2: {r: 0.08810965, g: 0.113260925, b: 0.33962262, a: 0}
-      key3: {r: 0.1439124, g: 0.24335337, b: 0.3962264, a: 0}
-      key4: {r: 0.14462443, g: 0.22903053, b: 0.4716981, a: 0}
-      key5: {r: 1.0093603, g: 1.120279, b: 1.3587542, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key1: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key2: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key3: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key4: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key5: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key6: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
+      key7: {r: 0.0098322425, g: 0.013933003, b: 0.050839894, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 22552
@@ -693,14 +696,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     backColorGradient2:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.017221436, g: 0.024346098, b: 0.084905684, a: 1}
-      key2: {r: 0.06977572, g: 0.092986815, b: 0.3018868, a: 0}
-      key3: {r: 0.14462443, g: 0.2701294, b: 0.4716981, a: 0}
-      key4: {r: 0.11814703, g: 0.235986, b: 0.4245283, a: 0}
-      key5: {r: 0.5594963, g: 0.67877066, b: 0.9339623, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key1: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key2: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key3: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key4: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key5: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key6: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
+      key7: {r: 0.015467797, g: 0.021866964, b: 0.07625984, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 22937
@@ -723,14 +726,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     backColorGradient3:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.016464932, g: 0.023881558, b: 0.09433961, a: 1}
-      key2: {r: 0.047436804, g: 0.06790358, b: 0.24528301, a: 0}
-      key3: {r: 0.12615699, g: 0.2354197, b: 0.4245283, a: 0}
-      key4: {r: 0.11881164, g: 0.21231776, b: 0.36504444, a: 0}
-      key5: {r: 0.10622107, g: 0.30720985, b: 0.7264151, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key1: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key2: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key3: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key4: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key5: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key6: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
+      key7: {r: 0.014788328, g: 0.021449728, b: 0.08473312, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 21203
@@ -753,14 +756,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     backColorGradient4:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.012148449, g: 0.015318409, b: 0.066037714, a: 1}
-      key2: {r: 0.052064795, g: 0.06886638, b: 0.24528301, a: 0}
-      key3: {r: 0.13510145, g: 0.23963216, b: 0.41509432, a: 0}
-      key4: {r: 0.12047333, g: 0.21410206, b: 0.37014997, a: 0}
-      key5: {r: 0.16838734, g: 0.38746652, b: 0.8301887, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key1: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key2: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key3: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key4: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key5: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key6: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
+      key7: {r: 0.010911386, g: 0.013758553, b: 0.05931317, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 22359
@@ -783,14 +786,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     backColorGradient5:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.009344964, g: 0.016615558, b: 0.05660379, a: 1}
-      key2: {r: 0.052064802, g: 0.073716745, b: 0.2830189, a: 0}
-      key3: {r: 0.13883945, g: 0.256586, b: 0.4528302, a: 0}
-      key4: {r: 0.10290611, g: 0.1901784, b: 0.3356322, a: 0}
-      key5: {r: 0.12322002, g: 0.30227578, b: 0.6698113, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key1: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key2: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key3: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key4: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key5: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key6: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
+      key7: {r: 0.008393377, g: 0.014923615, b: 0.050839894, a: 1}
       ctime0: 0
       ctime1: 9830
       ctime2: 24479
@@ -843,14 +846,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     moonColorGradient:
       serializedVersion: 2
-      key0: {r: 4.237095, g: 4.237095, b: 4.237095, a: 1}
-      key1: {r: 4.237095, g: 4.237095, b: 4.237095, a: 1}
-      key2: {r: 0, g: 0, b: 0, a: 0}
-      key3: {r: 9.082411, g: 9.082411, b: 9.082411, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key1: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key2: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key3: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key4: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key5: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key6: {r: 1.35, g: 1.5, b: 1.8, a: 1}
+      key7: {r: 1.35, g: 1.5, b: 1.8, a: 1}
       ctime0: 0
       ctime1: 36147
       ctime2: 37478
@@ -1094,10 +1097,10 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    intensity: 0.9
-    sunScale: 3.5
-    moonScale: 7
-    mieScatteringMultiplier: 0.9
+    intensity: 0.85
+    sunScale: 2.2
+    moonScale: 6.5
+    mieScatteringMultiplier: 0.35
     starsTwinklingSpeed: 0.25
     moonPhase: 0
     skyExposureHDRP:
@@ -1124,7 +1127,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    skyColorTint: {r: 0.9, g: 0.95, b: 1, a: 1}
+    skyColorTint: {r: 0.75, g: 0.84, b: 1, a: 1}
     skyColorExponent: 1.05
   preset: {fileID: 11400000, guid: 44f43418b8d8b8142863e38d1e49e174, type: 2}
   showSkyControls: 0
@@ -2016,7 +2019,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    temperature: 7.40471
+    temperature: 5.359067
     temperatureWeatherMod: 0
     temperatureCustomMod: 0
     temperatureChangingSpeed: 0.1
@@ -2100,8 +2103,8 @@ MonoBehaviour:
     fogQualityMode: 0
     volumetrics: 1
     unityFog: 0
-    quality: 1
-    steps: 32
+    quality: 2
+    steps: 64
   flatCloudsOverride:
     cirrusClouds: 1
     flatClouds: 0
@@ -2186,7 +2189,7 @@ MonoBehaviour:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
+        value: 0.54
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2195,7 +2198,7 @@ MonoBehaviour:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.42
-        value: 0
+        value: 0.54
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2204,16 +2207,16 @@ MonoBehaviour:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.61047
-        value: 0.46311775
-        inSlope: 0.20075521
-        outSlope: 0.20075521
+        value: 0.54
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.9869074
-        value: 0.49453083
+        value: 0.54
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2255,14 +2258,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     moonColorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.009433985, g: 0.009433985, b: 0.009433985, a: 1}
-      key2: {r: 0.35844606, g: 0.38487896, b: 0.4245283, a: 0}
-      key3: {r: 0.45990568, g: 0.5011793, b: 0.6132076, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key1: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key2: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key3: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key4: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key5: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key6: {r: 0.72, g: 0.82, b: 1, a: 1}
+      key7: {r: 0.72, g: 0.82, b: 1, a: 1}
       ctime0: 0
       ctime1: 29491
       ctime2: 33539
@@ -2541,19 +2544,19 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    directLightIntensityModifier: 0.95
+    directLightIntensityModifier: 0.85
     setAmbientLighting: 1
-    ambientMode: 0
+    ambientMode: 1
     ambientSkyColorGradient:
       serializedVersion: 2
-      key0: {r: 0.04, g: 0.055, b: 0.08, a: 1}
-      key1: {r: 0.55, g: 0.61, b: 0.66, a: 1}
-      key2: {r: 0.55, g: 0.61, b: 0.66, a: 1}
-      key3: {r: 0.55, g: 0.61, b: 0.66, a: 1}
-      key4: {r: 0.55, g: 0.61, b: 0.66, a: 1}
-      key5: {r: 0.55, g: 0.61, b: 0.66, a: 1}
-      key6: {r: 0.55, g: 0.61, b: 0.66, a: 1}
-      key7: {r: 0.55, g: 0.61, b: 0.66, a: 1}
+      key0: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key1: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key2: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key3: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key4: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key5: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key6: {r: 0.12, g: 0.155, b: 0.21, a: 1}
+      key7: {r: 0.12, g: 0.155, b: 0.21, a: 1}
       ctime0: 0
       ctime1: 65535
       ctime2: 0
@@ -2576,14 +2579,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     ambientEquatorColorGradient:
       serializedVersion: 2
-      key0: {r: 0.025, g: 0.03, b: 0.04, a: 1}
-      key1: {r: 0.44, g: 0.43, b: 0.4, a: 1}
-      key2: {r: 0.44, g: 0.43, b: 0.4, a: 1}
-      key3: {r: 0.44, g: 0.43, b: 0.4, a: 1}
-      key4: {r: 0.44, g: 0.43, b: 0.4, a: 1}
-      key5: {r: 0.44, g: 0.43, b: 0.4, a: 1}
-      key6: {r: 0.44, g: 0.43, b: 0.4, a: 1}
-      key7: {r: 0.44, g: 0.43, b: 0.4, a: 1}
+      key0: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key1: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key2: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key3: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key4: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key5: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key6: {r: 0.075, g: 0.1, b: 0.145, a: 1}
+      key7: {r: 0.075, g: 0.1, b: 0.145, a: 1}
       ctime0: 0
       ctime1: 65535
       ctime2: 0
@@ -2606,14 +2609,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     ambientGroundColorGradient:
       serializedVersion: 2
-      key0: {r: 0.015, g: 0.017, b: 0.02, a: 1}
-      key1: {r: 0.24, g: 0.22, b: 0.19, a: 1}
-      key2: {r: 0.24, g: 0.22, b: 0.19, a: 1}
-      key3: {r: 0.24, g: 0.22, b: 0.19, a: 1}
-      key4: {r: 0.24, g: 0.22, b: 0.19, a: 1}
-      key5: {r: 0.24, g: 0.22, b: 0.19, a: 1}
-      key6: {r: 0.24, g: 0.22, b: 0.19, a: 1}
-      key7: {r: 0.24, g: 0.22, b: 0.19, a: 1}
+      key0: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key1: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key2: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key3: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key4: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key5: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key6: {r: 0.035, g: 0.045, b: 0.065, a: 1}
+      key7: {r: 0.035, g: 0.045, b: 0.065, a: 1}
       ctime0: 0
       ctime1: 65535
       ctime2: 0
@@ -2658,10 +2661,10 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    ambientIntensityModifier: 1.9
-    ambientUpdateEveryFrame: 0
+    ambientIntensityModifier: 0.9
+    ambientUpdateEveryFrame: 1
     ambientUpdateIntervall: 0.5
-    shadowIntensity: 0.65
+    shadowIntensity: 0.78
   preset: {fileID: 11400000, guid: 81d8b109102443243bcb0894975c0718, type: 2}
   showDirectLightingControls: 0
   showAmbientLightingControls: 0
@@ -4006,12 +4009,12 @@ MonoBehaviour:
   Settings:
     simulate: 0
     secSerial: 0
-    minSerial: 45
-    hourSerial: 5
+    minSerial: 0
+    hourSerial: 22
     daySerial: 1
     monthSerial: 4
     yearSerial: 2026
-    timeOfDay: 5.7500014
+    timeOfDay: 22
     latitude: 0
     longitude: 0
     utcOffset: 0
@@ -4021,8 +4024,8 @@ MonoBehaviour:
     calenderType: 1
     daysInMonth: 10
     monthsInYear: 4
-    customSunOffset: -6.15
-    customSunRotation: 182.392
+    customSunOffset: -9.066667
+    customSunRotation: 198
   preset: {fileID: 11400000, guid: 82acdd278499d74498ad37dd931734d1, type: 2}
   showTimeControls: 1
   showLocationControls: 0
@@ -4485,9 +4488,9 @@ MonoBehaviour:
   preset: {fileID: 11400000, guid: 0fcdd472bd6a8ec429fc1e9bc978c4fa, type: 2}
   showCirrusCloudsControls: 0
   show2DCloudsControls: 0
-  cloudFlatBaseAnim: {x: 0.41803184, y: -0.31646085}
-  cloudFlatDetailAnim: {x: 0.09408515, y: 0.41503543}
-  cirrusAnim: {x: 0.0840813, y: -0.19396213}
+  cloudFlatBaseAnim: {x: -0.53697497, y: -0.017891191}
+  cloudFlatDetailAnim: {x: -0.68129236, y: -0.09212553}
+  cirrusAnim: {x: 0.24083322, y: -0.14917506}
 --- !u!114 &6137975383063632260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5230,9 +5233,9 @@ MonoBehaviour:
     lightStepModifier: 0.011
     multiScatterStrength: 0.541
     multiScatterFalloff: 0.201
-    ambientFloor: 0.22
+    ambientFloor: 0.1
     absorbtion: 0.61
-    exposure: 0.6
+    exposure: 0.45
     baseNoiseUV: 48
     detailNoiseUV: 24
     baseNoiseUVMultiplier: 0.89
@@ -5282,14 +5285,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     moonLightColorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.009433985, g: 0.009433985, b: 0.009433985, a: 1}
-      key2: {r: 0.19063722, g: 0.21091683, b: 0.26415092, a: 0}
-      key3: {r: 0.066082254, g: 0.07146038, b: 0.084905684, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key1: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key2: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key3: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key4: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key5: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key6: {r: 0.16, g: 0.23, b: 0.38, a: 1}
+      key7: {r: 0.16, g: 0.23, b: 0.38, a: 1}
       ctime0: 0
       ctime1: 27563
       ctime2: 65342
@@ -5312,14 +5315,14 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     ambientColorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 0, b: 0, a: 1}
-      key1: {r: 0.009433985, g: 0.009433985, b: 0.009433985, a: 1}
-      key2: {r: 0.13576896, g: 0.1632185, b: 0.254717, a: 0}
-      key3: {r: 0.1759968, g: 0.23233613, b: 0.3301887, a: 0}
-      key4: {r: 0.3798505, g: 0.49595332, b: 0.8301887, a: 0}
-      key5: {r: 0.40258992, g: 0.50222605, b: 0.7830189, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key1: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key2: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key3: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key4: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key5: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key6: {r: 0.065, g: 0.09, b: 0.14, a: 1}
+      key7: {r: 0.065, g: 0.09, b: 0.14, a: 1}
       ctime0: 0
       ctime1: 28142
       ctime2: 32382
@@ -5354,7 +5357,7 @@ MonoBehaviour:
     cloudsWorldScale: 5000000
     maxRenderDistance: 70000
     atmosphereColorSaturateDistance: 25000
-    ambientLighIntensity: 0.9
+    ambientLighIntensity: 0.6
     cloudShadows: 0
     cloudShadowsIntensity: 1
     cloudsTravelSpeed: 0.005
@@ -5376,8 +5379,8 @@ MonoBehaviour:
   showDensityControls: 0
   showTextureControls: 0
   showWindControls: 0
-  cloudAnimLayer1: {x: 0.84483945, y: 0.058094908, z: -0.08047819}
+  cloudAnimLayer1: {x: 0.41232747, y: 0.50595546, z: 0.45577753}
   cloudAnimLayer2: {x: 0, y: 0, z: 0}
-  cloudAnimNonScaledLayer1: {x: -0.15545605, y: 0.30403045, z: -5.4929433}
+  cloudAnimNonScaledLayer1: {x: -0.14922121, y: 0.306129, z: -5.640042}
   cloudAnimNonScaledLayer2: {x: 0, y: 0, z: 0}
   weatherMap: {fileID: 0}

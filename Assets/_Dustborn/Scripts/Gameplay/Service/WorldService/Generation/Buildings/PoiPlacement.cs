@@ -10,6 +10,10 @@ public class PoiPlacement
     [field: SerializeField] public Vector2 Footprint { get; private set; }
     [field: SerializeField] public DistrictType District { get; private set; }
     [field: SerializeField] public Vector2 PivotOffset { get; private set; }
+    [SerializeField] private PoiGameplay _gameplay = new();
+    [field: SerializeField] public int ContentSeed { get; private set; }
+
+    public PoiGameplay Gameplay => _gameplay ??= new PoiGameplay();
 
     public PoiPlacement(GameObject prefab, Vector2 position, float rotation, Vector2 footprint, DistrictType district, Vector2 pivotOffset)
     {
@@ -38,5 +42,11 @@ public class PoiPlacement
     public void SetHeight(float height)
     {
         Position = new Vector3(Position.x, height, Position.z);
+    }
+
+    public void SetGameplay(PoiGameplay gameplay, int contentSeed)
+    {
+        _gameplay = gameplay?.Clone() ?? new PoiGameplay();
+        ContentSeed = contentSeed;
     }
 }

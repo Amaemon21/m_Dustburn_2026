@@ -13,9 +13,11 @@ public sealed class WorldMapResult
     public WaterMap Water { get; }
     public List<TerrainStampPlacement> Stamps { get; }
     public List<PropPlacement> Props { get; }
+    public WorldGameplayPlan Gameplay { get; }
 
     public WorldMapResult(BiomeMap biomes, HeightMap heights, RoadNetwork roads, float[] roadMask, List<PoiPlacement> placements,
-        List<SettlementLayout> settlements, WaterMap water, List<TerrainStampPlacement> stamps, List<PropPlacement> props)
+        List<SettlementLayout> settlements, WaterMap water, List<TerrainStampPlacement> stamps, List<PropPlacement> props,
+        WorldGameplayPlan gameplay = null)
     {
         Biomes = biomes;
         Heights = heights;
@@ -26,6 +28,7 @@ public sealed class WorldMapResult
         Water = water;
         Stamps = stamps;
         Props = props ?? new List<PropPlacement>();
+        Gameplay = gameplay;
     }
 }
 
@@ -45,7 +48,7 @@ public readonly struct WorldMapStep
 
 public sealed class WorldMapPipeline
 {
-    private const string DONE = "Карты готовы";
+    private const string DONE = "\u041A\u0430\u0440\u0442\u044B \u0433\u043E\u0442\u043E\u0432\u044B";
     private const float DONE_PROGRESS = 0.53f;
     private const int SETTLE_ROUNDS = 4;
 
@@ -71,6 +74,9 @@ public sealed class WorldMapPipeline
         public List<PoiPlacement> Placements;
         public PropDatabase PropSet;
         public List<PropPlacement> Props;
+        public WorldGameplayPlan Gameplay;
+        public CancellationToken Token;
+        public UnityEngine.Vector2? Start;
     }
 
     private readonly struct Stage
@@ -89,16 +95,19 @@ public sealed class WorldMapPipeline
 
     private static readonly Stage[] Stages =
     {
-        new("Карта биомов", 0.02f, Biomes),
-        new("Рельеф, штампы и эрозия", 0.08f, Relief),
-        new("Реки и озёра", 0.26f, Water),
-        new("Поселения и кварталы", 0.32f, Settlements),
-        new("Дороги между поселениями", 0.38f, Highways),
-        new("Врезка дорог и улиц", 0.42f, CarveRoads),
-        new("Участки и здания", 0.47f, Buildings),
-        new("Согласование воды с рельефом", 0.5f, ReconcileWater),
-        new("Машины, хлам и тайники", 0.52f, Props)
+        new("\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u043A\u0430\u0440\u0442\u044B \u0431\u0438\u043E\u043C\u043E\u0432", 0.02f, Biomes),
+        new("\u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0440\u0435\u043B\u044C\u0435\u0444\u0430", 0.08f, Relief),
+        new("\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0440\u0435\u043A \u0438 \u043E\u0437\u0451\u0440", 0.26f, Water),
+        new("\u041F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u043A\u0430 \u043F\u043E\u0441\u0435\u043B\u0435\u043D\u0438\u0439", 0.32f, Settlements),
+        new("\u041F\u0440\u043E\u043A\u043B\u0430\u0434\u043A\u0430 \u043C\u0430\u0433\u0438\u0441\u0442\u0440\u0430\u043B\u0435\u0439", 0.38f, Highways),
+        new("\u0412\u044B\u0440\u0430\u0432\u043D\u0438\u0432\u0430\u043D\u0438\u0435 \u0434\u043E\u0440\u043E\u0433 \u0438 \u0443\u043B\u0438\u0446", 0.42f, CarveRoads),
+        new("\u0420\u0430\u0437\u043C\u0435\u0449\u0435\u043D\u0438\u0435 \u0437\u0434\u0430\u043D\u0438\u0439", 0.47f, Buildings),
+        new("\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 \u0443\u0440\u043E\u0432\u043D\u044F \u0432\u043E\u0434\u044B", 0.5f, ReconcileWater),
+        new("\u041F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u0441\u0442\u0430\u0440\u0442\u043E\u0432\u043E\u0439 \u0437\u043E\u043D\u044B", 0.515f, Gameplay),
+        new("\u0420\u0430\u0437\u043C\u0435\u0449\u0435\u043D\u0438\u0435 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432", 0.52f, Props)
     };
+
+    public static IReadOnlyList<string> StageTitles { get; } = Array.ConvertAll(Stages, stage => stage.Title);
 
     public WorldMapPipeline(WorldGenerationConfig config, BiomeDatabase biomes, PoiDatabase pois, PropDatabase props = null)
     {
@@ -110,7 +119,7 @@ public sealed class WorldMapPipeline
 
     public WorldMapResult Generate(Action<string, float> progress = null, CancellationToken cancellationToken = default, HeightMap relief = null)
     {
-        foreach (WorldMapStep step in Steps(relief))
+        foreach (WorldMapStep step in Steps(relief, cancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             progress?.Invoke(step.Title, step.Progress);
@@ -123,21 +132,23 @@ public sealed class WorldMapPipeline
         throw new InvalidOperationException("The map pipeline ended without a result");
     }
 
-    public IEnumerable<WorldMapStep> Steps(HeightMap relief = null)
+    public IEnumerable<WorldMapStep> Steps(HeightMap relief = null, CancellationToken cancellationToken = default)
     {
         long total = WorldGenProbe.Now;
-        var context = new Context { Config = _config, BiomeSet = _biomes, Pois = _pois, PropSet = _props, Heights = relief };
+        var context = new Context { Config = _config, BiomeSet = _biomes, Pois = _pois, PropSet = _props, Heights = relief, Token = cancellationToken };
 
         foreach (Stage stage in Stages)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return new WorldMapStep(stage.Title, stage.Progress, null);
+            cancellationToken.ThrowIfCancellationRequested();
             stage.Run(context);
         }
 
         WorldGenProbe.Record(WorldGenStage.MapTotal, total, WorldGenProbe.Now, context.Placements.Count);
 
         yield return new WorldMapStep(DONE, DONE_PROGRESS, new WorldMapResult(context.Biomes, context.Heights, context.Roads,
-            context.RoadMask, context.Placements, context.Settlements, context.Water, context.Relief.Stamps, context.Props));
+            context.RoadMask, context.Placements, context.Settlements, context.Water, context.Relief.Stamps, context.Props, context.Gameplay));
     }
 
     private static void Biomes(Context context)
@@ -168,7 +179,7 @@ public sealed class WorldMapPipeline
         RoadNetwork roads = context.Roads = new RoadNetwork();
 
         using (WorldGenProbe.Measure(WorldGenStage.MapHubs))
-            roads.Hubs.AddRange(new HubPlacer(config, context.Heights, context.Water).Place());
+            roads.Hubs.AddRange(new HubPlacer(config, context.Heights, context.Water, context.BiomeSet, context.Biomes).Place());
 
         using (WorldGenProbe.Measure(WorldGenStage.MapRegionalPlan))
             roads.SetPlan(new RegionalGraphPlanner(config, context.Heights, context.Water).Plan(roads.Hubs));
@@ -225,7 +236,14 @@ public sealed class WorldMapPipeline
         using (WorldGenProbe.Measure(WorldGenStage.MapLots))
             context.Planner.CutLots(context.Settlements, proximity);
 
-        var placer = new PoiPlacer(config, context.Pois, context.Heights, context.Water, proximity);
+        if (config.Gameplay?.Enabled == true)
+        {
+            using WorldGenProbe.Span reservation = WorldGenProbe.Measure(WorldGenStage.MapStartReservation);
+            context.Start = GameplayLandmarkPlanner.Reserve(config, context.BiomeSet, context.Biomes, context.Heights,
+                context.Water, context.Settlements, context.Pois, proximity, context.Token);
+        }
+
+        var placer = new PoiPlacer(config, context.Pois, context.Heights, context.Water, proximity, context.BiomeSet, context.Biomes, context.Start);
 
         using (WorldGenProbe.Measure(WorldGenStage.MapPoiPlace))
             context.Placements = placer.Place(context.Settlements, context.Roads);
@@ -264,7 +282,19 @@ public sealed class WorldMapPipeline
 
         using (WorldGenProbe.Measure(WorldGenStage.MapProps))
             context.Props = new PropPlacer(context.Config, context.PropSet, context.BiomeSet, context.Biomes, context.Heights,
-                context.Water, context.Roads, context.Placements).Place();
+                context.Water, context.Roads, context.Placements, context.Gameplay == null ? null : new UnityEngine.Vector2(context.Gameplay.Spawn.x, context.Gameplay.Spawn.z))
+                .Place(context.Gameplay, context.Token);
+    }
+
+    private static void Gameplay(Context context)
+    {
+        if (context.Config.Gameplay == null || !context.Config.Gameplay.Enabled)
+            return;
+
+        using WorldGenProbe.Span gameplay = WorldGenProbe.Measure(WorldGenStage.MapGameplay);
+        var roads = new RoadProximity(context.Roads.Paved(), context.Config.WorldSize, 64f);
+        context.Gameplay = new GameplayLandmarkPlanner(context.Config, context.BiomeSet, context.Biomes,
+            context.Heights.SampleWorldSmooth, context.Water, context.Placements, roads).Plan(cancellationToken: context.Token, preferred: context.Start);
     }
 
     private static List<Road> Combined(IEnumerable<Road> first, IEnumerable<Road> second)

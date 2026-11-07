@@ -2,7 +2,9 @@
     "name": "Dustborn.Utils",
     "rootNamespace": "",
     "references": [
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "NaughtyAttributes.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -5,7 +5,7 @@ using UnityEditor.Formats.Fbx.Exporter;
 
 public static class MeshToFbxExporter
 {
-    [MenuItem("Tools/Mesh to FBX/Export Selected Mesh")]
+    [MenuItem("Assets/Export Mesh to FBX")]
     private static void ExportSelectedMesh()
     {
         Object[] selected = Selection.objects;
@@ -115,7 +115,7 @@ public static class MeshToFbxExporter
         }
     }
 
-    [MenuItem("Tools/Mesh to FBX/Export Selected Mesh", true)]
+    [MenuItem("Assets/Export Mesh to FBX", true)]
     private static bool ValidateExportSelectedMesh()
     {
         foreach (Object obj in Selection.objects)

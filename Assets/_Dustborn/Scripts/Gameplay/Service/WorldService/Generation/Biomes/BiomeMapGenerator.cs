@@ -41,7 +41,7 @@ public class BiomeMapGenerator
         var map = new BiomeMap(_config.BiomeMapResolution, _config.WorldSize);
 
         using (WorldGenProbe.Measure(WorldGenStage.MapBiomeClassify))
-            Classify(map);
+            ClassifyLayout(map);
 
         byte[] buffer = new byte[map.Cells.Length];
 
@@ -104,6 +104,26 @@ public class BiomeMapGenerator
                 Biome = (byte)biome
             };
         }
+    }
+
+    private void ClassifyLayout(BiomeMap map)
+    {
+        if (!_config.HasBiomeShares)
+        {
+            Classify(map);
+            return;
+        }
+
+        var layout = new BiomeShareLayout(_config, _biomes, _warpOffset);
+
+        if (_config.BiomeLayout != BiomeLayout.Random)
+        {
+            layout.Classify(map);
+            return;
+        }
+
+        _seeds = layout.Fit(_seeds);
+        Classify(map);
     }
 
     private void Classify(BiomeMap map)

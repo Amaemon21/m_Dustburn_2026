@@ -4,7 +4,7 @@ using UnityEngine;
 
 public partial class MeshCombiner
 {
-    private static readonly string[] TintProperties = { "_BaseColor", "_Color_Tint", "_Color" };
+    private static readonly string[] TintProperties = { "_Leaf_Base_Color", "_BaseColor", "_Color_Tint", "_Color" };
     private static readonly HashSet<Material> Untinted = new();
 
     private readonly Dictionary<(Material, int), Material> _variants = new();
@@ -44,6 +44,9 @@ public partial class MeshCombiner
         string property = TintProperty(source);
         Material variant = property == null ? source : Tinted(source, property, _tint.Stepped(level), level);
 
+        if (variant != source)
+            FoliageSnow.Apply(source, variant, _tint.Snow(level));
+
         _variants[(source, level)] = variant;
 
         return variant;
@@ -61,6 +64,12 @@ public partial class MeshCombiner
         };
 
         variant.SetColor(property, new Color(current.r * tint.r, current.g * tint.g, current.b * tint.b, current.a));
+
+        if (property == "_Leaf_Base_Color" && source.HasProperty("_Trunk_Base_Color"))
+        {
+            Color trunk = source.GetColor("_Trunk_Base_Color");
+            variant.SetColor("_Trunk_Base_Color", new Color(trunk.r * tint.r, trunk.g * tint.g, trunk.b * tint.b, trunk.a));
+        }
 
         return variant;
     }

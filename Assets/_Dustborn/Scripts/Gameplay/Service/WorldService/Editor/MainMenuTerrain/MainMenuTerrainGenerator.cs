@@ -155,6 +155,10 @@ public static class MainMenuTerrainGenerator
         terrain.detailObjectDensity = 1f;
         terrain.ignoreQualitySettings = true;
         terrain.drawTreesAndFoliage = true;
+        terrain.treeDistance = 900f;
+        terrain.treeBillboardDistance = 650f;
+        terrain.treeCrossFadeLength = 60f;
+        terrain.treeMaximumFullLODCount = 4096;
         terrain.shadowCastingMode = ShadowCastingMode.On;
         terrain.reflectionProbeUsage = ReflectionProbeUsage.BlendProbes;
         terrain.allowAutoConnect = false;

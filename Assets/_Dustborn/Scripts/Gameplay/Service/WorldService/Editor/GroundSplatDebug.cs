@@ -13,7 +13,6 @@ public static class GroundSplatDebug
     private const int WINDOW = 512;
     private const float SLOPE_SCALE = 60f;
 
-    [MenuItem("Мир/Отладка раскраски земли")]
     public static void Dump()
     {
         WorldBuildSettings settings = AssetDatabase.LoadAssetAtPath<WorldBuildSettings>(SETTINGS_PATH);

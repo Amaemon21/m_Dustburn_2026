@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public static class WorldPreviewPainter
 {
     public const int RESOLUTION = 1024;
+    public const float DEEP_WATER = 12f;
 
     private const float RELIEF_EXAGGERATION = 2.5f;
     private const float SHADE_BASE = 0.62f;
@@ -12,66 +14,71 @@ public static class WorldPreviewPainter
     private const float SHADE_MAX = 1.2f;
     private const float ALTITUDE_BASE = 0.85f;
     private const float ALTITUDE_RANGE = 0.3f;
-    private const float DEEP_WATER = 12f;
-    private const float WATER_DEPTH_DARKENING = 0.45f;
     private const float HIGHWAY_MIN_PIXELS = 2f;
     private const float STREET_MIN_PIXELS = 1f;
     private const float LINE_STEP = 0.5f;
     private const float LIGHT_X = -1f;
     private const float LIGHT_Y = 1.4f;
     private const float LIGHT_Z = 1f;
-    private static readonly Color32 SEA = new(26, 62, 108, 255);
-    private static readonly Color32 LAKE = new(38, 92, 146, 255);
-    private static readonly Color32 RIVER = new(48, 112, 166, 255);
-    private static readonly Color32 HIGHWAY = new(46, 46, 48, 255);
-    private static readonly Color32 STREET = new(78, 78, 82, 255);
-    private static readonly Color32 DIRT = new(122, 92, 58, 255);
-    private static readonly Color32 BUILDING = new(150, 60, 44, 255);
 
     public static Color32[] Paint(BiomeDatabase biomes, BiomeMap biomeMap, HeightMap heights, WaterMap water,
         IReadOnlyList<Road> roads, IReadOnlyList<PoiPlacement> buildings, int resolution = RESOLUTION)
     {
-        var pixels = new Color32[resolution * resolution];
-        float metres = heights.WorldSize / (float)resolution;
-
-        for (int y = 0; y < resolution; y++)
-        {
-            for (int x = 0; x < resolution; x++)
-                pixels[y * resolution + x] = Ground(biomes, biomeMap, heights, water, (x + 0.5f) * metres, (y + 0.5f) * metres, metres);
-        }
-
-        if (roads != null)
-        {
-            foreach (Road road in roads)
-                DrawRoad(pixels, resolution, metres, road);
-        }
-
-        if (buildings != null)
-        {
-            foreach (PoiPlacement building in buildings)
-                DrawBuilding(pixels, resolution, metres, building);
-        }
-
-        return pixels;
+        WorldPreviewSource source = WorldPreviewSource.Capture(biomes, biomeMap, heights, water, roads, buildings);
+        return Layers(source, resolution).Compose(WorldPreviewLayer.All);
     }
 
-    private static Color32 Ground(BiomeDatabase biomes, BiomeMap biomeMap, HeightMap heights, WaterMap water, float x, float z, float step)
+    public static WorldPreviewLayers Layers(WorldPreviewSource source, int resolution)
     {
+        var layers = new WorldPreviewLayers(resolution, source.BiomeColors);
+        float metres = source.WorldSize / (float)resolution;
+
+        Parallel.For(0, resolution, y =>
+        {
+            for (int x = 0; x < resolution; x++)
+                Ground(source, layers, y * resolution + x, (x + 0.5f) * metres, (y + 0.5f) * metres, metres);
+        });
+
+        foreach (WorldPreviewSettlement settlement in source.Settlements)
+        {
+            byte value = (byte)((int)settlement.Type + 1);
+
+            foreach (Vector2[] tile in settlement.Tiles)
+                FillPolygon(layers.Settlement, resolution, metres, tile, value);
+        }
+
+        foreach (Road road in source.Roads)
+            DrawRoad(layers.Road, resolution, metres, road);
+
+        foreach (PoiPlacement building in source.Buildings)
+            DrawBuilding(layers.Building, resolution, metres, building);
+
+        if (source.Gameplay?.HasSpawn == true)
+            layers.Start = new Vector2(source.Gameplay.Spawn.x, source.Gameplay.Spawn.z) / source.WorldSize;
+
+        return layers;
+    }
+
+    private static void Ground(WorldPreviewSource source, WorldPreviewLayers layers, int index, float x, float z, float step)
+    {
+        HeightMap heights = source.Heights;
         float ground = heights.SampleWorldSmooth(x, z);
-        WaterKind kind = water == null ? WaterKind.None : water.KindAt(x, z, ground);
 
-        if (kind != WaterKind.None)
-            return Water(kind, water.SurfaceHeight(x, z) - ground);
-
-        byte biome = biomeMap.SampleWorld(new Vector3(x, 0f, z));
-        Color32 colour = biomes.Get(biome).MapColor;
+        layers.Biome[index] = (byte)source.BiomeAt(x, z);
 
         float dx = (heights.SampleWorldSmooth(x + step, z) - heights.SampleWorldSmooth(x - step, z)) / (2f * step);
         float dz = (heights.SampleWorldSmooth(x, z + step) - heights.SampleWorldSmooth(x, z - step)) / (2f * step);
         float shade = Mathf.Clamp(SHADE_BASE + SHADE_RANGE * Lighting(dx * RELIEF_EXAGGERATION, dz * RELIEF_EXAGGERATION), SHADE_MIN, SHADE_MAX);
         shade *= ALTITUDE_BASE + ALTITUDE_RANGE * ground / heights.MaxHeight;
+        layers.Shade[index] = (byte)Mathf.Clamp(Mathf.RoundToInt(shade * WorldPreviewLayers.SHADE_SCALE), 0, 255);
 
-        return Scale(colour, shade);
+        byte kind = source.WaterKindAt(x, z);
+        if (kind == 0)
+            return;
+
+        layers.Water[index] = kind;
+        float depth = source.WaterSurfaceAt(x, z) - ground;
+        layers.WaterDepth[index] = (byte)Mathf.Clamp(Mathf.RoundToInt(depth * WorldPreviewLayers.DEPTH_SCALE), 0, 255);
     }
 
     private static float Lighting(float slopeX, float slopeZ)
@@ -81,29 +88,16 @@ public static class WorldPreviewPainter
         return (-slopeX * LIGHT_X + LIGHT_Y - slopeZ * LIGHT_Z) / (normal * light);
     }
 
-    private static Color32 Water(WaterKind kind, float depth)
-    {
-        Color32 colour = kind switch
-        {
-            WaterKind.Sea => SEA,
-            WaterKind.River => RIVER,
-            _ => LAKE
-        };
-
-        float darkening = 1f - WATER_DEPTH_DARKENING * Mathf.Clamp01(depth / DEEP_WATER);
-        return Scale(colour, darkening);
-    }
-
-    private static void DrawRoad(Color32[] pixels, int resolution, float metres, Road road)
+    private static void DrawRoad(byte[] layer, int resolution, float metres, Road road)
     {
         if (road?.Points == null || road.Points.Length < 2)
             return;
 
-        Color32 colour = road.Kind switch
+        byte value = road.Kind switch
         {
-            RoadKind.Highway => HIGHWAY,
-            RoadKind.DirtAccess => DIRT,
-            _ => STREET
+            RoadKind.Highway => WorldPreviewLayers.ROAD_HIGHWAY,
+            RoadKind.DirtAccess => WorldPreviewLayers.ROAD_DIRT,
+            _ => WorldPreviewLayers.ROAD_STREET
         };
 
         float minimum = road.Kind == RoadKind.Highway ? HIGHWAY_MIN_PIXELS : STREET_MIN_PIXELS;
@@ -116,11 +110,11 @@ public static class WorldPreviewPainter
             int steps = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(from, to) / LINE_STEP));
 
             for (int s = 0; s <= steps; s++)
-                Disc(pixels, resolution, Vector2.Lerp(from, to, s / (float)steps), radius, colour);
+                Disc(layer, resolution, Vector2.Lerp(from, to, s / (float)steps), radius, value);
         }
     }
 
-    private static void DrawBuilding(Color32[] pixels, int resolution, float metres, PoiPlacement building)
+    private static void DrawBuilding(byte[] layer, int resolution, float metres, PoiPlacement building)
     {
         Vector2 centre = building.Ground / metres;
         Vector2 half = building.Footprint * (0.5f / metres);
@@ -144,12 +138,56 @@ public static class WorldPreviewPainter
                 float v = px * sin + py * cos;
 
                 if (Mathf.Abs(u) <= Mathf.Max(0.5f, half.x) && Mathf.Abs(v) <= Mathf.Max(0.5f, half.y))
-                    pixels[y * resolution + x] = BUILDING;
+                    layer[y * resolution + x] = (byte)Mathf.Clamp(building.Gameplay.Tier, 1, 5);
             }
         }
     }
 
-    private static void Disc(Color32[] pixels, int resolution, Vector2 centre, float radius, Color32 colour)
+    private static void FillPolygon(byte[] layer, int resolution, float metres, Vector2[] corners, byte value)
+    {
+        var min = new Vector2(float.MaxValue, float.MaxValue);
+        var max = new Vector2(float.MinValue, float.MinValue);
+
+        foreach (Vector2 corner in corners)
+        {
+            min = Vector2.Min(min, corner / metres);
+            max = Vector2.Max(max, corner / metres);
+        }
+
+        int minX = Mathf.Max(0, Mathf.FloorToInt(min.x));
+        int maxX = Mathf.Min(resolution - 1, Mathf.CeilToInt(max.x));
+        int minY = Mathf.Max(0, Mathf.FloorToInt(min.y));
+        int maxY = Mathf.Min(resolution - 1, Mathf.CeilToInt(max.y));
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                if (Inside(corners, new Vector2(x + 0.5f, y + 0.5f) * metres))
+                    layer[y * resolution + x] = value;
+            }
+        }
+    }
+
+    private static bool Inside(Vector2[] corners, Vector2 point)
+    {
+        bool positive = false;
+        bool negative = false;
+
+        for (int i = 0; i < corners.Length; i++)
+        {
+            Vector2 a = corners[i];
+            Vector2 b = corners[(i + 1) % corners.Length];
+            float cross = (b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x);
+
+            positive |= cross > 0f;
+            negative |= cross < 0f;
+        }
+
+        return !(positive && negative);
+    }
+
+    private static void Disc(byte[] layer, int resolution, Vector2 centre, float radius, byte value)
     {
         int minX = Mathf.Max(0, Mathf.FloorToInt(centre.x - radius));
         int maxX = Mathf.Min(resolution - 1, Mathf.FloorToInt(centre.x + radius));
@@ -165,17 +203,8 @@ public static class WorldPreviewPainter
                 float dy = y + 0.5f - centre.y;
 
                 if (dx * dx + dy * dy <= squared)
-                    pixels[y * resolution + x] = colour;
+                    layer[y * resolution + x] = value;
             }
         }
-    }
-
-    private static Color32 Scale(Color32 colour, float factor)
-    {
-        return new Color32(
-            (byte)Mathf.Clamp(Mathf.RoundToInt(colour.r * factor), 0, 255),
-            (byte)Mathf.Clamp(Mathf.RoundToInt(colour.g * factor), 0, 255),
-            (byte)Mathf.Clamp(Mathf.RoundToInt(colour.b * factor), 0, 255),
-            255);
     }
 }

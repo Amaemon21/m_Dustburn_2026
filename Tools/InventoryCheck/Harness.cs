@@ -10,8 +10,15 @@ internal static partial class Harness
 {
     private static int _checks;
 
-    private static async Task Main()
+    private static async Task Main(string[] args)
     {
+        if (Array.IndexOf(args, "--list-item-selection") >= 0)
+        {
+            VerifyListItemSelection();
+            Console.WriteLine($"PASS: {_checks} list item selection checks");
+            return;
+        }
+        VerifyListItemSelection();
         GameplayEnterParams testScene = new("test_slot", Scenes.Gameplay_Test);
         Check(testScene.SceneName == "Gameplay_Test" && testScene.SlotId == "test_slot", "test gameplay route preserved");
         Check(new GameplayEnterParams("player").Scene == Scenes.Gameplay, "default gameplay route unchanged");
@@ -85,6 +92,11 @@ internal static partial class Harness
             Check(!fresh.TryGetInventory("player", out _), "slot isolation");
 
         VerifyEntityProxies();
+        VerifyWorldGeneratorMenu();
+        VerifyGameSlotAvailability();
+        await VerifyGameSlotPersistence();
+        await VerifyGameSlotImages();
+        VerifyMainMenuAssets();
         VerifyInventoryTransactions();
         VerifySelectedItemInfo();
         VerifyItemNameHover();

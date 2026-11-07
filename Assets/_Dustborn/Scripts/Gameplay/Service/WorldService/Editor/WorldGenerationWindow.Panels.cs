@@ -85,31 +85,37 @@ public partial class WorldGenerationWindow
 
     private void DrawTools()
     {
-        EditorGUILayout.Space(4f);
-        _tools = EditorGUILayout.Foldout(_tools, "Инструменты", true, EditorStyles.foldoutHeader);
-
-        if (!_tools)
-            return;
-
         using (new EditorGUI.DisabledScope(Locked))
         {
-            for (int i = 0; i < TOOLS.Length; i += 2)
-            {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    Tool(TOOLS[i]);
+            if (!GUILayout.Button("World tools"))
+                return;
 
-                    if (i + 1 < TOOLS.Length)
-                        Tool(TOOLS[i + 1]);
-                }
-            }
+            var menu = new GenericMenu();
+            AddItemsToMenu(menu);
+            menu.ShowAsContext();
         }
     }
 
-    private static void Tool((string Label, string Menu) tool)
+    public void AddItemsToMenu(GenericMenu menu)
     {
-        if (GUILayout.Button(new GUIContent(tool.Label, tool.Menu)))
-            EditorApplication.ExecuteMenuItem(tool.Menu);
+        AddTool(menu, "Surface/Rebake", WorldSurfaceBake.Rebuild);
+        AddTool(menu, "Stamps/Import terrain", TerrainStampImporter.Import);
+        AddTool(menu, "Stamps/Import water", WaterStampImporter.Import);
+        AddTool(menu, "Diagnostics/Water and stamps preview", WaterDebug.Preview);
+        AddTool(menu, "Diagnostics/Ground splat", GroundSplatDebug.Dump);
+        AddTool(menu, "Scene/Water and stamps", WaterDebug.ToggleGizmos, WorldFeatureGizmos.Visible);
+        AddTool(menu, "Scene/LOD seams", VoxelSeamDebugMenu.Toggle, VoxelColumnDebug.Visible);
+        AddTool(menu, "Scene/Edit trees and rocks", DecorEditTool.Toggle, DecorEditTool.Active);
+    }
+
+    private static void AddTool(GenericMenu menu, string label, GenericMenu.MenuFunction action, bool selected = false)
+    {
+        var content = new GUIContent(label);
+
+        if (Locked)
+            menu.AddDisabledItem(content, selected);
+        else
+            menu.AddItem(content, selected, action);
     }
 
     private void DrawTimings()

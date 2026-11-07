@@ -32,14 +32,16 @@ public sealed class GameSlotService
             if (id == GameplayEnterParams.TEST_SLOT)
                 continue;
 
-            DateTime? written = await _storage.LastWriteTimeAsync(id, SAVE_PATTERN, token);
+            DateTime? written = await _storage.LastWriteTimeAsync(id, SAVE_PATTERN, token)
+                ?? await _storage.LastWriteTimeAsync(id, SAVE_PATTERN + ".bak", token);
             if (written == null)
                 continue;
 
             ProgressData progress = await PeekAsync<ProgressData>(id, token);
             WorldSaveData world = await PeekAsync<WorldSaveData>(id, token);
             slots.Add(new GameSlotInfo(id, NameOf(id, progress), written.Value.ToLocalTime(),
-                world?.WorldName ?? string.Empty, world?.Seed ?? 0, world?.WorldSize ?? 0));
+                world?.WorldName ?? string.Empty, world?.Seed ?? 0, world?.WorldSize ?? 0, world?.WorldId,
+                progress != null && world != null ? GameSlotStatus.Available : GameSlotStatus.Unreadable));
         }
 
         slots.Sort((a, b) => b.LastPlayed.CompareTo(a.LastPlayed));
@@ -80,23 +82,28 @@ public sealed class GameSlotService
         SaveSection section = _saves.Registry.Get(typeof(T));
         string path = $"{slotId}/{section.FileName}{SaveService.FILE_EXTENSION}";
 
-        try
+        for (int attempt = 0; attempt < 2; attempt++)
         {
-            string text = await _storage.ReadAsync(path, token) ?? await _storage.ReadBackupAsync(path, token);
-            if (string.IsNullOrWhiteSpace(text))
-                return null;
-
-            SaveDocument document = _serializer.Deserialize(text, _saves.Registry.GetFile(section.FileName));
-            return document.Sections.TryGetValue(section.Key, out object value) ? value as T : null;
+            try
+            {
+                string text = attempt == 0
+                    ? await _storage.ReadAsync(path, token)
+                    : await _storage.ReadBackupAsync(path, token);
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
+                SaveDocument document = _serializer.Deserialize(text, _saves.Registry.GetFile(section.FileName));
+                if (document.Sections.TryGetValue(section.Key, out object value) && value is T data)
+                    return data;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning($"Save slot '{slotId}' section '{section.Key}' copy {attempt} is unreadable: {exception.Message}");
+            }
         }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception exception)
-        {
-            Debug.LogWarning($"Save slot '{slotId}' section '{section.Key}' is unreadable: {exception.Message}");
-            return null;
-        }
+        return null;
     }
 }

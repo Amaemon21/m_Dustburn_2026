@@ -61,6 +61,8 @@ public partial class VoxelTerrainStreamer
             _poiPlacement == null ? null : _poiPlacement.Placements, WidestFootprint());
 
         filter.Water = water;
+        if (_poiPlacement?.Gameplay?.HasSpawn == true)
+            filter.Start = new Vector2(_poiPlacement.Gameplay.Spawn.x, _poiPlacement.Gameplay.Spawn.z);
 
         var placer = new VoxelDecorPlacer(_config, _biomes, _field, filter, _grassDensity);
 

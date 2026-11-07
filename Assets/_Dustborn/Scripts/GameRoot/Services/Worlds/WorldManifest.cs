@@ -10,6 +10,8 @@ public sealed class WorldManifest
     public string Id;
     public string Name;
     public string Fingerprint;
+    public int FingerprintVersion;
+    public int GameplayVersion;
     public long CreatedUnixTime;
     public int Seed;
     public int WorldSize;
@@ -22,4 +24,10 @@ public sealed class WorldManifest
     public int LayersCount;
     public int Placements;
     public int Props;
+    public int VariationVersion;
+    public WorldVariation Variation = new();
+    public WorldStats Stats = new();
+    public int PreviewResolution;
+
+    public bool HasVariation => VariationVersion > 0;
 }

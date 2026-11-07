@@ -8,7 +8,7 @@ using UnityEngine;
 
 static class StampLoader
 {
-    private const string PACK = "../../Assets/_Dustborn/Content/TerrainStamps";
+    private const string PACK = "../../Assets/_Dustborn/Content/Texture/Stamps/TerrainStamps";
 
     public static TerrainStampDatabase Load()
     {

@@ -1,8 +1,10 @@
 using System.Threading;
+using System;
 using Cysharp.Threading.Tasks;
 
 public interface ISaveService
 {
+    IDisposable SubscribeSlotSaved(Func<string, CancellationToken, UniTask> callback);
     SaveRegistry Registry { get; }
     string ActiveSlot { get; }
     bool HasDirtyFiles { get; }

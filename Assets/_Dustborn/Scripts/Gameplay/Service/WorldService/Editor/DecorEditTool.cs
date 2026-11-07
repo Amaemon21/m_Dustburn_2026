@@ -5,7 +5,6 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class DecorEditTool
 {
-    private const string MENU = "Мир/Правка деревьев и камней";
     private const string EDITS_PATH = "Assets/_Dustborn/Content/Configs/World/DecorEdits.asset";
     private const string EDITS_PROPERTY = "<DecorEdits>k__BackingField";
 
@@ -38,8 +37,9 @@ public static class DecorEditTool
         EditorApplication.playModeStateChanged += _ => Stop();
     }
 
-    [MenuItem(MENU)]
-    private static void Toggle()
+    public static bool Active => _active;
+
+    public static void Toggle()
     {
         if (_active)
             Stop();
@@ -47,15 +47,7 @@ public static class DecorEditTool
             Start();
     }
 
-    [MenuItem(MENU, true)]
-    private static bool CanToggle()
-    {
-        Menu.SetChecked(MENU, _active);
-
-        return !EditorApplication.isPlayingOrWillChangePlaymode;
-    }
-
-    private static void Start()
+private static void Start()
     {
         _builder = Object.FindFirstObjectByType<VoxelTerrainBuilder>();
 

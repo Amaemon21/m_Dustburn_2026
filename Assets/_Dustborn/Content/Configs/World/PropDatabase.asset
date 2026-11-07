@@ -1511,6 +1511,20 @@ MonoBehaviour:
     <ClusterMax>k__BackingField: 1
     <ClusterRadius>k__BackingField: 0
     <Biomes>k__BackingField: 
+  - <Prefab>k__BackingField: {fileID: 6262876942326532440, guid: 127310739f044c54b5f3ef4012fad343, type: 3}
+    <Context>k__BackingField: 16
+    <Weight>k__BackingField: 1
+    <Radius>k__BackingField: 0.84157395
+    <GroundOffset>k__BackingField: 0
+    <OnRoad>k__BackingField: 0
+    <AlongRoad>k__BackingField: 0
+    <YawJitter>k__BackingField: 0
+    <TiltToGround>k__BackingField: 0
+    <MaxSlope>k__BackingField: 14
+    <ClusterMin>k__BackingField: 1
+    <ClusterMax>k__BackingField: 1
+    <ClusterRadius>k__BackingField: 0
+    <Biomes>k__BackingField: []
   <HighwayPer100m>k__BackingField: 2
   <DirtPer100m>k__BackingField: 1
   <StreetPer100m>k__BackingField: 3

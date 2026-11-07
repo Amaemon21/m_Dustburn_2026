@@ -6,19 +6,21 @@ using UnityEngine.UI;
 
 public sealed class MainScreenView : View<MainScreenViewModel>
 {
-    [SerializeField, Required] private Button _continueButton;
     [SerializeField] private TMP_Text _continueDetails;
-    [SerializeField, Required] private Button _newGameButton;
-    [SerializeField, Required] private Button _loadGameButton;
-    [SerializeField] private Button _settingsButton;
-    [SerializeField, Required] private Button _testSceneButton;
-    [SerializeField, Required] private Button _quitButton;
-    [SerializeField] private TMP_Text _notice;
+    
+    [SerializeField, Required, Foldout("Actions")] private Button _testSceneButton;
+    
+    [SerializeField, Required, Foldout("Actions")] private Button _continueButton;
+    [SerializeField, Required, Foldout("Actions")] private Button _newGameButton;
+    [SerializeField, Required, Foldout("Actions")] private Button _loadGameButton;
+    [SerializeField, Required, Foldout("Actions")] private Button _settingsButton;
+
+    [SerializeField, Required, Foldout("Actions")] private Button _quitButton;
 
     protected override void BindCore(MainScreenViewModel viewModel, CompositeDisposable bindings)
     {
         bindings.Add(viewModel.IsVisible.Subscribe(gameObject.SetActive));
-        bindings.Add(viewModel.Continue.CanExecute.Subscribe(_continueButton.gameObject.SetActive));
+        bindings.Add(viewModel.Continue.CanExecute.Subscribe(e => _continueButton.interactable = e));
 
         _continueButton.BindCommand(viewModel.Continue, bindings);
         _newGameButton.BindCommand(viewModel.NewGame, bindings);
@@ -31,11 +33,5 @@ public sealed class MainScreenView : View<MainScreenViewModel>
 
         if (_continueDetails != null)
             bindings.Add(viewModel.ContinueDetails.Subscribe(details => _continueDetails.text = details));
-
-        if (_notice != null)
-        {
-            _notice.text = viewModel.Notice;
-            _notice.gameObject.SetActive(!string.IsNullOrEmpty(viewModel.Notice));
-        }
     }
 }

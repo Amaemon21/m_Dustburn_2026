@@ -15,21 +15,6 @@ public class CharacterPerspectiveVisibility : MonoBehaviour
         _characterExampleController = GetComponent<CharacterExampleController>();
     }
 
-    private void OnEnable()
-    {
-        /*
-        _disposable.Add(_characterExampleController.IsFirstPerson.Subscribe(isFirstPerson =>
-            {
-                foreach (SkinnedMeshRenderer renderer in _headSkinnedMeshRenderers)
-                {
-                    if (renderer != null)
-                        renderer.enabled = !isFirstPerson;
-                }
-            })
-        );
-        */
-    }
-
     private void OnDestroy()
     {
         _disposable?.Dispose();

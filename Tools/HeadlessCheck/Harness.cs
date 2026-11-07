@@ -246,8 +246,28 @@ static class Harness
 
         PoiDatabase pois = BuildDatabase();
 
+        if (Array.IndexOf(args, "--gameplay") >= 0)
+        {
+            GameplayGenerationChecks.Run(biomes);
+            return;
+        }
+
         if (Array.IndexOf(args, "--stamped") >= 0)
             WaterStampLoader.Attach(_config);
+
+        if (Array.IndexOf(args, "--start-audit") >= 0)
+        {
+            string seedList = ArgumentAfter(args, "--seeds");
+            string heightCell = ArgumentAfter(args, "--height-cell");
+            Environment.ExitCode = StartExperienceAudit.Run($"{CONTENT}/WorldGenerationConfig.asset", biomes, pois, seedList, heightCell);
+            return;
+        }
+
+        if (Array.IndexOf(args, "--variation-checks") >= 0)
+        {
+            Environment.ExitCode = VariationChecks.Run(biomes) == 0 ? 0 : 1;
+            return;
+        }
 
         if (Array.IndexOf(args, "--variation") >= 0)
         {
@@ -522,10 +542,7 @@ static class Harness
 
         if (generator.Stamps.Count > 0)
         {
-            var shapes = new TerrainStampShape[_config.Stamps.Database.Count];
-
-            foreach (TerrainStampPlacement stamp in generator.Stamps)
-                shapes[stamp.StampIndex] ??= TerrainStampShape.From(_config.Stamps.Database.Get(stamp.StampIndex));
+            TerrainStampShape[] shapes = TerrainStampShapes.For(_config.Stamps.Database, generator.Stamps);
 
             var copy = (float[])raw.Heights.Clone();
             var clock = System.Diagnostics.Stopwatch.StartNew();

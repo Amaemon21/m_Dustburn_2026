@@ -44,7 +44,7 @@ public sealed class WorldGenerationBake
                 throw new InvalidOperationException("Every prop in the PropDatabase must refer to a prefab asset before saving the world.");
         }
 
-        _progress("Сохранение карт", 0.54f);
+        _progress("\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043A\u0430\u0440\u0442", 0.54f);
         using WorldGenProbe.Span save = WorldGenProbe.Measure(WorldGenStage.BakeMapsSave);
 
         int resolution = heights.Resolution;
@@ -92,7 +92,7 @@ public sealed class WorldGenerationBake
         using (WorldGenProbe.Measure(WorldGenStage.BakePoiAsset))
         {
             placementAsset = LoadOrCreate<PoiPlacementAsset>(_config.PoiPlacementAssetPath);
-            placementAsset.EditorSetup(placements, maps.Props);
+            placementAsset.EditorSetup(placements, maps.Props, maps.Gameplay);
             EditorUtility.SetDirty(placementAsset);
         }
 
@@ -109,7 +109,7 @@ public sealed class WorldGenerationBake
             UseRepetitionless = true
         };
 
-        _progress("Текстуры поверхности", 0.6f);
+        _progress("\u0422\u0435\u043A\u0441\u0442\u0443\u0440\u044B \u043F\u043E\u0432\u0435\u0440\u0445\u043D\u043E\u0441\u0442\u0438", 0.6f);
         string result;
 
         using (WorldGenProbe.Measure(WorldGenStage.BakeMaterial))

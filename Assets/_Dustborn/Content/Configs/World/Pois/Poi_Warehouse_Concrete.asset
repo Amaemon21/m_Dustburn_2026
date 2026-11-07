@@ -21,3 +21,12 @@ MonoBehaviour:
   <Weight>k__BackingField: 0.9
   <MaxPerSettlement>k__BackingField: 0
   <MaxPerWorld>k__BackingField: 0
+  <Gameplay>k__BackingField:
+    Tier: 1
+    Category: 0
+    LootProfile: 0
+    ThreatProfile: 1
+    MinDistanceFromSpawn: 0
+    UniqueGroup: 
+    Biomes: []
+    RequiredConnection: 1

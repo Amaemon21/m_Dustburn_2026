@@ -47,6 +47,15 @@ namespace UnityEngine
         {
             if (value is GameObject go && go != null && !Pending.Contains(go))
                 Pending.Add(go);
+            else if (value is not GameObject && value != null)
+                value.Dead = true;
+        }
+        public static void DestroyImmediate(Object value)
+        {
+            if (value is GameObject go)
+                DestroyNow(go);
+            else if (value != null)
+                value.Dead = true;
         }
         public static void FlushDestroy()
         {
@@ -181,9 +190,43 @@ namespace UnityEngine
     public struct LOD { public LOD(float height, Renderer[] renderers) { } }
     public static class Application { public static bool isPlaying = true; }
     public struct Bounds { public float Width; public void Expand(float value) => Width += value; }
-    public struct Color { public static Color white => default; }
+    public struct Color
+    {
+        public float r, g, b, a;
+        public Color(float r, float g, float b, float a = 1f) { this.r = r; this.g = g; this.b = b; this.a = a; }
+        public static Color white => new(1f, 1f, 1f, 1f);
+    }
     public class Mesh : Object { public int subMeshCount; }
-    public class Material : Object { }
+    public enum HideFlags { DontSave }
+    public class Shader : Object
+    {
+        public static int PropertyToID(string value) => StringComparer.Ordinal.GetHashCode(value);
+    }
+    public class Material : Object
+    {
+        private readonly Dictionary<int, float> _floats = new();
+        private readonly Dictionary<int, Color> _colors = new();
+        public Shader shader = new() { name = "Fixture shader" };
+        public bool enableInstancing;
+        public HideFlags hideFlags;
+        public Material() => SetColor("_BaseColor", Color.white);
+        public Material(Material source)
+        {
+            shader = source.shader;
+            enableInstancing = source.enableInstancing;
+            foreach (var pair in source._floats) _floats.Add(pair.Key, pair.Value);
+            foreach (var pair in source._colors) _colors.Add(pair.Key, pair.Value);
+        }
+        public bool HasProperty(int key) => _floats.ContainsKey(key) || _colors.ContainsKey(key);
+        public bool HasProperty(string key) => HasProperty(Shader.PropertyToID(key));
+        public void SetFloat(int key, float value) => _floats[key] = value;
+        public void SetFloat(string key, float value) => SetFloat(Shader.PropertyToID(key), value);
+        public float GetFloat(int key) => _floats.GetValueOrDefault(key);
+        public float GetFloat(string key) => GetFloat(Shader.PropertyToID(key));
+        public void SetColor(int key, Color value) => _colors[key] = value;
+        public void SetColor(string key, Color value) => SetColor(Shader.PropertyToID(key), value);
+        public Color GetColor(string key) => _colors.GetValueOrDefault(Shader.PropertyToID(key));
+    }
     public class Texture2D : Object { }
     public class MeshFilter : Component { public Mesh sharedMesh; }
     public class Renderer : Component
@@ -202,6 +245,10 @@ namespace UnityEngine
         public static int Min(int a, int b) => Math.Min(a, b);
         public static int CeilToInt(float value) => (int)Math.Ceiling(value);
         public static int FloorToInt(float value) => (int)Math.Floor(value);
+        public static int Clamp(int value, int min, int max) => Math.Clamp(value, min, max);
+        public static float Clamp(float value, float min, float max) => Math.Clamp(value, min, max);
+        public static float Clamp01(float value) => Clamp(value, 0f, 1f);
+        public static float Lerp(float from, float to, float weight) => from + (to - from) * Clamp01(weight);
     }
     public static class Debug
     {
@@ -282,6 +329,10 @@ public sealed class VoxelDecorLayer
     public DecorKind Kind;
     public string Name = "Layer";
     public int Style;
+    public UnityEngine.Color Tint = UnityEngine.Color.white;
+    public float TintVariance = 0.06f;
+    public float SnowMin;
+    public float SnowMax;
 }
 public sealed class VoxelDecorPlacer
 {
@@ -298,13 +349,6 @@ public sealed class VoxelConfig
     public float GrassDistance;
     public int MaxLod(DecorKind kind) => 5;
 }
-public readonly struct DecorTint
-{
-    public const int LEVELS = 4;
-    public bool IsNeutral => false;
-    public int Level(float shade) => Math.Clamp((int)shade, 0, LEVELS - 1);
-    public static DecorTint Of(VoxelDecorLayer layer) => default;
-}
 public sealed class GrassCardFactory : IDisposable
 {
     public float Distance;
@@ -316,7 +360,6 @@ public partial class MeshCombiner : IDisposable
 {
     private readonly bool _card;
     private readonly DecorTint _tint;
-    private readonly UnityEngine.Material[][][] _painted = new UnityEngine.Material[DecorTint.LEVELS][][];
     public PrefabProfile Profile { get; }
     public bool IsCard => _card;
     public static readonly List<int> Combined = new();
@@ -335,9 +378,6 @@ public partial class MeshCombiner : IDisposable
     { foreach (DecorInstance value in values) Instanced.Add(value.CellX); return 1; }
     public int InstanceParts(IReadOnlyList<DecorInstance> values, UnityEngine.Transform parent, string name, UnityEngine.Rendering.ShadowCastingMode shadows, float distance)
         => Instance(values, parent, name, shadows, distance);
-    private UnityEngine.Material[] Variants(UnityEngine.Material[] values, int level)
-        => values.Select(source => new UnityEngine.Material { name = source.name + "/shade" + level }).ToArray();
-    public void Dispose() { }
 }
 public sealed class GeneratedMesh : UnityEngine.Component
 {

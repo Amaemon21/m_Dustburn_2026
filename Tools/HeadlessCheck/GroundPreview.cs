@@ -826,14 +826,14 @@ static class GroundPreview
             SetField(biome, "MapColor", MapColor(lines));
             SetField(biome, "CliffLayer", LayerRef(TopLevel(lines, "CliffLayer")));
 
-            foreach (Dictionary<string, string> item in ReadList(lines, "Ground"))
+            foreach (Dictionary<string, string> item in AssetReader.ReadList(lines, "  <Ground>k__BackingField:"))
             {
                 var ground = new GroundLayer();
                 Fill(ground, item);
                 biome.Ground.Add(ground);
             }
 
-            foreach (Dictionary<string, string> item in ReadList(lines, "Grass"))
+            foreach (Dictionary<string, string> item in AssetReader.ReadList(lines, "  <Grass>k__BackingField:"))
             {
                 var grass = new GrassLayer();
                 Fill(grass, item);
@@ -848,47 +848,6 @@ static class GroundPreview
         typeof(BiomeDatabase).GetField("_biomes", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(database, list);
 
         return database;
-    }
-
-    static List<Dictionary<string, string>> ReadList(string[] lines, string name)
-    {
-        var items = new List<Dictionary<string, string>>();
-        int start = Array.IndexOf(lines, $"  <{name}>k__BackingField:");
-
-        if (start < 0)
-            return items;
-
-        Dictionary<string, string> current = null;
-
-        for (int i = start + 1; i < lines.Length; i++)
-        {
-            string line = lines[i];
-            string body;
-
-            if (line.StartsWith("  - ", StringComparison.Ordinal))
-            {
-                current = new Dictionary<string, string>();
-                items.Add(current);
-                body = line.Substring(4);
-            }
-            else if (line.StartsWith("    ", StringComparison.Ordinal))
-            {
-                body = line.Substring(4);
-            }
-            else
-            {
-                break;
-            }
-
-            int close = body.IndexOf(">k__BackingField:", StringComparison.Ordinal);
-
-            if (current == null || !body.StartsWith("<", StringComparison.Ordinal) || close < 0)
-                continue;
-
-            current[body.Substring(1, close - 1)] = body.Substring(close + 17).Trim();
-        }
-
-        return items;
     }
 
     static void Fill(object target, Dictionary<string, string> item)

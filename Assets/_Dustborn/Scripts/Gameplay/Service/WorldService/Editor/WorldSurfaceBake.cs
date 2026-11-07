@@ -6,7 +6,6 @@ public static class WorldSurfaceBake
 {
     private const string SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
 
-    [MenuItem("Мир/Перепечь землю мира")]
     public static void Rebuild()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)

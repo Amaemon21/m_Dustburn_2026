@@ -1,19 +1,19 @@
-using System.Collections.Generic;
 using NaughtyAttributes;
 using R3;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class OptionFieldView : View<OptionFieldViewModel>
 {
-    [SerializeField, Required] private TMP_Dropdown _dropdown;
+    [SerializeField, Required] private Button _previous;
+    [SerializeField, Required] private TMP_Text _value;
+    [SerializeField, Required] private Button _next;
 
     protected override void BindCore(OptionFieldViewModel viewModel, CompositeDisposable bindings)
     {
-        _dropdown.ClearOptions();
-        _dropdown.AddOptions(new List<string>(viewModel.Labels));
-
-        bindings.Add(viewModel.Index.Subscribe(index => _dropdown.SetValueWithoutNotify(index)));
-        bindings.Add(_dropdown.onValueChanged.AsObservable().Subscribe(index => viewModel.Index.Value = index));
+        bindings.Add(viewModel.Label.Subscribe(label => _value.text = label));
+        _previous.BindCommand(viewModel.Previous, bindings);
+        _next.BindCommand(viewModel.Next, bindings);
     }
 }

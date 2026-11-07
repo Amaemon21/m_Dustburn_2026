@@ -1,13 +1,13 @@
 public sealed class WorldSelection
 {
-    public string PreferredId { get; private set; }
+    private string _createdMapId;
 
-    public void Prefer(string worldId) => PreferredId = worldId;
+    public void SelectCreatedMap(string worldId) => _createdMapId = worldId;
 
-    public string Take()
+    public string TakeCreatedMap()
     {
-        string preferred = PreferredId;
-        PreferredId = null;
-        return preferred;
+        string worldId = _createdMapId;
+        _createdMapId = null;
+        return worldId;
     }
 }

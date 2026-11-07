@@ -34,21 +34,21 @@ public struct BiomeClassifyJob : IJobParallelFor
         {
             var uv = new float2((x + 0.5f) / Resolution, v);
 
-            Cells[origin + x] = Pick(uv + Warp(uv));
+            Cells[origin + x] = Pick(uv + Warp(uv, WarpOffset, WarpStrength, WarpFrequency, WarpOctaves, WarpLacunarity, WarpPersistence));
         }
     }
 
-    private float2 Warp(float2 uv)
+    public static float2 Warp(float2 uv, float2 offset, float strength, float frequency, int octaves, float lacunarity, float persistence)
     {
-        if (WarpStrength <= 0f)
+        if (strength <= 0f)
             return float2.zero;
 
-        float2 position = uv * WarpFrequency;
+        float2 position = uv * frequency;
 
-        float offsetX = FractalNoise.Sample(position, WarpOffset, WarpOctaves, WarpLacunarity, WarpPersistence);
-        float offsetY = FractalNoise.Sample(position + new float2(17.31f, 9.17f), WarpOffset, WarpOctaves, WarpLacunarity, WarpPersistence);
+        float offsetX = FractalNoise.Sample(position, offset, octaves, lacunarity, persistence);
+        float offsetY = FractalNoise.Sample(position + new float2(17.31f, 9.17f), offset, octaves, lacunarity, persistence);
 
-        return new float2(offsetX, offsetY) * WarpStrength;
+        return new float2(offsetX, offsetY) * strength;
     }
 
     private byte Pick(float2 position)

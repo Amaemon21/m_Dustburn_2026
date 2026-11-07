@@ -48,7 +48,7 @@ namespace Dustborn.UI.Editor
             }
         }
 
-        [MenuItem("Tools/Dustborn/UI Wear/Configure bundled textures")]
+
         public static void ConfigureTextures()
         {
             Configure(WearTexturePath, false);
@@ -78,21 +78,21 @@ namespace Dustborn.UI.Editor
             return material;
         }
 
-        [MenuItem("Tools/Dustborn/UI Wear/Apply to selection/Pointed line")]
-        private static void ApplyLine() => Apply("Worn_Line", true);
-        [MenuItem("Tools/Dustborn/UI Wear/Apply to selection/Thin line (2 px)")]
-        private static void ApplyThinLine() => Apply("Worn_ThinLine", true);
-        [MenuItem("Tools/Dustborn/UI Wear/Apply to selection/Sprite or frame")]
-        private static void ApplyFrame() => Apply("Worn_Frame", false);
-        [MenuItem("Tools/Dustborn/UI Wear/Apply to selection/Panel")]
-        private static void ApplyPanel() => Apply("Worn_Panel", false);
+        [MenuItem("CONTEXT/Image/UI Wear/Pointed line")]
+        private static void ApplyLine(MenuCommand command) => Apply(command, "Worn_Line", true);
+        [MenuItem("CONTEXT/Image/UI Wear/Thin line (2 px)")]
+        private static void ApplyThinLine(MenuCommand command) => Apply(command, "Worn_ThinLine", true);
+        [MenuItem("CONTEXT/Image/UI Wear/Sprite or frame")]
+        private static void ApplyFrame(MenuCommand command) => Apply(command, "Worn_Frame", false);
+        [MenuItem("CONTEXT/Image/UI Wear/Panel")]
+        private static void ApplyPanel(MenuCommand command) => Apply(command, "Worn_Panel", false);
 
-        private static void Apply(string name, bool line)
+        private static void Apply(MenuCommand command, string name, bool line)
         {
             ConfigureTextures();
             Material material = Preset(name);
             int count = 0;
-            foreach (GameObject go in Selection.gameObjects)
+            foreach (GameObject go in new[] { ((Image)command.context).gameObject })
             {
                 var image = go.GetComponent<Image>();
                 if (image == null) continue;

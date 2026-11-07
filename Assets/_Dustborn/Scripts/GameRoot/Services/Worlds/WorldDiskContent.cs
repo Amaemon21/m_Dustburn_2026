@@ -8,6 +8,7 @@ public sealed class WorldDiskContent
     public byte[] RoadMask;
     public string RoadsJson;
     public string PlacementJson;
+    public string GameplayJson;
     public byte[][] Controls;
     public byte[] Preview;
 }

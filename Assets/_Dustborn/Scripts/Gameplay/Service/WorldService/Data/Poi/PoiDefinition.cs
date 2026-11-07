@@ -26,6 +26,8 @@ public class PoiDefinition : ScriptableObject
 
     public Vector2 Footprint => new(FootprintWidth, FootprintDepth);
 
+    [field: SerializeField, Foldout("Gameplay")] public PoiGameplay Gameplay { get; private set; } = new();
+
     [ShowNativeProperty] public float FootprintArea => FootprintWidth * FootprintDepth;
 
 #if UNITY_EDITOR

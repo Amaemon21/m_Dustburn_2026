@@ -30,6 +30,7 @@ public class DecorFilter
     }
 
     public WaterMap Water { get; set; }
+    public Vector2? Start { get; set; }
 
     public bool IsDry(Vector2 point, float ground, float footprint = 0f)
     {
@@ -77,6 +78,9 @@ public class DecorFilter
 
     public bool IsClear(Vector2 point, float footprint, float roadClearance)
     {
+        if (Start.HasValue && (point - Start.Value).sqrMagnitude < (footprint + 4f) * (footprint + 4f))
+            return false;
+
         if (IsNearRoad(point, Mathf.Max(roadClearance, footprint)))
             return false;
 

@@ -118,7 +118,7 @@ MonoBehaviour:
   <ErosionTalusAngle>k__BackingField: 30
   <ErosionStrength>k__BackingField: 0.5
   <CityProfile>k__BackingField:
-    <Count>k__BackingField: 3
+    <Count>k__BackingField: 1
     <MinTiles>k__BackingField: 18
     <MaxTiles>k__BackingField: 30
     <Spacing>k__BackingField: 2200
@@ -134,7 +134,7 @@ MonoBehaviour:
     <RuralShare>k__BackingField: 0.1
     <PoiDensity>k__BackingField: 1
   <TownProfile>k__BackingField:
-    <Count>k__BackingField: 7
+    <Count>k__BackingField: 3
     <MinTiles>k__BackingField: 8
     <MaxTiles>k__BackingField: 14
     <Spacing>k__BackingField: 1300
@@ -150,7 +150,7 @@ MonoBehaviour:
     <RuralShare>k__BackingField: 0.15
     <PoiDensity>k__BackingField: 0.85
   <CountryTownProfile>k__BackingField:
-    <Count>k__BackingField: 12
+    <Count>k__BackingField: 6
     <MinTiles>k__BackingField: 3
     <MaxTiles>k__BackingField: 6
     <Spacing>k__BackingField: 800
@@ -166,7 +166,7 @@ MonoBehaviour:
     <RuralShare>k__BackingField: 0.3
     <PoiDensity>k__BackingField: 0.6
   <GhostTownProfile>k__BackingField:
-    <Count>k__BackingField: 16
+    <Count>k__BackingField: 4
     <MinTiles>k__BackingField: 1
     <MaxTiles>k__BackingField: 3
     <Spacing>k__BackingField: 600
@@ -297,3 +297,12 @@ MonoBehaviour:
   <RoadNetworkAssetPath>k__BackingField: Assets/_Dustborn/Generated/RoadNetwork.asset
   <PoiPlacementAssetPath>k__BackingField: Assets/_Dustborn/Generated/PoiPlacement.asset
   <WaterMapAssetPath>k__BackingField: Assets/_Dustborn/Generated/WaterMap.bytes
+  <Gameplay>k__BackingField:
+    Enabled: 1
+    SafeRadius: 100
+    StarterMinDistance: 110
+    StarterMaxDistance: 300
+    StarterPoiCount: 2
+    MaxWalkSlope: 25
+    EdgeMargin: 128
+    BiomeMargin: 32

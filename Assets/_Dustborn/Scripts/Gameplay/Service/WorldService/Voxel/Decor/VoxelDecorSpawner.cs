@@ -60,6 +60,9 @@ public class VoxelDecorSpawner : IDisposable
         {
             if (placer.Layers[i].Prefab != _placer.Layers[i].Prefab || placer.Layers[i].Card != _placer.Layers[i].Card)
                 return false;
+
+            if (!DecorTint.Of(placer.Layers[i]).SameAppearance(DecorTint.Of(_placer.Layers[i])))
+                return false;
         }
 
         _placer = placer;

@@ -17,7 +17,7 @@ public class ExamplePackConfigLoaderEditor : Editor
     }
 }
 
-//[CreateAssetMenu(fileName = "SyntyPackageHelperConfig", menuName = "Scriptable Objects/SyntyPackageHelperConfig")]
+[CreateAssetMenu(fileName = "SyntyPackageHelperConfig", menuName = "Scriptable Objects/SyntyPackageHelperConfig")]
 public class SyntyPackageHelperConfig : ScriptableObject
 {
     public string assetPackDisplayName;

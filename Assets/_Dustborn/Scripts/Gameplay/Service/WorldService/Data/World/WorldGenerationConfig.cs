@@ -72,22 +72,22 @@ public partial class WorldGenerationConfig : ScriptableObject
     [field: SerializeField, Foldout("Settlement mix")]
     [field: Tooltip("Large settlements with a Downtown core, Commercial ring, Industrial side and Rural outskirts. Placed first, on the largest flat sites.")]
     public SettlementTypeProfile CityProfile { get; private set; } =
-        new(3, 18, 30, 2200f, 5, 6, 4f, 3, 0.8f, SettlementShape.Compact, 0.15f, 0.2f, 0.15f, 0.1f, 1f);
+        new(1, 18, 30, 2200f, 5, 6, 4f, 3, 0.8f, SettlementShape.Compact, 0.15f, 0.2f, 0.15f, 0.1f, 1f);
 
     [field: SerializeField, Foldout("Settlement mix")]
     [field: Tooltip("Mixed grids around a Commercial main street with little or no Downtown.")]
     public SettlementTypeProfile TownProfile { get; private set; } =
-        new(7, 8, 14, 1300f, 4, 4, 2.5f, 2, 0.55f, SettlementShape.Compact, 0f, 0.25f, 0.1f, 0.15f, 0.85f);
+        new(3, 8, 14, 1300f, 4, 4, 2.5f, 2, 0.55f, SettlementShape.Compact, 0f, 0.25f, 0.1f, 0.15f, 0.85f);
 
     [field: SerializeField, Foldout("Settlement mix")]
     [field: Tooltip("One or two crossing streets with a store at the crossing.")]
     public SettlementTypeProfile CountryTownProfile { get; private set; } =
-        new(12, 3, 6, 800f, 3, 3, 1.5f, 1, 0.1f, SettlementShape.Cross, 0f, 0.2f, 0f, 0.3f, 0.6f);
+        new(6, 3, 6, 800f, 3, 3, 1.5f, 1, 0.1f, SettlementShape.Cross, 0f, 0.2f, 0f, 0.3f, 0.6f);
 
     [field: SerializeField, Foldout("Settlement mix")]
     [field: Tooltip("A few sparse buildings along a single main street.")]
     public SettlementTypeProfile GhostTownProfile { get; private set; } =
-        new(16, 1, 3, 600f, 2, 2, 1f, 1, 0f, SettlementShape.Linear, 0f, 0f, 0f, 0.5f, 0.35f);
+        new(4, 1, 3, 600f, 2, 2, 1f, 1, 0f, SettlementShape.Linear, 0f, 0f, 0f, 0.5f, 0.35f);
 
     [field: SerializeField, Foldout("Settlement mix"), MinValue(0f)]
     [field: Tooltip("Metres kept between the estimated footprints of two settlements, so neighbours never merge and highways have room between them.")]

@@ -7,6 +7,8 @@ using Random = Unity.Mathematics.Random;
 public class HeightMapGenerator
 {
     private const int BATCH_SIZE = 64;
+    private const float LEGACY_HILL_LOW = -2f;
+    private const float LEGACY_HILL_HIGH = -1f;
 
     private readonly WorldGenerationConfig _config;
     private readonly BiomeDatabase _biomes;
@@ -42,7 +44,6 @@ public class HeightMapGenerator
                 Resolution = map.Resolution,
                 WeightResolution = weightField.Resolution,
                 BiomeCount = _biomes.Count,
-                Settings = BuildSettings(),
                 ContinentOffset = random.NextFloat2(-100f, 100f),
                 HillOffset = random.NextFloat2(-100f, 100f),
                 RidgeOffset = random.NextFloat2(-100f, 100f),
@@ -53,6 +54,8 @@ public class HeightMapGenerator
                 DuneBendZ = random.NextFloat2(-100f, 100f),
                 DuneAxis = Axis(random.NextFloat(0f, math.PI))
             };
+
+            job.Settings = BuildSettings(job.MaskOffset);
 
             using (WorldGenProbe.Measure(WorldGenStage.MapHeightNoise))
                 GenerationJobs.Run(job, heights.Length, BATCH_SIZE);
@@ -90,22 +93,25 @@ public class HeightMapGenerator
 
     public int StampedCells { get; private set; }
 
+    public TerrainFeaturePlacer Features { get; private set; }
+
     private void ApplyStamps(BiomeMap biomeMap, HeightMap map, NativeArray<float> heights)
     {
         TerrainStampSettings settings = _config.Stamps;
 
-        if (settings == null || !settings.Enabled || settings.Database == null || settings.Database.Count == 0)
+        if (settings == null)
             return;
 
-        Stamps.AddRange(new TerrainStampPlacer(_config, settings, _biomes, biomeMap).Place());
+        if (settings.Enabled && settings.Database != null && settings.Database.Count > 0)
+            Stamps.AddRange(new TerrainStampPlacer(_config, settings, _biomes, biomeMap).Place());
+
+        Features = new TerrainFeaturePlacer(_config, settings, Stamps);
+        Features.Place();
 
         if (Stamps.Count == 0)
             return;
 
-        var shapes = new TerrainStampShape[settings.Database.Count];
-
-        foreach (TerrainStampPlacement placement in Stamps)
-            shapes[placement.StampIndex] ??= TerrainStampShape.From(settings.Database.Get(placement.StampIndex));
+        TerrainStampShape[] shapes = TerrainStampShapes.For(settings.Database, Stamps);
 
         heights.CopyTo(map.Heights);
         StampedCells = TerrainStampApplier.Apply(map.Heights, map.Resolution, map.WorldSize, map.MaxHeight, Stamps, shapes, settings);
@@ -138,9 +144,9 @@ public class HeightMapGenerator
         return new float2(math.cos(angle), math.sin(angle));
     }
 
-    private HeightFieldSettings BuildSettings()
+    private HeightFieldSettings BuildSettings(float2 maskOffset)
     {
-        return new HeightFieldSettings
+        var settings = new HeightFieldSettings
         {
             ReliefScale = _config.ReliefScale,
             ContinentAmplitude = _config.ContinentAmplitude,
@@ -157,7 +163,16 @@ public class HeightMapGenerator
             DetailOctaves = _config.DetailOctaves,
             MountainMaskFrequency = _config.MountainMaskFrequency,
             MountainMaskLow = _config.MountainMaskLow,
-            MountainMaskHigh = _config.MountainMaskHigh
+            MountainMaskHigh = _config.MountainMaskHigh,
+            HillMaskLow = LEGACY_HILL_LOW,
+            HillMaskHigh = LEGACY_HILL_HIGH,
+            PlainsHill = 1f,
+            PlainsDetail = 1f
         };
+
+        if (_config.ReliefSharesEnabled)
+            ReliefBands.Apply(ref settings, _config, maskOffset);
+
+        return settings;
     }
 }

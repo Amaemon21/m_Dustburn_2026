@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-public partial class WorldGenerationWindow : EditorWindow
+public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
 {
     public const string DEFAULT_SETTINGS_PATH = "Assets/_Dustborn/Content/Configs/World/WorldBuildSettings.asset";
 
@@ -14,17 +14,6 @@ public partial class WorldGenerationWindow : EditorWindow
 
     private static readonly string[] TABS = { "Мир", "Вода", "Поселения", "Детализация", "Игра" };
 
-    private static readonly (string Label, string Menu)[] TOOLS =
-    {
-        ("Перепечь землю", "Мир/Перепечь землю мира"),
-        ("Карты воды и штампов", "Мир/Предпросмотр воды и штампов"),
-        ("Вода и штампы в сцене", "Мир/Вода и штампы в сцене"),
-        ("Отладка раскраски земли", "Мир/Отладка раскраски земли"),
-        ("Отладка стыков LOD", "Мир/Отладка стыков LOD"),
-        ("Импорт штампов рельефа", "Мир/Импорт штампов рельефа"),
-        ("Импорт штампов воды", "Мир/Импорт штампов воды"),
-        ("Правка деревьев и камней", "Мир/Правка деревьев и камней")
-    };
 
     [SerializeField] private WorldGenerator _owner;
     [SerializeField] private WorldBuildSettings _settings;
@@ -32,7 +21,6 @@ public partial class WorldGenerationWindow : EditorWindow
     [SerializeField] private int _biome;
     [SerializeField] private bool _relief;
     [SerializeField] private bool _sources;
-    [SerializeField] private bool _tools;
     [SerializeField] private bool _timings;
     [SerializeField] private bool _details;
     private Vector2 _scroll;

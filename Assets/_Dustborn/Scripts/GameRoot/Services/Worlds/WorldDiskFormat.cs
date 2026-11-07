@@ -16,13 +16,17 @@ public static class WorldDiskFormat
     private const string ROAD_MASK_FILE = "roadmask.bin";
     private const string ROADS_FILE = "roads.json";
     private const string PLACEMENT_FILE = "placement.json";
+    private const string GAMEPLAY_FILE = "gameplay.json";
     private const string CONTROL_FILE = "control{0}.bin";
     public const string PARTIAL_SUFFIX = ".partial";
     public const string PREVIEW_FILE = "preview.png";
     private const int RGBA = 4;
 
-    public static void Write(string directory, WorldDiskContent content)
+    public static void Write(string directory, WorldDiskContent content, bool replaceExisting = true)
     {
+        if (!replaceExisting && Directory.Exists(directory))
+            throw new IOException($"World directory '{directory}' already exists");
+
         string partial = directory + PARTIAL_SUFFIX;
 
         if (Directory.Exists(partial))
@@ -37,6 +41,8 @@ public static class WorldDiskFormat
         WriteCompressed(partial, ROAD_MASK_FILE, content.RoadMask);
         WriteText(partial, ROADS_FILE, content.RoadsJson);
         WriteText(partial, PLACEMENT_FILE, content.PlacementJson);
+        if (content.Manifest.GameplayVersion > 0)
+            WriteText(partial, GAMEPLAY_FILE, content.GameplayJson);
 
         for (int i = 0; i < content.Controls.Length; i++)
             WriteCompressed(partial, string.Format(CONTROL_FILE, i), content.Controls[i]);
@@ -46,7 +52,7 @@ public static class WorldDiskFormat
 
         WriteText(partial, MANIFEST_FILE, JsonUtility.ToJson(content.Manifest, true));
 
-        if (Directory.Exists(directory))
+        if (replaceExisting && Directory.Exists(directory))
             Directory.Delete(directory, true);
 
         Directory.Move(partial, directory);
@@ -75,6 +81,12 @@ public static class WorldDiskFormat
         if (manifest.GeneratorVersion != BakedWorld.GENERATOR_VERSION)
             throw new InvalidDataException($"World '{manifest.Id}' was made by generator version {manifest.GeneratorVersion}, this build expects {BakedWorld.GENERATOR_VERSION}");
 
+        if (manifest.GameplayVersion != 0 && manifest.GameplayVersion != WorldGameplayPlan.CURRENT_VERSION)
+            throw new InvalidDataException($"World '{manifest.Id}' has unsupported gameplay version {manifest.GameplayVersion}");
+
+        if (manifest.FingerprintVersion != 0 && manifest.FingerprintVersion != 2)
+            throw new InvalidDataException($"World '{manifest.Id}' has unsupported fingerprint version {manifest.FingerprintVersion}");
+
         int heights = manifest.HeightResolution;
         int biomes = manifest.BiomeResolution;
         int mask = manifest.RoadMaskResolution;
@@ -90,6 +102,7 @@ public static class WorldDiskFormat
             RoadMask = ReadCompressed(directory, ROAD_MASK_FILE, (long)mask * mask),
             RoadsJson = ReadText(directory, ROADS_FILE),
             PlacementJson = ReadText(directory, PLACEMENT_FILE),
+            GameplayJson = manifest.GameplayVersion > 0 ? ReadText(directory, GAMEPLAY_FILE) : null,
             Controls = new byte[manifest.ControlCount][]
         };
 

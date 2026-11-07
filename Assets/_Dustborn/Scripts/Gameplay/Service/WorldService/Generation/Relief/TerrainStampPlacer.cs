@@ -84,7 +84,7 @@ public sealed class TerrainStampPlacer
         {
             TerrainStampDefinition definition = database.Get(i);
 
-            if (definition == null || !definition.IsValid)
+            if (definition == null || !definition.IsValid || Blocked(definition.Category))
             {
                 weights[i] = 0f;
                 continue;
@@ -116,6 +116,12 @@ public sealed class TerrainStampPlacer
         }
 
         return -1;
+    }
+
+    private bool Blocked(TerrainStampCategory category)
+    {
+        return (!_config.RandomRifts && TerrainFeaturePlacer.IsRift(category))
+            || (!_config.RandomCanyons && TerrainFeaturePlacer.IsCanyon(category));
     }
 
     private BiomeType BiomeAt(Vector2 point)
@@ -170,7 +176,7 @@ public sealed class TerrainStampPlacer
         return a + b - c;
     }
 
-    private static uint Hash(int seed, uint salt, int index)
+    internal static uint Hash(int seed, uint salt, int index)
     {
         unchecked
         {

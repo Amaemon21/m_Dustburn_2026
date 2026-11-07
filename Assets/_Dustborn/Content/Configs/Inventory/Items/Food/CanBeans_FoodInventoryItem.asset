@@ -25,7 +25,7 @@ MonoBehaviour:
   <Durability>k__BackingField: 0
   <Health>k__BackingField: 0
   <Stamina>k__BackingField: 0
-  <Food>k__BackingField: 0
+  <Food>k__BackingField: 20
   <Water>k__BackingField: 0
   <Infection>k__BackingField: 0
   <Bleeding>k__BackingField: 0

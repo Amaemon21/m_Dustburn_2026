@@ -371,70 +371,42 @@ MonoBehaviour:
     <NormalUp>k__BackingField: 0.3
     <ColorVariation>k__BackingField: 0.1
   <Trees>k__BackingField:
-  - <Prefab>k__BackingField: {fileID: 1814190282122440, guid: 33247b6aefb946246bc9f0c7346b4364, type: 3}
+  - <Prefab>k__BackingField: {fileID: 1951555882909371802, guid: 359da357d630dc34a8e3214cb7aee5f7, type: 3}
     <PerHectare>k__BackingField: 4
-    <Spacing>k__BackingField: 14
-    <PatchFrequency>k__BackingField: 180
-    <PatchThreshold>k__BackingField: 0.55
-    <MaxSlope>k__BackingField: 30
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <MinScale>k__BackingField: 0.75
-    <MaxScale>k__BackingField: 1.85
-    <Squash>k__BackingField: 0.1
-    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
-    <TintVariance>k__BackingField: 0.06
-    <BendFactor>k__BackingField: 0
-    <Footprint>k__BackingField: 1.05606
-    <RoadClearance>k__BackingField: 5
-  - <Prefab>k__BackingField: {fileID: 1844642596526496, guid: f597615a8abb43c40be4c01539ceb80b, type: 3}
-    <PerHectare>k__BackingField: 2.5
-    <Spacing>k__BackingField: 18
-    <PatchFrequency>k__BackingField: 180
-    <PatchThreshold>k__BackingField: 0.58
-    <MaxSlope>k__BackingField: 30
-    <MinHeight>k__BackingField: 0
-    <MaxHeight>k__BackingField: 1
-    <MinScale>k__BackingField: 0.7
-    <MaxScale>k__BackingField: 1.65
-    <Squash>k__BackingField: 0.1
-    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
-    <TintVariance>k__BackingField: 0.06
-    <BendFactor>k__BackingField: 0
-    <Footprint>k__BackingField: 0.88647
-    <RoadClearance>k__BackingField: 4
-  - <Prefab>k__BackingField: {fileID: 1832163050889860, guid: c6437f01ea9e6154f8bee15a6eec78d8, type: 3}
-    <PerHectare>k__BackingField: 1.2
     <Spacing>k__BackingField: 25
     <PatchFrequency>k__BackingField: 180
-    <PatchThreshold>k__BackingField: 0.62
-    <MaxSlope>k__BackingField: 30
+    <PatchThreshold>k__BackingField: 0.53
+    <MaxSlope>k__BackingField: 32
     <MinHeight>k__BackingField: 0
     <MaxHeight>k__BackingField: 1
-    <MinScale>k__BackingField: 0.8
-    <MaxScale>k__BackingField: 1.5
-    <Squash>k__BackingField: 0.1
-    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <MinScale>k__BackingField: 0.45
+    <MaxScale>k__BackingField: 0.75
+    <Squash>k__BackingField: 0.08
+    <Tint>k__BackingField: {r: 0.74, g: 0.64, b: 0.51, a: 1}
     <TintVariance>k__BackingField: 0.06
+    <SnowMin>k__BackingField: 0
+    <SnowMax>k__BackingField: 0
     <BendFactor>k__BackingField: 0
-    <Footprint>k__BackingField: 1.58566
-    <RoadClearance>k__BackingField: 4
-  - <Prefab>k__BackingField: {fileID: 1357747242490952, guid: d8ab54d35fe81704b8af3b42616763a2, type: 3}
+    <Footprint>k__BackingField: 1.3
+    <RoadClearance>k__BackingField: 5
+  - <Prefab>k__BackingField: {fileID: 2235216231006341162, guid: 75a441657e28c2340b71b5329630bc16, type: 3}
     <PerHectare>k__BackingField: 1.5
-    <Spacing>k__BackingField: 24
+    <Spacing>k__BackingField: 26
     <PatchFrequency>k__BackingField: 180
-    <PatchThreshold>k__BackingField: 0.55
-    <MaxSlope>k__BackingField: 30
+    <PatchThreshold>k__BackingField: 0.52
+    <MaxSlope>k__BackingField: 32
     <MinHeight>k__BackingField: 0
     <MaxHeight>k__BackingField: 1
-    <MinScale>k__BackingField: 0.7
-    <MaxScale>k__BackingField: 1.3
-    <Squash>k__BackingField: 0.1
-    <Tint>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+    <MinScale>k__BackingField: 0.65
+    <MaxScale>k__BackingField: 0.96
+    <Squash>k__BackingField: 0.08
+    <Tint>k__BackingField: {r: 0.74, g: 0.64, b: 0.51, a: 1}
     <TintVariance>k__BackingField: 0.06
+    <SnowMin>k__BackingField: 0
+    <SnowMax>k__BackingField: 0
     <BendFactor>k__BackingField: 0
-    <Footprint>k__BackingField: 1.67159
-    <RoadClearance>k__BackingField: 3
+    <Footprint>k__BackingField: 0.9
+    <RoadClearance>k__BackingField: 5
   <Rocks>k__BackingField:
   - <Prefab>k__BackingField: {fileID: 1616784548102220, guid: 9d911d3db44ad56488c3c28cb9e9e5ab, type: 3}
     <PerHectare>k__BackingField: 9

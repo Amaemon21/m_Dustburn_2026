@@ -86,13 +86,16 @@ Shader "BiomeGrass/2D Recolor Wind URP"
         {
             return pow(saturate((y - _WindRoot) / max(1.0 - _WindRoot, 0.01)), _WindExponent);
         }
-        float3 Sway(float3 p, float phase, float height)
+        float3 Sway(float3 p, float2 pivot, float phase, float height)
         {
             float2 direction = _WindDirection.xz;
             direction *= rsqrt(max(dot(direction, direction), 0.0001));
-            float t = _Time.y * _WindSpeed + phase;
-            float sway = sin(t) * 0.7 + sin(t * 1.83 + 0.7) * 0.3;
-            p.xz += direction * sway * _WindStrength * HeightWeight(height);
+            float time = _Time.y * _WindSpeed;
+            float gustPhase = dot(pivot, float2(0.037, 0.051)) * _WindScale - time * 0.08;
+            float gust = 1.0 - abs(frac(gustPhase) * 2.0 - 1.0);
+            gust = 0.55 + 0.45 * gust * gust * (3.0 - 2.0 * gust);
+            float sway = sin(time + phase) * 0.7 + sin(time * 1.83 + phase * 0.71 + 0.7) * 0.3;
+            p.xz += direction * sway * gust * _WindStrength * HeightWeight(height);
             return p;
         }
         half3 InstanceTint(Attributes v)
@@ -111,7 +114,7 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
             float3 pivotWS = TransformObjectToWorld(v.positionOS.xyz + v.toRoot);
             float phase = dot(pivotWS.xz, float2(0.71, 1.13)) * _WindScale;
-            o.positionWS = Sway(TransformObjectToWorld(v.positionOS.xyz), phase, v.uv.y);
+            o.positionWS = Sway(TransformObjectToWorld(v.positionOS.xyz), pivotWS.xz, phase, v.uv.y);
             o.positionCS = TransformWorldToHClip(o.positionWS);
             o.normalWS = TransformObjectToWorldNormal(v.normalOS);
             o.tangentWS = half4(TransformObjectToWorldDir(v.tangentOS.xyz), v.tangentOS.w * GetOddNegativeScale());
@@ -189,7 +192,8 @@ Shader "BiomeGrass/2D Recolor Wind URP"
             half3 tint = w.r * _LeafColor.rgb + w.g * _StemColor.rgb + w.b * _FlowerColor.rgb;
             tint *= lerp(half3(1,1,1), _TipTint.rgb, saturate(i.uv.y));
             tint *= i.tint;
-            half snow = smoothstep(_SnowStart, 1, i.uv.y) * _SnowAmount;
+            half snowVariation = lerp(0.7h, 1.0h, frac(i.phaseFog.x * 0.1031));
+            half snow = smoothstep(_SnowStart, 1, i.uv.y) * _SnowAmount * snowVariation;
             tint = lerp(tint, _SnowColor.rgb, snow);
             half3 albedo = tint * lerp(half3(1,1,1), base.rgb, _TextureShading);
             albedo *= 1 - _RootDarkening * (1 - smoothstep(0, 0.55, i.uv.y));

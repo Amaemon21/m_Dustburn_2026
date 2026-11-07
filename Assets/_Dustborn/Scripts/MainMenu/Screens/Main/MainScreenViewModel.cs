@@ -1,8 +1,8 @@
 using R3;
+using Cysharp.Threading.Tasks;
 
 public sealed class MainScreenViewModel : MainMenuScreenViewModel
 {
-    public string Notice { get; }
     public ReadOnlyReactiveProperty<string> ContinueDetails { get; }
     public ReactiveCommand<Unit> Continue { get; }
     public ReactiveCommand<Unit> NewGame { get; }
@@ -12,11 +12,10 @@ public sealed class MainScreenViewModel : MainMenuScreenViewModel
     public ReactiveCommand<Unit> Quit { get; }
 
     public MainScreenViewModel(MainMenuNavigation navigation, GameSlotCatalog catalog, IMainMenuExit exit,
-        MainMenuEnterParams enterParams) : base(navigation, MainMenuScreen.Main)
+        MainMenuEnterParams enterParams, GameSlotLauncher launcher) : base(navigation, MainMenuScreen.Main)
     {
-        Notice = enterParams.Notice;
         ContinueDetails = catalog.Latest.Select(MainMenuText.SlotSummary).ToReadOnlyReactiveProperty();
-        Disposables.Add(ContinueDetails);
+
 
         Continue = Command();
         NewGame = NavigationCommand(MainMenuScreen.NewGame);
@@ -26,10 +25,24 @@ public sealed class MainScreenViewModel : MainMenuScreenViewModel
         TestScene = Command();
         Quit = Command();
 
-        Disposables.Add(catalog.Latest.Subscribe(latest => Continue.SetCanExecute(latest != null)));
-        Disposables.Add(catalog.Slots.Subscribe(slots => LoadGame.SetCanExecute(slots.Count > 0)));
-        Disposables.Add(Continue.Executed.Subscribe(_ => exit.LoadGame(catalog.Latest.CurrentValue.Id)));
+        Disposables.Add(catalog.Latest.CombineLatest(launcher.Busy, (latest, busy) => latest != null && !busy)
+            .Subscribe(Continue.SetCanExecute));
+        Disposables.Add(catalog.Slots.CombineLatest(launcher.Busy, (slots, busy) => slots.Count > 0 && !busy)
+            .Subscribe(LoadGame.SetCanExecute));
+        Disposables.Add(launcher.Busy.Subscribe(busy =>
+        {
+            NewGame.SetCanExecute(!busy);
+            TestScene.SetCanExecute(!busy);
+            Quit.SetCanExecute(!busy);
+        }));
+        Disposables.Add(Continue.Executed.Subscribe(_ => launcher.LoadAsync(catalog.Latest.CurrentValue?.Id).Forget()));
         Disposables.Add(TestScene.Executed.Subscribe(_ => exit.StartTestScene()));
         Disposables.Add(Quit.Executed.Subscribe(_ => exit.Quit()));
+        Disposables.Add(Shown.Subscribe(_ => catalog.RefreshAsync().Forget()));
+    }
+    protected override void OnDisposed()
+    {
+        base.OnDisposed();
+        ContinueDetails.Dispose();
     }
 }

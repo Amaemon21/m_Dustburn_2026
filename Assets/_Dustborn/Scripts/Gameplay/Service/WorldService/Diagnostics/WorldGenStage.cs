@@ -118,6 +118,8 @@ public enum WorldGenStage
     RecenterSwap,
     GrassMeshSchedule,
     GrassMeshUpload,
+    MapStartReservation,
+    MapGameplay,
 
     Count
 }

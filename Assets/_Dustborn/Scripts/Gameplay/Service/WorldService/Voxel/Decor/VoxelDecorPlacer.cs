@@ -225,7 +225,8 @@ public class VoxelDecorPlacer
     {
         float scale = random.NextFloat(layer.MinScale, Mathf.Max(layer.MinScale, layer.MaxScale));
         float squash = layer.Squash <= 0f ? 1f : random.NextFloat(1f - layer.Squash, 1f + layer.Squash);
-        float shade = layer.TintVariance <= 0f ? 1f : random.NextFloat(1f - layer.TintVariance, 1f + layer.TintVariance);
+        float variance = layer.AppearanceVariance;
+        float shade = variance <= 0f ? 1f : random.NextFloat(1f - variance, 1f + variance);
 
         return new DecorInstance
         {

@@ -159,6 +159,9 @@ public class VoxelDecorLayer
 
     public Color Tint { get; private set; }
     public float TintVariance { get; private set; }
+    public float SnowMin { get; private set; }
+    public float SnowMax { get; private set; }
+    public float AppearanceVariance => Mathf.Max(TintVariance, SnowMax > SnowMin ? 0.01f : 0f);
     public GrassCardStyle Style { get; private set; }
 
     public float Footprint { get; private set; }
@@ -184,6 +187,8 @@ public class VoxelDecorLayer
             HeightScale = 1f,
             Tint = layer.Tint,
             TintVariance = layer.TintVariance,
+            SnowMin = layer.SnowMin,
+            SnowMax = layer.SnowMax,
             Footprint = kind == DecorKind.Tree ? layer.EffectiveFootprint : layer.Footprint,
             RoadClearance = layer.RoadClearance
         };

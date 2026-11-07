@@ -14,6 +14,8 @@ public sealed class WorldPlacementFile
         public Vector2 Footprint;
         public DistrictType District;
         public Vector2 PivotOffset;
+        public PoiGameplay Gameplay;
+        public int ContentSeed;
     }
 
     [Serializable]
@@ -43,7 +45,9 @@ public sealed class WorldPlacementFile
                 Rotation = poi.Rotation,
                 Footprint = poi.Footprint,
                 District = poi.District,
-                PivotOffset = poi.PivotOffset
+                PivotOffset = poi.PivotOffset,
+                Gameplay = poi.Gameplay,
+                ContentSeed = poi.ContentSeed
             });
         }
 
@@ -63,7 +67,7 @@ public sealed class WorldPlacementFile
         return JsonUtility.ToJson(file);
     }
 
-    public static PoiPlacementAsset Read(string json, WorldPrefabIndex prefabs)
+    public static PoiPlacementAsset Read(string json, WorldPrefabIndex prefabs, WorldGameplayPlan gameplay = null)
     {
         WorldPlacementFile file = JsonUtility.FromJson<WorldPlacementFile>(json);
         var missing = new SortedSet<string>();
@@ -78,6 +82,8 @@ public sealed class WorldPlacementFile
             var placement = new PoiPlacement(prefab, new Vector2(record.Position.x, record.Position.z), record.Rotation,
                 record.Footprint, record.District, record.PivotOffset);
             placement.SetHeight(record.Position.y);
+            placement.SetGameplay(record.Gameplay, record.ContentSeed);
+            placement.Gameplay.Validate();
             pois.Add(placement);
         }
 
@@ -92,6 +98,6 @@ public sealed class WorldPlacementFile
         if (missing.Count > 0)
             throw new InvalidOperationException($"The world places prefabs this build does not ship: {string.Join(", ", missing)}");
 
-        return PoiPlacementAsset.Create(pois, props);
+        return PoiPlacementAsset.Create(pois, props, gameplay);
     }
 }

@@ -9,7 +9,7 @@ public static class RendererMaterialProbe
 
     private static readonly List<Material> Materials = new();
 
-    [MenuItem("Tools/Dustborn/Diagnostics/Check Renderer Materials")]
+    [MenuItem("CONTEXT/Renderer/Check Scene Renderer Materials")]
     private static void Scan()
     {
         int reported = 0;

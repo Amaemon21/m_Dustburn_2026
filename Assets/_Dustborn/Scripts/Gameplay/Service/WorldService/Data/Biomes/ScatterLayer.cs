@@ -51,6 +51,14 @@ public class ScatterLayer
     [field: SerializeField, Range(0f, 0.5f)] public float TintVariance { get; private set; } = 0.08f;
 
     [field: SerializeField, Range(0f, 1f)]
+    [field: Tooltip("Minimum snow coverage for foliage materials. Zero on both snow fields keeps this layer snow-free.")]
+    public float SnowMin { get; private set; }
+
+    [field: SerializeField, Range(0f, 1f)]
+    [field: Tooltip("Maximum snow coverage. Each placed plant deterministically selects a shared appearance variant within this range.")]
+    public float SnowMax { get; private set; }
+
+    [field: SerializeField, Range(0f, 1f)]
     [field: Tooltip("Wind bending. Only tree shaders that read it respond, so Synty prefabs ignore this.")]
     public float BendFactor { get; private set; }
 
@@ -86,6 +94,8 @@ public class ScatterLayer
         Squash = 0.12f;
         Tint = Color.white;
         TintVariance = 0.08f;
+        SnowMin = 0f;
+        SnowMax = 0f;
         BendFactor = 0f;
         Footprint = 1.5f;
         RoadClearance = 3f;

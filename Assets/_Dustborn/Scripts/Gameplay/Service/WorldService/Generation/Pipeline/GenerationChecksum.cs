@@ -136,6 +136,24 @@ public static class GenerationChecksum
         return Format(hash);
     }
 
+    public static string OfRawBytes(byte[] values)
+    {
+        var blocks = new ulong[Blocks(values.Length)];
+        Parallel.For(0, blocks.Length, block =>
+        {
+            int end = Math.Min(values.Length, (block + 1) * BLOCK);
+            ulong hash = OFFSET;
+            for (int i = block * BLOCK; i < end; i++)
+            {
+                hash ^= values[i];
+                hash *= PRIME;
+            }
+
+            blocks[block] = hash;
+        });
+        return Format(Combine(blocks));
+    }
+
     public static string Of(int[] values)
     {
         ulong hash = OFFSET;

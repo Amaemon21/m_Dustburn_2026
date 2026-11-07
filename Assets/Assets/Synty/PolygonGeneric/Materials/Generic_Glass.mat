@@ -36,6 +36,7 @@ Material:
     RenderType: Transparent
   disabledShaderPasses:
   - DepthOnly
+  - SHADOWCASTER
   - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
@@ -77,7 +78,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _Alpha_Clip_Threshold: 0.5
+    - _Alpha_Clip_Threshold: 0
     - _BUILTIN_AlphaClip: 0
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 0
@@ -92,7 +93,7 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
-    - _CastShadows: 1
+    - _CastShadows: 0
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -101,7 +102,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.389
     - _GlossyReflections: 1
-    - _Metallic: 0.11299995
+    - _Metallic: 0.52
     - _Mode: 3
     - _Normal_Amount: 1
     - _OcclusionStrength: 1
@@ -109,7 +110,7 @@ Material:
     - _QueueControl: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.389
+    - _Smoothness: 0.053
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

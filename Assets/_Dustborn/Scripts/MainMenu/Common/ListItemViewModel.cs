@@ -1,8 +1,18 @@
 using System;
 using R3;
+using UnityEngine;
 
 public sealed class ListItemViewModel : ViewModel
 {
+    private readonly ReactiveProperty<Texture2D> _thumbnail = new();
+    public ReadOnlyReactiveProperty<Texture2D> Thumbnail => _thumbnail;
+
+    public void SetThumbnail(Texture2D texture)
+    {
+        if (!IsDisposed)
+            _thumbnail.Value = texture;
+    }
+
     public string Title { get; }
     public string Details { get; }
     public ReadOnlyReactiveProperty<bool> IsSelected { get; }
@@ -14,8 +24,12 @@ public sealed class ListItemViewModel : ViewModel
         Details = details;
         IsSelected = isSelected.ToReadOnlyReactiveProperty();
 
-        Disposables.Add(IsSelected);
-        Disposables.Add(Select);
         Disposables.Add(Select.Executed.Subscribe(_ => select()));
+    }
+    protected override void OnDisposed()
+    {
+        IsSelected.Dispose();
+        _thumbnail.Dispose();
+        Select.Dispose();
     }
 }

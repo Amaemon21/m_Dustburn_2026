@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using R3;
 
 public abstract class MainMenuScreenViewModel : ViewModel
 {
     private readonly MainMenuScreen _screen;
+    private readonly List<ReactiveCommand<Unit>> _commands = new();
 
     protected MainMenuNavigation Navigation { get; }
     public ReadOnlyReactiveProperty<bool> IsVisible { get; }
@@ -13,7 +15,6 @@ public abstract class MainMenuScreenViewModel : ViewModel
         _screen = screen;
         Navigation = navigation;
         IsVisible = navigation.Current.Select(current => current == screen).ToReadOnlyReactiveProperty();
-        Disposables.Add(IsVisible);
     }
 
     public virtual void GoBack()
@@ -32,7 +33,14 @@ public abstract class MainMenuScreenViewModel : ViewModel
     protected ReactiveCommand<Unit> Command()
     {
         ReactiveCommand<Unit> command = new();
-        Disposables.Add(command);
+        _commands.Add(command);
         return command;
+    }
+
+    protected override void OnDisposed()
+    {
+        foreach (ReactiveCommand<Unit> command in _commands)
+            command.Dispose();
+        IsVisible.Dispose();
     }
 }

@@ -7,18 +7,18 @@ using UnityEngine;
 
 public static class MainMenuTerrainRepair
 {
-    private const string MENU = "Tools/Dustborn/Repair Selected Main Menu Terrain";
+    private const string MENU = "CONTEXT/Terrain/Repair Main Menu Terrain";
 
     [MenuItem(MENU, true)]
-    private static bool CanRepairSelected()
+    private static bool CanRepairSelected(MenuCommand command)
     {
-        return IsValid(Selection.activeGameObject != null ? Selection.activeGameObject.GetComponent<Terrain>() : null);
+        return IsValid(command.context as Terrain);
     }
 
     [MenuItem(MENU)]
-    private static void RepairSelected()
+    private static void RepairSelected(MenuCommand command)
     {
-        Repair(Selection.activeGameObject.GetComponent<Terrain>());
+        Repair((Terrain)command.context);
     }
 
     public static bool IsValid(Terrain terrain)

@@ -29,6 +29,9 @@ public sealed class WorldDiskLoader
         string fingerprint = WorldFingerprint.Of(manifest.GeneratorVersion, manifest.Seed, manifest.WorldSize, content.Heights,
             content.Water, manifest.Placements, manifest.Props);
 
+        if (manifest.FingerprintVersion == 2)
+            fingerprint = WorldFingerprint.WithContent(fingerprint, content.ConfigJson, content.RoadsJson, content.PlacementJson, content.GameplayJson);
+
         if (fingerprint != manifest.Fingerprint)
             throw new InvalidOperationException($"World '{manifest.Id}' is damaged: its files hash to {fingerprint}, the manifest says {manifest.Fingerprint}");
 
@@ -46,7 +49,19 @@ public sealed class WorldDiskLoader
             var roads = Track(owned, ScriptableObject.CreateInstance<RoadNetworkAsset>());
             JsonUtility.FromJsonOverwrite(content.RoadsJson, roads);
 
-            PoiPlacementAsset placement = Track(owned, WorldPlacementFile.Read(content.PlacementJson, new WorldPrefabIndex(_settings.Pois, _settings.Props)));
+            WorldGameplayPlan gameplay = manifest.GameplayVersion > 0 ? JsonUtility.FromJson<WorldGameplayPlan>(content.GameplayJson) : null;
+            if (manifest.GameplayVersion > 0)
+            {
+                if (gameplay == null || gameplay.Version != manifest.GameplayVersion)
+                    throw new InvalidOperationException("The world gameplay plan is missing or incompatible.");
+
+                gameplay.Validate(config.WorldSize, manifest.Placements);
+            }
+
+            PoiPlacementAsset placement = Track(owned, WorldPlacementFile.Read(content.PlacementJson, new WorldPrefabIndex(_settings.Pois, _settings.Props), gameplay));
+            if (placement.Placements.Count != manifest.Placements || placement.Props.Count != manifest.Props)
+                throw new InvalidOperationException("The world placement counts do not match its manifest.");
+
             Material material = Track(owned, Ground(manifest, content.Controls, owned));
             WaterMap water = WaterMapFormat.Read(content.Water);
 

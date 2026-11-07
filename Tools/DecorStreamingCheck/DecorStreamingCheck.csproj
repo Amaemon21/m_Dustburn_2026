@@ -14,6 +14,9 @@
     <Compile Include="$(Decor)/VoxelDecorDemolition.cs" />
     <Compile Include="$(Decor)/PooledDecorObject.cs" />
     <Compile Include="$(Decor)/MeshCombiner.Copies.cs" />
+    <Compile Include="$(Decor)/MeshCombiner.Tint.cs" />
+    <Compile Include="$(Decor)/DecorTint.cs" />
+    <Compile Include="$(Decor)/FoliageSnow.cs" />
     <Compile Include="$(Decor)/MeshCombinePlan.cs" />
     <Compile Include="$(Decor)/DecorKey.cs" />
     <Compile Include="$(Decor)/IDecorObjectHook.cs" />

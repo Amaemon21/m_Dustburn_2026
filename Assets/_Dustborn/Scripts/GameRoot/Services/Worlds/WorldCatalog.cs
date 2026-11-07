@@ -7,9 +7,14 @@ using UnityEngine;
 
 public sealed class WorldCatalog
 {
-    public const string FOLDER = "Worlds";
+    private readonly GameSlotService _slots;
 
-    private const string SCENE_WORLD_NAME = "Мир из сцены (редактор)";
+    public WorldCatalog(GameSlotService slots)
+    {
+        _slots = slots;
+    }
+
+    public const string FOLDER = "Worlds";
 
     public static string BuiltInRoot => Path.Combine(Application.streamingAssetsPath, FOLDER);
     public static string UserRoot => Path.Combine(Application.persistentDataPath, FOLDER);
@@ -19,18 +24,13 @@ public sealed class WorldCatalog
         string builtIn = BuiltInRoot;
         string user = UserRoot;
 
-        List<WorldInfo> worlds = await UniTask.RunOnThreadPool(() =>
+        return await UniTask.RunOnThreadPool(() =>
         {
             var found = new List<WorldInfo>();
             Scan(builtIn, true, found);
             Scan(user, false, found);
             return found;
         }, cancellationToken: token);
-
-#if UNITY_EDITOR
-        worlds.Add(WorldInfo.SceneWorld(SCENE_WORLD_NAME));
-#endif
-        return worlds;
     }
 
     public async UniTask<WorldInfo> FindAsync(string id, CancellationToken token)
@@ -44,7 +44,7 @@ public sealed class WorldCatalog
         return null;
     }
 
-    public UniTask DeleteAsync(WorldInfo world, CancellationToken token)
+    public async UniTask DeleteAsync(WorldInfo world, CancellationToken token)
     {
         if (world.BuiltIn || world.IsSceneWorld)
             throw new InvalidOperationException($"World '{world.Id}' ships with the game and cannot be deleted");
@@ -54,7 +54,9 @@ public sealed class WorldCatalog
         if (!directory.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"World '{world.Id}' is not inside the generated worlds folder");
 
-        return UniTask.RunOnThreadPool(() =>
+        WorldDeletionPolicy.EnsureUnused(world.Id, await _slots.ListAsync(token));
+
+        await UniTask.RunOnThreadPool(() =>
         {
             if (Directory.Exists(directory))
                 Directory.Delete(directory, true);

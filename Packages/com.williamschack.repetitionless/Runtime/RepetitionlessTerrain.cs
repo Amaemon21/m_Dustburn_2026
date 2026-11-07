@@ -63,7 +63,7 @@ namespace Repetitionless.Runtime
             }
         }
 
-        private TerrainData _terrainData => Terrain?.terrainData;
+        private TerrainData _terrainData => Terrain != null ? Terrain.terrainData : null;
 
         /// <summary>
         /// The parent terrain that is handling this terrains material
@@ -97,10 +97,13 @@ namespace Repetitionless.Runtime
 
         private void OnSceneSaved(Scene scene)
         {
+            if (this == null || Terrain == null)
+                return;
+
             UpdateMaterialTerrainTextures();
 
     #if UNITY_EDITOR
-            if (Terrain.materialTemplate != MaterialInstance || MaterialInstance.shader.name == "Hidden/InternalErrorShader")
+            if (MaterialInstance == null || Terrain.materialTemplate != MaterialInstance || MaterialInstance.shader.name == "Hidden/InternalErrorShader")
                 UpdateTerrainMaterial(MainMaterial);
             else if (_mainMaterial != null)
                 _materialInstance.CopyPropertiesFromMaterial(_mainMaterial);
@@ -128,25 +131,35 @@ namespace Repetitionless.Runtime
 
             // Set dirty and update textures on next editor frame
             // For some reason doing it immediately doesnt work
-            EditorApplication.delayCall += () => {
-                SetDirty();
-                UpdateMaterialTerrainTextures();
-                AssignMaterialInstance();
-
-                // Update the material if required
-                if (Terrain.materialTemplate != MaterialInstance || MaterialInstance.shader.name == "Hidden/InternalErrorShader")
-                    UpdateTerrainMaterial(MainMaterial);
-                else if (_mainMaterial != null)
-                    _materialInstance.CopyPropertiesFromMaterial(_mainMaterial);
-            };
+            EditorApplication.delayCall -= InitializeEditorTerrain;
+            EditorApplication.delayCall += InitializeEditorTerrain;
     #else
             UpdateMaterialTerrainTextures();
     #endif
         }
 
+    #if UNITY_EDITOR
+        private void InitializeEditorTerrain()
+        {
+            if (this == null || !isActiveAndEnabled || Terrain == null)
+                return;
+
+            SetDirty();
+            UpdateMaterialTerrainTextures();
+            AssignMaterialInstance();
+
+            if (MaterialInstance == null || Terrain.materialTemplate != MaterialInstance || MaterialInstance.shader.name == "Hidden/InternalErrorShader")
+                UpdateTerrainMaterial(MainMaterial);
+            else if (_mainMaterial != null)
+                _materialInstance.CopyPropertiesFromMaterial(_mainMaterial);
+        }
+    #endif
+
         void OnDisable()
         {
     #if UNITY_EDITOR
+            EditorApplication.delayCall -= InitializeEditorTerrain;
+            EditorApplication.delayCall -= RefreshMaterialTerrainTextures;
             EditorSceneManager.sceneSaved -= OnSceneSaved;
 
             if (ParentTerrain != null) {
@@ -155,8 +168,11 @@ namespace Repetitionless.Runtime
                 ParentTerrain.OnMaterialTexturesUpdated -= ParentMaterialTexturesUpdated;
             }
 
-            // Switch to default terrain material
-            _terrain.materialTemplate = _defaultTerrainMaterial;
+            Terrain terrain = _terrain;
+            if (terrain == null)
+                return;
+
+            terrain.materialTemplate = _defaultTerrainMaterial;
     #endif
         }
 
@@ -194,8 +210,12 @@ namespace Repetitionless.Runtime
         /// </summary>
         public void AssignMaterialInstance()
         {
+            Terrain terrain = Terrain;
+            if (terrain == null)
+                return;
+
             Material assigning = _materialInstance == null ? _defaultTerrainMaterial : _materialInstance;
-            Terrain.materialTemplate = assigning;
+            terrain.materialTemplate = assigning;
             OnMaterialAssigned?.Invoke(_mainMaterial);
         }
 
@@ -205,15 +225,23 @@ namespace Repetitionless.Runtime
         public void UpdateMaterialTerrainTextures()
         {
     #if UNITY_EDITOR
-            // Delay call so new properties can apply
-            EditorApplication.delayCall += () => {
+            EditorApplication.delayCall -= RefreshMaterialTerrainTextures;
+            EditorApplication.delayCall += RefreshMaterialTerrainTextures;
+    #else
+            RefreshMaterialTerrainTextures();
     #endif
+        }
 
-            // this == null to prevent error on end of build
-            if (_mainMaterial == null || _terrain == null || _terrainData == null || this == null)
+        private void RefreshMaterialTerrainTextures()
+        {
+            if (this == null || !isActiveAndEnabled || _mainMaterial == null)
                 return;
 
-            if (_materialInstance == null || _materialInstance.shader.name == "Hidden/InternalErrorShader" || Terrain.materialTemplate == null)
+            Terrain terrain = Terrain;
+            if (terrain == null || terrain.terrainData == null)
+                return;
+
+            if (_materialInstance == null || _materialInstance.shader.name == "Hidden/InternalErrorShader" || terrain.materialTemplate == null)
                 UpdateTerrainMaterial(_mainMaterial);
 
             // Copy any changed properties from the main material
@@ -228,9 +256,6 @@ namespace Repetitionless.Runtime
     #endif
 
             OnMaterialTexturesUpdated?.Invoke();
-    #if UNITY_EDITOR
-            };
-    #endif
         }
 
         /// <summary>

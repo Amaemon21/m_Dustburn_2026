@@ -42,5 +42,6 @@ public sealed class SaveInstaller : IInstaller
         builder.RegisterInstance<ISaveStorage>(new FileSaveStorage(root));
         builder.Register<ISaveSerializer, NewtonsoftSaveSerializer>(Lifetime.Singleton);
         builder.Register<ISaveService, SaveService>(Lifetime.Singleton);
+        builder.Register<GameSlotImageStore>(Lifetime.Singleton);
     }
 }

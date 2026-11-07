@@ -19,6 +19,7 @@ public sealed class WorldData : IDisposable
     public RoadNetworkAsset Roads { get; }
     public PoiPlacementAsset Placement { get; }
     public Material Material { get; }
+    public WorldGameplayPlan Gameplay => Placement?.Gameplay;
 
     public byte[] Heights => _heights ?? throw new InvalidOperationException($"World '{Id}': the raw heights were released once the terrain decoded them");
 

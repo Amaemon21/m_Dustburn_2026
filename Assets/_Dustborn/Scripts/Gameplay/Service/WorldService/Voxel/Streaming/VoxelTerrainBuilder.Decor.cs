@@ -37,12 +37,12 @@ public partial class VoxelTerrainBuilder
             builds.Add(new VoxelDecorBuild(origin, size, bucket.transform, key.Lod, frame));
         }
 
-        progress?.Invoke("Трава, деревья и камни", 0.7f);
+        progress?.Invoke("\u0422\u0440\u0430\u0432\u0430, \u0434\u0435\u0440\u0435\u0432\u044C\u044F \u0438 \u043A\u0430\u043C\u043D\u0438", 0.7f);
         spawner.Prepare(builds);
 
         for (int i = 0; i < builds.Count; i++)
         {
-            progress?.Invoke("Трава, деревья и камни", 0.7f + 0.3f * i / Mathf.Max(1, builds.Count));
+            progress?.Invoke("\u0422\u0440\u0430\u0432\u0430, \u0434\u0435\u0440\u0435\u0432\u044C\u044F \u0438 \u043A\u0430\u043C\u043D\u0438", 0.7f + 0.3f * i / Mathf.Max(1, builds.Count));
 
             spawner.Spawn(builds[i]);
         }
@@ -91,6 +91,8 @@ public partial class VoxelTerrainBuilder
             _poiPlacement == null ? null : _poiPlacement.Placements, WidestFootprint());
 
         filter.Water = _waterMap ??= WaterMapFormat.Load(_water);
+        if (_poiPlacement?.Gameplay?.HasSpawn == true)
+            filter.Start = new Vector2(_poiPlacement.Gameplay.Spawn.x, _poiPlacement.Gameplay.Spawn.z);
 
         var placer = new VoxelDecorPlacer(_config, _biomes, field, filter, _grassDensity);
 

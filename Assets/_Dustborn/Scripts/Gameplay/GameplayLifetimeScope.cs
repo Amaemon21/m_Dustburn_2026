@@ -90,6 +90,7 @@ public class GameplayLifetimeScope : LifetimeScope
 
     private void RegisterSaving(IContainerBuilder builder)
     {
+        builder.Register<GameplaySaveScreenshotService>(Lifetime.Singleton).As<IGameplayActivatable>();
         builder.Register<GameplaySaveInputService>(Lifetime.Singleton).As<IGameplayActivatable>();
     }
 

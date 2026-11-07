@@ -36,8 +36,9 @@ public class BakedWorld : ScriptableObject
         if (!IsValid)
             throw new System.InvalidOperationException($"{name}: an incomplete or stale bake has no fingerprint");
 
-        return WorldFingerprint.Of(GeneratorVersion, Config.Seed, Config.WorldSize, HeightMap.GetData<byte>(), Water.GetData<byte>(),
+        string fingerprint = WorldFingerprint.Of(GeneratorVersion, Config.Seed, Config.WorldSize, HeightMap.GetData<byte>(), Water.GetData<byte>(),
             Placement.Placements.Count, Placement.Props.Count);
+        return Placement.Gameplay == null ? fingerprint : WorldFingerprint.WithLayout(fingerprint, Roads, Placement);
     }
 
 #if UNITY_EDITOR

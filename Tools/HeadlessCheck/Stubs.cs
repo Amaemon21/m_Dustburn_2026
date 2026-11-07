@@ -283,7 +283,7 @@ namespace UnityEngine
 
     public class ScriptableObject : Object
     {
-        public static T CreateInstance<T>() where T : ScriptableObject => default;
+        public static T CreateInstance<T>() where T : ScriptableObject => (T)Activator.CreateInstance(typeof(T));
     }
 
     public static class Debug

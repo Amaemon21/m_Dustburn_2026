@@ -33,6 +33,10 @@ public struct HeightFieldSettings
     public float MountainMaskFrequency;
     public float MountainMaskLow;
     public float MountainMaskHigh;
+    public float HillMaskLow;
+    public float HillMaskHigh;
+    public float PlainsHill;
+    public float PlainsDetail;
 }
 
 [BurstCompile(FloatPrecision.Standard, FloatMode.Strict, CompileSynchronously = true, DisableSafetyChecks = true)]
@@ -81,15 +85,18 @@ public struct HeightMapJob : IJobParallelFor
 
         float maskNoise = FractalNoise.Sample01(uv * Settings.MountainMaskFrequency, MaskOffset, 3, 2f, 0.5f);
         float mask = math.smoothstep(Settings.MountainMaskLow, Settings.MountainMaskHigh, maskNoise);
+        float hilly = math.smoothstep(Settings.HillMaskLow, Settings.HillMaskHigh, maskNoise);
+        float hillMask = math.lerp(Settings.PlainsHill, 1f, hilly);
+        float detailMask = math.lerp(Settings.PlainsDetail, 1f, hilly);
 
         float relief = Settings.ReliefScale;
 
         float height = blended.BaseHeight
                        + Settings.ContinentAmplitude * continent
-                       + blended.HillAmplitude * hills * relief
+                       + blended.HillAmplitude * hills * hillMask * relief
                        + blended.RidgeAmplitude * ridge * mask * relief
                        + blended.DuneAmplitude * dune * relief
-                       + blended.DetailAmplitude * detail * relief;
+                       + blended.DetailAmplitude * detail * detailMask * relief;
 
         Heights[index] = math.saturate(height);
     }

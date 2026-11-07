@@ -4,12 +4,13 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public sealed class SaveService : ISaveService
+public sealed class SaveService : ISaveService, IDisposable
 {
     public const string DEFAULT_SLOT = "slot_0";
 
     public const string FILE_EXTENSION = ".json";
 
+    private readonly List<Func<string, CancellationToken, UniTask>> _slotSaved = new();
     private readonly SaveRegistry _registry;
     private readonly ISaveStorage _storage;
     private readonly ISaveSerializer _serializer;
@@ -23,7 +24,36 @@ public sealed class SaveService : ISaveService
     private long _globalSession;
     private long _slotSession;
 
+    private bool _disposed;
     private string _activeSlot = DEFAULT_SLOT;
+
+    public IDisposable SubscribeSlotSaved(Func<string, CancellationToken, UniTask> callback)
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(SaveService));
+        if (callback == null)
+            throw new ArgumentNullException(nameof(callback));
+        _slotSaved.Add(callback);
+        return new SaveSubscription(_slotSaved, callback);
+    }
+
+    private sealed class SaveSubscription : IDisposable
+    {
+        private List<Func<string, CancellationToken, UniTask>> _callbacks;
+        private readonly Func<string, CancellationToken, UniTask> _callback;
+
+        public SaveSubscription(List<Func<string, CancellationToken, UniTask>> callbacks, Func<string, CancellationToken, UniTask> callback)
+        {
+            _callbacks = callbacks;
+            _callback = callback;
+        }
+
+        public void Dispose()
+        {
+            _callbacks?.Remove(_callback);
+            _callbacks = null;
+        }
+    }
 
     public SaveRegistry Registry => _registry;
     public string ActiveSlot => _activeSlot;
@@ -295,6 +325,8 @@ public sealed class SaveService : ISaveService
     {
         long globalSession = _globalSession;
         long slotSession = _slotSession;
+        string slotId = _activeSlot;
+        bool savedSlot = false;
         await _writeLock.WaitAsync(token);
         try
         {
@@ -308,12 +340,36 @@ public sealed class SaveService : ISaveService
                 if (expected != Session(sections[0].Scope))
                     throw new InvalidOperationException("Save state changed while saving");
                 await WriteFileAsync(fileName, token);
+                savedSlot |= sections[0].Scope == SaveScope.Slot;
             }
         }
         finally
         {
             _writeLock.Release();
         }
+        if (!_disposed && savedSlot && slotSession == _slotSession && slotId == _activeSlot)
+        {
+            foreach (Func<string, CancellationToken, UniTask> callback in _slotSaved.ToArray())
+            {
+                try
+                {
+                    await callback(slotId, token);
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception exception)
+                {
+                    Debug.LogWarning($"The save completed, but an after-save operation failed: {exception.Message}");
+                }
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+        _disposed = true;
+        _slotSaved.Clear();
     }
 
     private async UniTask WriteFileAsync(string fileName, CancellationToken token)

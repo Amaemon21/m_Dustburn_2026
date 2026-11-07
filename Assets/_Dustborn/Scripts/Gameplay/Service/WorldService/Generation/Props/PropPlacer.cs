@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -26,6 +27,7 @@ public sealed partial class PropPlacer
     private readonly Dictionary<PropContext, (List<PropDefinition> Definitions, float Total)> _byContext = new();
     private readonly List<PropPlacement> _placed = new();
     private readonly float _widest;
+    private readonly Vector2? _start;
     private Random _random;
 
     private readonly Dictionary<PropContext, int> _counts = new();
@@ -38,7 +40,7 @@ public sealed partial class PropPlacer
     private int _refusedBorder;
 
     public PropPlacer(WorldGenerationConfig config, PropDatabase database, BiomeDatabase biomes, BiomeMap biomeMap,
-        HeightMap heights, WaterMap water, RoadNetwork network, IReadOnlyList<PoiPlacement> pois)
+        HeightMap heights, WaterMap water, RoadNetwork network, IReadOnlyList<PoiPlacement> pois, Vector2? start = null)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _database = database ?? throw new ArgumentNullException(nameof(database));
@@ -46,6 +48,7 @@ public sealed partial class PropPlacer
         _biomeMap = biomeMap;
         _heights = heights ?? throw new ArgumentNullException(nameof(heights));
         _water = water;
+        _start = start;
         _network = network ?? throw new ArgumentNullException(nameof(network));
         _pois = pois ?? Array.Empty<PoiPlacement>();
         _widest = Mathf.Max(0.1f, database.WidestRadius);
@@ -59,20 +62,58 @@ public sealed partial class PropPlacer
             _byContext[context] = Collect(context);
     }
 
-    public List<PropPlacement> Place()
+    public List<PropPlacement> Place(WorldGameplayPlan plan = null, CancellationToken cancellationToken = default)
     {
         _placed.Clear();
 
+        PlaceStarterSupplies(plan, cancellationToken);
         PlaceAlongRoads(_network.Roads, PropContext.Road);
         PlaceAlongRoads(_network.Streets, PropContext.Street);
         PlaceYards();
         PlaceWild();
 
-        Debug.Log($"Props: {_placed.Count} placed — road {Count(PropContext.Road)}, street {Count(PropContext.Street)}, yard {Count(PropContext.Yard)}, wild {Count(PropContext.Wild)}. " +
+        Debug.Log($"Props: {_placed.Count} placed, road {Count(PropContext.Road)}, street {Count(PropContext.Street)}, yard {Count(PropContext.Yard)}, wild {Count(PropContext.Wild)}, starter {Count(PropContext.Starter)}. " +
             $"Refused {_refusedWater} by water, {_refusedSlope} too steep, {_refusedPad} on a building, {_refusedRoad} on a road, " +
             $"{_refusedCrowd} crowded, {_refusedBiome} outside their biome, {_refusedBorder} past the border");
 
         return new List<PropPlacement>(_placed);
+    }
+
+    private void PlaceStarterSupplies(WorldGameplayPlan plan, CancellationToken cancellationToken)
+    {
+        List<PropDefinition> definitions = _byContext[PropContext.Starter].Definitions;
+        if (plan?.HasSpawn != true || plan.StarterPois.Length == 0 || definitions.Count == 0)
+            return;
+
+        PropDefinition definition = definitions[0];
+        var start = new Vector2(plan.Spawn.x, plan.Spawn.z);
+        Vector2 approach = WorldWalkability.Approach(_pois[plan.StarterPois[0]]);
+        Vector2 direction = (approach - start).normalized;
+        Vector2 side = new(direction.y, -direction.x);
+        var buildings = new PoiSpatialIndex(_config.WorldSize, _pois);
+        var walkability = new WorldWalkability(_config, _heights.SampleWorldSmooth, _water, buildings);
+        float yaw = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+
+        for (float setback = 4f; setback <= 36f; setback += 4f)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            Vector2 onPath = approach - direction * setback;
+            for (int offset = 2; offset <= 12; offset += 2)
+            {
+                for (int sign = -1; sign <= 1; sign += 2)
+                {
+                    Vector2 point = onPath + side * (offset * sign);
+                    if (!TryAccept(definition, point, true, 1f, out float ground)
+                        || !walkability.CanWalk(start, point))
+                        continue;
+
+                    Commit(definition, PropContext.Starter, point, ground, yaw);
+                    return;
+                }
+            }
+        }
+
+        throw new InvalidOperationException($"Seed {_config.Seed}: no dry walkable location for starter supplies near the first POI.");
     }
 
     private (List<PropDefinition> Definitions, float Total) Collect(PropContext context)
@@ -120,6 +161,9 @@ public sealed partial class PropPlacer
     {
         ground = 0f;
         float radius = definition.Radius;
+        if (_start.HasValue && (point - _start.Value).sqrMagnitude < (radius + 4f) * (radius + 4f))
+            return Refuse(ref _refusedCrowd);
+
         float limit = _config.WorldSize - EDGE_MARGIN - radius;
 
         if (point.x < EDGE_MARGIN + radius || point.y < EDGE_MARGIN + radius || point.x > limit || point.y > limit)

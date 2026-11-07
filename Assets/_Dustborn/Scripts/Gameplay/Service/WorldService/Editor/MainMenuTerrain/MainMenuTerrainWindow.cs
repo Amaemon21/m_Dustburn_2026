@@ -19,7 +19,7 @@ public sealed class MainMenuTerrainWindow : EditorWindow
     [SerializeField] private Terrain _repairTerrain;
     private Vector2 _scroll;
 
-    [MenuItem("Tools/Dustborn/Main Menu Terrain")]
+    [MenuItem("CONTEXT/Terrain/Main Menu Terrain Generator")]
     public static void Open()
     {
         GetWindow<MainMenuTerrainWindow>("Main Menu Terrain");

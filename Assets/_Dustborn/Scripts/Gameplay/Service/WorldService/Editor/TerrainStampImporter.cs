@@ -29,7 +29,6 @@ public static class TerrainStampImporter
         public float suggested_amplitude_m;
     }
 
-    [MenuItem("Мир/Импорт штампов рельефа")]
     public static void Import()
     {
         try

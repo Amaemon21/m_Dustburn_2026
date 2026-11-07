@@ -7,6 +7,8 @@ public sealed class MainMenuUIInstaller : IInstaller
     {
         builder.Register<MainMenuNavigation>(Lifetime.Singleton);
         builder.Register<GameSlotCatalog>(Lifetime.Singleton);
+        builder.Register<GameSlotThumbnailCache>(Lifetime.Singleton);
+        builder.Register<GameSlotLauncher>(Lifetime.Singleton);
         builder.Register<WorldSelection>(Lifetime.Singleton);
         builder.Register<ConfirmDialogViewModel>(Lifetime.Singleton);
         builder.Register<WorldPreviewCache>(Lifetime.Singleton);

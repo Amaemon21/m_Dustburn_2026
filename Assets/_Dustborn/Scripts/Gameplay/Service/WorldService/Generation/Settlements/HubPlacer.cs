@@ -19,16 +19,20 @@ public class HubPlacer
     private readonly WorldGenerationConfig _config;
     private readonly HeightMap _map;
     private readonly WaterMap _water;
+    private readonly BiomeDatabase _biomes;
+    private readonly BiomeMap _biomeMap;
 
     public int[] Requested { get; } = new int[ORDER.Length];
     public int[] Placed { get; } = new int[ORDER.Length];
     public int BuildableCells { get; private set; }
 
-    public HubPlacer(WorldGenerationConfig config, HeightMap map, WaterMap water)
+    public HubPlacer(WorldGenerationConfig config, HeightMap map, WaterMap water, BiomeDatabase biomes = null, BiomeMap biomeMap = null)
     {
         _config = config;
         _map = map;
         _water = water;
+        _biomes = biomes;
+        _biomeMap = biomeMap;
     }
 
     public List<Hub> Place()
@@ -91,25 +95,43 @@ public class HubPlacer
             return compare != 0 ? compare : left.Cell.CompareTo(right.Cell);
         });
 
+        if (type == SettlementType.CountryTown && _config.Gameplay?.Enabled == true && _biomeMap != null && _biomes != null)
+        {
+            foreach ((float _, int cell) in candidates)
+            {
+                Vector2 center = Center(cell, step, resolution);
+                if (_biomes.Get(_biomeMap.SampleWorld(new Vector3(center.x, 0f, center.y))).Type != BiomeType.PineForest)
+                    continue;
+
+                if (TryPlace(hubs, center, radius, type, profile))
+                    break;
+            }
+        }
+
         foreach ((float _, int cell) in candidates)
         {
             if (Placed[index] >= profile.Count)
                 break;
 
-            var center = new Vector2((cell % resolution + 0.5f) * step, (cell / resolution + 0.5f) * step);
-
-            if (!IsSpaced(hubs, center, radius, type, profile))
-                continue;
-
-            float relief = MeasureRelief(center.x, center.y);
-
-            if (relief > _config.MaxHubRelief)
-                continue;
-
-            hubs.Add(new Hub(center, radius, relief, 0, type));
-            Placed[index]++;
+            TryPlace(hubs, Center(cell, step, resolution), radius, type, profile);
         }
     }
+
+    private bool TryPlace(List<Hub> hubs, Vector2 center, float radius, SettlementType type, SettlementTypeProfile profile)
+    {
+        if (!IsSpaced(hubs, center, radius, type, profile))
+            return false;
+
+        float relief = MeasureRelief(center.x, center.y);
+        if (relief > _config.MaxHubRelief)
+            return false;
+
+        hubs.Add(new Hub(center, radius, relief, 0, type));
+        Placed[(int)type]++;
+        return true;
+    }
+
+    private static Vector2 Center(int cell, float step, int resolution) => new((cell % resolution + 0.5f) * step, (cell / resolution + 0.5f) * step);
 
     private bool[] Buildable(float step, int resolution)
     {

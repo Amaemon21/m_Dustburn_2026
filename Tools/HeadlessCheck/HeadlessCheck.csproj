@@ -22,6 +22,14 @@
     <Compile Include="RecenterChecks.cs" />
     <Compile Include="JobStubs.cs" />
     <Compile Include="AssetReader.cs" />
+    <Compile Include="VariationChecks.cs" />
+    <Compile Include="GameplayGenerationChecks.cs" />
+    <Compile Include="StartExperienceAudit.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/Worlds/WorldPlacementFile.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/Worlds/WorldPrefabIndex.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/Worlds/WorldDiskContent.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/Worlds/WorldDiskFormat.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Services/Worlds/WorldManifest.cs" />
     <Compile Include="Missing.cs" />
     <Compile Include="Png.cs" />
     <Compile Include="Draw.cs" />
@@ -65,7 +73,7 @@
     <Compile Include="VariationRun.cs" />
     <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
     <Compile Include="$(Mathematics)/**/*.cs" Exclude="$(Mathematics)/math_unity_conversion.cs;$(Mathematics)/PropertyAttributes.cs" />
-    <Compile Include="$(SharedUtils)/**/*.cs" Exclude="$(SharedUtils)/UIWear/**/*.cs" />
+    <Compile Include="$(SharedUtils)/**/*.cs" Exclude="$(SharedUtils)/UIWear/**/*.cs;$(SharedUtils)/Button/**/*.cs" />
     <Compile Include="$(WorldGeneration)/**/*.cs"
              Exclude="$(WorldGeneration)/Editor/**/*.cs;
                       $(WorldGeneration)/Runtime/WorldGenerator.cs;
@@ -78,6 +86,7 @@
                       $(WorldGeneration)/Voxel/Streaming/VoxelTerrainStreamer*.cs;
                       $(WorldGeneration)/Voxel/Decor/VoxelDecorSpawner.cs;
                       $(WorldGeneration)/Voxel/Decor/MeshCombiner*.cs;
+                      $(WorldGeneration)/Voxel/Decor/FoliageSnow.cs;
                       $(WorldGeneration)/Voxel/Decor/VoxelDecorRenderer.cs;
                       $(WorldGeneration)/Voxel/Decor/GrassCardFactory.cs;
                       $(WorldGeneration)/Voxel/Decor/GrassCardMeshBuild.cs;

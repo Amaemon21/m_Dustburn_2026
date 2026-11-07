@@ -12,7 +12,7 @@ public sealed class LoadGameScreenView : View<LoadGameScreenViewModel>
     [SerializeField, Required, Foldout("Actions")] private Button _loadButton;
     [SerializeField, Required, Foldout("Actions")] private Button _deleteButton;
     [SerializeField, Required, Foldout("Actions")] private Button _backButton;
-    
+
     private ListItemViews _slots;
 
     protected override void BindCore(LoadGameScreenViewModel viewModel, CompositeDisposable bindings)

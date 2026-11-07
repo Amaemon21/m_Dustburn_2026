@@ -56,11 +56,14 @@ public static class WorldMapPipelineChecks
         WorldMapResult first = pipeline.Generate((stage, fraction) => progress.Add(fraction));
         WorldMapResult second = pipeline.Generate();
 
-        Require(progress.Count == 10 && progress.SequenceEqual(progress.OrderBy(value => value)), "All stages must report increasing progress.");
+        Require(progress.Count == WorldMapPipeline.StageTitles.Count + 1 && progress.SequenceEqual(progress.OrderBy(value => value)), "All stages must report increasing progress.");
         Require(first.Biomes.Cells.SequenceEqual(second.Biomes.Cells), "Repeated generation must preserve biome cells.");
         Require(first.Heights.Heights.SequenceEqual(second.Heights.Heights), "Repeated generation must not carve the previous terrain again.");
         Require(first.RoadMask.SequenceEqual(second.RoadMask), "Repeated generation must preserve the road mask.");
         Require(first.Placements.Count == second.Placements.Count && first.Placements.Count > 0, "The single pipeline must generate POI.");
+        Require(first.Gameplay?.HasSpawn == true && first.Gameplay.StarterPois.Length >= config.Gameplay.StarterPoiCount,
+            "The pipeline must publish a verified start beside its actual POI.");
+        Require(JsonUtility.ToJson(first.Gameplay) == JsonUtility.ToJson(second.Gameplay), "Gameplay planning must be deterministic.");
         Require(first.Roads.Hubs.Count > 1 && first.Roads.Roads.Exists(road => road.Kind == RoadKind.Highway), "The single pipeline must generate settlements and highways.");
         Require(first.Settlements.Exists(settlement => settlement.Tiles.Count > 0) && first.Roads.Streets.Count > 0, "Settlements must be laid out in tiles with streets.");
         Require(first.Roads.Streets.Count == second.Roads.Streets.Count && first.Roads.Roads.Count == second.Roads.Roads.Count, "Repeated generation must lay out the same roads and streets.");
