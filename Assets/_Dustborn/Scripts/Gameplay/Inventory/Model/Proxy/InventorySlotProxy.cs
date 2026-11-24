@@ -38,7 +38,7 @@ public sealed class InventorySlotProxy : IReadOnlyInventorySlot, IDisposable
     }
 
     private static InventorySlotState Normalize(string itemId, int amount, int wear)
-        => amount == 0 ? new InventorySlotState(null, 0) : new InventorySlotState(itemId, amount, wear);
+        => amount == 0 ? InventorySlotState.Empty : new InventorySlotState(itemId, amount, wear);
 
     private void Validate(string itemId, int amount, int wear)
     {

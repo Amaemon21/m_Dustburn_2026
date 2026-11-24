@@ -6,7 +6,7 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(SubclassSelectorAttribute))]
 public sealed class SubclassSelectorDrawer : PropertyDrawer
 {
-    private const string NONE = "Нет";
+    private static string None => LocalizationService.Text("editor.common.none");
     private const float GAP = 2f;
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -33,7 +33,7 @@ public sealed class SubclassSelectorDrawer : PropertyDrawer
         string path = property.propertyPath;
         Type current = TypeOf(property.managedReferenceFullTypename);
         GenericMenu menu = new();
-        menu.AddItem(new GUIContent(NONE), current == null, () => Assign(owner, path, null));
+        menu.AddItem(new GUIContent(None), current == null, () => Assign(owner, path, null));
         foreach (Type type in TypeCache.GetTypesDerivedFrom(TypeOf(property.managedReferenceFieldTypename)).Where(IsAssignable).OrderBy(type => type.Name))
             menu.AddItem(new GUIContent(ObjectNames.NicifyVariableName(type.Name)), type == current, () => Assign(owner, path, type));
         menu.ShowAsContext();
@@ -51,7 +51,7 @@ public sealed class SubclassSelectorDrawer : PropertyDrawer
     private static string CurrentName(SerializedProperty property)
     {
         Type type = TypeOf(property.managedReferenceFullTypename);
-        return type == null ? NONE : ObjectNames.NicifyVariableName(type.Name);
+        return type == null ? None : ObjectNames.NicifyVariableName(type.Name);
     }
 
     private static bool IsAssignable(Type type)

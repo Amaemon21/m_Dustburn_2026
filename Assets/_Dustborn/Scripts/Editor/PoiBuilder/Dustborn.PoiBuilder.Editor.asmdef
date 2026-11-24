@@ -1,0 +1,9 @@
+{
+    "name": "Dustborn.PoiBuilder.Editor",
+    "references": [
+        "Dustborn.Utils"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ]
+}

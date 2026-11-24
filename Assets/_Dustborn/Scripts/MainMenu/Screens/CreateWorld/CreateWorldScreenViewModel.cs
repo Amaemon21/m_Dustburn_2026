@@ -8,16 +8,7 @@ using Debug = UnityEngine.Debug;
 
 public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
 {
-    private const string CANCELLED = "\u0413\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u044f \u043e\u0442\u043c\u0435\u043d\u0435\u043d\u0430";
-    private const string FAILED = "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0437\u0434\u0430\u0442\u044c \u043a\u0430\u0440\u0442\u0443: {0}";
-    private const string DONE = "\u041a\u0430\u0440\u0442\u0430 «{0}» \u0441\u043e\u0437\u0434\u0430\u043d\u0430 \u0437\u0430 {1:0} \u0441";
-    private const string LOADING_SETTINGS = "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A \u043C\u0438\u0440\u0430";
-    private const string SEED_NUMBER = "\u0427\u0438\u0441\u043b\u043e\u0432\u043e\u0439 \u0441\u0438\u0434: {0}";
-    private const string GENERATE = "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u043F\u0440\u0435\u0432\u044C\u044E";
-    private const string REGENERATE = "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043F\u0440\u0435\u0432\u044C\u044E";
     private const int MAX_NAME_LENGTH = 40;
-    private const string SAVE_MAP = "\u0421\u041E\u0425\u0420\u0410\u041D\u0418\u0422\u042C \u041A\u0410\u0420\u0422\u0423";
-    private const string SAVE_FAILED = "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043A\u0430\u0440\u0442\u0443. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.";
 
     private readonly WorldSettingsProvider _settings;
     private readonly WorldGenerationService _generator;
@@ -28,7 +19,7 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
     private readonly ReactiveProperty<bool> _hasResult = new();
     private readonly ReactiveProperty<bool> _isStale = new();
     private readonly ReactiveProperty<string> _status = new(string.Empty);
-    private readonly ReactiveProperty<string> _confirmLabel = new(SAVE_MAP);
+    private readonly ReactiveProperty<string> _confirmLabel = new(LocalizationService.Text("menu.createWorld.save"));
     private readonly ReactiveProperty<float> _progress = new();
     private readonly Stopwatch _generationClock = new();
     private readonly ShareGroup _relief;
@@ -41,7 +32,7 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
     public ReactiveProperty<string> Seed { get; } = new(string.Empty);
     public ReadOnlyReactiveProperty<string> SeedNumber { get; }
     public OptionFieldViewModel Size { get; } = new(SizeLabels(), (WorldVariation.REFERENCE_SIZE - WorldVariation.MIN_SIZE) / WorldVariation.SIZE_STEP);
-    public OptionFieldViewModel PreviewQuality { get; } = new(MainMenuText.PREVIEW_QUALITIES, (int)WorldPreviewQuality.Medium);
+    public OptionFieldViewModel PreviewQuality { get; } = new(MainMenuText.PreviewQualityOptions, (int)WorldPreviewQuality.Medium);
     public OptionFieldViewModel Towns { get; }
     public OptionFieldViewModel Wilderness { get; }
     public OptionFieldViewModel Rivers { get; }
@@ -88,18 +79,19 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
         Craters = Amount(defaults.Craters);
         Rifts = Amount(defaults.Rifts);
         Canyons = Amount(defaults.Canyons);
-        Layout = new OptionFieldViewModel(MainMenuText.LAYOUTS, (int)defaults.Layout);
+        Layout = new OptionFieldViewModel(MainMenuText.LayoutOptions, (int)defaults.Layout);
         _relief = new ShareGroup(new[] { defaults.Plains, defaults.Hills, defaults.Mountains }, new[] { 100, 100, WorldVariation.MAX_MOUNTAINS });
         _biomes = new ShareGroup(new[] { defaults.PineForest, defaults.BurntForest, defaults.Desert, defaults.Snow, defaults.Wasteland });
 
-        SeedNumber = Seed.Select(text => string.Format(SEED_NUMBER, WorldVariation.SeedOf(text))).ToReadOnlyReactiveProperty();
-        GenerateLabel = _hasResult.Select(has => has ? REGENERATE : GENERATE).ToReadOnlyReactiveProperty();
+        SeedNumber = Seed.Select(text => LocalizationService.Format("menu.createWorld.seedNumber", WorldVariation.SeedOf(text)))
+            .ToReadOnlyReactiveProperty();
+        GenerateLabel = _hasResult.Select(has => LocalizationService.Text(has ? "menu.createWorld.regenerate" : "menu.createWorld.generate"))
+            .ToReadOnlyReactiveProperty();
 
         Generate = Command();
         RandomSeed = Command();
         Back = Command();
         NewGame = Command();
-
 
         foreach (OptionFieldViewModel field in WorldFields())
             Disposables.Add(field.Index.Subscribe(_ => RefreshStale()));
@@ -161,7 +153,7 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
             return;
 
         string name = CleanName(Name.Value, draft.Preview.World.Seed);
-        StartOperation(WorldGenerationService.WRITE_STATUS);
+        StartOperation(WorldGenerationService.WriteStatus);
 
         try
         {
@@ -180,7 +172,7 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
         {
             Debug.LogException(exception);
             if (!IsDisposed)
-                _dialog.ShowMessage(SAVE_FAILED);
+                _dialog.ShowMessage(LocalizationService.Text("menu.createWorld.saveFailed"));
         }
         finally
         {
@@ -213,7 +205,7 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
         WorldVariation variation = Variation();
         string name = CleanName(Name.Value, variation.Seed);
         var quality = (WorldPreviewQuality)PreviewQuality.Index.Value;
-        StartOperation(LOADING_SETTINGS);
+        StartOperation(LocalizationService.Text("menu.createWorld.loadingSettings"));
         ClearDraft();
 
         try
@@ -229,17 +221,17 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
             _draft = draft;
             _hasResult.Value = true;
             _progress.Value = 1f;
-            _status.Value = string.Format(DONE, result.World.Name, result.Stats.Seconds);
+            _status.Value = LocalizationService.Format("menu.createWorld.done", result.World.Name, result.Stats.Seconds);
             RefreshStale();
         }
         catch (OperationCanceledException)
         {
-            SetStatus(CANCELLED);
+            SetStatus(LocalizationService.Text("menu.createWorld.cancelled"));
         }
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            SetStatus(string.Format(FAILED, exception.Message));
+            SetStatus(LocalizationService.Format("menu.createWorld.failed", exception.Message));
         }
         finally
         {
@@ -332,7 +324,7 @@ public sealed class CreateWorldScreenViewModel : MainMenuScreenViewModel
 
     private OptionFieldViewModel Amount(WorldAmount value)
     {
-        var field = new OptionFieldViewModel(MainMenuText.AMOUNTS, (int)value);
+        var field = new OptionFieldViewModel(MainMenuText.AmountOptions, (int)value);
         return field;
     }
 

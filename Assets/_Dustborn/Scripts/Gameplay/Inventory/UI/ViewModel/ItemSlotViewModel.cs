@@ -5,13 +5,13 @@ using UnityEngine;
 public abstract class ItemSlotViewModel : ViewModel
 {
     private readonly ReactiveProperty<InventorySlotState> _state;
-    private readonly ReactiveProperty<Sprite> _icon = new(null);
-    private readonly ReactiveProperty<ItemRarity?> _rarity = new(null);
-    private readonly ReactiveProperty<float?> _durability = new(null);
+    private readonly ReactiveProperty<Sprite> _icon = new();
+    private readonly ReactiveProperty<ItemRarity?> _rarity = new();
+    private readonly ReactiveProperty<float?> _durability = new();
     private readonly ReactiveProperty<bool> _selected = new(false);
     private readonly ReactiveProperty<bool> _dragging = new(false);
     private readonly ReactiveProperty<int> _draggedAmount = new(0);
-    private readonly ReactiveProperty<Vector3?> _hover = new(null);
+    private readonly ReactiveProperty<Vector3?> _hover = new();
 
     public ReadOnlyReactiveProperty<InventorySlotState> State => _state;
     public ReadOnlyReactiveProperty<Sprite> Icon => _icon;
@@ -27,7 +27,7 @@ public abstract class ItemSlotViewModel : ViewModel
     protected ItemSlotViewModel(IReadOnlyInventorySlot slot, ItemCatalog catalog)
     {
         _state = new ReactiveProperty<InventorySlotState>(slot.State.CurrentValue);
-        
+
         Disposables.Add(slot.State.Subscribe(state =>
         {
             _state.Value = state;
@@ -45,10 +45,16 @@ public abstract class ItemSlotViewModel : ViewModel
         _dragging.Value = amount > 0;
     }
 
-    internal void SetHover(Vector3? anchor)
+    internal void SetHover(Vector3 anchor)
     {
         if (!IsDisposed)
             _hover.Value = anchor;
+    }
+
+    internal void ClearHover()
+    {
+        if (!IsDisposed)
+            _hover.Value = null;
     }
 
     protected override void OnDisposed()

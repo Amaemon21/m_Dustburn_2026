@@ -10,4 +10,5 @@ public class WorldSaveData
     public int Seed;
     public int WorldSize;
     public Dictionary<string, string> VoxelEdits = new();
+    public HashSet<string> ActivatedObjects = new();
 }

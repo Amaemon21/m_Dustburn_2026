@@ -23,10 +23,11 @@ public sealed class HeldItemSelection : IDisposable
     private static HeldItem Resolve(string ownerId, Vector2Int coordinates, InventorySlotState state, ItemCatalog catalog)
     {
         if (state.IsEmpty)
-            return new HeldItem(ownerId, coordinates, null, null);
+            return new HeldItem(ownerId, coordinates);
 
         InventoryItem item = catalog.GetItem(state.ItemId);
-        return new HeldItem(ownerId, coordinates, state.ItemId, item == null ? null : item.Held);
+        HeldItemConfig config = item != null ? item.Held : null;
+        return config != null ? new HeldItem(ownerId, coordinates, state.ItemId, config) : new HeldItem(ownerId, coordinates, state.ItemId);
     }
 
     public void Dispose()

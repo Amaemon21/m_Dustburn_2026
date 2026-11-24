@@ -159,7 +159,7 @@ public sealed class WorldMapPreviewViewModel : ViewModel
             ? world.Seed.ToString()
             : $"«{seedText.Trim()}» → {world.Seed}";
 
-        return $"<b>{world.Name}</b>\n\u0421\u0438\u0434: {seed} · \u0420\u0430\u0437\u043C\u0435\u0440: {MainMenuText.Size(world.WorldSize)}\n{MainMenuText.StatsSummary(result.Stats)}";
+        return LocalizationService.Format("menu.createWorld.previewSummary", world.Name, seed, MainMenuText.Size(world.WorldSize), MainMenuText.StatsSummary(result.Stats));
     }
 
     private static IReadOnlyList<MapLegendEntry> LegendOf(WorldPreviewSource source, WorldStats stats)
@@ -168,7 +168,7 @@ public sealed class WorldMapPreviewViewModel : ViewModel
         var seen = new HashSet<BiomeType>();
 
         if (source.Gameplay?.HasSpawn == true)
-            entries.Add(new MapLegendEntry(WorldPreviewLayers.StartColor, "\u0421\u0442\u0430\u0440\u0442"));
+            entries.Add(new MapLegendEntry(WorldPreviewLayers.StartColor, LocalizationService.Text("menu.createWorld.startLegend")));
 
         for (int i = 0; i < source.BiomeTypes.Length; i++)
         {

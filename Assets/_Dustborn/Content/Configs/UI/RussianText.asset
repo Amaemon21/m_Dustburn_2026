@@ -1,0 +1,413 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a8cb79abdc3436a94dc97a4a5e1bb19, type: 3}
+  m_Name: RussianText
+  m_EditorClassIdentifier: Dustborn.Utils::LocalizationTable
+  _entries:
+  - _key: biome.burntForest
+    _text: "Выжженный лес"
+  - _key: biome.desert
+    _text: "Пустыня"
+  - _key: biome.pineForest
+    _text: "Сосновый лес"
+  - _key: biome.snow
+    _text: "Снега"
+  - _key: biome.wasteland
+    _text: "Пустошь"
+  - _key: dialog.acknowledge
+    _text: "Понятно"
+  - _key: dialog.delete
+    _text: "Удалить"
+  - _key: inventory.carry.heavy
+    _text: "Тяжело"
+  - _key: inventory.carry.immovable
+    _text: "Неподъёмно"
+  - _key: inventory.carry.light
+    _text: "Налегке"
+  - _key: inventory.carry.loaded
+    _text: "Нагружен"
+  - _key: inventory.carry.overloaded
+    _text: "Перегружен"
+  - _key: inventory.category.ammo
+    _text: "Боеприпасы"
+  - _key: inventory.category.building
+    _text: "Строительство"
+  - _key: inventory.category.clothing
+    _text: "Одежда"
+  - _key: inventory.category.consumable
+    _text: "Расходник"
+  - _key: inventory.category.drink
+    _text: "Напиток"
+  - _key: inventory.category.food
+    _text: "Еда"
+  - _key: inventory.category.medicine
+    _text: "Медицина"
+  - _key: inventory.category.misc
+    _text: "Разное"
+  - _key: inventory.category.resource
+    _text: "Ресурс"
+  - _key: inventory.category.tool
+    _text: "Инструмент"
+  - _key: inventory.category.weapon
+    _text: "Оружие"
+  - _key: inventory.equipment.backpack
+    _text: "Рюкзак"
+  - _key: inventory.equipment.face
+    _text: "Лицо"
+  - _key: inventory.equipment.footwear
+    _text: "Обувь"
+  - _key: inventory.equipment.hands
+    _text: "Перчатки"
+  - _key: inventory.equipment.headwear
+    _text: "Головной убор"
+  - _key: inventory.equipment.legs
+    _text: "Штаны"
+  - _key: inventory.equipment.socks
+    _text: "Носки"
+  - _key: inventory.equipment.torsoBase
+    _text: "Нательное"
+  - _key: inventory.equipment.torsoOuter
+    _text: "Верхняя одежда"
+  - _key: inventory.rarity.excellent
+    _text: "Шедевр"
+  - _key: inventory.rarity.faulty
+    _text: "Брак"
+  - _key: inventory.rarity.good
+    _text: "Хорошее качество"
+  - _key: inventory.rarity.great
+    _text: "Отличное качество"
+  - _key: inventory.rarity.poor
+    _text: "Низкое качество"
+  - _key: inventory.rarity.superior
+    _text: "Превосходное качество"
+  - _key: inventory.resource.component
+    _text: "Деталь"
+  - _key: inventory.resource.processed
+    _text: "Обработанное"
+  - _key: inventory.resource.raw
+    _text: "Сырьё"
+  - _key: inventory.sort.amount
+    _text: "По количеству"
+  - _key: inventory.sort.category
+    _text: "По типу"
+  - _key: inventory.sort.name
+    _text: "По названию"
+  - _key: inventory.sort.weight
+    _text: "По весу"
+  - _key: inventory.stats.amount
+    _text: "Количество"
+  - _key: inventory.stats.bleeding
+    _text: "Кровотечение"
+  - _key: inventory.stats.carryBonus
+    _text: "Грузоподъёмность"
+  - _key: inventory.stats.damage
+    _text: "Урон"
+  - _key: inventory.stats.durability
+    _text: "Прочность"
+  - _key: inventory.stats.protection
+    _text: "\u0417\u0430\u0449\u0438\u0442\u0430 \u043E\u0442 \u0443\u0440\u043E\u043D\u0430"
+  - _key: inventory.stats.protectionDuration
+    _text: "\u0412\u0440\u0435\u043C\u044F \u0437\u0430\u0449\u0438\u0442\u044B"
+  - _key: inventory.stats.duration
+    _text: "Длительность"
+  - _key: inventory.stats.extraRows
+    _text: "Ряды рюкзака"
+  - _key: inventory.stats.food
+    _text: "Сытость"
+  - _key: inventory.stats.health
+    _text: "Здоровье"
+  - _key: inventory.stats.infection
+    _text: "Инфекция"
+  - _key: inventory.stats.reach
+    _text: "Дальность"
+  - _key: inventory.stats.stamina
+    _text: "Выносливость"
+  - _key: inventory.stats.staminaCost
+    _text: "Выносливость за удар"
+  - _key: inventory.stats.swingTime
+    _text: "Время удара"
+  - _key: inventory.stats.water
+    _text: "Вода"
+  - _key: inventory.stats.weight
+    _text: "Вес"
+  - _key: inventory.stats.weightPerItem
+    _text: "{0} кг ({1} за шт.)"
+  - _key: inventory.weight.current
+    _text: "{0:0.#} кг"
+  - _key: inventory.weight.limited
+    _text: "{0:0.#}/{1:0.#} кг"
+  - _key: loading.buildings
+    _text: "Размещение зданий"
+  - _key: loading.decor
+    _text: "Трава, деревья и камни"
+  - _key: loading.gameAssets
+    _text: "Загрузка ресурсов игры"
+  - _key: loading.menuAssets
+    _text: "Загрузка главного меню"
+  - _key: loading.menuFailed
+    _text: "The main menu could not be loaded. See the log for details."
+  - _key: loading.missingWorld
+    _text: "Мир не загружен. Проверьте сохранённую генерацию."
+  - _key: loading.missingWorldOrPlayer
+    _text: "Мир не загружен. Проверьте сохранённую генерацию и игрока."
+  - _key: loading.navigation
+    _text: "Навигация для противников"
+  - _key: loading.prepareWorld
+    _text: "Подготовка мира"
+  - _key: loading.props
+    _text: "Машины, хлам и тайники"
+  - _key: loading.readWorld
+    _text: "Чтение мира с диска"
+  - _key: loading.terrain
+    _text: "Загрузка ландшафта и растительности"
+  - _key: loading.terrainCollision
+    _text: "Коллизия ландшафта"
+  - _key: loading.terrainGeometry
+    _text: "Геометрия ландшафта"
+  - _key: loading.terrainReady
+    _text: "Ландшафт готов"
+  - _key: loading.waiting
+    _text: "Ожидание загрузки"
+  - _key: loading.worldFailed
+    _text: "Ошибка загрузки мира. Подробности в консоли."
+  - _key: loading.worldReady
+    _text: "Мир готов"
+  - _key: menu.createWorld.cancelled
+    _text: "Генерация отменена"
+  - _key: menu.createWorld.done
+    _text: "Карта «{0}» создана за {1:0} с"
+  - _key: menu.createWorld.failed
+    _text: "Не удалось создать карту: {0}"
+  - _key: menu.createWorld.generate
+    _text: "Создать превью"
+  - _key: menu.createWorld.loadingSettings
+    _text: "Загрузка настроек мира"
+  - _key: menu.createWorld.previewSummary
+    _text: "<b>{0}</b>\nСид: {1} · Размер: {2}\n{3}"
+  - _key: menu.createWorld.regenerate
+    _text: "Обновить превью"
+  - _key: menu.createWorld.save
+    _text: "СОХРАНИТЬ КАРТУ"
+  - _key: menu.createWorld.saveFailed
+    _text: "Не удалось сохранить карту. Попробуйте ещё раз."
+  - _key: menu.createWorld.seedNumber
+    _text: "Числовой сид: {0}"
+  - _key: menu.createWorld.stale
+    _text: "Настройки изменились. Обновите превью."
+  - _key: menu.createWorld.startLegend
+    _text: "Старт"
+  - _key: menu.maps.buildingSummary
+    _text: "Зданий: {0}, из них в глуши {1} · Реквизит: {2}\n"
+  - _key: menu.maps.details
+    _text: "{0} · {1}\nСид: {2}"
+  - _key: menu.maps.footer
+    _text: "Дороги  {0} км    ·    Генерация  {1} с"
+  - _key: menu.maps.generationTime
+    _text: " · Генерация: {0} с"
+  - _key: menu.maps.landformSummary
+    _text: "Кратеры: {0} · Разломы: {1} · Каньоны: {2}"
+  - _key: menu.maps.metadata
+    _text: "{0} × {1} км   ·   Сид {2}"
+  - _key: menu.maps.noRelief
+    _text: "Нет данных о рельефе"
+  - _key: menu.maps.noStats
+    _text: "Нет статистики генерации"
+  - _key: menu.maps.originBuiltIn
+    _text: "встроенный"
+  - _key: menu.maps.originGenerated
+    _text: "сгенерированный"
+  - _key: menu.maps.readListFailed
+    _text: "Не удалось прочитать список карт. Вернитесь назад и попробуйте ещё раз."
+  - _key: menu.maps.relief
+    _text: "Равнины  {0}%    |    Холмы  {1}%    |    Горы  {2}%"
+  - _key: menu.maps.roadSummary
+    _text: "Дороги: шоссе {0} км, улицы {1} км, грунтовки {2} км\n"
+  - _key: menu.maps.sceneWorld
+    _text: "BakedWorld из игровой сцены"
+  - _key: menu.maps.selectMap
+    _text: "Выберите карту"
+  - _key: menu.maps.settlementSummary
+    _text: "Поселений: {0} (города {1}, посёлки {2}, деревни {3}, заброшенные {4})\n"
+  - _key: menu.maps.size
+    _text: "{0} ({1} м)"
+  - _key: menu.maps.stats
+    _text: "Поселения  {0}    |    Здания  {1}    |    Реки  {2}    |    Водоёмы  {3}"
+  - _key: menu.maps.waterSummary
+    _text: "Реки: {0} ({1} км) · Водоёмы: {2}\n"
+  - _key: menu.newGame.builtInMap
+    _text: "\nВстроенная карта · удаление недоступно"
+  - _key: menu.newGame.corruptSaveList
+    _text: "Не удалось проверить сохранения. Сначала восстановите или удалите повреждённые прохождения."
+  - _key: menu.newGame.deleteFailed
+    _text: "Не удалось удалить карту. Проверьте доступ к файлам и попробуйте ещё раз."
+  - _key: menu.newGame.deleteQuestion
+    _text: "Удалить карту «{0}»? Это действие нельзя отменить."
+  - _key: menu.newGame.launchFailed
+    _text: "Could not start the game. Check that the map is available and try again."
+  - _key: menu.newGame.mapCreated
+    _text: "Карта готова. Задайте название прохождения и нажмите «Начать игру»."
+  - _key: menu.newGame.mapInUse
+    _text: "Карту используют сохранения: {0}. Сначала удалите эти прохождения в разделе «Загрузить игру»."
+  - _key: menu.newGame.mapUnavailable
+    _text: "This map is no longer available. Choose another map."
+  - _key: menu.newGame.noSaves
+    _text: "Не используется сохранениями"
+  - _key: menu.newGame.saveCount
+    _text: "Используется сохранениями: {0}"
+  - _key: menu.options.amountFew
+    _text: "Мало"
+  - _key: menu.options.amountMany
+    _text: "Много"
+  - _key: menu.options.amountNone
+    _text: "Нет"
+  - _key: menu.options.amountNormal
+    _text: "Норма"
+  - _key: menu.options.layoutForestCenter
+    _text: "Лес в центре"
+  - _key: menu.options.layoutRandom
+    _text: "Случайное"
+  - _key: menu.options.layoutRings
+    _text: "Кольца"
+  - _key: menu.options.layoutStripes
+    _text: "Полосы"
+  - _key: menu.options.layoutWastelandCenter
+    _text: "Пустошь в центре"
+  - _key: menu.options.qualityHigh
+    _text: "Высокое"
+  - _key: menu.options.qualityLow
+    _text: "Низкое"
+  - _key: menu.options.qualityMedium
+    _text: "Среднее"
+  - _key: menu.saves.corruptHelp
+    _text: "Сохранение повреждено. Восстановите резервную копию или удалите это прохождение."
+  - _key: menu.saves.corruptStatus
+    _text: "\n<color=#C89B70>Сохранение повреждено</color>"
+  - _key: menu.saves.deleteFailed
+    _text: "Не удалось удалить прохождение. Попробуйте ещё раз."
+  - _key: menu.saves.deleteQuestion
+    _text: "Удалить прохождение «{0}»? Карта останется доступной для новой игры."
+  - _key: menu.saves.latestTitle
+    _text: "<color=#929695><size=55%>—   <cspace=0.12em>ПОСЛЕДНЕЕ СОХРАНЕНИЕ</cspace></size></color>\n"
+  - _key: menu.saves.missingMapHelp
+    _text: "Карта отсутствует. Восстановите исходную карту или удалите это прохождение."
+  - _key: menu.saves.missingMapStatus
+    _text: "\n<color=#C89B70>Карта отсутствует</color>"
+  - _key: menu.saves.missingSlot
+    _text: "Сохранение больше не существует. Список обновлён."
+  - _key: menu.saves.readListFailed
+    _text: "Не удалось проверить сохранения. Откройте список прохождений ещё раз."
+  - _key: menu.saves.readSlotFailed
+    _text: "Не удалось проверить сохранение. Попробуйте ещё раз."
+  - _key: menu.saves.singlePlayerSummary
+    _text: "<size=80%><color=#A9ACAA>{0}\n{1}Одиночная игра</color></size></indent>"
+  - _key: menu.saves.worldPrefix
+    _text: "Мир {0} · "
+  - _key: progression.level
+    _text: "Уровень {0}"
+  - _key: progression.maxLevel
+    _text: "МАКС"
+  - _key: units.kilograms
+    _text: "{0} кг"
+  - _key: units.kilometres
+    _text: "{0} км"
+  - _key: units.metres
+    _text: "{0} м"
+  - _key: units.seconds
+    _text: "{0} с"
+  - _key: worldGeneration.biomes
+    _text: "Создание карты биомов"
+  - _key: worldGeneration.buildings
+    _text: "Размещение зданий"
+  - _key: worldGeneration.carveRoads
+    _text: "Выравнивание дорог и улиц"
+  - _key: worldGeneration.highways
+    _text: "Прокладка магистралей"
+  - _key: worldGeneration.mapsReady
+    _text: "Карты готовы"
+  - _key: worldGeneration.pack
+    _text: "Подготовка файлов мира"
+  - _key: worldGeneration.paint
+    _text: "Окраска поверхности"
+  - _key: worldGeneration.prepare
+    _text: "Подготовка генератора"
+  - _key: worldGeneration.preview
+    _text: "Создание превью карты"
+  - _key: worldGeneration.props
+    _text: "Размещение объектов"
+  - _key: worldGeneration.reconcileWater
+    _text: "Настройка уровня воды"
+  - _key: worldGeneration.relief
+    _text: "Формирование рельефа"
+  - _key: worldGeneration.save
+    _text: "Сохранение карты"
+  - _key: worldGeneration.settlements
+    _text: "Планировка поселений"
+  - _key: worldGeneration.startingArea
+    _text: "Подготовка стартовой зоны"
+  - _key: worldGeneration.water
+    _text: "Создание рек и озёр"
+  - _key: worldNames.adjectives
+    _text: "Северн|Южн|Западн|Восточн|Стар|Нов|Мёртв|Пыльн|Ржав|Пепельн|Выжженн|Забыт|Проклят|Брошенн|Глух|Сер|Чёрн|Красн|Кровав|Безымянн"
+  - _key: worldNames.ending.feminine
+    _text: "ая"
+  - _key: worldNames.ending.masculine
+    _text: "ый"
+  - _key: worldNames.ending.masculineSoft
+    _text: "ой"
+  - _key: worldNames.ending.neuter
+    _text: "ое"
+  - _key: worldNames.ending.plural
+    _text: "ые"
+  - _key: worldNames.ending.pluralSoft
+    _text: "ие"
+  - _key: worldNames.ends
+    _text: "ро|ни|ле|то|ри|но|ви|ко|де|си|мо|ли|те|ну"
+  - _key: worldNames.middles
+    _text: "ла|ри|то|ве|на|со|ми|де|ру|ка|ле|ро|за|ти"
+  - _key: worldNames.place.bogs
+    _text: "топи"
+  - _key: worldNames.place.district
+    _text: "округ"
+  - _key: worldNames.place.foothills
+    _text: "предгорья"
+  - _key: worldNames.place.highRidge
+    _text: "кряж"
+  - _key: worldNames.place.hills
+    _text: "холмы"
+  - _key: worldNames.place.lands
+    _text: "земли"
+  - _key: worldNames.place.lowland
+    _text: "низина"
+  - _key: worldNames.place.pass
+    _text: "перевал"
+  - _key: worldNames.place.plateau
+    _text: "плато"
+  - _key: worldNames.place.region
+    _text: "край"
+  - _key: worldNames.place.ridge
+    _text: "гряда"
+  - _key: worldNames.place.rise
+    _text: "взгорье"
+  - _key: worldNames.place.territory
+    _text: "территория"
+  - _key: worldNames.place.tract
+    _text: "урочище"
+  - _key: worldNames.place.valley
+    _text: "долина"
+  - _key: worldNames.place.wasteland
+    _text: "пустошь"
+  - _key: worldNames.place.wastes
+    _text: "пустоши"
+  - _key: worldNames.softStemEnding
+    _text: "х"
+  - _key: worldNames.starts
+    _text: "Ка|Ве|Мо|Ри|Та|Ло|Бра|Гре|Дру|Зо|Ке|Ни|Ор|Са|Ту|Хе|Яр|Ми|Ро|Эль|Ас|Тор|Вал|Кор"

@@ -8,27 +8,27 @@ public partial class WorldGenerationWindow
     {
         var config = new SerializedObject(_settings.Config);
 
-        Section("Сид и размер");
+        Section(LocalizationService.Text("editor.worldWindow.seedAndSize"));
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            Property(config, "Seed", "Сид мира", "Один сид определяет биомы, рельеф, воду, дороги, здания и растительность.");
+            Property(config, "Seed", LocalizationService.Text("editor.worldWindow.seed"), LocalizationService.Text("editor.worldWindow.seedHelp"));
 
-            if (GUILayout.Button("Случайный", GUILayout.Width(84f)))
+            if (GUILayout.Button(LocalizationService.Text("editor.worldWindow.randomSeed"), GUILayout.Width(84f)))
                 Field(config, "Seed").intValue = Guid.NewGuid().GetHashCode();
         }
 
-        Property(config, "WorldSize", "Размер мира, м", "Смена размера или шага карты высот делает сохранённый мир устаревшим.");
+        Property(config, "WorldSize", LocalizationService.Text("editor.worldWindow.worldSize"), LocalizationService.Text("editor.worldWindow.worldSizeHelp"));
 
-        Section("Рельеф");
-        Property(config, "MaxHeight", "Наибольшая высота, м");
-        Property(config, "ReliefScale", "Общий множитель рельефа");
-        Property(config, "BiomeBlendRadius", "Плавность границ биомов, м");
-        Nested(config, "Stamps", "Enabled", "Штампы рельефа (горы, кратеры)");
-        Nested(config, "Stamps", "Count", "Число штампов");
-        Nested(config, "Stamps", "AmplitudeScale", "Высота штампов, множитель");
+        Section(LocalizationService.Text("editor.worldWindow.relief"));
+        Property(config, "MaxHeight", LocalizationService.Text("editor.worldWindow.maxHeight"));
+        Property(config, "ReliefScale", LocalizationService.Text("editor.worldWindow.reliefScale"));
+        Property(config, "BiomeBlendRadius", LocalizationService.Text("editor.worldWindow.biomeBlendRadius"));
+        Nested(config, "Stamps", "Enabled", LocalizationService.Text("editor.worldWindow.terrainStamps"));
+        Nested(config, "Stamps", "Count", LocalizationService.Text("editor.worldWindow.terrainStampCount"));
+        Nested(config, "Stamps", "AmplitudeScale", LocalizationService.Text("editor.worldWindow.terrainStampAmplitude"));
 
-        _relief = EditorGUILayout.Foldout(_relief, "Рельеф отдельного биома", true);
+        _relief = EditorGUILayout.Foldout(_relief, LocalizationService.Text("editor.worldWindow.biomeRelief"), true);
 
         if (_relief)
         {
@@ -37,12 +37,12 @@ public partial class WorldGenerationWindow
             EditorGUI.indentLevel--;
         }
 
-        Section("Растительность");
-        Property(settings, "SpawnDecor", "Трава, деревья и камни");
-        Property(settings, "GrassDensity", "Плотность травы", "Множитель плотности из биомов: 0 — без травы, 1 — как задано. Выше 1 заметно растёт нагрузка. Одинакова для редактора и игры.");
+        Section(LocalizationService.Text("editor.worldWindow.vegetation"));
+        Property(settings, "SpawnDecor", LocalizationService.Text("loading.decor"));
+        Property(settings, "GrassDensity", LocalizationService.Text("editor.worldWindow.grassDensity"), LocalizationService.Text("editor.worldWindow.grassDensityHelp"));
 
         var voxels = new SerializedObject(_settings.Voxels);
-        Property(voxels, "GrassDistance", "Дальность травы в игре, м");
+        Property(voxels, "GrassDistance", LocalizationService.Text("editor.worldWindow.grassDistance"));
         voxels.ApplyModifiedProperties();
         config.ApplyModifiedProperties();
     }
@@ -51,35 +51,35 @@ public partial class WorldGenerationWindow
     {
         var config = new SerializedObject(_settings.Config);
 
-        Section("Море и берег");
-        Property(config, "SeaLevel", "Уровень моря, м", "0 — без моря и воды.");
-        Nested(config, "Water", "Coast", "Море вокруг мира");
-        Nested(config, "Water", "CoastWidth", "Ширина прибрежной полосы, м");
+        Section(LocalizationService.Text("editor.worldWindow.coastSection"));
+        Property(config, "SeaLevel", LocalizationService.Text("editor.worldWindow.seaLevel"), LocalizationService.Text("editor.worldWindow.seaLevelHelp"));
+        Nested(config, "Water", "Coast", LocalizationService.Text("editor.worldWindow.coast"));
+        Nested(config, "Water", "CoastWidth", LocalizationService.Text("editor.worldWindow.coastWidth"));
 
-        Section("Реки и озёра");
-        Nested(config, "Water", "Enabled", "Реки, озёра и пруды");
-        Nested(config, "Water", "DrainageValleys", "Прорезать речные долины");
-        Nested(config, "Water", "RiverStartArea", "Водосбор, с которого начинается река, км²");
-        Nested(config, "Water", "RiverWidthScale", "Ширина рек, множитель");
-        Nested(config, "Water", "RiverDepthScale", "Глубина рек, множитель");
-        Nested(config, "Water", "ThroughRiver", "Главная река");
-        Nested(config, "Water", "LakeDensity", "Доля котловин с озером");
-        Nested(config, "Water", "PondDensity", "Доля ямок с прудом");
-        EditorGUILayout.LabelField("В пустыне и выжженном лесу воды нет: реки заканчиваются у их границы.", _hint);
+        Section(LocalizationService.Text("editor.worldWindow.inlandWaterSection"));
+        Nested(config, "Water", "Enabled", LocalizationService.Text("editor.worldWindow.inlandWater"));
+        Nested(config, "Water", "DrainageValleys", LocalizationService.Text("editor.worldWindow.drainageValleys"));
+        Nested(config, "Water", "RiverStartArea", LocalizationService.Text("editor.worldWindow.riverStartArea"));
+        Nested(config, "Water", "RiverWidthScale", LocalizationService.Text("editor.worldWindow.riverWidthScale"));
+        Nested(config, "Water", "RiverDepthScale", LocalizationService.Text("editor.worldWindow.riverDepthScale"));
+        Nested(config, "Water", "ThroughRiver", LocalizationService.Text("editor.worldWindow.throughRiver"));
+        Nested(config, "Water", "LakeDensity", LocalizationService.Text("editor.worldWindow.lakeDensity"));
+        Nested(config, "Water", "PondDensity", LocalizationService.Text("editor.worldWindow.pondDensity"));
+        EditorGUILayout.LabelField(LocalizationService.Text("editor.worldWindow.dryBiomeHelp"), _hint);
 
         SerializedProperty stamps = Field(config, "Water")?.FindPropertyRelative("<Stamps>k__BackingField");
 
         if (stamps != null)
         {
-            EditorGUILayout.PropertyField(stamps.FindPropertyRelative("<Enabled>k__BackingField"), new GUIContent("Штампы формы рек и озёр"));
-            EditorGUILayout.PropertyField(stamps.FindPropertyRelative("<Database>k__BackingField"), new GUIContent("База штампов воды"));
+            EditorGUILayout.PropertyField(stamps.FindPropertyRelative("<Enabled>k__BackingField"), new GUIContent(LocalizationService.Text("editor.worldWindow.waterStamps")));
+            EditorGUILayout.PropertyField(stamps.FindPropertyRelative("<Database>k__BackingField"), new GUIContent(LocalizationService.Text("editor.worldWindow.waterStampDatabase")));
         }
 
-        Section("Материалы");
-        Property(settings, "WaterMaterial", "Вода");
-        Property(settings, "IceMaterial", "Лёд");
-        Property(settings, "BridgeMaterial", "Мосты");
-        Property(settings, "CulvertPrefab", "Водопропускная труба");
+        Section(LocalizationService.Text("editor.worldWindow.materials"));
+        Property(settings, "WaterMaterial", LocalizationService.Text("editor.worldWindow.waterMaterial"));
+        Property(settings, "IceMaterial", LocalizationService.Text("editor.worldWindow.iceMaterial"));
+        Property(settings, "BridgeMaterial", LocalizationService.Text("editor.worldWindow.bridgeMaterial"));
+        Property(settings, "CulvertPrefab", LocalizationService.Text("editor.worldWindow.culvertPrefab"));
         config.ApplyModifiedProperties();
     }
 
@@ -87,28 +87,28 @@ public partial class WorldGenerationWindow
     {
         var config = new SerializedObject(_settings.Config);
 
-        Section("Сколько поселений");
-        Nested(config, "CityProfile", "Count", "Города");
-        Nested(config, "TownProfile", "Count", "Посёлки");
-        Nested(config, "CountryTownProfile", "Count", "Сёла");
-        Nested(config, "GhostTownProfile", "Count", "Заброшенные посёлки");
+        Section(LocalizationService.Text("editor.worldWindow.settlementCounts"));
+        Nested(config, "CityProfile", "Count", LocalizationService.Text("editor.worldWindow.cities"));
+        Nested(config, "TownProfile", "Count", LocalizationService.Text("editor.worldWindow.towns"));
+        Nested(config, "CountryTownProfile", "Count", LocalizationService.Text("editor.worldWindow.villages"));
+        Nested(config, "GhostTownProfile", "Count", LocalizationService.Text("editor.worldWindow.ghostTowns"));
 
-        Section("Застройка и дороги");
-        Property(config, "TileSize", "Размер квартала, м");
-        Property(config, "TargetLinkRatio", "Дорог на поселение");
-        EditorGUILayout.LabelField("Размер, форма и доли районов каждого типа — в профилях на ассете параметров генерации.", _hint);
+        Section(LocalizationService.Text("editor.worldWindow.streets"));
+        Property(config, "TileSize", LocalizationService.Text("editor.worldWindow.tileSize"));
+        Property(config, "TargetLinkRatio", LocalizationService.Text("editor.worldWindow.targetLinkRatio"));
+        EditorGUILayout.LabelField(LocalizationService.Text("editor.worldWindow.settlementProfilesHelp"), _hint);
         config.ApplyModifiedProperties();
     }
 
     private void DetailTab(SerializedObject settings)
     {
-        Section("Предпросмотр в редакторе");
+        Section(LocalizationService.Text("editor.worldWindow.editorPreview"));
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            Property(settings, "PreviewCenter", "Центр детализации, м");
+            Property(settings, "PreviewCenter", LocalizationService.Text("editor.worldWindow.previewCenter"));
 
-            if (GUILayout.Button("Из сцены", GUILayout.Width(80f)) && SceneView.lastActiveSceneView != null)
+            if (GUILayout.Button(LocalizationService.Text("editor.worldWindow.centerFromScene"), GUILayout.Width(80f)) && SceneView.lastActiveSceneView != null)
             {
                 Vector3 pivot = SceneView.lastActiveSceneView.pivot;
                 float worldSize = _settings.Config.WorldSize;
@@ -116,39 +116,39 @@ public partial class WorldGenerationWindow
             }
         }
 
-        Property(settings, "PreviewColliders", "Коллизия в предпросмотре");
-        Property(settings, "PreviewDecorEverywhere", "Деревья и камни по всей карте");
+        Property(settings, "PreviewColliders", LocalizationService.Text("editor.worldWindow.previewColliders"));
+        Property(settings, "PreviewDecorEverywhere", LocalizationService.Text("editor.worldWindow.previewDecorEverywhere"));
 
         var voxels = new SerializedObject(_settings.Voxels);
-        Property(voxels, "GrassMaxLod", "Кольцо травы");
-        Property(voxels, "RockMaxLod", "Кольцо камней");
-        Property(voxels, "TreeMaxLod", "Кольцо деревьев");
+        Property(voxels, "GrassMaxLod", LocalizationService.Text("editor.worldWindow.grassMaxLod"));
+        Property(voxels, "RockMaxLod", LocalizationService.Text("editor.worldWindow.rockMaxLod"));
+        Property(voxels, "TreeMaxLod", LocalizationService.Text("editor.worldWindow.treeMaxLod"));
         voxels.ApplyModifiedProperties();
-        EditorGUILayout.LabelField("Геометрия предпросмотра не сохраняется в сцену. После открытия сцены нажмите «Обновить предпросмотр».", _hint);
+        EditorGUILayout.LabelField(LocalizationService.Text("editor.worldWindow.previewPersistenceHelp"), _hint);
 
-        Section("Детализация ландшафта");
-        Property(settings, "LodCount", "Уровней детализации");
-        Property(settings, "NearDistance", "Радиус лучшей детализации, м");
-        Property(settings, "ControlResolution", "Разрешение текстур поверхности");
-        Property(settings, "MemoryBudget", "Память геометрии, МБ", "Лимит сеток и коллизии. Проверяется до постройки мира в редакторе и в игре.");
+        Section(LocalizationService.Text("editor.worldWindow.terrainDetail"));
+        Property(settings, "LodCount", LocalizationService.Text("editor.worldWindow.lodCount"));
+        Property(settings, "NearDistance", LocalizationService.Text("editor.worldWindow.nearDistance"));
+        Property(settings, "ControlResolution", LocalizationService.Text("editor.worldWindow.controlResolution"));
+        Property(settings, "MemoryBudget", LocalizationService.Text("editor.worldWindow.memoryBudget"), LocalizationService.Text("editor.worldWindow.memoryBudgetHelp"));
 
         var config = new SerializedObject(_settings.Config);
-        Property(config, "HeightCellSize", "Шаг карты высот, м");
+        Property(config, "HeightCellSize", LocalizationService.Text("editor.worldWindow.heightCellSize"));
         config.ApplyModifiedProperties();
     }
 
     private void GameTab(SerializedObject settings)
     {
-        Section("Загрузка в игре");
-        EditorGUILayout.LabelField("Игра не генерирует мир: она строит ландшафт из сохранённого мира, затем расставляет здания.", _hint);
+        Section(LocalizationService.Text("editor.worldWindow.gameLoading"));
+        EditorGUILayout.LabelField(LocalizationService.Text("editor.worldWindow.gameLoadingHelp"), _hint);
 
         if (_owner != null)
         {
             var owner = new SerializedObject(_owner);
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(owner.FindProperty("_viewer"), new GUIContent("Игрок / наблюдатель"));
+            EditorGUILayout.PropertyField(owner.FindProperty("_viewer"), new GUIContent(LocalizationService.Text("editor.worldWindow.viewer")));
             bool viewerChanged = EditorGUI.EndChangeCheck();
-            EditorGUILayout.PropertyField(owner.FindProperty("_loadOnStart"), new GUIContent("Загружать при запуске"));
+            EditorGUILayout.PropertyField(owner.FindProperty("_loadOnStart"), new GUIContent(LocalizationService.Text("editor.worldWindow.loadOnStart")));
             PausedBehaviours(owner.FindProperty("_pauseWhileLoading"));
             owner.ApplyModifiedProperties();
 
@@ -156,24 +156,24 @@ public partial class WorldGenerationWindow
                 WorldGenerationMigration.ConfigurePlayerPause(_owner);
         }
 
-        Property(settings, "ShowLoadingScreen", "Свой экран загрузки", "Нужен только для сцены, открытой без общего игрового цикла.");
+        Property(settings, "ShowLoadingScreen", LocalizationService.Text("editor.worldWindow.showLoadingScreen"), LocalizationService.Text("editor.worldWindow.showLoadingScreenHelp"));
 
-        Section("Время на кадр");
-        Property(settings, "LoadingBudget", "Загрузка ландшафта, мс");
-        Property(settings, "DecorBudget", "Растительность, мс");
-        Property(settings, "PoisPerFrame", "Зданий за кадр");
-        Property(settings, "MeshWorkers", "Параллельных задач геометрии");
+        Section(LocalizationService.Text("editor.worldWindow.frameBudget"));
+        Property(settings, "LoadingBudget", LocalizationService.Text("editor.worldWindow.loadingBudget"));
+        Property(settings, "DecorBudget", LocalizationService.Text("editor.worldWindow.decorBudget"));
+        Property(settings, "PoisPerFrame", LocalizationService.Text("editor.worldWindow.poisPerFrame"));
+        Property(settings, "MeshWorkers", LocalizationService.Text("editor.worldWindow.meshWorkers"));
     }
 
     private void Sources(SerializedObject settings)
     {
         EditorGUI.indentLevel++;
-        Property(settings, "Config", "Параметры генерации");
-        Property(settings, "Biomes", "Набор биомов");
-        Property(settings, "Pois", "Набор зданий");
-        Property(settings, "Voxels", "Параметры вокселей");
-        Property(settings, "DecorEdits", "Ручные правки деревьев и камней");
-        WorldBuildSettings selected = EditorGUILayout.ObjectField("Набор настроек мира", _settings, typeof(WorldBuildSettings), false) as WorldBuildSettings;
+        Property(settings, "Config", LocalizationService.Text("editor.worldWindow.config"));
+        Property(settings, "Biomes", LocalizationService.Text("editor.worldWindow.biomes"));
+        Property(settings, "Pois", LocalizationService.Text("editor.worldWindow.pois"));
+        Property(settings, "Voxels", LocalizationService.Text("editor.worldWindow.voxels"));
+        Property(settings, "DecorEdits", LocalizationService.Text("editor.worldWindow.decorEdits"));
+        WorldBuildSettings selected = EditorGUILayout.ObjectField(LocalizationService.Text("editor.worldWindow.selectSettings"), _settings, typeof(WorldBuildSettings), false) as WorldBuildSettings;
         EditorGUI.indentLevel--;
 
         if (selected == null || selected == _settings)
@@ -194,9 +194,9 @@ public partial class WorldGenerationWindow
         var names = new string[biomes.Count];
 
         for (int index = 0; index < biomes.Count; index++)
-            names[index] = biomes.Get(index) == null ? "Не назначен" : BiomeName(biomes.Get(index).Type);
+            names[index] = biomes.Get(index) == null ? LocalizationService.Text("editor.worldWindow.unassigned") : BiomeName(biomes.Get(index).Type);
 
-        _biome = EditorGUILayout.Popup("Биом", Mathf.Clamp(_biome, 0, biomes.Count - 1), names);
+        _biome = EditorGUILayout.Popup(LocalizationService.Text("editor.worldWindow.biome"), Mathf.Clamp(_biome, 0, biomes.Count - 1), names);
         BiomeDefinition biome = biomes.Get(_biome);
 
         if (biome == null)
@@ -204,11 +204,11 @@ public partial class WorldGenerationWindow
 
         var profile = new SerializedObject(biome);
         float maxHeight = Mathf.Max(1f, _settings.Config.MaxHeight);
-        Metres(profile, "BaseHeight", "Базовая высота, м", maxHeight, 1f);
-        Metres(profile, "HillAmplitude", "Плавные перепады, м", maxHeight, 1f);
-        Wavelength(config, "HillFrequency", "Масштаб перепадов, м");
-        Metres(profile, "DetailAmplitude", "Амплитуда неровностей, м", maxHeight, 0.2f);
-        Wavelength(config, "DetailFrequency", "Масштаб неровностей, м");
+        Metres(profile, "BaseHeight", LocalizationService.Text("editor.worldWindow.baseHeight"), maxHeight, 1f);
+        Metres(profile, "HillAmplitude", LocalizationService.Text("editor.worldWindow.smoothRelief"), maxHeight, 1f);
+        Wavelength(config, "HillFrequency", LocalizationService.Text("editor.worldWindow.reliefFrequency"));
+        Metres(profile, "DetailAmplitude", LocalizationService.Text("editor.worldWindow.detailAmplitude"), maxHeight, 0.2f);
+        Wavelength(config, "DetailFrequency", LocalizationService.Text("editor.worldWindow.detailFrequency"));
         profile.ApplyModifiedProperties();
     }
 }

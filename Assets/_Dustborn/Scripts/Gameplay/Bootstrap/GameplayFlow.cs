@@ -6,7 +6,7 @@ using R3;
 public sealed class GameplayFlow : ISceneFlow
 {
     private const float SCENE_PROGRESS = 0.5f;
-    private const string ASSET_STATUS = "Загрузка ресурсов игры";
+    private static string AssetStatus => LocalizationService.Text("loading.gameAssets");
 
     private readonly SceneTransition _transition;
     private readonly GameplayAssetLoader _assets;
@@ -37,7 +37,7 @@ public sealed class GameplayFlow : ISceneFlow
             _slots.BeginNewGame(gameplay.NewGameName, gameplay.NewGameWorldId);
 
         GameplayEntryPoint entryPoint = await _transition.LoadScene<GameplayEntryPoint, GameplayEnterParams>(
-            gameplay, _assets, ASSET_STATUS, SCENE_PROGRESS, token);
+            gameplay, _assets, AssetStatus, SCENE_PROGRESS, token);
 
         Observable<GameplayExitParams> exit = await entryPoint.Run(_transition.StatusBetween(SCENE_PROGRESS, 1f), token);
         Task<GameplayExitParams> exitSignal = exit.FirstOrDefaultAsync(cancellationToken: token);

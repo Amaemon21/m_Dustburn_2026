@@ -2478,8 +2478,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryWeightView
   _text: {fileID: 6709365406904651116}
-  _format: "{0:0.#} \u043A\u0433"
-  _limitedFormat: "{0:0.#}/{1:0.#} \u043A\u0433"
+  _format:
+  _limitedFormat:
   _overloadedColor: {r: 0.85, g: 0.25, b: 0.2, a: 1}
 --- !u!1 &4887108776675828140
 GameObject:

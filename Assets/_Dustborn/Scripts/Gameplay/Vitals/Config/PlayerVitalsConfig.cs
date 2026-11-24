@@ -9,4 +9,5 @@ public sealed class PlayerVitalsConfig : ScriptableObject
     [field: SerializeField, HorizontalLine(2f, EColor.Orange)] public MetabolismSettings Metabolism { get; private set; } = new();
     [field: SerializeField, BoxGroup("Infection"), HorizontalLine(2f, EColor.Green), Min(1f)]
     public float MaxInfection { get; private set; } = 100f;
+    [field: SerializeField, HorizontalLine(2f, EColor.Red)] public PlayerEffectSettings Effects { get; private set; } = new();
 }

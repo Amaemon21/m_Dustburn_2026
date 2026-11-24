@@ -6,9 +6,9 @@ using VContainer;
 public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
     IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler where T : ItemSlotViewModel
 {
-    
+
     [Inject] private readonly UIInputService _input;
-    
+
     [SerializeField] private Sprite _hoverFrame;
 
     private bool _isHovered;
@@ -38,12 +38,17 @@ public abstract class InteractiveItemSlotView<T> : ItemSlotView<T>, IPointerEnte
 
     public void OnPointerExit(PointerEventData eventData) => SetHovered(false);
 
-    public void OnPointerDown(PointerEventData eventData) => _slot?.SetHover(null);
+    public void OnPointerDown(PointerEventData eventData) => _slot?.ClearHover();
 
     private void SetHovered(bool hovered)
     {
         _isHovered = hovered;
-        _slot?.SetHover(hovered ? TopEdge() : (Vector3?)null);
+
+        if (hovered)
+            _slot?.SetHover(TopEdge());
+        else
+            _slot?.ClearHover();
+
         RefreshFrame();
     }
 

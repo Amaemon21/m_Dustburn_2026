@@ -22,9 +22,14 @@ public sealed class HeldItemConfig : ScriptableObject
     [field: SerializeReference, BoxGroup("Actions"), SubclassSelector]
     public ItemActionConfig Secondary { get; private set; }
 
+    [field: SerializeField, BoxGroup("Melee Presentation")]
+    public MeleePresentationConfig PrimaryMeleePresentation { get; private set; } = new();
+    [field: SerializeField, BoxGroup("Melee Presentation")]
+    public MeleePresentationConfig SecondaryMeleePresentation { get; private set; } = new();
+
     public void CollectStats(ICollection<ItemStat> stats)
     {
-        Primary?.CollectStats(stats, this);
+        Primary?.CollectStats(stats);
     }
 
     private void OnValidate()

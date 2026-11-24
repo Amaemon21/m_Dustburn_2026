@@ -1,14 +1,13 @@
 # WorldGenPerf launcher
 
-Scripts that drive the world generation performance harness through Unity and turn its raw
-output into the report files. Full description: `Documentation/WorldGenPerformance.md`.
+Scripts for capturing world generation performance through Unity and comparing the resulting runs. The project owner runs the capture. The offline tools can inspect the catalogue and compare existing results.
 
 | Script | Purpose |
 |---|---|
 | `run.ps1` | runs one suite in Unity batch mode with a process watchdog |
 | `aggregate.ps1` | joins `results.jsonl` with `catalog.csv` into coverage, operations, fingerprints and `report.md` |
 | `compare.ps1` | applies the gate policy to two runs and writes `comparison.json` |
-| `CatalogDump/` | prints the 108 specifications without Unity |
+| `CatalogDump/` | prints the current benchmark catalogue without Unity |
 
 `run.ps1` needs the editor path in `-UnityPath` or `UNITY_EDITOR`, and the project must not be
 open in another Unity instance.

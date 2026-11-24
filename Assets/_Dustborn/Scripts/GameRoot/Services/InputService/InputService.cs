@@ -8,6 +8,7 @@ public abstract class InputService : IDisposable
     private readonly List<InputAction> _actions = new();
     private readonly List<InputAction> _enabledActions = new();
     private bool _enabled;
+    public bool IsEnabled => _enabled;
     
     protected CompositeDisposable Bindings { get; } = new();
 

@@ -14,11 +14,11 @@ public sealed class WorldGenerationService
 {
     private const string ID_PREFIX = "world_";
     private const string ID_TIME_FORMAT = "yyyyMMdd_HHmmss";
-    private const string PREPARE_STATUS = "\u041F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u0433\u0435\u043D\u0435\u0440\u0430\u0442\u043E\u0440\u0430";
-    private const string PAINT_STATUS = "\u041E\u043A\u0440\u0430\u0441\u043A\u0430 \u043F\u043E\u0432\u0435\u0440\u0445\u043D\u043E\u0441\u0442\u0438";
-    private const string PREVIEW_STATUS = "\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u043F\u0440\u0435\u0432\u044C\u044E \u043A\u0430\u0440\u0442\u044B";
-    private const string PACK_STATUS = "\u041F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u0444\u0430\u0439\u043B\u043E\u0432 \u043C\u0438\u0440\u0430";
-    internal const string WRITE_STATUS = "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043A\u0430\u0440\u0442\u044B";
+    private static string PrepareStatus => LocalizationService.Text("worldGeneration.prepare");
+    private static string PaintStatus => LocalizationService.Text("worldGeneration.paint");
+    private static string PreviewStatus => LocalizationService.Text("worldGeneration.preview");
+    private static string PackStatus => LocalizationService.Text("worldGeneration.pack");
+    internal static string WriteStatus => LocalizationService.Text("worldGeneration.save");
     private const float MAPS_SHARE = 0.75f;
     private const float MAPS_DONE = 0.53f;
     private const float PAINT_PROGRESS = 0.78f;
@@ -27,7 +27,7 @@ public sealed class WorldGenerationService
     private const float WRITE_PROGRESS = 0.95f;
     private const double PUMP_MILLISECONDS = 8.0;
 
-    public static IReadOnlyList<string> StageTitles { get; } = Titles();
+    public static IReadOnlyList<string> StageTitles => Titles();
 
     public sealed class Draft
     {
@@ -44,7 +44,7 @@ public sealed class WorldGenerationService
     private sealed class Status
     {
         private readonly object _gate = new();
-        private WorldGenerationProgress _current = new(PREPARE_STATUS, 0f);
+        private WorldGenerationProgress _current = new(PrepareStatus, 0f);
 
         public WorldGenerationProgress Current
         {
@@ -83,7 +83,7 @@ public sealed class WorldGenerationService
         string root, bool builtIn, WorldPreviewQuality quality, IProgress<WorldGenerationProgress> progress, CancellationToken token)
     {
         Draft draft = await PrepareAsync(settings, variation, name, quality, progress, token);
-        await Report(progress, WRITE_STATUS, WRITE_PROGRESS);
+        await Report(progress, WriteStatus, WRITE_PROGRESS);
         WorldInfo world = await SaveAsync(draft, id, name, root, builtIn, true, token);
         Debug.Log($"{nameof(WorldGenerationService)}: world '{world.Id}' generated in {draft.Preview.Stats.Seconds:0.0} s, seed {world.Seed}, size {world.WorldSize}");
         return new WorldGenerationResult(world, draft.Preview.Preview, draft.Preview.Layers, draft.Preview.Stats);
@@ -95,7 +95,7 @@ public sealed class WorldGenerationService
         Stopwatch clock = Stopwatch.StartNew();
         GroundLayerSet ground = settings.Ground;
         if (ground == null || !ground.IsValid)
-            throw new InvalidOperationException("The shipped ground layer set is missing; rebake the ground in the editor with «\u041C\u0438\u0440 → \u041F\u0435\u0440\u0435\u043F\u0435\u0447\u044C \u0437\u0435\u043C\u043B\u044E \u043C\u0438\u0440\u0430»");
+            throw new InvalidOperationException("The shipped ground layer set is missing; rebake the ground in the editor.");
 
         WorldGenerationConfig config = Object.Instantiate(settings.Config);
         var host = new MainThreadJobHost(token);
@@ -104,7 +104,7 @@ public sealed class WorldGenerationService
 
         try
         {
-            await Report(progress, PREPARE_STATUS, 0f);
+            await Report(progress, PrepareStatus, 0f);
             token.ThrowIfCancellationRequested();
             config.Apply(variation);
             WorldBuildBudget.Validate(settings, config, Center(config), true);
@@ -118,8 +118,8 @@ public sealed class WorldGenerationService
             try
             {
                 maps = await OnWorker(() => Maps(settings, config, status, token), host, status, progress);
-                status.Set(PAINT_STATUS, PAINT_PROGRESS);
-                await Report(progress, PAINT_STATUS, PAINT_PROGRESS);
+                status.Set(PaintStatus, PAINT_PROGRESS);
+                await Report(progress, PaintStatus, PAINT_PROGRESS);
 
                 var weights = new BiomeWeightField(maps.Biomes, settings.Biomes.Count, config.BiomeBlendRadius);
                 using var painter = new GroundSplatPainter(config, settings.Biomes, weights, maps.Roads.Paved(), ground.Layers) { Water = maps.Water };
@@ -200,14 +200,14 @@ public sealed class WorldGenerationService
         Color32[][] controls = VoxelSplatBaker.BakePixels(config, painter, maps.Heights, ground.ControlResolution);
         token.ThrowIfCancellationRequested();
 
-        status.Set(PREVIEW_STATUS, PREVIEW_PROGRESS);
+        status.Set(PreviewStatus, PREVIEW_PROGRESS);
         WorldPreviewSource source = WorldPreviewSource.Capture(settings.Biomes, maps.Biomes, maps.Heights, maps.Water, maps.Roads.Paved(),
             maps.Placements, maps.Settlements, maps.Gameplay);
         WorldPreviewLayers layers = WorldPreviewPainter.Layers(source, previewResolution);
         byte[] preview = WorldPreviewImage.Encode(layers);
         token.ThrowIfCancellationRequested();
 
-        status.Set(PACK_STATUS, PACK_PROGRESS);
+        status.Set(PackStatus, PACK_PROGRESS);
         byte[] heights = maps.Heights.ToRaw16();
         byte[] water = WaterMapFormat.Write(maps.Water);
         var controlBytes = new byte[controls.Length][];
@@ -297,9 +297,9 @@ public sealed class WorldGenerationService
 
     private static List<string> Titles()
     {
-        var titles = new List<string> { PREPARE_STATUS };
+        var titles = new List<string> { PrepareStatus };
         titles.AddRange(WorldMapPipeline.StageTitles);
-        titles.AddRange(new[] { PAINT_STATUS, PREVIEW_STATUS, PACK_STATUS, WRITE_STATUS });
+        titles.AddRange(new[] { PaintStatus, PreviewStatus, PackStatus, WriteStatus });
         return titles;
     }
 

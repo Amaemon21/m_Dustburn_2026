@@ -101,18 +101,85 @@ internal static partial class Harness
         inventory.AddItemsToInventory("hands", Vector2Int.zero, "axe", 1);
         using DamageFeed feed = new();
         LocalHeldItemEffects effects = new(inventory, catalog, new DamageService(feed, new TestRewards()), new UnlimitedStamina());
-        HeldItem axe = new("hands", Vector2Int.zero, "axe", null);
+        HeldItem axe = new("hands", Vector2Int.zero, "axe");
         TestDamageable target = new();
 
-        effects.Strike(axe, target, Hit(7, 4));
+        Check(effects.TryStrike(axe, target, Hit(7, 4)), "a valid strike is confirmed");
         Check(target.Taken == 7 && inventory.GetInventory("hands").GetSlot(Vector2Int.zero).Wear == 4, "a strike damages and wears");
-        effects.Strike(axe, null, Hit(7, 6));
+        Check(effects.TryStrike(axe, null, Hit(7, 6)), "a strike on scenery is confirmed");
         Check(!effects.IsUsable(axe) && inventory.GetInventory("hands").GetSlot(Vector2Int.zero).Wear == 10,
             "a strike on scenery wears the item out");
-        effects.Strike(axe, target, Hit(7, 1));
-        Check(target.Taken == 7, "a worn-out item deals no damage");
-        Check(effects.IsUsable(new HeldItem("hands", new Vector2Int(1, 0), null, null)), "bare hands are always usable");
-        Check(!effects.IsUsable(new HeldItem("hands", new Vector2Int(1, 0), "axe", null)), "an item that left its slot is not usable");
+        Check(!effects.TryStrike(axe, target, Hit(7, 1)) && target.Taken == 7, "a worn-out item cannot confirm damage");
+        Check(effects.IsUsable(new HeldItem("hands", new Vector2Int(1, 0))), "bare hands are always usable");
+        Check(!effects.IsUsable(new HeldItem("hands", new Vector2Int(1, 0), "axe")), "an item that left its slot is not usable");
+        VerifyMeleeConfirmations(inventory, catalog, feed);
+    }
+
+    private static void VerifyMeleeConfirmations(InventoryService inventory, ItemCatalog catalog, DamageFeed feed)
+    {
+        Vector2Int slot = new(1, 0);
+        inventory.AddItemsToInventory("hands", slot, "axe", 1);
+        HeldItem axe = new("hands", slot, "axe");
+        MeleeActionConfig rules = new();
+        SetBackingField(rules, nameof(MeleeActionConfig.Windup), 0.25f);
+        SetBackingField(rules, nameof(MeleeActionConfig.SwingDuration), 0.5f);
+        SetBackingField(rules, nameof(MeleeActionConfig.Recovery), 0.25f);
+        SetBackingField(rules, nameof(MeleeActionConfig.Damage), 7);
+        SetBackingField(rules, nameof(MeleeActionConfig.WearPerHit), 2);
+        SetBackingField(rules, nameof(MeleeActionConfig.HitMask), (LayerMask)16);
+        TestDamageable target = new();
+        TestMeleeScanner scanner = new() { Hit = new MeleeHit(target, Vector3.one, Vector3.up) };
+        TestMeleeStamina stamina = new();
+        LocalHeldItemEffects effects = new(inventory, catalog, new DamageService(feed, new TestRewards()), stamina);
+        MeleeSwing swing = new(rules, axe, new TestAim(), scanner, effects);
+        TestPresenter presenter = new();
+        MeleePresentationConfig presentation = new();
+        SetBackingField(presentation, nameof(MeleePresentationConfig.Motion), HandsMotion.PowerAttack);
+        SetBackingField(presentation, nameof(MeleePresentationConfig.ImpactShake), 0.6f);
+        Material particles = FakeAsset<Material>();
+        SetBackingField(presentation, nameof(MeleePresentationConfig.ImpactParticleMaterial), particles);
+        MeleeAction action = new(swing, presenter, presentation);
+
+        Check(!action.TryStart() && presenter.Played.Count == 0 && stamina.AmountSpent == 0f, "rejected starts play no animation");
+        stamina.Available = 100f;
+        Check(action.TryStart() && !action.TryStart() && stamina.AmountSpent == rules.StaminaCost &&
+            presenter.Played.Count == 1 && presenter.Played[0] == HandsMotion.PowerAttack, "one accepted swing spends stamina and starts one motion");
+        Check(action.Tick(0.125f) && scanner.Calls == 0 && presenter.Impacts == 0, "windup follows gameplay time independently of animation");
+        Check(action.Tick(0.125f) && target.Taken == 7 && inventory.GetInventory("hands").GetSlot(slot).Wear == 2,
+            "the contact frame applies damage and wear once");
+        Check(scanner.Reach == rules.Reach && scanner.Radius == rules.Radius && scanner.Mask == rules.HitMask.value,
+            "the scan uses the configured reach, radius and layer mask");
+        Check(presenter.Impacts == 1 && presenter.LastImpact.Point == Vector3.one && presenter.LastImpact.Normal == Vector3.up &&
+            presenter.Shake == 0.6f && ReferenceEquals(presenter.Particles, particles), "presentation receives the confirmed impact pose and visual settings");
+        Check(action.Tick(0.25f) && !action.TryStart() && !action.Tick(0.25f) && scanner.Calls == 1 && presenter.Impacts == 1,
+            "recovery blocks repeats and the next ticks do not resolve the strike again");
+
+        scanner.Hit = null;
+        Check(action.TryStart() && !action.Tick(1f) && presenter.Impacts == 1 && inventory.GetInventory("hands").GetSlot(slot).Wear == 2,
+            "a miss consumes a swing but does not perform hit effects or wear the tool");
+        scanner.Hit = new MeleeHit(target, Vector3.one, Vector3.up);
+        Check(action.TryStart(), "a new swing starts after the miss");
+        action.Cancel();
+        Check(!action.Tick(1f) && scanner.Calls == 2, "cancelling before contact prevents the strike");
+
+        Check(action.TryStart(), "the item is usable at the start of the swing");
+        inventory.RemoveItemsFromInventory("hands", slot, "axe", 1);
+        Check(!action.Tick(1f) && target.Taken == 7 && presenter.Impacts == 1, "losing the held item before contact suppresses damage and impact");
+
+        inventory.AddItemsToInventory("hands", slot, "axe", 1);
+        HeldItemConfig heldConfig = TestHeldItem(0f, 0f, null);
+        SetBackingField(heldConfig, nameof(HeldItemConfig.Secondary), rules);
+        SetBackingField(heldConfig, nameof(HeldItemConfig.SecondaryMeleePresentation), presentation);
+        TestPresenter hidden = new() { CanShow = false };
+        ItemActionFactory actions = new ItemActionFactory().Register<MeleeActionConfig>((config, context) =>
+            new MeleeAction(new MeleeSwing(config, context.Item, context.Aim, scanner, effects), context.Presenter, context.MeleePresentation));
+        using PlayerHands hands = new(hidden, new TestAim(), actions, null);
+        hands.Hold(new HeldItem("hands", slot, "axe", heldConfig));
+        hands.Tick(default, 0f);
+        hands.Tick(new HandsRequest { Secondary = true }, 0f);
+        hands.Tick(default, 0.25f);
+        Check(hidden.Shown.Count == 0 && hidden.Played[^1] == HandsMotion.PowerAttack && target.Taken == 14 && hidden.Impacts == 1,
+            "player hands use secondary combat rules and presentation even when the item has no visible arms");
     }
 
     private static void VerifyPlayerHands()
@@ -248,8 +315,15 @@ internal static partial class Harness
 
         public TestAction(TestActionConfig config, ItemActionContext context) => _config = config;
 
-        public bool CanStart => !Blocked;
-        public void Start() { _elapsed = 0f; Started++; }
+        public bool TryStart()
+        {
+            if (Blocked)
+                return false;
+
+            _elapsed = 0f;
+            Started++;
+            return true;
+        }
         public bool Tick(float deltaTime) => (_elapsed += deltaTime) < _config.Duration;
         public void Cancel() => Cancelled++;
     }
@@ -261,17 +335,28 @@ internal static partial class Harness
         public int Hidden;
         public int Ticks;
         public int Impacts;
+        public bool CanShow = true;
+        public float Shake;
+        public Material Particles;
+        public MeleeImpact LastImpact;
 
         public bool Show(HeldItemConfig config)
         {
-            if (config == null)
+            if (!CanShow || config == null)
                 return false;
+
             Shown.Add(config);
             return true;
         }
 
         public void Hide() => Hidden++;
-        public void Impact(float shake) => Impacts++;
+        public void Impact(float shake, Material particles, in MeleeImpact impact)
+        {
+            Impacts++;
+            Shake = shake;
+            Particles = particles;
+            LastImpact = impact;
+        }
         public void Tick(float deltaTime) => Ticks++;
         public bool Play(HandsMotion motion)
         {
@@ -285,6 +370,41 @@ internal static partial class Harness
     {
         public Ray Aim => default;
         public Transform Body => null;
+    }
+
+    private sealed class TestMeleeScanner : IMeleeHitScanner
+    {
+        public MeleeHit? Hit;
+        public int Calls;
+        public float Reach;
+        public float Radius;
+        public int Mask;
+
+        public bool TryHit(IAimSource aim, float reach, float radius, LayerMask mask, out MeleeHit hit)
+        {
+            Calls++;
+            Reach = reach;
+            Radius = radius;
+            Mask = mask.value;
+            hit = Hit.GetValueOrDefault();
+            return Hit.HasValue;
+        }
+    }
+
+    private sealed class TestMeleeStamina : IPlayerStamina
+    {
+        public ReadOnlyReactiveProperty<bool> IsExhausted => throw new NotSupportedException();
+        public float Available;
+        public Observable<float> Spent => Observable.Empty<float>();
+        public float AmountSpent;
+
+        public bool CanSpend(float amount) => Available >= amount;
+
+        public void Spend(float amount)
+        {
+            Available -= amount;
+            AmountSpent += amount;
+        }
     }
 
     private sealed class TestDamageable : IDamageable

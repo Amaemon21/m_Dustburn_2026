@@ -9,11 +9,12 @@ public readonly struct PlayerMovementResult
     public bool Jumped { get; }
     public bool Landed { get; }
     public float PlanarSpeed { get; }
+    public float LandingSpeed { get; }
 
     public bool IsMoving => Move.sqrMagnitude > 0f;
 
     public PlayerMovementResult(Vector2 move, bool isGrounded, bool isSprinting, bool isCrouching, bool jumped, bool landed,
-        float planarSpeed)
+        float planarSpeed, float landingSpeed = 0f)
     {
         Move = move;
         IsGrounded = isGrounded;
@@ -22,5 +23,6 @@ public readonly struct PlayerMovementResult
         Jumped = jumped;
         Landed = landed;
         PlanarSpeed = planarSpeed;
+        LandingSpeed = landingSpeed;
     }
 }

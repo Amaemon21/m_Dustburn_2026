@@ -12,6 +12,7 @@ public sealed class InventoryTabView : View<InventoryTabViewModel>, IPointerClic
     [SerializeField] private GameObject _playerInfoPanel;
     [SerializeField] private PlayerStatusView _playerStatus;
     [SerializeField] private DraggableSlotView _draggableSlot;
+    [SerializeField] private ItemNameHoverView _itemNameHover;
     private UIInputService _input;
 
     [Inject]
@@ -27,6 +28,10 @@ public sealed class InventoryTabView : View<InventoryTabViewModel>, IPointerClic
         _equipment.Bind(viewModel.Equipment);
         _itemInfo.Bind(viewModel.ItemInfo);
         _draggableSlot.Bind(viewModel.DragDrop);
+
+        if (_itemNameHover != null)
+            bindings.Add(_itemNameHover.BindFor(viewModel.ItemNameHover));
+
         if (_playerStatus != null && viewModel.Status != null)
             _playerStatus.Bind(viewModel.Status);
         bindings.Add(_input.Scrolled.Subscribe(direction => viewModel.DragDrop.ChangeAmount(direction)));

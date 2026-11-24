@@ -21,6 +21,10 @@ MonoBehaviour:
     rid: 7046553330012938240
   <Secondary>k__BackingField:
     rid: -2
+  <PrimaryMeleePresentation>k__BackingField:
+    <Motion>k__BackingField: 2
+    <ImpactShake>k__BackingField: 0.85
+    <ImpactParticleMaterial>k__BackingField: {fileID: 2100000, guid: e823cd5b5d27c0f4b8256e7c12ee3e6d, type: 2}
   references:
     version: 2
     RefIds:
@@ -29,14 +33,14 @@ MonoBehaviour:
     - rid: 7046553330012938240
       type: {class: MeleeActionConfig, ns: , asm: Assembly-CSharp}
       data:
-        <Motion>k__BackingField: 2
+        <Windup>k__BackingField: 0.37
+        <SwingDuration>k__BackingField: 0.86666673
         <Recovery>k__BackingField: 0.22
         <Reach>k__BackingField: 2.6
         <Radius>k__BackingField: 0.2
         <Damage>k__BackingField: 29
         <WearPerHit>k__BackingField: 1
         <StaminaCost>k__BackingField: 26.4
-        <ImpactShake>k__BackingField: 0.85
         <HitMask>k__BackingField:
           serializedVersion: 2
           m_Bits: 4294967291

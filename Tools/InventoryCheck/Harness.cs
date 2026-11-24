@@ -12,6 +12,12 @@ internal static partial class Harness
 
     private static async Task Main(string[] args)
     {
+        if (Array.IndexOf(args, "--building") >= 0)
+        {
+            await VerifyBuildingPersistence();
+            Console.WriteLine($"PASS: {_checks} building checks");
+            return;
+        }
         if (Array.IndexOf(args, "--list-item-selection") >= 0)
         {
             VerifyListItemSelection();
@@ -19,6 +25,8 @@ internal static partial class Harness
             return;
         }
         VerifyListItemSelection();
+        await VerifyBuildingPersistence();
+        VerifyPauseScreen();
         GameplayEnterParams testScene = new("test_slot", Scenes.Gameplay_Test);
         Check(testScene.SceneName == "Gameplay_Test" && testScene.SlotId == "test_slot", "test gameplay route preserved");
         Check(new GameplayEnterParams("player").Scene == Scenes.Gameplay, "default gameplay route unchanged");
@@ -99,6 +107,7 @@ internal static partial class Harness
         VerifyMainMenuAssets();
         VerifyInventoryTransactions();
         VerifySelectedItemInfo();
+        LoadInventoryTexts();
         VerifyItemNameHover();
         VerifyInventorySort();
         VerifyItemInfoStats();
@@ -115,6 +124,8 @@ internal static partial class Harness
         VerifyBackpack();
         VerifyDragSwing();
         await VerifyVitals();
+        await VerifyPlayerEffects();
+        await VerifyEffectConsumables();
         await VerifyStamina();
         await VerifyStaminaWithoutPauses();
         await VerifyMetabolism();
@@ -338,6 +349,53 @@ internal static partial class Harness
     }
 
     private sealed class TestWindow : WindowViewModel { }
+
+    private static void VerifyPauseScreen()
+    {
+        SaveRegistry registry = new SaveRegistry().Register<ProgressData>("progress", SaveScope.Slot, SaveInstaller.PROGRESS_FILE);
+        MemoryStorage storage = new();
+        using SaveService saves = new(registry, storage, ProjectSerializer());
+        using GameplayExit exit = new();
+        using WindowService windows = new();
+        PauseScreenService pause = new(windows, saves, exit);
+        TestWindowPresenter presenter = new();
+        int exits = 0;
+        using IDisposable exitBinding = exit.Requested.Subscribe(_ => exits++);
+
+        pause.HandleEscape();
+        Check(!pause.IsOpen, "Escape works before the pause prefab is wired");
+        windows.Register(PauseScreenService.WINDOW_ID, presenter);
+        windows.Register("inventory", new TestWindowPresenter());
+        windows.Open("inventory", new TestWindow());
+        pause.HandleEscape();
+        Check(!windows.HasOpenWindows.CurrentValue, "Escape closes inventory without opening pause");
+        pause.HandleEscape();
+        Check(pause.IsOpen, "Escape opens pause from gameplay");
+        PauseScreenViewModel model = (PauseScreenViewModel)presenter.Bound;
+
+        storage.OnWrite = () => throw new System.IO.IOException("Simulated pause save failure");
+        model.SaveAndExit.Execute(Unit.Default);
+        Check(pause.IsOpen && exits == 0 && model.Status.CurrentValue == PauseSaveStatus.Failed,
+            "a failed save keeps pause open without exiting");
+
+        UniTaskCompletionSource<bool> pending = new();
+        using IDisposable saveBinding = saves.SubscribeSlotSaved((_, _) => pending.Task.AsUniTask());
+        model.Save.Execute(Unit.Default);
+        pause.HandleEscape();
+        model.SaveAndExit.Execute(Unit.Default);
+        Check(pause.IsOpen && exits == 0 && model.Status.CurrentValue == PauseSaveStatus.Saving,
+            "Escape and repeat commands are ignored while saving");
+        pending.TrySetResult(true);
+        Check(pause.IsOpen && model.Status.CurrentValue == PauseSaveStatus.Saved && exits == 0,
+            "manual save finishes without leaving the pause window");
+
+        pause.HandleEscape();
+        Check(!pause.IsOpen && model.IsDisposed, "Escape resumes and disposes the paused window");
+        pause.HandleEscape();
+        model = (PauseScreenViewModel)presenter.Bound;
+        model.SaveAndExit.Execute(Unit.Default);
+        Check(!pause.IsOpen && exits == 1 && model.IsDisposed, "save and exit closes pause before requesting the main menu");
+    }
 
     private sealed class MemoryStorage : ISaveStorage
     {

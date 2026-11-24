@@ -5,7 +5,7 @@ using UnityEngine;
 public sealed class InventoryItemInfoViewModel : ViewModel
 {
     private readonly ItemCatalog _catalog;
-    private readonly ReactiveProperty<InventorySlotState> _state = new(new InventorySlotState(null, 0));
+    private readonly ReactiveProperty<InventorySlotState> _state = new(InventorySlotState.Empty);
     private readonly CompositeDisposable _slotBindings = new();
     private readonly InventoryGridViewModel[] _grids;
     private InventoryGridViewModel _selectedGrid;
@@ -51,7 +51,7 @@ public sealed class InventoryItemInfoViewModel : ViewModel
         _selectedCoordinates = coordinates;
         foreach (InventoryGridViewModel other in _grids)
             if (!ReferenceEquals(other, grid))
-                other.SelectSlot(null);
+                other.ClearSelection();
         grid.SelectSlot(coordinates);
         _slotBindings.Add(slot.State.Subscribe(state =>
         {
@@ -78,9 +78,11 @@ public sealed class InventoryItemInfoViewModel : ViewModel
     {
         _slotBindings.Clear();
         _selectedGrid = null;
+
         foreach (InventoryGridViewModel grid in _grids)
-            grid.SelectSlot(null);
-        _state.Value = new InventorySlotState(null, 0);
+            grid.ClearSelection();
+
+        _state.Value = InventorySlotState.Empty;
     }
 
     protected override void OnDisposed()

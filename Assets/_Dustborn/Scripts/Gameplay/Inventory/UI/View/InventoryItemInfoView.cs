@@ -38,8 +38,18 @@ public class InventoryItemInfoView : View<InventoryItemInfoViewModel>
 
         bindings.Add(viewModel.State.Subscribe(state =>
         {
-            OnItemChanged(viewModel.Item, state);
-            RefreshDurability(viewModel.Durability);
+            InventoryItem item = viewModel.Item;
+            float? durability = viewModel.Durability;
+
+            if (item != null)
+                OnItemChanged(item, state);
+            else
+                ClearItem();
+
+            SetDurabilityVisible(durability.HasValue);
+
+            if (durability.HasValue)
+                RefreshDurability(durability.Value);
         }));
         bindings.Add(viewModel.Use.CanExecute.Subscribe(_useHint.SetVisible));
         bindings.Add(viewModel.Drop.CanExecute.Subscribe(_dropHint.SetVisible));
@@ -51,23 +61,23 @@ public class InventoryItemInfoView : View<InventoryItemInfoViewModel>
     {
         _nameColor ??= _nameText.color;
 
-        if (item == null)
-        {
-            _nameText.text = string.Empty;
-            _nameText.color = _nameColor.Value;
-            _categoryText.text = string.Empty;
-            _iconImage.sprite = null;
-            _descriptionText.text = string.Empty;
-            _stats.Clear();
-            return;
-        }
-
         _nameText.text = item.ItemName;
         _nameText.color = NameColor(item.Rarity);
         _categoryText.text = ItemInfoText.Subtitle(item);
         _iconImage.sprite = item.Icon;
         _descriptionText.text = item.Description;
         _stats.Show(item, state);
+    }
+
+    private void ClearItem()
+    {
+        _nameColor ??= _nameText.color;
+        _nameText.text = string.Empty;
+        _nameText.color = _nameColor.Value;
+        _categoryText.text = string.Empty;
+        _iconImage.sprite = null;
+        _descriptionText.text = string.Empty;
+        _stats.Clear();
     }
 
     private Color NameColor(ItemRarity rarity)
@@ -78,16 +88,16 @@ public class InventoryItemInfoView : View<InventoryItemInfoViewModel>
         return color;
     }
 
-    private void RefreshDurability(float? durability)
+    private void SetDurabilityVisible(bool visible)
     {
-        _durabilityPanel.SetActive(durability.HasValue);
-        _durabilityLine.SetActive(durability.HasValue);
-        
-        if (!durability.HasValue)
-            return;
+        _durabilityPanel.SetActive(visible);
+        _durabilityLine.SetActive(visible);
+    }
 
-        _durabilityFill.fillAmount = durability.Value;
-        _durabilityText.text = $"{Mathf.CeilToInt(durability.Value * 100f)}%";
+    private void RefreshDurability(float durability)
+    {
+        _durabilityFill.fillAmount = durability;
+        _durabilityText.text = $"{Mathf.CeilToInt(durability * 100f)}%";
     }
 
     public void CloseSelection()
@@ -97,8 +107,8 @@ public class InventoryItemInfoView : View<InventoryItemInfoViewModel>
 
     protected override void OnUnbound()
     {
-        OnItemChanged(null, new InventorySlotState(null, 0));
-        RefreshDurability(null);
+        ClearItem();
+        SetDurabilityVisible(false);
         _useHint.SetVisible(false);
         _dropHint.SetVisible(false);
     }

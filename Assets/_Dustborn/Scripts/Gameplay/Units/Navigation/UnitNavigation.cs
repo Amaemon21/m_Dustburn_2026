@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 public sealed class UnitNavigation : IDisposable
 {
-    private const string STATUS = "Навигация для противников";
+    private static string Status => LocalizationService.Text("loading.navigation");
 
     private const float TILE_INSET = 0.25f;
 
@@ -39,7 +39,7 @@ public sealed class UnitNavigation : IDisposable
         foreach (Pathfinding.Progress step in astar.ScanAsync(_graph))
         {
             token.ThrowIfCancellationRequested();
-            progress?.Report(new SceneLoadStatus(step.progress, STATUS));
+            progress?.Report(new SceneLoadStatus(step.progress, Status));
             await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
 

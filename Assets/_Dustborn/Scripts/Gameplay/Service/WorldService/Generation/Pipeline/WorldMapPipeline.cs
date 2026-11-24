@@ -48,7 +48,7 @@ public readonly struct WorldMapStep
 
 public sealed class WorldMapPipeline
 {
-    private const string DONE = "\u041A\u0430\u0440\u0442\u044B \u0433\u043E\u0442\u043E\u0432\u044B";
+    private static string Done => LocalizationService.Text("worldGeneration.mapsReady");
     private const float DONE_PROGRESS = 0.53f;
     private const int SETTLE_ROUNDS = 4;
 
@@ -81,13 +81,13 @@ public sealed class WorldMapPipeline
 
     private readonly struct Stage
     {
-        public readonly string Title;
+        public readonly string TitleKey;
         public readonly float Progress;
         public readonly Action<Context> Run;
 
-        public Stage(string title, float progress, Action<Context> run)
+        public Stage(string titleKey, float progress, Action<Context> run)
         {
-            Title = title;
+            TitleKey = titleKey;
             Progress = progress;
             Run = run;
         }
@@ -95,19 +95,19 @@ public sealed class WorldMapPipeline
 
     private static readonly Stage[] Stages =
     {
-        new("\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u043A\u0430\u0440\u0442\u044B \u0431\u0438\u043E\u043C\u043E\u0432", 0.02f, Biomes),
-        new("\u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0440\u0435\u043B\u044C\u0435\u0444\u0430", 0.08f, Relief),
-        new("\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0440\u0435\u043A \u0438 \u043E\u0437\u0451\u0440", 0.26f, Water),
-        new("\u041F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u043A\u0430 \u043F\u043E\u0441\u0435\u043B\u0435\u043D\u0438\u0439", 0.32f, Settlements),
-        new("\u041F\u0440\u043E\u043A\u043B\u0430\u0434\u043A\u0430 \u043C\u0430\u0433\u0438\u0441\u0442\u0440\u0430\u043B\u0435\u0439", 0.38f, Highways),
-        new("\u0412\u044B\u0440\u0430\u0432\u043D\u0438\u0432\u0430\u043D\u0438\u0435 \u0434\u043E\u0440\u043E\u0433 \u0438 \u0443\u043B\u0438\u0446", 0.42f, CarveRoads),
-        new("\u0420\u0430\u0437\u043C\u0435\u0449\u0435\u043D\u0438\u0435 \u0437\u0434\u0430\u043D\u0438\u0439", 0.47f, Buildings),
-        new("\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 \u0443\u0440\u043E\u0432\u043D\u044F \u0432\u043E\u0434\u044B", 0.5f, ReconcileWater),
-        new("\u041F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u0441\u0442\u0430\u0440\u0442\u043E\u0432\u043E\u0439 \u0437\u043E\u043D\u044B", 0.515f, Gameplay),
-        new("\u0420\u0430\u0437\u043C\u0435\u0449\u0435\u043D\u0438\u0435 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432", 0.52f, Props)
+        new("worldGeneration.biomes", 0.02f, Biomes),
+        new("worldGeneration.relief", 0.08f, Relief),
+        new("worldGeneration.water", 0.26f, Water),
+        new("worldGeneration.settlements", 0.32f, Settlements),
+        new("worldGeneration.highways", 0.38f, Highways),
+        new("worldGeneration.carveRoads", 0.42f, CarveRoads),
+        new("worldGeneration.buildings", 0.47f, Buildings),
+        new("worldGeneration.reconcileWater", 0.5f, ReconcileWater),
+        new("worldGeneration.startingArea", 0.515f, Gameplay),
+        new("worldGeneration.props", 0.52f, Props)
     };
 
-    public static IReadOnlyList<string> StageTitles { get; } = Array.ConvertAll(Stages, stage => stage.Title);
+    public static IReadOnlyList<string> StageTitles => Array.ConvertAll(Stages, stage => LocalizationService.Text(stage.TitleKey));
 
     public WorldMapPipeline(WorldGenerationConfig config, BiomeDatabase biomes, PoiDatabase pois, PropDatabase props = null)
     {
@@ -140,14 +140,14 @@ public sealed class WorldMapPipeline
         foreach (Stage stage in Stages)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            yield return new WorldMapStep(stage.Title, stage.Progress, null);
+            yield return new WorldMapStep(LocalizationService.Text(stage.TitleKey), stage.Progress, null);
             cancellationToken.ThrowIfCancellationRequested();
             stage.Run(context);
         }
 
         WorldGenProbe.Record(WorldGenStage.MapTotal, total, WorldGenProbe.Now, context.Placements.Count);
 
-        yield return new WorldMapStep(DONE, DONE_PROGRESS, new WorldMapResult(context.Biomes, context.Heights, context.Roads,
+        yield return new WorldMapStep(Done, DONE_PROGRESS, new WorldMapResult(context.Biomes, context.Heights, context.Roads,
             context.RoadMask, context.Placements, context.Settlements, context.Water, context.Relief.Stamps, context.Props, context.Gameplay));
     }
 

@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class UIRootView : MonoBehaviour
@@ -8,6 +7,7 @@ public class UIRootView : MonoBehaviour
     [SerializeField] private GameObject _loadingScreen;
     [SerializeField] private Transform _uiSceneContainer;
     [SerializeField] private Image _progressFill;
+    [SerializeField] private TMP_Text _progressPercentLabel;
     [SerializeField] private TMP_Text _statusLabel;
     [SerializeField, Min(0f)] private float _minLoadingScreenTime = 1f;
 
@@ -32,10 +32,13 @@ public class UIRootView : MonoBehaviour
 
     public void SetProgress(float value)
     {
-        if (_progressFill == null)
-            return;
+        float progress = Mathf.Clamp01(value);
 
-        _progressFill.fillAmount = Mathf.Clamp01(value);
+        if (_progressFill != null)
+            _progressFill.fillAmount = progress;
+
+        if (_progressPercentLabel != null)
+            _progressPercentLabel.text = $"{Mathf.RoundToInt(progress * 100f)}%";
     }
 
     public void SetStatus(string status)
@@ -59,4 +62,4 @@ public class UIRootView : MonoBehaviour
             Destroy(_uiSceneContainer.GetChild(i).gameObject);
     }
 }
- 
+

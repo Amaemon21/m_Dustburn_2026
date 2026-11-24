@@ -32,8 +32,10 @@ public sealed class ContainerScreenView : WindowView
         _backpack.Bind(screen.Backpack);
         _hotbar.Bind(screen.Hotbar);
         _draggableSlot.Bind(screen.DragDrop);
+
         if (_itemNameHover != null)
-            _itemNameHover.Bind(screen.ItemNameHover);
+            bindings.Add(_itemNameHover.BindFor(screen.ItemNameHover));
+
         _title.text = screen.Title;
         bindings.Add(_input.Scrolled.Subscribe(direction => screen.DragDrop.ChangeAmount(direction)));
         bindings.Add(_input.TakeAllPressed.Subscribe(_ => screen.TakeAll.Execute(Unit.Default)));
@@ -47,8 +49,6 @@ public sealed class ContainerScreenView : WindowView
     protected override void OnUnbound()
     {
         _draggableSlot.Unbind();
-        if (_itemNameHover != null)
-            _itemNameHover.Unbind();
         _container.Unbind();
         _backpack.Unbind();
         _hotbar.Unbind();

@@ -20,22 +20,24 @@ public static class ItemStatText
 
     public static string Label(in ItemStat stat) => stat.Type switch
     {
-        ItemStatType.Health => "Здоровье",
-        ItemStatType.Bleeding => "Кровотечение",
-        ItemStatType.Duration => "Длительность",
-        ItemStatType.Weight => "Вес",
-        ItemStatType.Durability => "Прочность",
-        ItemStatType.Stamina => "Выносливость",
-        ItemStatType.Food => "Сытость",
-        ItemStatType.Water => "Вода",
-        ItemStatType.Infection => "Инфекция",
-        ItemStatType.Amount => "Количество",
-        ItemStatType.Damage => "Урон",
-        ItemStatType.SwingTime => "Время удара",
-        ItemStatType.StaminaCost => "Выносливость за удар",
-        ItemStatType.Reach => "Дальность",
-        ItemStatType.ExtraRows => "Ряды рюкзака",
-        ItemStatType.CarryBonus => "Грузоподъёмность",
+        ItemStatType.Health => LocalizationService.Text("inventory.stats.health"),
+        ItemStatType.Bleeding => LocalizationService.Text("inventory.stats.bleeding"),
+        ItemStatType.Duration => LocalizationService.Text("inventory.stats.duration"),
+        ItemStatType.Weight => LocalizationService.Text("inventory.stats.weight"),
+        ItemStatType.Durability => LocalizationService.Text("inventory.stats.durability"),
+        ItemStatType.Stamina => LocalizationService.Text("inventory.stats.stamina"),
+        ItemStatType.Food => LocalizationService.Text("inventory.stats.food"),
+        ItemStatType.Water => LocalizationService.Text("inventory.stats.water"),
+        ItemStatType.Infection => LocalizationService.Text("inventory.stats.infection"),
+        ItemStatType.Amount => LocalizationService.Text("inventory.stats.amount"),
+        ItemStatType.Damage => LocalizationService.Text("inventory.stats.damage"),
+        ItemStatType.SwingTime => LocalizationService.Text("inventory.stats.swingTime"),
+        ItemStatType.StaminaCost => LocalizationService.Text("inventory.stats.staminaCost"),
+        ItemStatType.Reach => LocalizationService.Text("inventory.stats.reach"),
+        ItemStatType.ExtraRows => LocalizationService.Text("inventory.stats.extraRows"),
+        ItemStatType.CarryBonus => LocalizationService.Text("inventory.stats.carryBonus"),
+        ItemStatType.Protection => LocalizationService.Text("inventory.stats.protection"),
+        ItemStatType.ProtectionDuration => LocalizationService.Text("inventory.stats.protectionDuration"),
         _ => stat.Type.ToString()
     };
 
@@ -43,18 +45,19 @@ public static class ItemStatText
     {
         ItemStatType.Health or ItemStatType.Stamina or ItemStatType.Food or ItemStatType.Water
             or ItemStatType.Infection or ItemStatType.Bleeding or ItemStatType.ExtraRows => Signed(stat.Value),
-        ItemStatType.Duration or ItemStatType.SwingTime => $"{Number(stat.Value)} с",
-        ItemStatType.Weight => stat.Limit > 0f ? $"{Number(stat.Value)} кг ({Number(stat.Limit)} за шт.)" : $"{Number(stat.Value)} кг",
+        ItemStatType.Duration or ItemStatType.SwingTime or ItemStatType.ProtectionDuration => LocalizationService.Format("units.seconds", Number(stat.Value)),
+        ItemStatType.Weight => stat.Limit > 0f ? LocalizationService.Format("inventory.stats.weightPerItem", Number(stat.Value), Number(stat.Limit)) : LocalizationService.Format("units.kilograms", Number(stat.Value)),
         ItemStatType.Durability or ItemStatType.Amount => $"{Number(stat.Value)} / {Number(stat.Limit)}",
-        ItemStatType.Reach => $"{Number(stat.Value)} м",
-        ItemStatType.CarryBonus => $"{Signed(stat.Value)} кг",
+        ItemStatType.Reach => LocalizationService.Format("units.metres", Number(stat.Value)),
+        ItemStatType.CarryBonus => LocalizationService.Format("units.kilograms", Signed(stat.Value)),
+        ItemStatType.Protection => $"{Number(stat.Value)}%",
         _ => Number(stat.Value)
     };
 
     public static ItemStatMood Mood(in ItemStat stat) => stat.Type switch
     {
         ItemStatType.Health or ItemStatType.Stamina or ItemStatType.Food or ItemStatType.Water
-            or ItemStatType.ExtraRows or ItemStatType.CarryBonus => Sign(stat.Value),
+            or ItemStatType.ExtraRows or ItemStatType.CarryBonus or ItemStatType.Protection => Sign(stat.Value),
         ItemStatType.Infection or ItemStatType.Bleeding => Sign(-stat.Value),
         _ => ItemStatMood.Neutral
     };

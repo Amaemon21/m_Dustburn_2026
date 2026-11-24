@@ -53,7 +53,7 @@ private static void Start()
 
         if (_builder == null)
         {
-            Notify("Нет предпросмотра мира: сначала обновите предпросмотр");
+            Notify(LocalizationService.Text("editor.decor.missingPreview"));
             return;
         }
 
@@ -61,7 +61,7 @@ private static void Start()
 
         try
         {
-            EditorUtility.DisplayProgressBar("Правка деревьев и камней", "Загрузка карты высот и расстановки декора", 0.5f);
+            EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.decor.title"), LocalizationService.Text("editor.decor.loading"), 0.5f);
             _session = _builder.BeginDecorEdit(out problem);
         }
         finally
@@ -72,13 +72,13 @@ private static void Start()
         if (_session == null)
         {
             Debug.LogWarning($"Decor editing did not start: {problem}");
-            Notify("Правка декора не запустилась, причина в консоли");
+            Notify(LocalizationService.Text("editor.decor.cannotStart"));
             return;
         }
 
         _active = true;
         _picked = false;
-        _status = "Щёлкните по дереву или камню";
+        _status = LocalizationService.Text("editor.decor.pickObject");
 
         TakeSnapshot(Edits());
 
@@ -109,7 +109,7 @@ private static void Start()
         if (_builder == null)
         {
             Stop();
-            Notify("Предпросмотр перестроен: включите правку декора заново");
+            Notify(LocalizationService.Text("editor.decor.invalidPreview"));
             return;
         }
 
@@ -146,7 +146,7 @@ private static void Start()
 
         if (!Raycast(ray, out Vector3 hit) || !_session.TryPick(new Vector2(hit.x, hit.z), PICK_RADIUS, out _pick))
         {
-            _status = "Рядом с этой точкой нет деревьев и камней";
+            _status = LocalizationService.Text("editor.decor.noObjectNearby");
             return;
         }
 
@@ -204,7 +204,7 @@ private static void Start()
     {
         _dragging = false;
 
-        Undo.RecordObject(edits, "Правка дерева или камня");
+        Undo.RecordObject(edits, LocalizationService.Text("editor.decor.moveUndo"));
         edits.Set(_session.Seed, DecorEdit.Moved(_pick.Key, PrefabOf(_pick), _origin, _pose));
         EditorUtility.SetDirty(edits);
 
@@ -213,24 +213,24 @@ private static void Start()
         Apply(edits, _origin, _shown, placed);
 
         _shown = placed;
-        _status = "Сдвинуто";
+        _status = LocalizationService.Text("editor.decor.moved");
     }
 
     private static void Remove(DecorEditsAsset edits)
     {
-        Undo.RecordObject(edits, "Удаление дерева или камня");
+        Undo.RecordObject(edits, LocalizationService.Text("editor.decor.deleteUndo"));
         edits.Set(_session.Seed, DecorEdit.Removal(_pick.Key, PrefabOf(_pick), _origin));
         EditorUtility.SetDirty(edits);
 
         Apply(edits, _origin, _shown);
 
         _picked = false;
-        _status = "Удалено";
+        _status = LocalizationService.Text("editor.decor.deleted");
     }
 
     private static void Restore(DecorEditsAsset edits)
     {
-        Undo.RecordObject(edits, "Возврат дерева или камня");
+        Undo.RecordObject(edits, LocalizationService.Text("editor.decor.restoreUndo"));
         edits.Forget(_pick.Key);
         EditorUtility.SetDirty(edits);
 
@@ -239,7 +239,7 @@ private static void Start()
         _picked = _session.TryFind(_pick.Key, _origin, PICK_RADIUS, out _pick);
         _pose = _pick.Instance;
         _shown = _origin;
-        _status = _picked ? "Возвращено на место генерации" : "Генератор больше не ставит сюда этот объект";
+        _status = _picked ? LocalizationService.Text("editor.decor.restored") : LocalizationService.Text("editor.decor.restoreMissing");
     }
 
     private static void Apply(DecorEditsAsset edits, params Vector2[] points)
@@ -253,7 +253,7 @@ private static void Start()
             if (_builder.RefreshDecor(_session, point - pad, point + pad) >= 0)
                 continue;
 
-            _status = "Набор декора изменился после предпросмотра: обновите предпросмотр";
+            _status = LocalizationService.Text("editor.decor.databaseChanged");
             break;
         }
 
@@ -287,7 +287,7 @@ private static void Start()
 
         _picked = false;
         _dragging = false;
-        _status = "Отмена применена";
+        _status = LocalizationService.Text("editor.decor.undoApplied");
 
         Apply(edits, Touched.ToArray());
     }
@@ -357,7 +357,7 @@ private static void Start()
 
         Handles.BeginGUI();
         GUILayout.BeginArea(panel, EditorStyles.helpBox);
-        GUILayout.Label("Правка деревьев и камней", EditorStyles.boldLabel);
+        GUILayout.Label(LocalizationService.Text("editor.decor.title"), EditorStyles.boldLabel);
 
         if (edits == null)
             Missing();
@@ -374,48 +374,48 @@ private static void Start()
 
     private static void Missing()
     {
-        GUILayout.Label("Нет файла правок: правки негде хранить.", EditorStyles.wordWrappedLabel);
+        GUILayout.Label(LocalizationService.Text("editor.decor.missingEdits"), EditorStyles.wordWrappedLabel);
 
-        if (GUILayout.Button("Создать файл правок"))
+        if (GUILayout.Button(LocalizationService.Text("editor.decor.createEdits")))
             CreateEdits();
 
-        if (GUILayout.Button("Закрыть"))
+        if (GUILayout.Button(LocalizationService.Text("editor.common.close")))
             Stop();
     }
 
     private static void Foreign(DecorEditsAsset edits)
     {
-        GUILayout.Label($"Правки сделаны для мира с сидом {edits.Seed}, а этот мир — сид {_session.Seed}.", EditorStyles.wordWrappedLabel);
+        GUILayout.Label(LocalizationService.Format("editor.decor.seedMismatch", edits.Seed, _session.Seed), EditorStyles.wordWrappedLabel);
 
-        if (GUILayout.Button("Очистить правки"))
+        if (GUILayout.Button(LocalizationService.Text("editor.decor.clear")))
         {
-            Undo.RecordObject(edits, "Очистка правок декора");
+            Undo.RecordObject(edits, LocalizationService.Text("editor.decor.clearUndo"));
             edits.Clear();
             EditorUtility.SetDirty(edits);
             Apply(edits);
         }
 
-        if (GUILayout.Button("Закрыть"))
+        if (GUILayout.Button(LocalizationService.Text("editor.common.close")))
             Stop();
     }
 
     private static void Controls(DecorEditsAsset edits)
     {
-        GUILayout.Label(_picked ? $"Выбрано: {_session.Placer.Layers[_pick.Layer].Name}" : "Щёлкните по дереву или камню", EditorStyles.wordWrappedLabel);
+        GUILayout.Label(_picked ? LocalizationService.Format("editor.decor.selected", _session.Placer.Layers[_pick.Layer].Name) : LocalizationService.Text("editor.decor.pickObject"), EditorStyles.wordWrappedLabel);
 
         using (new EditorGUI.DisabledScope(!_picked))
         using (new GUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Удалить"))
+            if (GUILayout.Button(LocalizationService.Text("dialog.delete")))
                 Remove(edits);
 
-            if (GUILayout.Button("Вернуть как было"))
+            if (GUILayout.Button(LocalizationService.Text("editor.decor.restore")))
                 Restore(edits);
         }
 
-        GUILayout.Label($"Правок: сдвинуто {edits.Moved}, удалено {edits.Removed}. {_status}", EditorStyles.wordWrappedMiniLabel);
+        GUILayout.Label(LocalizationService.Format("editor.decor.summary", edits.Moved, edits.Removed, _status), EditorStyles.wordWrappedMiniLabel);
 
-        if (GUILayout.Button("Закрыть"))
+        if (GUILayout.Button(LocalizationService.Text("editor.common.close")))
             Stop();
     }
 

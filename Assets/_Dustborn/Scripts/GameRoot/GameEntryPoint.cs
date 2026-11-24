@@ -73,7 +73,7 @@ public class GameEntryPoint : IAsyncStartable
         if (failed.Scene == Scenes.MainMenu)
         {
             Debug.LogError($"{nameof(GameEntryPoint)}: the main menu failed to start, the game flow stops here");
-            _uiRoot.Current.SetStatus("The main menu could not be loaded. See the log for details.");
+            _uiRoot.Current.SetStatus(LocalizationService.Text("loading.menuFailed"));
             return null;
         }
 

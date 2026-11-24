@@ -8,9 +8,9 @@ using Object = UnityEngine.Object;
 public static class WorldExport
 {
     private const string MENU = "CONTEXT/WorldBuildSettings/Export world for game";
-    private const string TITLE = "\u042D\u043A\u0441\u043F\u043E\u0440\u0442 \u043C\u0438\u0440\u0430";
+    private static string Title => LocalizationService.Text("editor.worldExport.title");
     private const string BUILT_IN_ID = "builtin_{0}";
-    private const string BUILT_IN_NAME = "\u041C\u0438\u0440 {0}";
+    private static string BuiltInName => LocalizationService.Text("editor.worldExport.builtInName");
     private const string CONTROL_PROPERTY = "_Control{0}";
     private const string LAYERS_PROPERTY = "_LayersCount";
     private const int MAX_CONTROLS = 8;
@@ -27,13 +27,13 @@ public static class WorldExport
 
         try
         {
-            EditorUtility.DisplayProgressBar(TITLE, "\u0421\u0431\u043E\u0440 \u043A\u0430\u0440\u0442 \u043C\u0438\u0440\u0430", 0.1f);
-            WorldDiskContent content = Collect(settings, baked, id, string.Format(BUILT_IN_NAME, baked.Config.Seed));
+            EditorUtility.DisplayProgressBar(Title, LocalizationService.Text("editor.worldExport.gatherMaps"), 0.1f);
+            WorldDiskContent content = Collect(settings, baked, id, string.Format(BuiltInName, baked.Config.Seed));
 
-            EditorUtility.DisplayProgressBar(TITLE, "\u0417\u0430\u043F\u0438\u0441\u044C \u043D\u0430 \u0434\u0438\u0441\u043A", 0.4f);
+            EditorUtility.DisplayProgressBar(Title, LocalizationService.Text("editor.worldExport.writeDisk"), 0.4f);
             WorldDiskFormat.Write(directory, content);
 
-            EditorUtility.DisplayProgressBar(TITLE, "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430: \u0447\u0442\u0435\u043D\u0438\u0435 \u043E\u0431\u0440\u0430\u0442\u043D\u043E", 0.7f);
+            EditorUtility.DisplayProgressBar(Title, LocalizationService.Text("editor.worldExport.verify"), 0.7f);
             Verify(settings, baked, directory);
 
             Debug.Log($"World '{id}' exported to {directory} and read back identical: {content.Manifest.Fingerprint}");
@@ -41,7 +41,7 @@ public static class WorldExport
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            EditorUtility.DisplayDialog(TITLE, $"\u042D\u043A\u0441\u043F\u043E\u0440\u0442 \u043D\u0435 \u0443\u0434\u0430\u043B\u0441\u044F: {exception.Message}", "OK");
+            EditorUtility.DisplayDialog(Title, LocalizationService.Format("editor.worldExport.failed", exception.Message), "OK");
         }
         finally
         {
@@ -58,7 +58,7 @@ public static class WorldExport
         if (baked != null && baked.IsValid)
             return true;
 
-        EditorUtility.DisplayDialog(TITLE, "Generate and save this world before exporting it.", "OK");
+        EditorUtility.DisplayDialog(Title, "Generate and save this world before exporting it.", "OK");
         return false;
     }
 
@@ -138,7 +138,7 @@ public static class WorldExport
 
             string path = AssetDatabase.GetAssetPath(control);
             if (string.IsNullOrEmpty(path))
-                throw new InvalidOperationException($"{property} of '{material.name}' is not a saved asset; rebake the ground with «\u041C\u0438\u0440 → \u041F\u0435\u0440\u0435\u043F\u0435\u0447\u044C \u0437\u0435\u043C\u043B\u044E \u043C\u0438\u0440\u0430»");
+                throw new InvalidOperationException($"{property} of '{material.name}' is not a saved asset; rebake the ground in the editor.");
 
             var decoded = new Texture2D(2, 2, TextureFormat.RGBA32, false, true);
 

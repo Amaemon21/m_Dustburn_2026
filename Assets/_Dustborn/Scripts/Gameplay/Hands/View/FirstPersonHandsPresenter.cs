@@ -17,6 +17,7 @@ public sealed class FirstPersonHandsPresenter : IHeldItemPresenter
     private readonly ClipLayer _layer;
     private readonly HandsMotionPlayer _motions;
     private readonly IViewImpact _impact;
+    private readonly MeleeImpactParticles _impactParticles = new();
     private readonly Dictionary<HeldItemConfig, ItemView> _views = new();
     private ItemView _shown;
     private bool _visible;
@@ -46,7 +47,13 @@ public sealed class FirstPersonHandsPresenter : IHeldItemPresenter
         _animator.enabled = true;
         _visible = true;
         SetRenderersVisible(true);
-        ShowView(ViewOf(config));
+        ItemView view = ViewOf(config);
+
+        if (view != null)
+            ShowView(view);
+        else
+            HideView();
+
         return true;
     }
 
@@ -54,17 +61,17 @@ public sealed class FirstPersonHandsPresenter : IHeldItemPresenter
     {
         _visible = false;
         _motions.Stop();
-        ShowView(null);
+        HideView();
         SetRenderersVisible(false);
         _animator.enabled = false;
     }
 
     public bool Play(HandsMotion motion) => _visible && _motions.Play(motion);
 
-    public void Impact(float shake)
+    public void Impact(float shake, Material particles, in MeleeImpact impact)
     {
-        if (_visible)
-            _impact?.Impact(shake);
+        _impact?.Impact(shake);
+        _impactParticles.Emit(particles, impact);
     }
 
     public void Tick(float deltaTime)
@@ -117,18 +124,23 @@ public sealed class FirstPersonHandsPresenter : IHeldItemPresenter
         if (_shown == view)
             return;
 
-        if (_shown != null)
-            _shown.Root.SetActive(false);
-
+        HideView();
         _shown = view;
+        _shown.Root.SetActive(true);
+        _shown.Animate();
 
-        if (_shown != null)
-        {
-            _shown.Root.SetActive(true);
-            _shown.Animate();
-        }
+        if (_shown.Layer != null)
+            _motions.Attach(_shown.Layer);
+    }
 
-        _motions.Attach(_shown?.Layer);
+    private void HideView()
+    {
+        if (_shown == null)
+            return;
+
+        _shown.Root.SetActive(false);
+        _shown = null;
+        _motions.Detach();
     }
 
     private void SetRenderersVisible(bool visible)
@@ -140,7 +152,7 @@ public sealed class FirstPersonHandsPresenter : IHeldItemPresenter
 
     public void Dispose()
     {
-        _motions.Attach(null);
+        _motions.Detach();
 
         foreach (ItemView view in _views.Values)
             view.Dispose();
@@ -148,6 +160,7 @@ public sealed class FirstPersonHandsPresenter : IHeldItemPresenter
         _views.Clear();
         _shown = null;
         _rig.Dispose();
+        _impactParticles.Dispose();
     }
 
     private sealed class ItemView : IDisposable

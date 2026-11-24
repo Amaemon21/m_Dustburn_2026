@@ -13,6 +13,7 @@ public sealed class InventoryTabViewModel : ViewModel
     public InventoryGridViewModel Equipment { get; }
     public InventoryItemInfoViewModel ItemInfo { get; }
     public InventoryDragDropViewModel DragDrop { get; }
+    public ItemNameHoverViewModel ItemNameHover { get; }
     public ReactiveCommand<Unit> Unequip { get; } = new();
     public ReactiveCommand<Unit> TakeFromHotbar { get; } = new();
     public ReadOnlyReactiveProperty<bool> LastTransferSucceeded => _lastTransferSucceeded;
@@ -31,6 +32,7 @@ public sealed class InventoryTabViewModel : ViewModel
         Backpack = new InventoryGridViewModel(inventory, player.Backpack.OwnerId, catalog, DragDrop, weight);
         Hotbar = new HotbarViewModel(inventory, player, catalog, DragDrop);
         Equipment = new InventoryGridViewModel(inventory, player.Equipment.OwnerId, catalog, DragDrop);
+        ItemNameHover = new ItemNameHoverViewModel(catalog, DragDrop, Backpack, Hotbar.Grid, Equipment);
         Disposables.Add(Unequip.Executed.Subscribe(_ => UnequipSelected()));
         Disposables.Add(TakeFromHotbar.Executed.Subscribe(_ => TakeSelectedHotbar()));
         ItemInfo = new InventoryItemInfoViewModel(catalog, Backpack, Hotbar.Grid, Equipment);
@@ -99,6 +101,7 @@ public sealed class InventoryTabViewModel : ViewModel
     protected override void OnDisposed()
     {
         ItemInfo.Dispose();
+        ItemNameHover.Dispose();
         DragDrop.Dispose();
         Backpack.Dispose();
         Hotbar.Dispose();

@@ -7,67 +7,67 @@ namespace Dustborn.UI.Editor
     {
         public override void OnGUI(MaterialEditor editor, MaterialProperty[] properties)
         {
-            EditorGUILayout.HelpBox("Для uGUI Image. Добавь компонент Dustborn UI Wear на тот же объект. Основной цвет задаётся в Image → Color.", MessageType.Info);
+            EditorGUILayout.HelpBox(LocalizationService.Text("editor.uiWear.guide"), MessageType.Info);
             MaterialProperty shape = FindProperty("_Shape", properties);
             EditorGUI.showMixedValue = shape.hasMixedValue;
             EditorGUI.BeginChangeCheck();
-            int selected = EditorGUILayout.Popup("Форма", Mathf.RoundToInt(shape.floatValue),
-                new[] { "Контур спрайта", "Горизонтальная линия", "Вертикальная линия" });
+            int selected = EditorGUILayout.Popup(LocalizationService.Text("editor.uiWear.shape"), Mathf.RoundToInt(shape.floatValue),
+                new[] { LocalizationService.Text("editor.uiWear.shapeSprite"), LocalizationService.Text("editor.uiWear.shapeHorizontal"), LocalizationService.Text("editor.uiWear.shapeVertical") });
             if (EditorGUI.EndChangeCheck())
             {
                 editor.RegisterPropertyChangeUndo("Dustborn shape");
                 shape.floatValue = selected;
             }
             EditorGUI.showMixedValue = false;
-            editor.ShaderProperty(FindProperty("_Color", properties), "Дополнительный Tint (обычно белый)");
+            editor.ShaderProperty(FindProperty("_Color", properties), LocalizationService.Text("editor.uiWear.tint"));
 
-            Section("Эффекты");
+            Section(LocalizationService.Text("editor.uiWear.effects"));
             MaterialProperty useWear = FindProperty("_UseWear", properties);
             MaterialProperty useGlow = FindProperty("_UseGlow", properties);
-            Show("_UseWear", "Потёртости и рваность", "Фактура, рваный край и трещины. Выключено — чистый спрайт.");
-            Show("_UseGlow", "Свечение", "Делает элемент ярче 1, и Bloom UI-камеры даёт вокруг него сияние. Работает вместе с потёртостями или отдельно.");
+            Show("_UseWear", LocalizationService.Text("editor.uiWear.wear"), LocalizationService.Text("editor.uiWear.wearHelp"));
+            Show("_UseGlow", LocalizationService.Text("editor.uiWear.glow"), LocalizationService.Text("editor.uiWear.glowHelp"));
 
             if (useWear.hasMixedValue || useWear.floatValue > 0.5f)
             {
-                Section("Фактура поверхности");
-                Show("_SurfaceStrength", "Сила потёртостей", "0 — исходная заливка; 1 — сильное локальное затемнение.");
-                Show("_GrainSize", "Размер зерна", "В единицах UI. При Canvas 1920×1080 на экране 1080p одна единица равна пикселю.");
-                editor.TexturePropertySingleLine(new GUIContent("Текстура (необязательно)"), FindProperty("_WearTex", properties));
-                Show("_TextureInfluence", "Доля текстуры", "0 — только процедурное зерно. Текстура используется как оттенки серого.");
-                Show("_TextureTileSize", "Размер повторения текстуры", "Больше значение — крупнее фактура. Импорт текстуры: sRGB Off, Wrap Repeat.");
-                Show("_TextureContrast", "Контраст текстуры", "Выделяет мелкие потёртости в серой текстуре.");
+                Section(LocalizationService.Text("editor.uiWear.surface"));
+                Show("_SurfaceStrength", LocalizationService.Text("editor.uiWear.surfaceStrength"), LocalizationService.Text("editor.uiWear.surfaceStrengthHelp"));
+                Show("_GrainSize", LocalizationService.Text("editor.uiWear.grainSize"), LocalizationService.Text("editor.uiWear.grainSizeHelp"));
+                editor.TexturePropertySingleLine(new GUIContent(LocalizationService.Text("editor.uiWear.wearTexture")), FindProperty("_WearTex", properties));
+                Show("_TextureInfluence", LocalizationService.Text("editor.uiWear.textureInfluence"), LocalizationService.Text("editor.uiWear.textureInfluenceHelp"));
+                Show("_TextureTileSize", LocalizationService.Text("editor.uiWear.textureTileSize"), LocalizationService.Text("editor.uiWear.textureTileSizeHelp"));
+                Show("_TextureContrast", LocalizationService.Text("editor.uiWear.textureContrast"), LocalizationService.Text("editor.uiWear.textureContrastHelp"));
 
-                Section("Неровный край");
-                Show("_EdgeRoughness", "Глубина рваности", "Сколько единиц UI можно убрать с края. Для линии толщиной 2 начинай с 0,1–0,2.");
-                Show("_EdgeChipSize", "Размер неровностей", "Мелкие шероховатости или более крупные сколы. Глубина регулируется отдельно.");
+                Section(LocalizationService.Text("editor.uiWear.edges"));
+                Show("_EdgeRoughness", LocalizationService.Text("editor.uiWear.edgeRoughness"), LocalizationService.Text("editor.uiWear.edgeRoughnessHelp"));
+                Show("_EdgeChipSize", LocalizationService.Text("editor.uiWear.edgeChipSize"), LocalizationService.Text("editor.uiWear.edgeChipSizeHelp"));
 
-                Section("Микротрещины у края");
-                Show("_CrackAmount", "Количество трещин", "Вероятность трещины в одном участке. 0 полностью отключает трещины.");
-                Show("_CrackWidth", "Ширина трещин", "Обычно 0,2–0,6. Широкие значения делают заметные разрывы.");
-                Show("_CrackDepth", "Глубина трещин", "Насколько трещина входит внутрь от альфа-контура.");
-                Show("_CrackSpacing", "Размер участка для трещин", "Больше значение — реже потенциальные трещины.");
+                Section(LocalizationService.Text("editor.uiWear.cracks"));
+                Show("_CrackAmount", LocalizationService.Text("editor.uiWear.crackAmount"), LocalizationService.Text("editor.uiWear.crackAmountHelp"));
+                Show("_CrackWidth", LocalizationService.Text("editor.uiWear.crackWidth"), LocalizationService.Text("editor.uiWear.crackWidthHelp"));
+                Show("_CrackDepth", LocalizationService.Text("editor.uiWear.crackDepth"), LocalizationService.Text("editor.uiWear.crackDepthHelp"));
+                Show("_CrackSpacing", LocalizationService.Text("editor.uiWear.crackSpacing"), LocalizationService.Text("editor.uiWear.crackSpacingHelp"));
             }
 
             if (useGlow.hasMixedValue || useGlow.floatValue > 0.5f)
             {
-                Section("Свечение (Bloom)");
-                Show("_GlowColor", "Цвет свечения", "Белый — элемент светится своим цветом. Цвет смешивается с цветом спрайта.");
-                Show("_GlowIntensity", "Яркость", "Во сколько раз цвет превышает 1. Bloom UI-камеры захватывает всё ярче 1,1. На каждом объекте есть свой множитель Glow Intensity в компоненте.");
-                Show("_GlowPulseSpeed", "Скорость пульсации", "Пульсов в секунду. 0 — без пульсации.");
-                Show("_GlowPulseAmount", "Сила пульсации", "Насколько гаснет свечение в нижней точке пульса.");
+                Section(LocalizationService.Text("editor.uiWear.bloom"));
+                Show("_GlowColor", LocalizationService.Text("editor.uiWear.glowColor"), LocalizationService.Text("editor.uiWear.glowColorHelp"));
+                Show("_GlowIntensity", LocalizationService.Text("editor.uiWear.glowIntensity"), LocalizationService.Text("editor.uiWear.glowIntensityHelp"));
+                Show("_GlowPulseSpeed", LocalizationService.Text("editor.uiWear.glowPulseSpeed"), LocalizationService.Text("editor.uiWear.glowPulseSpeedHelp"));
+                Show("_GlowPulseAmount", LocalizationService.Text("editor.uiWear.glowPulseAmount"), LocalizationService.Text("editor.uiWear.glowPulseAmountHelp"));
             }
 
             if (shape.hasMixedValue || selected != 0)
             {
-                Section("Заострение линии");
-                Show("_TaperStart", "Длина острия в начале", "Горизонтальная: слева. Вертикальная: снизу. 0 — прямой торец.");
-                Show("_TaperEnd", "Длина острия в конце", "Горизонтальная: справа. Вертикальная: сверху. 0 — прямой торец.");
-                Show("_TipPower", "Форма острия", "1 — прямые стороны. Больше 1 — тонкое вытянутое острие.");
-                Show("_LineFeather", "Сглаживание линии", "Небольшое смягчение края; не заменяет сужение формы.");
-                EditorGUILayout.HelpBox("Линия: Image Type = Simple, Source Image = None, Preserve Aspect = Off. Длину и толщину задаёт RectTransform.", MessageType.None);
+                Section(LocalizationService.Text("editor.uiWear.taper"));
+                Show("_TaperStart", LocalizationService.Text("editor.uiWear.taperStart"), LocalizationService.Text("editor.uiWear.taperStartHelp"));
+                Show("_TaperEnd", LocalizationService.Text("editor.uiWear.taperEnd"), LocalizationService.Text("editor.uiWear.taperEndHelp"));
+                Show("_TipPower", LocalizationService.Text("editor.uiWear.tipPower"), LocalizationService.Text("editor.uiWear.tipPowerHelp"));
+                Show("_LineFeather", LocalizationService.Text("editor.uiWear.lineFeather"), LocalizationService.Text("editor.uiWear.lineFeatherHelp"));
+                EditorGUILayout.HelpBox(LocalizationService.Text("editor.uiWear.lineGuide"), MessageType.None);
             }
-            Section("Вариация");
-            Show("_PatternSeed", "Рисунок материала", "Сдвигает рисунок для всех объектов с этим материалом. Локальный вариант — Pattern Seed на компоненте.");
+            Section(LocalizationService.Text("editor.uiWear.variation"));
+            Show("_PatternSeed", LocalizationService.Text("editor.uiWear.patternSeed"), LocalizationService.Text("editor.uiWear.patternSeedHelp"));
 
             void Show(string property, string label, string tooltip)
             {

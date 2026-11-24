@@ -60,7 +60,7 @@ namespace Dustborn.UI.Editor
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer == null)
             {
-                Debug.LogWarning("Не найдена текстура UI Wear: " + path);
+                Debug.LogWarning($"UI Wear texture not found: {path}");
                 return;
             }
             SetTextureSettings(importer, sprite);
@@ -72,7 +72,7 @@ namespace Dustborn.UI.Editor
             string path = MaterialsRoot + "/" + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null || material.shader == null)
-                throw new InvalidOperationException("Не найден материал UI Wear или его шейдер: " + path);
+                throw new InvalidOperationException($"UI Wear material or shader not found: {path}");
             if (ShaderUtil.ShaderHasError(material.shader))
                 throw new InvalidOperationException("Dustborn shader has compilation errors. Open Console before applying it.");
             return material;
@@ -115,7 +115,8 @@ namespace Dustborn.UI.Editor
                 EditorUtility.SetDirty(effect);
                 count++;
             }
-            if (count == 0) Debug.LogWarning("Выбери объекты с компонентом UI Image в Hierarchy.");
+            if (count == 0)
+                Debug.LogWarning("Select objects with a UI Image component in the Hierarchy.");
         }
     }
 }

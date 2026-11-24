@@ -7,6 +7,7 @@ public sealed class DamageInstaller : IInstaller
     {
         builder.Register<DamageFeed>(Lifetime.Singleton);
         builder.Register<DamageService>(Lifetime.Singleton);
+        builder.Register<PlayerDamageable>(Lifetime.Singleton);
         builder.Register<TargetHealthService>(Lifetime.Singleton);
     }
 }

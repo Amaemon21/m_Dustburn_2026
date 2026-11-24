@@ -48,6 +48,7 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  _localization: {fileID: 11400000, guid: c061519341079ab448b89f22f873697f, type: 2}
   _projectAssets:
     <UIRootPrefab>k__BackingField:
       m_AssetGUID: be9d8066bb1805946ad4503f7a913816

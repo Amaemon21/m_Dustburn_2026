@@ -152,8 +152,8 @@ public class VoxelColumnDebug : MonoBehaviour
 
     private string Describe()
     {
-        return $"LOD{_lod} колонка ({_column.x}, {_column.y}), воксель {_voxel:0.#} м\n"
-            + $"швы {_seams}\nморф {_morph}\nюбка {_skirt}";
+        return LocalizationService.Format("editor.voxels.column", _lod, _column.x, _column.y, _voxel)
+            + LocalizationService.Format("editor.voxels.seams", _seams, _morph, _skirt);
     }
 #endif
 }

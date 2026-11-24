@@ -7,23 +7,23 @@ public partial class WorldGenerationWindow
     {
         using (new EditorGUILayout.HorizontalScope())
         {
-            WorldGenerator selected = EditorGUILayout.ObjectField("Мир в сцене", _owner, typeof(WorldGenerator), true) as WorldGenerator;
+            WorldGenerator selected = EditorGUILayout.ObjectField(LocalizationService.Text("editor.worldWindow.sceneWorld"), _owner, typeof(WorldGenerator), true) as WorldGenerator;
 
             if (selected != _owner)
                 Select(selected);
 
-            if (_owner != null && GUILayout.Button("Выделить", GUILayout.Width(80f)))
+            if (_owner != null && GUILayout.Button(LocalizationService.Text("editor.worldWindow.select"), GUILayout.Width(80f)))
             {
                 Selection.activeObject = _owner;
                 EditorGUIUtility.PingObject(_owner);
             }
         }
 
-        if (_owner != null || !GUILayout.Button("Добавить управление миром в сцену"))
+        if (_owner != null || !GUILayout.Button(LocalizationService.Text("editor.worldWindow.createOwner")))
             return;
 
         var holder = new GameObject("WorldGenerator");
-        Undo.RegisterCreatedObjectUndo(holder, "Добавить управление миром");
+        Undo.RegisterCreatedObjectUndo(holder, LocalizationService.Text("editor.worldWindow.createOwnerUndo"));
         Select(Undo.AddComponent<WorldGenerator>(holder));
     }
 
@@ -39,14 +39,14 @@ public partial class WorldGenerationWindow
     private void DrawActions()
     {
         BakedWorld saved = WorldGenerationEditorRun.SavedWorld(_owner, _settings);
-        string blocked = Locked ? "Идёт генерация или запуск игры" : _owner == null ? "Добавьте управление миром в сцену" : !_settings.IsValid ? "Назначьте источники настроек" : null;
+        string blocked = Locked ? LocalizationService.Text("editor.worldWindow.busy") : _owner == null ? LocalizationService.Text("editor.worldWindow.missingOwner") : !_settings.IsValid ? LocalizationService.Text("editor.worldWindow.missingSettings") : null;
 
         using (new EditorGUI.DisabledScope(blocked != null))
         {
             Color background = GUI.backgroundColor;
             GUI.backgroundColor = new Color(0.55f, 0.85f, 0.6f);
 
-            if (GUILayout.Button(new GUIContent("Сгенерировать мир", "Все карты, дороги, здания, вода и предпросмотр в сцене за один запуск. Отмена после сохранения карт сохраняет их."), GUILayout.Height(PRIMARY_HEIGHT)))
+            if (GUILayout.Button(new GUIContent(LocalizationService.Text("editor.worldWindow.generate"), LocalizationService.Text("editor.worldWindow.generateHelp")), GUILayout.Height(PRIMARY_HEIGHT)))
                 WorldGenerationEditorRun.Start(_owner, _settings, true);
 
             GUI.backgroundColor = background;
@@ -56,13 +56,13 @@ public partial class WorldGenerationWindow
         {
             using (new EditorGUI.DisabledScope(blocked != null || saved == null || !saved.IsValid))
             {
-                if (GUILayout.Button(new GUIContent("Обновить предпросмотр", "Пересобрать ландшафт, воду и декор в сцене из сохранённого мира, не генерируя карты заново.")))
+                if (GUILayout.Button(new GUIContent(LocalizationService.Text("editor.worldWindow.refreshPreview"), LocalizationService.Text("editor.worldWindow.refreshPreviewHelp"))))
                     WorldGenerationEditorRun.Start(_owner, _settings, false);
             }
 
             using (new EditorGUI.DisabledScope(Locked || _owner == null || _owner.PreviewRoot == null))
             {
-                if (GUILayout.Button(new GUIContent("Убрать предпросмотр", "Удалить геометрию предпросмотра из сцены. Сохранённый мир не трогается.")))
+                if (GUILayout.Button(new GUIContent(LocalizationService.Text("editor.worldWindow.clearPreview"), LocalizationService.Text("editor.worldWindow.clearPreviewHelp"))))
                     WorldGenerationEditorRun.ClearPreview(_owner);
             }
         }
@@ -124,7 +124,7 @@ public partial class WorldGenerationWindow
             return;
 
         double total = WorldGenerationEditorRun.TotalSeconds;
-        string title = WorldGenerationEditorRun.LastRunGenerated ? "Время генерации" : "Время обновления предпросмотра";
+        string title = WorldGenerationEditorRun.LastRunGenerated ? LocalizationService.Text("editor.worldWindow.generateTime") : LocalizationService.Text("editor.worldWindow.previewTime");
 
         _timings = EditorGUILayout.Foldout(_timings, $"{title}: {WorldGenerationEditorRun.FormatTime(total)}", true, EditorStyles.foldoutHeader);
 
@@ -145,7 +145,7 @@ public partial class WorldGenerationWindow
         if (WorldGenerationEditorRun.Details.Count > 0)
         {
             EditorGUI.indentLevel++;
-            _details = EditorGUILayout.Foldout(_details, "Подробно", true);
+            _details = EditorGUILayout.Foldout(_details, LocalizationService.Text("editor.worldWindow.detailedTiming"), true);
 
             if (_details)
             {

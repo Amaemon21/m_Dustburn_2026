@@ -208,7 +208,7 @@ public partial class VoxelTerrainBuilder : MonoBehaviour
 
         Debug.Log($"Voxel terrain: the whole {_config.WorldSize} m world in {_columns.Count} columns, {_chunks.Count} chunks, "
             + $"{triangles} triangles, {attempted} chunks visited, {clock.ElapsedMilliseconds} ms. {splat}. {decor}", this);
-        progress?.Invoke("Ландшафт готов", 1f);
+        progress?.Invoke(LocalizationService.Text("loading.terrainReady"), 1f);
         return true;
     }
 

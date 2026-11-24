@@ -17,7 +17,7 @@ public partial class WorldGenerationWindow
     private static void PausedBehaviours(SerializedProperty paused)
     {
         paused.isExpanded = EditorGUILayout.Foldout(paused.isExpanded,
-            new GUIContent("Приостановить до загрузки", "Скрипты управления игроком. Включаются после появления коллизии и зданий."), true);
+            new GUIContent(LocalizationService.Text("editor.worldWindow.pauseBehaviours"), LocalizationService.Text("editor.worldWindow.pauseBehavioursHelp")), true);
 
         if (!paused.isExpanded)
             return;
@@ -27,7 +27,7 @@ public partial class WorldGenerationWindow
             using (new EditorGUILayout.HorizontalScope())
             {
                 SerializedProperty element = paused.GetArrayElementAtIndex(index);
-                element.objectReferenceValue = EditorGUILayout.ObjectField($"Скрипт {index + 1}", element.objectReferenceValue, typeof(Behaviour), true);
+                element.objectReferenceValue = EditorGUILayout.ObjectField(LocalizationService.Format("editor.worldWindow.scriptNumber", index + 1), element.objectReferenceValue, typeof(Behaviour), true);
 
                 if (!GUILayout.Button("−", GUILayout.Width(24f)))
                     continue;
@@ -38,7 +38,7 @@ public partial class WorldGenerationWindow
             }
         }
 
-        if (!GUILayout.Button("Добавить скрипт"))
+        if (!GUILayout.Button(LocalizationService.Text("editor.worldWindow.addScript")))
             return;
 
         paused.InsertArrayElementAtIndex(paused.arraySize);
@@ -66,7 +66,7 @@ public partial class WorldGenerationWindow
     {
         SerializedProperty value = Field(target, property);
         EditorGUI.BeginChangeCheck();
-        float metres = EditorGUILayout.Slider(new GUIContent(label, "Параметр выбранного биома. Амплитуда дополнительно умножается на общий множитель рельефа."), value.floatValue * height, 0f, height * limit);
+        float metres = EditorGUILayout.Slider(new GUIContent(label, LocalizationService.Text("editor.worldWindow.biomeAmplitudeHelp")), value.floatValue * height, 0f, height * limit);
 
         if (EditorGUI.EndChangeCheck())
             value.floatValue = metres / height;
@@ -77,7 +77,7 @@ public partial class WorldGenerationWindow
         SerializedProperty value = Field(config, property);
         float worldSize = Mathf.Max(1, Field(config, "WorldSize").intValue);
         EditorGUI.BeginChangeCheck();
-        float scale = EditorGUILayout.FloatField(new GUIContent(label, "Общий масштаб для всех биомов: больше значение — шире и реже перепады."), worldSize / Mathf.Max(0.1f, value.floatValue));
+        float scale = EditorGUILayout.FloatField(new GUIContent(label, LocalizationService.Text("editor.worldWindow.biomeScaleHelp")), worldSize / Mathf.Max(0.1f, value.floatValue));
 
         if (EditorGUI.EndChangeCheck())
             value.floatValue = worldSize / Mathf.Clamp(scale, 1f, worldSize * 10f);
@@ -87,11 +87,11 @@ public partial class WorldGenerationWindow
     {
         return type switch
         {
-            BiomeType.PineForest => "Сосновый лес",
-            BiomeType.BurntForest => "Выжженный лес",
-            BiomeType.Desert => "Пустыня",
-            BiomeType.Snow => "Снег",
-            BiomeType.Wasteland => "Пустошь",
+            BiomeType.PineForest => LocalizationService.Text("biome.pineForest"),
+            BiomeType.BurntForest => LocalizationService.Text("biome.burntForest"),
+            BiomeType.Desert => LocalizationService.Text("biome.desert"),
+            BiomeType.Snow => LocalizationService.Text("editor.worldWindow.biomeSnow"),
+            BiomeType.Wasteland => LocalizationService.Text("biome.wasteland"),
             _ => type.ToString()
         };
     }

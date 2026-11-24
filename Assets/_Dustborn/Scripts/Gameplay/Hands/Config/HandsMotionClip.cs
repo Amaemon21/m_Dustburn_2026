@@ -13,7 +13,6 @@ public sealed class HandsMotionClip
     [field: SerializeField, Min(0.01f)] public float Speed { get; private set; } = 1f;
     [field: SerializeField, Min(0f)] public float FadeIn { get; private set; } = DEFAULT_FADE;
     [field: SerializeField, Min(0f)] public float End { get; private set; }
-    [field: SerializeField, Min(0f)] public float Impact { get; private set; }
     [field: SerializeField] public bool Chained { get; private set; }
     [field: SerializeField] public HandsMotion Next { get; private set; }
     [field: SerializeField, Min(0f)] public float NextFade { get; private set; } = DEFAULT_NEXT_FADE;
@@ -25,8 +24,6 @@ public sealed class HandsMotionClip
     public float ExitTime => Math.Max(0f, Duration - NextFade);
 
     public float PlayTime => Duration / Speed;
-
-    public float ImpactTime => Impact / Speed;
 
     public void ApplyDefaults()
     {

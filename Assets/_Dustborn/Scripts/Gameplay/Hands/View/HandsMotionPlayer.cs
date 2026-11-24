@@ -28,9 +28,19 @@ public sealed class HandsMotionPlayer
         if (_item == item)
             return;
 
-        _item?.Stop();
+        Detach();
+
+        if (item == null)
+            return;
+
         _item = item;
+        _item.Stop();
+    }
+
+    public void Detach()
+    {
         _item?.Stop();
+        _item = null;
     }
 
     public void Stop()

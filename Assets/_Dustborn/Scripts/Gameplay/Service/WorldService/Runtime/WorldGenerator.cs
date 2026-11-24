@@ -30,7 +30,7 @@ public class WorldGenerator : MonoBehaviour
     public bool Ready => _loader != null && _loader.Ready;
     public bool Failed => _error != null;
     public float Progress => _loader == null ? 0f : _loader.Progress;
-    public string Status => _error ?? (Ready ? "Мир готов" : _loader?.Stage ?? "Ожидание загрузки");
+    public string Status => _error ?? (Ready ? LocalizationService.Text("loading.worldReady") : _loader?.Stage ?? LocalizationService.Text("loading.waiting"));
 
     public event Action WorldReady;
     public event Action<IReadOnlyList<Vector2Int>, float> GroundChanged;
@@ -65,7 +65,7 @@ public class WorldGenerator : MonoBehaviour
         }
         catch (Exception exception)
         {
-            _error = "Мир не загружен. Проверьте сохранённую генерацию.";
+            _error = LocalizationService.Text("loading.missingWorld");
             Debug.LogException(exception, this);
         }
     }
@@ -89,7 +89,7 @@ public class WorldGenerator : MonoBehaviour
         }
         catch (Exception exception)
         {
-            _error = "Мир не загружен. Проверьте сохранённую генерацию и игрока.";
+            _error = LocalizationService.Text("loading.missingWorldOrPlayer");
             Debug.LogException(exception, this);
         }
     }
@@ -113,7 +113,7 @@ public class WorldGenerator : MonoBehaviour
         }
         catch (Exception exception)
         {
-            _error = "Ошибка загрузки мира. Подробности в консоли.";
+            _error = LocalizationService.Text("loading.worldFailed");
             Debug.LogException(exception, this);
         }
     }

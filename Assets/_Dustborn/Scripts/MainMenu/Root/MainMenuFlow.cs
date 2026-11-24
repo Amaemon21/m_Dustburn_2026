@@ -5,7 +5,7 @@ using R3;
 
 public sealed class MainMenuFlow : ISceneFlow
 {
-    private const string ASSET_STATUS = "Загрузка главного меню";
+    private static string AssetStatus => LocalizationService.Text("loading.menuAssets");
 
     private readonly SceneTransition _transition;
     private readonly MainMenuAssetLoader _assets;
@@ -25,7 +25,7 @@ public sealed class MainMenuFlow : ISceneFlow
         float startTime = _transition.BeginLoading();
 
         MainMenuEntryPoint entryPoint = await _transition.LoadScene<MainMenuEntryPoint, MainMenuEnterParams>(
-            enterParams.As<MainMenuEnterParams>(), _assets, ASSET_STATUS, 1f, token);
+            enterParams.As<MainMenuEnterParams>(), _assets, AssetStatus, 1f, token);
 
         Task<MainMenuExitParams> exitSignal = entryPoint.Run().FirstOrDefaultAsync(cancellationToken: token);
 

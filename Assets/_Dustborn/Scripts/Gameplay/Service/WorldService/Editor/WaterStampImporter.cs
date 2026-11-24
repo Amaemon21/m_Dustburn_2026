@@ -18,17 +18,17 @@ public static class WaterStampImporter
     {
         try
         {
-            EditorUtility.DisplayProgressBar("Штампы воды", "Манифест", 0f);
+            EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterStamps.title"), LocalizationService.Text("editor.waterStamps.manifest"), 0f);
             WaterStampDatabase database = Run(out string summary);
             EditorGUIUtility.PingObject(database);
             EditorUtility.ClearProgressBar();
-            EditorUtility.DisplayDialog("Штампы воды", summary, "OK");
+            EditorUtility.DisplayDialog(LocalizationService.Text("editor.waterStamps.title"), summary, "OK");
         }
         catch (Exception exception)
         {
             EditorUtility.ClearProgressBar();
             Debug.LogException(exception);
-            EditorUtility.DisplayDialog("Штампы воды", "Импорт не выполнен: " + exception.Message, "OK");
+            EditorUtility.DisplayDialog(LocalizationService.Text("editor.waterStamps.title"), LocalizationService.Text("editor.waterStamps.failed") + exception.Message, "OK");
         }
     }
 
@@ -56,7 +56,7 @@ public static class WaterStampImporter
         for (int i = 0; i < manifest.stamps.Length; i++)
         {
             WaterStampManifestEntry entry = manifest.stamps[i];
-            EditorUtility.DisplayProgressBar("Штампы воды", entry.name, (i + 0.5f) / manifest.stamps.Length);
+            EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterStamps.title"), entry.name, (i + 0.5f) / manifest.stamps.Length);
 
             byte[] bytes = Mask(entry, manifest.ExpectedBytes, out TextAsset asset, manifest.Resolution);
             WaterStampDefinition definition = entry.ToDefinition(asset, manifest.Resolution, warnings);
@@ -103,8 +103,8 @@ public static class WaterStampImporter
         Debug.Log($"Water stamps: {definitions.Count} imported from {MANIFEST_PATH} into {DATABASE_PATH} ({rivers} rivers, {lakes} lakes, {ponds} ponds, "
             + $"{branches} branch sockets traced), SHA-256 verified; {(attached ? "attached to the world generation config" : "config not found, attach the database by hand")}");
 
-        summary = $"Импортировано штампов: {definitions.Count} (рек {rivers}, озёр {lakes}, прудов {ponds}), контрольные суммы совпали, оси русел и {branches} веток прослежены. "
-            + (attached ? "База подключена к конфигу генерации." : "Конфиг генерации не найден — подключите базу вручную.");
+        summary = LocalizationService.Format("editor.waterStamps.imported", definitions.Count, rivers, lakes, ponds, branches)
+            + (attached ? LocalizationService.Text("editor.waterStamps.attached") : LocalizationService.Text("editor.waterStamps.missingConfig"));
 
         return database;
     }

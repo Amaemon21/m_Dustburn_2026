@@ -1,5 +1,7 @@
 # HeadlessCheck
 
+Run these commands from `Tools/HeadlessCheck`. The harness resolves authored inputs and fixtures using paths relative to that directory.
+
 `dotnet run -c Release -- --gameplay` checks deterministic starts over 32 seeds, walkable starter POI, threat indexing, biome fallback, invalid-map rejection, cancellation, POI snapshots, world-file round trips, legacy files without gameplay data and placement/road fingerprint sensitivity. The file round trips use the offline JSON adapter; Unity serialization and rendering still need an in-editor check by the project owner.
 
 Gameplay planning first reserves a start against candidate lots, excludes unsuitable POI from its surroundings, and validates the final carved terrain and actual buildings before props are placed or the map is saved. New maps persist `gameplay.json`; older maps keep their existing fingerprints and use a deterministic terrain search when starting a new playthrough. Existing saved player positions take precedence. The building preview layer marks the start with a yellow cross and shades higher-tier POI darker.

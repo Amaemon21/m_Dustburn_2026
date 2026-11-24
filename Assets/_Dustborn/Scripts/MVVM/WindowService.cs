@@ -17,6 +17,7 @@ public sealed class WindowService : IDisposable
     public ReadOnlyReactiveProperty<bool> HasOpenWindows => _hasOpenWindows;
     public IReadOnlyCollection<WindowViewModel> OpenWindows => _windows.Values;
     public bool TryGet(string id, out WindowViewModel viewModel) => _windows.TryGetValue(id, out viewModel);
+    public bool CanOpen(string id) => _presenters.ContainsKey(id);
 
     public void Register(string id, IWindowPresenter presenter)
     {

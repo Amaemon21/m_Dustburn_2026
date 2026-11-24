@@ -37,3 +37,13 @@ MonoBehaviour:
     <DehydrationDamagePerSecond>k__BackingField: 0.25
     <LowSupplyStaminaRegen>k__BackingField: 0.9
   <MaxInfection>k__BackingField: 100
+  <Effects>k__BackingField:
+    <SafeLandingSpeed>k__BackingField: 10
+    <FallDamagePerSpeed>k__BackingField: 5
+    <BleedingLandingSpeed>k__BackingField: 12
+    <FractureLandingSpeed>k__BackingField: 15
+    <BleedingDuration>k__BackingField: 20
+    <BleedingDamagePerSecond>k__BackingField: 0.75
+    <FractureDuration>k__BackingField: 60
+    <FractureSlowdown>k__BackingField: 0.3
+    <InfectionStaminaRegen>k__BackingField: 0.8

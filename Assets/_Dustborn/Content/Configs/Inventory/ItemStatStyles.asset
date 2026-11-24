@@ -45,6 +45,10 @@ MonoBehaviour:
     Icon: {fileID: 21300000, guid: 4e5e48673baf32248b38b31c770aa10f, type: 3}
   - Type: 15
     Icon: {fileID: 21300000, guid: 823928eb77987b24080c8be752416aef, type: 3}
+  - Type: 16
+    Icon: {fileID: 21300000, guid: 7572724a9d67d064a93cfbd1eeacf1e0, type: 3}
+  - Type: 17
+    Icon: {fileID: 21300000, guid: a2c7e49a4d8604148a4989c60a1806ad, type: 3}
   _neutral: {r: 1, g: 1, b: 1, a: 1}
   _good: {r: 0.56, g: 0.84, b: 0.44, a: 1}
   _bad: {r: 0.9, g: 0.38, b: 0.32, a: 1}

@@ -20,9 +20,12 @@ public sealed class GameSlotImageStore
         if (string.IsNullOrWhiteSpace(slotId) || slotId == "." || slotId == ".." ||
             slotId.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || slotId.Contains("/") || slotId.Contains("\\"))
             throw new ArgumentException("Invalid save slot id", nameof(slotId));
+        
         string result = Path.GetFullPath(Path.Combine(_root, slotId, FILE_NAME));
+        
         if (!result.StartsWith(_root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("Image path must remain inside the save folder", nameof(slotId));
+        
         return result;
     }
 
@@ -30,19 +33,24 @@ public sealed class GameSlotImageStore
     {
         string destination = PathFor(slotId);
         await _writeLock.WaitAsync(token);
+        
         try
         {
             await Task.Run(() =>
             {
                 token.ThrowIfCancellationRequested();
                 string directory = Path.GetDirectoryName(destination);
+                
                 if (!Directory.Exists(directory))
                     return;
+                
                 string temporary = destination + ".tmp";
+                
                 try
                 {
                     File.WriteAllBytes(temporary, png);
                     token.ThrowIfCancellationRequested();
+                    
                     if (File.Exists(destination))
                         File.Replace(temporary, destination, null);
                     else

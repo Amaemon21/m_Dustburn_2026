@@ -1,15 +1,15 @@
 public sealed class ItemActionContext
 {
     public HeldItem Item { get; }
-    public HeldItemConfig Config { get; }
     public IHeldItemPresenter Presenter { get; }
     public IAimSource Aim { get; }
+    public MeleePresentationConfig MeleePresentation { get; }
 
-    public ItemActionContext(HeldItem item, HeldItemConfig config, IHeldItemPresenter presenter, IAimSource aim)
+    public ItemActionContext(HeldItem item, IHeldItemPresenter presenter, IAimSource aim, MeleePresentationConfig meleePresentation)
     {
         Item = item;
-        Config = config;
         Presenter = presenter;
         Aim = aim;
+        MeleePresentation = meleePresentation;
     }
 }

@@ -21,8 +21,8 @@ public sealed class ItemNotificationViewModel : ViewModel
     public ReadOnlyReactiveProperty<string> Text => _text;
     public ReadOnlyReactiveProperty<bool> IsExpired => _isExpired;
 
-    public ItemNotificationViewModel(NotificationKind kind, string key, Sprite icon, int amount, int total, TimeSpan lifetime,
-        Action<ItemNotificationViewModel> expired)
+    public ItemNotificationViewModel(NotificationKind kind, string key, int amount, int total, TimeSpan lifetime,
+        Action<ItemNotificationViewModel> expired, Sprite icon = null)
     {
         Kind = kind;
         Key = key;

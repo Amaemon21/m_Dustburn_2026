@@ -16,10 +16,13 @@ public sealed class BlockView : MonoBehaviour, IDamageableView, IDecorObject
     private BlockService _service;
     private Block _local;
     private IDisposable _localDestroyed;
+    private bool _falling;
+    private BoxCollider[] _placementColliders;
 
     public BlockConfig Config => _config;
+    public BoxCollider[] PlacementColliders => _placementColliders ??= GetComponents<BoxCollider>();
     public string Id { get; private set; }
-    public IDamageable Damageable => _service != null ? _service.Resolve(this) : Local();
+    public IDamageable Damageable => _falling ? null : _service != null ? _service.Resolve(this) : Local();
 
     public void Attach(BlockService service, string id)
     {
@@ -31,6 +34,13 @@ public sealed class BlockView : MonoBehaviour, IDamageableView, IDecorObject
     {
         Detach();
         Destroy(gameObject);
+    }
+
+    public void BeginFall()
+    {
+        Detach();
+        _falling = true;
+        gameObject.AddComponent<FallingBlock>();
     }
 
     public void Detach()

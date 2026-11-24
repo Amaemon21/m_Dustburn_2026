@@ -14,7 +14,7 @@ public class WorldGeneratorEditor : Editor
     {
         var owner = (WorldGenerator)target;
 
-        if (GUILayout.Button("Открыть генерацию мира", GUILayout.Height(32f)))
+        if (GUILayout.Button(LocalizationService.Text("editor.worldWindow.open"), GUILayout.Height(32f)))
             WorldGenerationWindow.Open(owner);
 
         if (Application.isPlaying)

@@ -33,8 +33,10 @@ public sealed class BlockConfig : ScriptableObject
         {
             if (drop == null)
                 continue;
+            
             if (drop.IsUnset)
                 drop.ApplyDefaults();
+            
             drop.Validate();
         }
 

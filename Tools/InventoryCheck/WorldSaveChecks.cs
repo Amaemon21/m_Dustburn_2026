@@ -37,6 +37,53 @@ internal static partial class Harness
             "player placement is restored");
 
         await VerifyLegacyInventoryFile();
+        await VerifyItemActivation();
+    }
+
+    private static async Task VerifyItemActivation()
+    {
+        SaveRegistry registry = InventoryRegistry()
+            .Register<WorldSaveData>("world", SaveScope.Slot, SaveInstaller.WORLD_FILE);
+        MemoryStorage storage = new();
+        SaveService saves = new(registry, storage, ProjectSerializer());
+        await saves.LoadScopeAsync(SaveScope.Slot, CancellationToken.None);
+        saves.Get<WorldSaveData>().ActivatedObjects = null;
+        ItemCatalog catalog = WearCatalog();
+
+        using (InventoryRepository repository = new(saves))
+        using (InventoryService inventory = new(repository, catalog))
+        using (PlayerInventoryService players = new(repository, inventory))
+        {
+            PlayerInventoryProxy player = players.GetOrCreatePlayerInventory("player", new Vector2Int(2, 2), 3);
+            ItemActivationService activation = new(saves, inventory);
+            Check(!activation.IsActivated("device") && !activation.TryActivate("device", player, "axe"),
+                "missing saved activation data and a missing item leave the device inactive");
+
+            inventory.AddItemsToInventory(player.Hotbar.OwnerId, Vector2Int.zero, "axe");
+            Check(activation.HasRequiredItem(player, "axe") && !activation.TryActivate("", player, "axe"),
+                "a hotbar item satisfies the requirement and an empty activation ID is rejected");
+            Check(activation.TryActivate("device", player, "axe") && !inventory.Has(player.Hotbar.OwnerId, "axe"),
+                "activation consumes one item from the hotbar");
+            Check(activation.IsActivated("device") && !activation.IsActivated("other") && saves.IsDirty(SaveInstaller.WORLD_FILE),
+                "activation marks the world file and applies only to the requested ID");
+
+            inventory.AddItemsToInventory(player.Backpack.OwnerId, Vector2Int.zero, "axe");
+            Check(!activation.TryActivate("device", player, "axe") && inventory.Has(player.Backpack.OwnerId, "axe"),
+                "repeating activation leaves the next item intact");
+            await saves.SaveDirtyAsync(CancellationToken.None);
+        }
+
+        SaveService reloaded = new(registry, storage, ProjectSerializer());
+        await reloaded.LoadScopeAsync(SaveScope.Slot, CancellationToken.None);
+        using InventoryRepository restoredRepository = new(reloaded);
+        using InventoryService restoredInventory = new(restoredRepository, catalog);
+        using PlayerInventoryService restoredPlayers = new(restoredRepository, restoredInventory);
+        PlayerInventoryProxy restoredPlayer = restoredPlayers.GetOrCreatePlayerInventory("player", new Vector2Int(2, 2), 3);
+        ItemActivationService restored = new(reloaded, restoredInventory);
+        Check(restored.IsActivated("device") && !restoredInventory.Has(restoredPlayer.Hotbar.OwnerId, "axe"),
+            "loaded device state and consumed item are restored together");
+        Check(restored.TryActivate("other", restoredPlayer, "axe") && !restoredInventory.Has(restoredPlayer.Backpack.OwnerId, "axe"),
+            "a different device can consume the item from the backpack");
     }
 
     private static async Task VerifyLegacyInventoryFile()

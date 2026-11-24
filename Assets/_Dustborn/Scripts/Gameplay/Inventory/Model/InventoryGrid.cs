@@ -42,10 +42,12 @@ public sealed partial class InventoryGrid : IReadOnlyInventoryGrid, IDisposable
     public int CapacityFor(string itemId) => Kind == InventoryGridKind.Equipment ? EQUIPMENT_CAPACITY : _catalog.MaxStack(itemId);
 
     public void Lock(Func<Vector2Int, bool> locked) => _locked = locked;
+    public void ClearLocks() => _locked = null;
 
     public bool IsLocked(Vector2Int coords) => _locked != null && _locked(coords);
 
     public void Restrict(Func<Vector2Int, string, bool> accepts) => _restriction = accepts;
+    public void ClearRestrictions() => _restriction = null;
 
     public AddItemsToInventoryGridResult AddItems(string itemId, int amount = 1)
     {

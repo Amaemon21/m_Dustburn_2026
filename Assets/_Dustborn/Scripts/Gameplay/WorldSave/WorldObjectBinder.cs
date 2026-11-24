@@ -7,6 +7,8 @@ public sealed class WorldObjectBinder : IWorldObjectHook
     private readonly BlockService _blocks;
     private readonly HashSet<string> _used = new();
     private readonly StringBuilder _path = new();
+    private readonly List<ContainerInteractable> _containers = new();
+    private readonly List<BlockView> _blockViews = new();
 
     public WorldObjectBinder(BlockService blocks)
     {
@@ -17,12 +19,18 @@ public sealed class WorldObjectBinder : IWorldObjectHook
     {
         _used.Clear();
         Transform root = instance.transform;
+        instance.GetComponentsInChildren(true, _containers);
 
-        foreach (ContainerInteractable container in instance.GetComponentsInChildren<ContainerInteractable>(true))
+        foreach (ContainerInteractable container in _containers)
             container.AssignId(IdOf(key, root, container.transform));
 
-        foreach (BlockView block in instance.GetComponentsInChildren<BlockView>(true))
+        _containers.Clear();
+        instance.GetComponentsInChildren(true, _blockViews);
+
+        foreach (BlockView block in _blockViews)
             _blocks.Attach(block, IdOf(key, root, block.transform));
+
+        _blockViews.Clear();
     }
 
     private string IdOf(WorldObjectKey key, Transform root, Transform target)

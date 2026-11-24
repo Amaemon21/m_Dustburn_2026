@@ -18,7 +18,7 @@ public sealed class WorldRuntimeLoader : IDisposable
 
     public bool Ready => _terrain.Ready && _pois.Ready && _props.Ready && _props.RegroundPending == 0;
     public float Progress => Ready ? 1f : _progress;
-    public string Stage => !_terrain.Ready ? "Загрузка ландшафта и растительности" : !_pois.Ready ? "Размещение зданий" : "Машины, хлам и тайники";
+    public string Stage => !_terrain.Ready ? LocalizationService.Text("loading.terrain") : !_pois.Ready ? LocalizationService.Text("loading.buildings") : LocalizationService.Text("loading.props");
 
     public event Action<IReadOnlyList<Vector2Int>, float> GroundChanged;
 

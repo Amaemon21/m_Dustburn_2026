@@ -95,21 +95,21 @@ internal static partial class Harness
         List<DamageReport> reports = new();
         using IDisposable listening = feed.Reports.Subscribe(reports.Add);
         LocalHeldItemEffects effects = new(inventory, catalog, new DamageService(feed, rewards), new UnlimitedStamina());
-        HeldItem axe = new("chop", Vector2Int.zero, "axe", null);
+        HeldItem axe = new("chop", Vector2Int.zero, "axe");
         MaterialBonus[] axeBonuses = { new(stone, 0.5f, 1f), new(wood, 2f, 1.5f) };
 
         using Block tree = new("tree", pine, 0, new Random(1));
-        effects.Strike(axe, tree, Hit(25, 1, axeBonuses));
+        effects.TryStrike(axe, tree, Hit(25, 1, axeBonuses));
         Check(tree.Health.CurrentValue == 50 && Total(rewards.Given, "wood") == 7,
             "the material bonus scales damage and harvest of a hit");
         Check(reports.Count == 1 && ReferenceEquals(reports[0].Target, tree) && reports[0].Result.Dealt == 50,
             "every hit is reported to the damage feed");
-        effects.Strike(axe, tree, Hit(25, 1, axeBonuses));
+        effects.TryStrike(axe, tree, Hit(25, 1, axeBonuses));
         Check(tree.IsDestroyed && Total(rewards.Given, "wood") == 15 && reports[^1].Result.Destroyed,
             "the last hit hands over the rest of the harvest");
 
         using Block rock = new("rock", pine, 0, new Random(1));
-        effects.Strike(axe, rock, Hit(25, 1));
+        effects.TryStrike(axe, rock, Hit(25, 1));
         Check(rock.Health.CurrentValue == 75, "a tool without a bonus for the material hits at base damage");
     }
 

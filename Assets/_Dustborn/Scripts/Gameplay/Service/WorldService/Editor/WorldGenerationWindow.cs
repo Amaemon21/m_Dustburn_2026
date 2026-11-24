@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -12,8 +13,14 @@ public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
     private const float PRIMARY_HEIGHT = 36f;
     private const float SECTION_GAP = 10f;
 
-    private static readonly string[] TABS = { "Мир", "Вода", "Поселения", "Детализация", "Игра" };
-
+    private static readonly string[] TAB_KEYS =
+    {
+        "editor.worldWindow.tabWorld",
+        "editor.worldWindow.tabWater",
+        "editor.worldWindow.tabSettlements",
+        "editor.worldWindow.tabDetail",
+        "editor.worldWindow.tabGame"
+    };
 
     [SerializeField] private WorldGenerator _owner;
     [SerializeField] private WorldBuildSettings _settings;
@@ -28,22 +35,22 @@ public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
     private GUIStyle _title;
     private GUIStyle _hint;
 
-    [MenuItem("Мир/Генерация мира")]
+    [MenuItem("World/World Generation")]
     public static void Open()
     {
-        GetWindow<WorldGenerationWindow>("Генерация мира").Show();
+        GetWindow<WorldGenerationWindow>(LocalizationService.Text("editor.worldWindow.title")).Show();
     }
 
     public static void Open(WorldGenerator owner)
     {
-        var window = GetWindow<WorldGenerationWindow>("Генерация мира");
+        var window = GetWindow<WorldGenerationWindow>(LocalizationService.Text("editor.worldWindow.title"));
         window.Select(owner);
         window.Show();
     }
 
     public static void OpenSettings(WorldBuildSettings settings)
     {
-        var window = GetWindow<WorldGenerationWindow>("Генерация мира");
+        var window = GetWindow<WorldGenerationWindow>(LocalizationService.Text("editor.worldWindow.title"));
         window._settings = settings;
         window.Show();
     }
@@ -51,22 +58,23 @@ public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
     public static string Describe(BakedWorld world)
     {
         if (world == null)
-            return "Мир ещё не сгенерирован";
+            return LocalizationService.Text("editor.worldWindow.notGenerated");
 
         if (world.Stale)
-            return "Сохранённый мир сделан старой версией генератора — сгенерируйте заново";
+            return LocalizationService.Text("editor.worldWindow.outdated");
 
         if (!world.IsValid)
-            return "Сохранённый мир неполный — сгенерируйте заново";
+            return LocalizationService.Text("editor.worldWindow.incomplete");
 
         string path = AssetDatabase.GetAssetPath(world);
-        string saved = string.IsNullOrEmpty(path) ? "" : $", сохранён {File.GetLastWriteTime(path):dd.MM.yyyy HH:mm}";
+        string saved = string.IsNullOrEmpty(path) ? "" : LocalizationService.Format("editor.worldWindow.savedAt", File.GetLastWriteTime(path));
 
-        return $"Мир готов: сид {world.Config.Seed}, {world.Config.WorldSize / 1024f:0.#} км{saved}";
+        return LocalizationService.Format("editor.worldWindow.ready", world.Config.Seed, world.Config.WorldSize / 1024f, saved);
     }
 
     private void OnEnable()
     {
+        titleContent = new GUIContent(LocalizationService.Text("editor.worldWindow.title"));
         minSize = new Vector2(420f, 520f);
 
         if (_owner == null)
@@ -114,15 +122,15 @@ public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
     private void DrawWindow()
     {
         EditorGUILayout.Space(6f);
-        EditorGUILayout.LabelField("Генерация мира", _title);
+        EditorGUILayout.LabelField(LocalizationService.Text("editor.worldWindow.title"), _title);
 
         using (new EditorGUI.DisabledScope(Locked))
             DrawScene();
 
         if (_settings == null)
         {
-            _settings = EditorGUILayout.ObjectField("Настройки мира", _settings, typeof(WorldBuildSettings), false) as WorldBuildSettings;
-            EditorGUILayout.HelpBox("Назначьте набор настроек мира.", MessageType.Warning);
+            _settings = EditorGUILayout.ObjectField(LocalizationService.Text("editor.worldWindow.settings"), _settings, typeof(WorldBuildSettings), false) as WorldBuildSettings;
+            EditorGUILayout.HelpBox(LocalizationService.Text("editor.worldWindow.assignSettings"), MessageType.Warning);
             return;
         }
 
@@ -134,13 +142,13 @@ public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
 
         using (new EditorGUI.DisabledScope(Locked))
         {
-            _tab = GUILayout.Toolbar(_tab, TABS, GUILayout.Height(24f));
+            _tab = GUILayout.Toolbar(_tab, Array.ConvertAll(TAB_KEYS, LocalizationService.Text), GUILayout.Height(24f));
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             var settings = new SerializedObject(_settings);
 
             if (!_settings.IsValid)
             {
-                EditorGUILayout.HelpBox("Не назначены источники настроек — откройте «Источники настроек» внизу.", MessageType.Error);
+                EditorGUILayout.HelpBox(LocalizationService.Text("editor.worldWindow.missingSources"), MessageType.Error);
                 _sources = true;
             }
             else if (_tab == 0)
@@ -165,7 +173,7 @@ public partial class WorldGenerationWindow : EditorWindow, IHasCustomMenu
             }
 
             EditorGUILayout.Space(SECTION_GAP);
-            _sources = EditorGUILayout.Foldout(_sources, "Источники настроек", true);
+            _sources = EditorGUILayout.Foldout(_sources, LocalizationService.Text("editor.worldWindow.sources"), true);
 
             if (_sources)
                 Sources(settings);

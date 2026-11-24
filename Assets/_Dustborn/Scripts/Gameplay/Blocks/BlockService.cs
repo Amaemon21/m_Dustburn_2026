@@ -12,6 +12,8 @@ public sealed class BlockService : IDecorObjectHook, IDisposable
     private readonly CompositeDisposable _subscriptions = new();
     private readonly Random _random = new();
 
+    public event Action<PlacedBlockData> BuiltBlockDestroyed;
+
     public BlockService(BlockRepository repository)
     {
         _repository = repository;
@@ -53,6 +55,7 @@ public sealed class BlockService : IDecorObjectHook, IDisposable
     {
         if (view.Id == null)
             return null;
+        
         if (_blocks.TryGetValue(view.Id, out Block block))
             return block;
 
@@ -70,22 +73,46 @@ public sealed class BlockService : IDecorObjectHook, IDisposable
 
     private void OnDamaged(Block block)
     {
+        if (_repository.IsDestroyed(block.Id))
+            return;
+
         if (!block.IsDestroyed)
         {
             _repository.SetDamage(block.Id, block.Damage);
             return;
         }
 
+        _repository.Origin.Placed.TryGetValue(block.Id, out PlacedBlockData placed);
         _repository.MarkDestroyed(block.Id);
+        
         if (_views.Remove(block.Id, out BlockView view) && view != null)
             view.Remove();
+
+        if (placed != null)
+            BuiltBlockDestroyed?.Invoke(placed);
+    }
+
+    public void Collapse(string id)
+    {
+        if (!_repository.Origin.Placed.ContainsKey(id))
+            return;
+
+        _repository.MarkDestroyed(id);
+
+        if (_blocks.TryGetValue(id, out Block block))
+            block.Collapse();
+
+        if (_views.Remove(id, out BlockView view) && view != null)
+            view.BeginFall();
     }
 
     public void Dispose()
     {
         _subscriptions.Dispose();
+        
         foreach (Block block in _blocks.Values)
             block.Dispose();
+        
         _blocks.Clear();
         _views.Clear();
     }

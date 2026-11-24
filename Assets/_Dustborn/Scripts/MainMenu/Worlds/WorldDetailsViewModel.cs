@@ -18,7 +18,7 @@ public sealed class WorldDetailsViewModel : ViewModel
 
     public WorldDetailsViewModel(Observable<WorldInfo> selected)
     {
-        Name = selected.Select(world => world?.Name ?? "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043a\u0430\u0440\u0442\u0443").ToReadOnlyReactiveProperty();
+        Name = selected.Select(world => world?.Name ?? LocalizationService.Text("menu.maps.selectMap")).ToReadOnlyReactiveProperty();
         Metadata = selected.Select(MainMenuText.MapMetadata).ToReadOnlyReactiveProperty();
         Relief = selected.Select(MainMenuText.MapRelief).ToReadOnlyReactiveProperty();
         Stats = selected.Select(MainMenuText.MapStats).ToReadOnlyReactiveProperty();

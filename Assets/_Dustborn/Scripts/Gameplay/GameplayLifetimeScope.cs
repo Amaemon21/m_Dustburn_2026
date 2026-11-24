@@ -1,4 +1,3 @@
-using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.Serialization;
 using VContainer;
@@ -7,14 +6,12 @@ using VContainer.Unity;
 public class GameplayLifetimeScope : LifetimeScope
 {
     [SerializeField] private GameplaySceneKind _kind = GameplaySceneKind.BakedWorld;
-    
-    [SerializeField, FormerlySerializedAs("_playerTransform"), ShowIf(nameof(IsTestScene))]
+
+    [SerializeField, FormerlySerializedAs("_playerTransform")]
     private Transform _testSpawnPoint;
-    
+
     [SerializeField] private UnitSpawnPoint[] _spawnPoints;
     [SerializeField] private Camera _mainCamera;
-
-    private bool IsTestScene => _kind == GameplaySceneKind.TestScene;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -29,7 +26,7 @@ public class GameplayLifetimeScope : LifetimeScope
         RegisterUnits(builder);
         RegisterInventory(builder);
         RegisterDamage(builder);
-        RegisterUI(builder);
+        new GameplayUIInstaller().Install(builder);
     }
 
     private static void RegisterAssets(IContainerBuilder builder)
@@ -100,6 +97,7 @@ public class GameplayLifetimeScope : LifetimeScope
         builder.Register<IInteractionTargetProvider, RaycastInteractionTargetProvider>(Lifetime.Singleton);
         builder.Register<IInteractionContext, PlayerInteractionContext>(Lifetime.Singleton);
         builder.Register<InteractHandler>(Lifetime.Singleton);
+        builder.Register<ItemActivationService>(Lifetime.Singleton);
         builder.RegisterEntryPoint<InteractController>().AsSelf().As<IGameplayActivatable>();
     }
 
@@ -126,29 +124,4 @@ public class GameplayLifetimeScope : LifetimeScope
         new BlocksInstaller().Install(builder);
     }
 
-    private void RegisterUI(IContainerBuilder builder)
-    {
-        new GameplayUIInstaller().Install(builder);
-        
-        builder.Register(container => new HudHotbarViewModel(
-            container.Resolve<LocalPlayerInventory>().Proxy,
-            container.Resolve<PlayerInventoryService>(),
-            container.Resolve<ItemCatalog>()), Lifetime.Singleton);
-
-        builder.Register<PlayerStatusViewModel>(Lifetime.Singleton);
-
-        builder.Register(container => new ItemNotificationsViewModel(
-            container.Resolve<LocalPlayerInventory>().Proxy,
-            container.Resolve<PlayerInventoryService>(),
-            container.Resolve<ItemCatalog>()), Lifetime.Singleton);
-    }
-
-#if UNITY_EDITOR
-    [Button("Collect Spawn Points")]
-    private void CollectSpawnPoints()
-    {
-        _spawnPoints = FindObjectsByType<UnitSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        UnityEditor.EditorUtility.SetDirty(this);
-    }
-#endif
 }

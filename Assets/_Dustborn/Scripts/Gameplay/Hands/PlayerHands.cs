@@ -94,16 +94,27 @@ public sealed class PlayerHands : IDisposable
         _current = _desired;
         _config = _desired.Config != null ? _desired.Config : _unarmed;
 
-        if (!_presenter.Show(_config))
+        if (_config == null)
         {
             _presenter.Hide();
-            _config = null;
             return;
         }
 
-        ItemActionContext context = new(_desired, _config, _presenter, _aim);
-        _primary = _actions.Create(_config.Primary, context);
-        _secondary = _actions.Create(_config.Secondary, context);
+        if (!_presenter.Show(_config))
+        {
+            _presenter.Hide();
+
+            if (_config.Primary == null && _config.Secondary == null)
+            {
+                _config = null;
+                return;
+            }
+        }
+
+        _primary = _actions.Create(_config.Primary,
+            new ItemActionContext(_desired, _presenter, _aim, _config.PrimaryMeleePresentation));
+        _secondary = _actions.Create(_config.Secondary,
+            new ItemActionContext(_desired, _presenter, _aim, _config.SecondaryMeleePresentation));
         _presenter.Play(HandsMotion.Equip);
         _pose = HandsMotion.Idle;
         _poseHold = 0f;
@@ -114,11 +125,11 @@ public sealed class PlayerHands : IDisposable
     private void TryUse(in HandsRequest request)
     {
         IItemAction action = request.Primary ? _primary : request.Secondary ? _secondary : null;
-        if (action == null || !action.CanStart)
+
+        if (action == null || !action.TryStart())
             return;
 
         _active = action;
-        _active.Start();
         _pose = HandsMotion.Idle;
         _poseHold = 0f;
         _phase = Phase.Using;

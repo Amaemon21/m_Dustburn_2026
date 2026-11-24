@@ -8,7 +8,7 @@ public abstract class ItemActionConfig
     {
     }
 
-    public virtual void CollectStats(ICollection<ItemStat> stats, HeldItemConfig held)
+    public virtual void CollectStats(ICollection<ItemStat> stats)
     {
     }
 }

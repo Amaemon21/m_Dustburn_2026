@@ -8,9 +8,13 @@ public sealed class VitalsInstaller : IInstaller
         builder.Register(resolver => resolver.Resolve<PlayerVitalsConfig>().Health, Lifetime.Singleton);
         builder.Register(resolver => resolver.Resolve<PlayerVitalsConfig>().Stamina, Lifetime.Singleton);
         builder.Register(resolver => resolver.Resolve<PlayerVitalsConfig>().Metabolism, Lifetime.Singleton);
+        builder.Register(resolver => resolver.Resolve<PlayerVitalsConfig>().Effects, Lifetime.Singleton);
 
         builder.Register<PlayerVitalsRepository>(Lifetime.Singleton);
         builder.Register<PlayerVitals>(Lifetime.Singleton);
+        builder.Register<PlayerEffectsRepository>(Lifetime.Singleton);
+        builder.Register<PlayerEffects>(Lifetime.Singleton).AsSelf().As<IPlayerVitalsSystem>();
+        builder.Register<PlayerInjurySystem>(Lifetime.Singleton);
         builder.Register<StaminaSystem>(Lifetime.Singleton).AsSelf().As<IPlayerStamina>().As<IPlayerVitalsSystem>();
         builder.Register<MetabolismSystem>(Lifetime.Singleton).AsSelf().As<IPlayerVitalsSystem>();
         builder.Register<HealthRegenSystem>(Lifetime.Singleton).AsSelf().As<IPlayerVitalsSystem>();

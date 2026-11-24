@@ -3,7 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public sealed class WorldPreparation : IGameplayPreparation
+public sealed class WorldPreparation : IGameplayPreparation, IDisposable
 {
     private const float WORLD_WAIT_TIMEOUT = 180f;
 
@@ -15,6 +15,8 @@ public sealed class WorldPreparation : IGameplayPreparation
     private readonly WorldSaveRepository _worldSave;
     private readonly PlayerPlacementRepository _placement;
     private readonly UnitNavigation _navigation;
+    private bool _observingGround;
+    private bool _disposed;
 
     public WorldPreparation(PlayerSpawnService player, WorldGenerator world, GameWorldLoader worldLoader, IDecorObjectHook decorHook,
         IWorldObjectHook objectHook, WorldSaveRepository worldSave, PlayerPlacementRepository placement, UnitNavigation navigation)
@@ -31,10 +33,10 @@ public sealed class WorldPreparation : IGameplayPreparation
 
     public async UniTask Prepare(IProgress<SceneLoadStatus> progress, CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
-
+        ThrowIfInactive(token);
         WorldData world = await _worldLoader.LoadAsync(progress, token);
 
+        ThrowIfInactive(token);
         _worldSave.Claim(world.Fingerprint, world.Config.Seed, world.Config.WorldSize, world.Name);
 
         Transform player = SpawnPlayer(world);
@@ -45,6 +47,8 @@ public sealed class WorldPreparation : IGameplayPreparation
 
         while (!_world.Ready)
         {
+            ThrowIfInactive(token);
+
             if (_world.Failed)
                 throw new InvalidOperationException($"{nameof(WorldPreparation)}: the world failed to load, '{_world.Status}'; the exception is in the log above");
 
@@ -55,8 +59,34 @@ public sealed class WorldPreparation : IGameplayPreparation
             await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
 
+        ThrowIfInactive(token);
         await _navigation.Build(progress, token);
-        _world.GroundChanged += _navigation.Refresh;
+        ThrowIfInactive(token);
+
+        if (!_observingGround)
+        {
+            _world.GroundChanged += _navigation.Refresh;
+            _observingGround = true;
+        }
+    }
+
+    private void ThrowIfInactive(CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+
+        if (_disposed)
+            throw new OperationCanceledException("World preparation was disposed");
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+
+        if (!_observingGround)
+            return;
+
+        _world.GroundChanged -= _navigation.Refresh;
+        _observingGround = false;
     }
 
     private Transform SpawnPlayer(WorldData world)

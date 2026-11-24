@@ -15,19 +15,34 @@ public abstract class SceneAssetLoader<T> : ISceneAssetLoader, IDisposable where
     public async UniTask LoadAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+
         if (_disposed)
             throw new ObjectDisposedException(GetType().Name);
+
         if (Current != null)
             return;
+
+        if (_scope != null)
+            throw new InvalidOperationException($"{GetType().Name}: assets are already loading");
+
         AssetScope scope = new(_assets);
         _scope = scope;
+
         try
         {
-            Current = await LoadAssetsAsync(scope, token);
+            T loaded = await LoadAssetsAsync(scope, token);
+            token.ThrowIfCancellationRequested();
+
+            if (!ReferenceEquals(_scope, scope))
+                throw new OperationCanceledException("The scene asset load was unloaded");
+
+            Current = loaded ?? throw new InvalidOperationException($"{GetType().Name}: asset load returned no data");
         }
         catch
         {
-            Unload();
+            if (ReferenceEquals(_scope, scope))
+                Unload();
+
             throw;
         }
     }
@@ -44,9 +59,10 @@ public abstract class SceneAssetLoader<T> : ISceneAssetLoader, IDisposable where
 
     public void Unload()
     {
-        _scope?.Dispose();
+        AssetScope scope = _scope;
         _scope = null;
         Current = null;
+        scope?.Dispose();
     }
 
     public void Dispose()

@@ -6,8 +6,8 @@ using UnityEngine;
 public sealed class InventoryWeightView : View<InventoryWeightViewModel>
 {
     [SerializeField, Required] private TMP_Text _text;
-    [SerializeField] private string _format = "{0:0.#} кг";
-    [SerializeField] private string _limitedFormat = "{0:0.#}/{1:0.#} кг";
+    [SerializeField] private string _format;
+    [SerializeField] private string _limitedFormat;
     [SerializeField] private Color _overloadedColor = new(0.85f, 0.25f, 0.2f);
 
     private Color _normalColor;
@@ -18,10 +18,16 @@ public sealed class InventoryWeightView : View<InventoryWeightViewModel>
         CaptureNormalColor();
 
         if (viewModel.HasLimit)
+        {
+            string format = string.IsNullOrEmpty(_limitedFormat) ? LocalizationService.Text("inventory.weight.limited") : _limitedFormat;
             bindings.Add(viewModel.Current.CombineLatest(viewModel.Capacity.Value, viewModel.Zone, (current, max, zone) => (current, max, zone))
-                .Subscribe(value => _text.text = string.Format(_limitedFormat, value.current, value.max, value.zone?.Label ?? string.Empty)));
+                .Subscribe(value => _text.text = string.Format(format, value.current, value.max, value.zone?.Label ?? string.Empty)));
+        }
         else
-            bindings.Add(viewModel.Current.Subscribe(current => _text.text = string.Format(_format, current)));
+        {
+            string format = string.IsNullOrEmpty(_format) ? LocalizationService.Text("inventory.weight.current") : _format;
+            bindings.Add(viewModel.Current.Subscribe(current => _text.text = string.Format(format, current)));
+        }
 
         bindings.Add(viewModel.IsOverloaded.CombineLatest(viewModel.Zone, (overloaded, zone) => (overloaded, zone))
             .Subscribe(value => _text.color = ColorFor(value.overloaded, value.zone)));

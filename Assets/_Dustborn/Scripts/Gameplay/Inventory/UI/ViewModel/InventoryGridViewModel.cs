@@ -8,7 +8,7 @@ public sealed class InventoryGridViewModel : ViewModel
     private readonly IInventoryService _inventory;
     private readonly IReadOnlyInventoryGrid _grid;
     private readonly ReactiveProperty<IReadOnlyList<InventorySlotViewModel>> _slots = new(Array.Empty<InventorySlotViewModel>());
-    private readonly ReactiveProperty<Vector2Int?> _selectedSlot = new(null);
+    private readonly ReactiveProperty<Vector2Int?> _selectedSlot = new();
     private readonly Subject<Vector2Int> _activated = new();
     private readonly Subject<Unit> _selectionCancelled = new();
     private readonly Subject<Vector2Int> _quickTransferRequested = new();
@@ -48,7 +48,7 @@ public sealed class InventoryGridViewModel : ViewModel
         IReadOnlyList<InventorySlotViewModel> previous = _slots.Value;
         List<InventorySlotViewModel> next = new();
         IReadOnlyInventorySlot[,] slots = _grid.GetSlots();
-        
+
         for (int y = 0; y < Size.y; y++)
         {
             for (int x = 0; x < Size.x; x++)
@@ -59,8 +59,8 @@ public sealed class InventoryGridViewModel : ViewModel
         }
 
         _slots.Value = next.AsReadOnly();
-        SelectSlot(null);
-        
+        ClearSelection();
+
         foreach (InventorySlotViewModel slot in previous)
         {
             slot.Dispose();
@@ -69,24 +69,35 @@ public sealed class InventoryGridViewModel : ViewModel
 
     public InventorySlotViewModel SlotAt(Vector2Int coordinates) => _slots.Value[coordinates.y * Size.x + coordinates.x];
 
-    public void SelectSlot(Vector2Int? coordinates)
+    public void SelectSlot(Vector2Int coordinates)
     {
-        if (coordinates.HasValue && (coordinates.Value.x < 0 || coordinates.Value.y < 0 ||
-            coordinates.Value.x >= Size.x || coordinates.Value.y >= Size.y))
+        if (!InventoryGridLayout.Contains(coordinates, Size))
             throw new ArgumentOutOfRangeException(nameof(coordinates));
+
         foreach (InventorySlotViewModel slot in _slots.Value)
-            slot.SetSelected(coordinates.HasValue && slot.Coordinates == coordinates.Value);
+            slot.SetSelected(slot.Coordinates == coordinates);
+
         _selectedSlot.Value = coordinates;
+    }
+
+    public void ClearSelection()
+    {
+        foreach (InventorySlotViewModel slot in _slots.Value)
+            slot.SetSelected(false);
+
+        _selectedSlot.Value = null;
     }
 
     private void SortBy(InventorySortMode mode)
     {
         _dragDrop?.Cancel();
+
         if (_selectedSlot.Value.HasValue)
         {
-            SelectSlot(null);
+            ClearSelection();
             _selectionCancelled.OnNext(Unit.Default);
         }
+
         _inventory.Sort(OwnerId, mode);
     }
 
@@ -94,10 +105,11 @@ public sealed class InventoryGridViewModel : ViewModel
     {
         if (SlotAt(coordinates).State.CurrentValue.IsEmpty)
         {
-            SelectSlot(null);
+            ClearSelection();
             _selectionCancelled.OnNext(Unit.Default);
             return;
         }
+
         SelectSlot(coordinates);
         _activated.OnNext(coordinates);
     }

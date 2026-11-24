@@ -18,7 +18,7 @@ public sealed class InventoryWeightViewModel : ViewModel
 
     public static InventoryWeightViewModel ForGrid(ItemCatalog catalog, IReadOnlyInventoryGrid grid)
     {
-        InventoryWeight weight = new(catalog, null, grid);
+        InventoryWeight weight = new(catalog, grid);
         InventoryWeightViewModel viewModel = new(weight);
         viewModel.Disposables.Add(weight);
         return viewModel;

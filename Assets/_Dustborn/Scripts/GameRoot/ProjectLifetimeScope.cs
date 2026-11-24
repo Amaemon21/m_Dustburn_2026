@@ -8,9 +8,13 @@ public class ProjectLifetimeScope : LifetimeScope
     [SerializeField, BoxGroup("Project Assets"), Label("References"), HorizontalLine(2f, EColor.Blue)] private ProjectAssetReferences _projectAssets = new();
 
     [SerializeField, BoxGroup("Gameplay Assets"), Label("References"), HorizontalLine(2f, EColor.Blue)] private GameplayAssetReferences _gameplayAssets = new();
+    [SerializeField] private LocalizationTable _localization;
 
     protected override void Configure(IContainerBuilder builder)
     {
+        if (_localization != null)
+            _localization.Install();
+
         builder.RegisterInstance(_projectAssets);
         builder.RegisterInstance(_gameplayAssets);
         builder.Register<IAssetService, AddressableAssetService>(Lifetime.Singleton);

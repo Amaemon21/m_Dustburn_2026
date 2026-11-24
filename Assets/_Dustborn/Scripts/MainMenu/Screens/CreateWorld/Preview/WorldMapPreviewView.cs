@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public sealed class WorldMapPreviewView : View<WorldMapPreviewViewModel>
 {
     private const float STALE_ALPHA = 0.35f;
-    private const string STALE = "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0438\u0437\u043C\u0435\u043D\u0438\u043B\u0438\u0441\u044C. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u043F\u0440\u0435\u0432\u044C\u044E.";
+    private static string Stale => LocalizationService.Text("menu.createWorld.stale");
 
     [SerializeField, Required, BoxGroup("Map")] private RawImage _map;
     [SerializeField, Required, BoxGroup("Map")] private MapPointerArea _pointer;
@@ -36,7 +36,7 @@ public sealed class WorldMapPreviewView : View<WorldMapPreviewViewModel>
         bindings.Add(viewModel.UvRect.Subscribe(rect => _map.uvRect = rect));
         bindings.Add(viewModel.HasMap.CombineLatest(viewModel.IsStale, (has, stale) => (has, stale)).Subscribe(ShowState));
         bindings.Add(viewModel.Info
-            .CombineLatest(viewModel.IsStale, (info, stale) => stale ? $"{info}\n{STALE}" : info)
+            .CombineLatest(viewModel.IsStale, (info, stale) => stale ? $"{info}\n{Stale}" : info)
             .Subscribe(info => _info.text = info));
         bindings.Add(viewModel.Legend.Subscribe(ShowLegend));
 

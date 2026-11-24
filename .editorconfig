@@ -1,0 +1,62 @@
+root = true
+
+[{Assets/_Dustborn/Scripts,Assets/_Dustborn/Tests,Tools}/**.cs]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_space_after_keywords_in_control_flow_statements = true
+
+dotnet_naming_rule.constants.symbols = constants
+dotnet_naming_rule.constants.style = upper_snake_case
+dotnet_naming_rule.constants.severity = suggestion
+
+dotnet_naming_rule.unity_serialized_fields.import_to_resharper = true
+dotnet_naming_rule.unity_serialized_fields.resharper_description = Unity serialized field
+dotnet_naming_rule.unity_serialized_fields.resharper_guid = 5f0fdb63-c892-4d2c-9324-15c80b22a7ef
+dotnet_naming_rule.unity_serialized_fields.symbols = unity_serialized_fields
+dotnet_naming_rule.unity_serialized_fields.style = underscore_camel_case
+dotnet_naming_rule.unity_serialized_fields.severity = suggestion
+
+dotnet_naming_rule.private_fields.symbols = private_fields
+dotnet_naming_rule.private_fields.style = underscore_camel_case
+dotnet_naming_rule.private_fields.severity = suggestion
+
+dotnet_naming_rule.parameters_and_locals.symbols = parameters_and_locals
+dotnet_naming_rule.parameters_and_locals.style = camel_case
+dotnet_naming_rule.parameters_and_locals.severity = suggestion
+
+dotnet_naming_rule.interfaces.symbols = interfaces
+dotnet_naming_rule.interfaces.style = interface_pascal_case
+dotnet_naming_rule.interfaces.severity = suggestion
+
+dotnet_naming_rule.types_and_members.symbols = types_and_members
+dotnet_naming_rule.types_and_members.style = pascal_case
+dotnet_naming_rule.types_and_members.severity = suggestion
+
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_symbols.unity_serialized_fields.applicable_kinds =
+dotnet_naming_symbols.unity_serialized_fields.applicable_accessibilities = private
+dotnet_naming_symbols.unity_serialized_fields.resharper_applicable_kinds = unity_serialised_field
+dotnet_naming_symbols.unity_serialized_fields.resharper_required_modifiers = instance
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.parameters_and_locals.applicable_kinds = parameter, local
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.types_and_members.applicable_kinds = namespace, class, struct, enum, delegate, field, property, method, event
+
+dotnet_naming_style.upper_snake_case.word_separator = _
+dotnet_naming_style.upper_snake_case.capitalization = all_upper
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.interface_pascal_case.required_prefix = I
+dotnet_naming_style.interface_pascal_case.capitalization = pascal_case
+dotnet_naming_style.pascal_case.capitalization = pascal_case

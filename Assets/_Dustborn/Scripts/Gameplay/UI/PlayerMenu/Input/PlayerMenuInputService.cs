@@ -8,15 +8,18 @@ public sealed class PlayerMenuInputService : IGameplayActivatable, IDisposable
     private readonly PlayerInventoryService _inventory;
     private readonly IScreenService _screenService;
     private readonly LocalPlayerInventory _player;
+    private readonly PauseScreenService _pause;
     private readonly CompositeDisposable _subscriptions = new();
 
-    public PlayerMenuInputService(UIInputService input, PlayerMenuService screen, PlayerInventoryService inventory, IScreenService screenService, LocalPlayerInventory player)
+    public PlayerMenuInputService(UIInputService input, PlayerMenuService screen, PlayerInventoryService inventory,
+        IScreenService screenService, LocalPlayerInventory player, PauseScreenService pause)
     {
         _input = input;
         _screen = screen;
         _inventory = inventory;
         _screenService = screenService;
         _player = player;
+        _pause = pause;
     }
 
     public void Activate()
@@ -26,12 +29,15 @@ public sealed class PlayerMenuInputService : IGameplayActivatable, IDisposable
 
         _subscriptions.Add(_input.PlayerMenuPressed.Subscribe(_ =>
         {
+            if (_pause.IsOpen)
+                return;
+
             if (_screenService.HasAnyWindowOpen())
                 _screenService.CloseAll();
             else
                 _screen.OpenPlayerMenu(player.OwnerId);
         }));
-        _subscriptions.Add(_input.ClosePressed.Subscribe(_ => _screenService.CloseTop()));
+        _subscriptions.Add(_input.ClosePressed.Subscribe(_ => _pause.HandleEscape()));
         
         _subscriptions.Add(_input.HotbarSlotPressed.Subscribe(index =>
         {

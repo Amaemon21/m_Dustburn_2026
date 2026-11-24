@@ -58,7 +58,7 @@ public sealed class GameSlotCatalog : IDisposable
             if (!_disposed)
             {
                 _latest.Value = null;
-                _error.Value = "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f. \u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u0441\u043f\u0438\u0441\u043e\u043a \u043f\u0440\u043e\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u0439 \u0435\u0449\u0451 \u0440\u0430\u0437.";
+                _error.Value = LocalizationService.Text("menu.saves.readListFailed");
             }
         }
         finally

@@ -1,6 +1,6 @@
 # Unified world generation
 
-Open **Мир > Генерация мира**, or select `WorldGenerator` and use its panel button.
+Open **World > World Generation**, or select `WorldGenerator` and use its panel button.
 The default `WorldBuildSettings.asset` references the existing generation config,
 biome database, POI database and voxel config. Editing the panel edits those source
 assets with Unity's serialized-property/Undo support; it does not copy their knobs
@@ -57,11 +57,11 @@ between map stages and between preview columns/POI batches.
 
 ## Runtime
 
-`WorldGenerator` is now the scene entry point, not the map generator. It owns a
-`WorldRuntimeLoader`; all actual building/placement work is delegated to services.
-The loader reads `BakedWorld.asset`, builds the voxel terrain and its colliders,
-then instantiates POI in batches. Terrain stays built; vegetation follows the viewer.
-It never writes generated assets or calls editor generation APIs in play mode.
+`WorldGenerator` owns a runtime loader. `GameWorldLoader` supplies `WorldData`
+from either the selected world folder or the scene bake. The runtime loader builds
+terrain and colliders and instantiates POI and props in batches. Terrain detail
+recenters around the viewer, and vegetation streams independently.
+The runtime path reads map data and leaves authoring operations to the editor.
 
 `Ready`, `Progress`, `Status` and `WorldReady` can drive a custom loading screen.
 Ready includes active terrain columns, in-flight collision cooking and POI. An
@@ -187,7 +187,7 @@ hydrology, river carving, water stamps, shore regions.
 
 The water map format and the terrain both changed, so a bake made before this
 version is refused (`BakedWorld.GENERATOR_VERSION` 5; the panel says the saved
-world is stale, the runtime throws). Open **Мир > Генерация мира** and press
+world is stale, the runtime throws). Open **World > World Generation** and press
 **Сгенерировать мир** once. Raw height caches made by the harness from older
 relief code stay valid only for relief; any water result must be regenerated.
 

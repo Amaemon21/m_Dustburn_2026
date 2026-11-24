@@ -10,7 +10,7 @@ namespace Dustborn.UI
     [AddComponentMenu("UI/Dustborn UI Wear")]
     public sealed class DustbornUIWear : BaseMeshEffect
     {
-        [SerializeField, Tooltip("Постоянный рисунок потёртостей. Разные числа дают разные варианты.")]
+        [SerializeField, Tooltip("Fixed wear pattern. Different numbers produce different patterns.")]
         private int patternSeed = 1;
 
         [SerializeField, Range(0f, 1f), Tooltip("Per-element glow multiplier, applied on top of the material glow intensity.")]

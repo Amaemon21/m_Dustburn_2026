@@ -22,7 +22,7 @@ public sealed class TargetHealthService : IDisposable
 
     private void Show(DamageReport report)
     {
-        if (report.Target != null)
+        if (report.Target != null && report.Target.Kind != DamageTargetKind.Player)
             For(report.Target.Kind).Show(report.Target, report.Result.Dealt);
     }
 

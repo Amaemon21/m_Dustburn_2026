@@ -110,9 +110,8 @@ public sealed class PlayerInventoryService : IDisposable
         if (stack.Wear < 0)
             throw new ArgumentOutOfRangeException(nameof(stack), "A picked up stack cannot have negative wear");
         PlayerInventoryProxy player = GetPlayerInventory(ownerId);
-        bool useHotbar = player.Hotbar.GetAmount(stack.ItemId) > 0;
         int taken = stack.Wear > 0
-            ? PickUpWorn(player, stack.ItemId, stack.Amount, stack.Wear, useHotbar)
+            ? PickUpWorn(player, stack.ItemId, stack.Amount, stack.Wear)
             : PickUpStack(player, stack.ItemId, stack.Amount);
 
         if (taken > 0)
@@ -135,8 +134,9 @@ public sealed class PlayerInventoryService : IDisposable
         return amount - remaining;
     }
 
-    private int PickUpWorn(PlayerInventoryProxy player, string itemId, int amount, int wear, bool useHotbar)
+    private int PickUpWorn(PlayerInventoryProxy player, string itemId, int amount, int wear)
     {
+        bool useHotbar = player.Hotbar.GetAmount(itemId) > 0;
         int placed = useHotbar ? PlaceWorn(player.Hotbar, itemId, amount, wear) : 0;
         return placed + PlaceWorn(player.Backpack, itemId, amount - placed, wear);
     }
@@ -188,12 +188,21 @@ public sealed class PlayerInventoryService : IDisposable
             for (int y = 0; y < target.Size.y; y++)
                 for (int x = 0; x < target.Size.x; x++)
                 {
-                    InventorySlotState destination = target.GetSlot(new Vector2Int(x, y)).State.CurrentValue;
+                    int remaining = source.State.CurrentValue.Amount;
+
+                    if (remaining == 0)
+                        return state.Amount;
+
+                    Vector2Int targetCoords = new(x, y);
+                    InventorySlotState destination = target.GetSlot(targetCoords).State.CurrentValue;
+
                     if ((pass == 0 && destination.ItemId != state.ItemId) || (pass == 1 && !destination.IsEmpty))
                         continue;
-                    int amount = Math.Min(source.State.CurrentValue.Amount, capacity - destination.Amount);
+
+                    int amount = Math.Min(remaining, capacity - destination.Amount);
+
                     if (amount > 0)
-                        _inventory.MoveItems(sourceId, coordinates, target.OwnerId, new Vector2Int(x, y), amount);
+                        _inventory.MoveItems(sourceId, coordinates, target.OwnerId, targetCoords, amount);
                 }
         return state.Amount - source.State.CurrentValue.Amount;
     }

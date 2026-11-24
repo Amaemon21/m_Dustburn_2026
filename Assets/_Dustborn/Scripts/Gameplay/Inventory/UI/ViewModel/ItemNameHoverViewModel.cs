@@ -10,7 +10,8 @@ public sealed class ItemNameHoverViewModel : ViewModel
     private readonly ItemCatalog _catalog;
     private readonly InventoryDragDropViewModel _dragDrop;
     private readonly Func<TimeSpan, Observable<Unit>> _timer;
-    private readonly ReactiveProperty<string> _name = new(null);
+    private readonly ReactiveProperty<string> _name = new();
+    private readonly ReactiveProperty<string> _details = new();
     private readonly ReactiveProperty<Vector3> _anchor = new(Vector3.zero);
     private readonly CompositeDisposable _slotBindings = new();
     private readonly SerialDisposable _delay = new();
@@ -20,10 +21,11 @@ public sealed class ItemNameHoverViewModel : ViewModel
     private bool _inGrace;
 
     public ReadOnlyReactiveProperty<string> Name => _name;
+    public ReadOnlyReactiveProperty<string> Details => _details;
     public ReadOnlyReactiveProperty<Vector3> Anchor => _anchor;
 
     public ItemNameHoverViewModel(ItemCatalog catalog, InventoryDragDropViewModel dragDrop, params InventoryGridViewModel[] grids)
-        : this(catalog, dragDrop, null, grids)
+        : this(catalog, dragDrop, dueTime => Observable.Timer(dueTime), grids)
     {
     }
 
@@ -85,9 +87,10 @@ public sealed class ItemNameHoverViewModel : ViewModel
     private void Refresh()
     {
         bool visible = _slot != null && !_slot.IsDisposed && (_dragDrop == null || !_dragDrop.IsDragging);
-        InventoryItem item = visible ? _catalog.GetItem(_slot.State.CurrentValue.ItemId) : null;
-        string itemName = item == null || string.IsNullOrEmpty(item.ItemName) ? null : item.ItemName;
-        if (itemName == null)
+        InventorySlotState state = visible ? _slot.State.CurrentValue : default;
+        InventoryItem item = visible ? _catalog.GetItem(state.ItemId) : null;
+
+        if (item == null || string.IsNullOrEmpty(item.ItemName))
         {
             Hide();
             return;
@@ -95,19 +98,33 @@ public sealed class ItemNameHoverViewModel : ViewModel
 
         if (_name.Value != null || _inGrace)
         {
-            Show(itemName);
+            Show(item, state);
             return;
         }
 
-        _delay.Disposable = _timer(SHOW_DELAY).Take(1).Subscribe(_ => Show(itemName));
+        _delay.Disposable = _timer(SHOW_DELAY).Take(1).Subscribe(_ => Show(item, state));
     }
 
-    private void Show(string itemName)
+    private void Show(InventoryItem item, InventorySlotState state)
     {
         _delay.Disposable = Disposable.Empty;
         _grace.Disposable = Disposable.Empty;
         _inGrace = false;
-        _name.Value = itemName;
+        string details = ItemInfoText.Subtitle(item);
+        float? durability = _catalog.RemainingDurability(state);
+
+        if (durability.HasValue)
+        {
+            ItemStat stat = new(ItemStatType.Durability, 0f);
+            details += $"  ·  {ItemStatText.Label(stat)} {durability.Value:P0}";
+        }
+        else if (state.Amount > 1)
+        {
+            details += $"  ·  ×{state.Amount}";
+        }
+
+        _details.Value = details;
+        _name.Value = item.ItemName;
     }
 
     private void Hide()
@@ -117,6 +134,7 @@ public sealed class ItemNameHoverViewModel : ViewModel
             return;
 
         _name.Value = null;
+        _details.Value = null;
         _inGrace = true;
         _grace.Disposable = _timer(SWITCH_GRACE).Take(1).Subscribe(_ => _inGrace = false);
     }
@@ -127,6 +145,7 @@ public sealed class ItemNameHoverViewModel : ViewModel
         _grace.Dispose();
         _slotBindings.Dispose();
         _name.Dispose();
+        _details.Dispose();
         _anchor.Dispose();
         base.OnDisposed();
     }

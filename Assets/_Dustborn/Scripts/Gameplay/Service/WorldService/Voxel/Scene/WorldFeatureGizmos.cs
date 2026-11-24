@@ -81,8 +81,8 @@ public class WorldFeatureGizmos : MonoBehaviour
         Handles.DrawAAPolyLine(3f, new Vector3(stamp.Center.x, LIFT, stamp.Center.y), new Vector3(forward.x, LIFT, forward.y));
 
         Handles.Label(new Vector3(stamp.Center.x, LIFT, stamp.Center.y),
-            $"{stamp.Name}\n{(stamp.Operation == TerrainStampOperation.Add ? "поднимает" : "опускает")} на {stamp.Amplitude:0} м\n"
-            + $"центр ({stamp.Center.x:0}, {stamp.Center.y:0}), поворот {stamp.Rotation:0}°");
+            LocalizationService.Format("editor.worldGizmos.stamp", stamp.Name, (stamp.Operation == TerrainStampOperation.Add ? LocalizationService.Text("editor.worldGizmos.raise") : LocalizationService.Text("editor.worldGizmos.lower")), stamp.Amplitude)
+            + LocalizationService.Format("editor.worldGizmos.stampTransform", stamp.Center.x, stamp.Center.y, stamp.Rotation));
     }
 
     private void DrawWater()
@@ -111,7 +111,7 @@ public class WorldFeatureGizmos : MonoBehaviour
             var center = new Vector3(body.Center.x, body.Surface, body.Center.y);
 
             Handles.DrawWireDisc(center, Vector3.up, Mathf.Sqrt(body.Area / Mathf.PI));
-            Handles.Label(center, $"{(body.Kind == WaterKind.Lake ? "озеро" : "пруд")} {body.Area / 10000f:0.0} га, вода {body.Surface:0.0} м");
+            Handles.Label(center, LocalizationService.Format("editor.worldGizmos.waterBody", (body.Kind == WaterKind.Lake ? LocalizationService.Text("editor.worldGizmos.lake") : LocalizationService.Text("editor.worldGizmos.pond")), body.Area / 10000f, body.Surface));
         }
     }
 #endif

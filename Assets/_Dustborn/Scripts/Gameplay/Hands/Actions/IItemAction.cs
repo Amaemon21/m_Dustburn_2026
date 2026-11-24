@@ -1,7 +1,6 @@
 public interface IItemAction
 {
-    bool CanStart { get; }
-    void Start();
+    bool TryStart();
     bool Tick(float deltaTime);
     void Cancel();
 }

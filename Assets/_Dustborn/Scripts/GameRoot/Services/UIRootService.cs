@@ -22,13 +22,15 @@ public sealed class UIRootService : IDisposable
     public async UniTask<UIRootView> CreateAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+        
         if (Current != null)
             return Current;
-        GameObject instance = await _scope.InstantiateAsync(
-            _references.UIRootPrefab, Vector3.zero, Quaternion.identity, token);
+        
+        GameObject instance = await _scope.InstantiateAsync(_references.UIRootPrefab, Vector3.zero, Quaternion.identity, token);
         _resolver.InjectGameObject(instance);
         UnityEngine.Object.DontDestroyOnLoad(instance);
         Current = instance.GetComponent<UIRootView>();
+        
         return Current;
     }
 

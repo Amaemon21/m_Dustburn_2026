@@ -7,12 +7,11 @@ using UnityEngine;
 public static class WorldPregens
 {
     private const string MENU = "CONTEXT/WorldBuildSettings/Generate built-in worlds";
-    private const string TITLE = "Заготовки миров";
-    private const string QUESTION = "Будут сгенерированы {0} встроенных миров (6, 8 и 10 км, по два каждого размера) в StreamingAssets/Worlds. "
-        + "Это займёт несколько минут и около 1 ГБ на диске. Уже существующие заготовки перезаписываются.";
-    private const string CANCELLED = "Генерация заготовок отменена.";
-    private const string FAILED = "Генерация заготовок не удалась: {0}";
-    private const string NO_SETTINGS = "Не найден WorldBuildSettings с конфигом и набором слоёв земли; перепеките землю в «Мир → Перепечь землю мира».";
+    private static string Title => LocalizationService.Text("editor.worldPregens.title");
+    private static string Question => LocalizationService.Text("editor.worldPregens.question");
+    private static string Cancelled => LocalizationService.Text("editor.worldPregens.cancelled");
+    private static string Failed => LocalizationService.Text("editor.worldPregens.failed");
+    private static string NoSettings => LocalizationService.Text("editor.worldPregens.missingSettings");
 
     private static readonly (string Name, int Size)[] Presets =
     {
@@ -43,7 +42,7 @@ public static class WorldPregens
             string message = $"{Name} ({Index + 1}/{Presets.Length}): {value.Status}";
             float progress = (Index + Mathf.Clamp01(value.Fraction)) / Presets.Length;
 
-            if (EditorUtility.DisplayCancelableProgressBar(TITLE, message, progress))
+            if (EditorUtility.DisplayCancelableProgressBar(Title, message, progress))
                 _cancel.Cancel();
         }
     }
@@ -54,11 +53,11 @@ public static class WorldPregens
         var settings = command.context as WorldBuildSettings;
         if (settings == null || settings.Config == null || settings.Ground == null || !settings.Ground.IsValid)
         {
-            EditorUtility.DisplayDialog(TITLE, NO_SETTINGS, "OK");
+            EditorUtility.DisplayDialog(Title, NoSettings, "OK");
             return;
         }
 
-        if (!EditorUtility.DisplayDialog(TITLE, string.Format(QUESTION, Presets.Length), "Сгенерировать", "Отмена"))
+        if (!EditorUtility.DisplayDialog(Title, string.Format(Question, Presets.Length), LocalizationService.Text("editor.worldPregens.generate"), LocalizationService.Text("editor.common.cancel")))
             return;
 
         RunAsync(settings).Forget();
@@ -97,12 +96,12 @@ public static class WorldPregens
         catch (OperationCanceledException)
         {
             Debug.Log($"{nameof(WorldPregens)}: generation cancelled");
-            EditorUtility.DisplayDialog(TITLE, CANCELLED, "OK");
+            EditorUtility.DisplayDialog(Title, Cancelled, "OK");
         }
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            EditorUtility.DisplayDialog(TITLE, string.Format(FAILED, exception.Message), "OK");
+            EditorUtility.DisplayDialog(Title, string.Format(Failed, exception.Message), "OK");
         }
         finally
         {

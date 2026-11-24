@@ -18,21 +18,54 @@ MonoBehaviour:
   <Loot>k__BackingField:
   - <Item>k__BackingField: {fileID: 11400000, guid: 2d0d54e8d9e3a1848881af1dcb813cc3, type: 2}
     <Amount>k__BackingField: 5
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: a602ec120374bc949a0e8c4762427da7, type: 2}
     <Amount>k__BackingField: 5
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: 96e05a601e28608419c457b587520eed, type: 2}
     <Amount>k__BackingField: 5
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: 96626c25c42249aca4e931e641b4cf09, type: 2}
     <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: ba56db55ad9227d45ab63b65d016673c, type: 2}
     <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: f18383d23a3844788281b3eccf68db6c, type: 2}
     <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: ae74ab2966ba41659ec4ff570964c599, type: 2}
     <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: 0415818731524703bf5d194b738b5cfb, type: 2}
     <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
   - <Item>k__BackingField: {fileID: 11400000, guid: dbf038e2d61f452e8f4e07baf45b59fe, type: 2}
     <Amount>k__BackingField: 1
-  - <Item>k__BackingField: {fileID: 11400000, guid: af5a9366b3a347148e0c6bc93e3610dd, type: 2}
-    <Amount>k__BackingField: 1
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: bb8e716b346b4b45ad33c128cf08d3ec, type: 2}
+    <Amount>k__BackingField: 99
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: c69f4a695d8e439cb16dacc901b976ab, type: 2}
+    <Amount>k__BackingField: 12
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: e295c09d0008415a8dc5ecc7a2df1f28, type: 2}
+    <Amount>k__BackingField: 4
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
+  - <Item>k__BackingField: {fileID: 11400000, guid: bc20a71d15df010489690b52c897e419, type: 2}
+    <Amount>k__BackingField: 4
+    <MaxAmount>k__BackingField: 0
+    <Chance>k__BackingField: 1
+  <MaxStacks>k__BackingField: 0

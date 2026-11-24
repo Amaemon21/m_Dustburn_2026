@@ -37,6 +37,17 @@ namespace UnityEngine.AddressableAssets
     {
         public object RuntimeKey { get; }
         public AssetReference(string guid) => RuntimeKey = guid;
+
+        public virtual bool RuntimeKeyIsValid()
+        {
+            string key = RuntimeKey as string ?? string.Empty;
+            int subObject = key.IndexOf('[');
+
+            if (subObject >= 0)
+                key = key.Substring(0, subObject);
+
+            return Guid.TryParse(key, out _);
+        }
     }
 
     [Serializable]

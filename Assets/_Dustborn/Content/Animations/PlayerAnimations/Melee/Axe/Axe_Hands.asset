@@ -20,7 +20,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0
     <End>k__BackingField: 0
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 1
     <Next>k__BackingField: 4
     <NextFade>k__BackingField: 0.1
@@ -30,7 +29,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.1
     <End>k__BackingField: 0
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 0
     <Next>k__BackingField: 0
     <NextFade>k__BackingField: 0.1
@@ -40,7 +38,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.05
     <End>k__BackingField: 0
-    <Impact>k__BackingField: 0.37
     <Chained>k__BackingField: 1
     <Next>k__BackingField: 4
     <NextFade>k__BackingField: 0.1
@@ -50,7 +47,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.25
     <End>k__BackingField: 0
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 0
     <Next>k__BackingField: 0
     <NextFade>k__BackingField: 0.1
@@ -60,7 +56,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.25
     <End>k__BackingField: 0
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 0
     <Next>k__BackingField: 0
     <NextFade>k__BackingField: 0.1
@@ -70,7 +65,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.25
     <End>k__BackingField: 0
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 0
     <Next>k__BackingField: 0
     <NextFade>k__BackingField: 0.1
@@ -80,7 +74,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.15
     <End>k__BackingField: 0.31666666
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 1
     <Next>k__BackingField: 6
     <NextFade>k__BackingField: 0.1
@@ -90,7 +83,6 @@ MonoBehaviour:
     <Speed>k__BackingField: 1
     <FadeIn>k__BackingField: 0.15
     <End>k__BackingField: 0.31666666
-    <Impact>k__BackingField: 0
     <Chained>k__BackingField: 1
     <Next>k__BackingField: 4
     <NextFade>k__BackingField: 0.1

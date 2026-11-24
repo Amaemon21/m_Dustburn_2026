@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6312a96e00a545c29abe9e69d571608c, type: 3}
+  m_Name: OSB_DoorwayInventoryItem
+  m_EditorClassIdentifier: Assembly-CSharp::BlockInventoryItem
+  <ItemId>k__BackingField: block_osb_doorway
+  <ItemName>k__BackingField: OSB Doorway
+  <Category>k__BackingField: 10
+  <Rarity>k__BackingField: 0
+  <Description>k__BackingField: An OSB doorway three cells high, with an open passage. Place with primary action and rotate with secondary action.
+  <Icon>k__BackingField: {fileID: 21300000, guid: bc250a70b2f541f982194e26a3ea6562, type: 3}
+  <PickUpPrefab>k__BackingField: {fileID: 8331216147461318919, guid: 03d7ce23c96b47d4b159285431912bc1, type: 3}
+  <Held>k__BackingField: {fileID: 11400000, guid: fcddf0e07dab4f3297e44e430b224c92, type: 2}
+  <MaxStack>k__BackingField: 500
+  <Weight>k__BackingField: 1
+  <Durability>k__BackingField: 0
+  <Prefab>k__BackingField: {fileID: 11400001, guid: d185160eb77a4f98a09ff060117f07a1, type: 3}
+  <Height>k__BackingField: 3
+  <Reach>k__BackingField: 5
+  <PlacementInterval>k__BackingField: 0.25
+  <SurfaceMask>k__BackingField:
+    serializedVersion: 2
+    m_Bits: 4294967099

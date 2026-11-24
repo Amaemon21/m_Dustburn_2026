@@ -10,14 +10,15 @@ public sealed class PlayerLevelView : View<PlayerLevelViewModel>
     [SerializeField, Required] private TMP_Text _experienceText;
     [SerializeField, Required] private TMP_Text _levelText;
     [SerializeField] private string _experienceFormat = "{0}/{1}";
-    [SerializeField] private string _levelFormat = "Уровень {0}";
-    [SerializeField] private string _maxLevelText = "МАКС";
+    [SerializeField] private string _levelFormat;
+    [SerializeField] private string _maxLevelText;
 
     protected override void BindCore(PlayerLevelViewModel viewModel, CompositeDisposable bindings)
     {
         bindings.Add(viewModel.Experience.CombineLatest(viewModel.RequiredExperience, (experience, required) => (experience, required))
             .Subscribe(value => ShowExperience(value.experience, value.required)));
-        bindings.Add(viewModel.Level.Subscribe(level => _levelText.text = string.Format(_levelFormat, level)));
+        string format = string.IsNullOrEmpty(_levelFormat) ? LocalizationService.Text("progression.level") : _levelFormat;
+        bindings.Add(viewModel.Level.Subscribe(level => _levelText.text = string.Format(format, level)));
     }
 
     private void ShowExperience(float experience, int required)
@@ -25,7 +26,7 @@ public sealed class PlayerLevelView : View<PlayerLevelViewModel>
         if (required <= 0)
         {
             _fill.fillAmount = 1f;
-            _experienceText.text = _maxLevelText;
+            _experienceText.text = string.IsNullOrEmpty(_maxLevelText) ? LocalizationService.Text("progression.maxLevel") : _maxLevelText;
             return;
         }
 

@@ -282,7 +282,7 @@ public partial class VoxelTerrainStreamer
             mesh.SetVertices(source.Vertices.AsArray());
             mesh.SetNormals(source.Normals.AsArray());
             mesh.SetUVs(0, source.Uv.AsArray());
-            mesh.SetIndices(source.Triangles.AsArray(), MeshTopology.Triangles, 0);
+            mesh.SetIndices(source.Triangles.AsArray(), MeshTopology.Triangles, 0, calculateBounds: false);
             mesh.RecalculateBounds();
         }
 

@@ -21,36 +21,36 @@ public static class WorldGenerationEditorRun
         }
     }
 
-    private static readonly (WorldGenStage Stage, string Label)[] DETAIL_STAGES =
+    private static readonly (WorldGenStage Stage, string LabelKey)[] DETAIL_STAGES =
     {
-        (WorldGenStage.MapWeights, "Веса биомов"),
-        (WorldGenStage.MapHeightNoise, "Шум рельефа"),
-        (WorldGenStage.MapHeightHydraulic, "Водная эрозия"),
-        (WorldGenStage.MapHeightThermal, "Осыпание склонов"),
-        (WorldGenStage.MapRoadPlan, "Прокладка трасс"),
-        (WorldGenStage.MapCarveTrunk, "Врезка трасс"),
-        (WorldGenStage.MapCities, "Планировка кварталов"),
-        (WorldGenStage.MapSettlementPads, "Выравнивание поселений"),
-        (WorldGenStage.MapCarveStreets, "Врезка улиц"),
-        (WorldGenStage.MapLots, "Нарезка участков"),
-        (WorldGenStage.MapPoiPlace, "Расстановка зданий"),
-        (WorldGenStage.MapCarvePads, "Площадки зданий"),
-        (WorldGenStage.BakeTextures, "PNG-карты"),
-        (WorldGenStage.BakeHeightRaw, "Запись карты высот"),
-        (WorldGenStage.BakeImport, "Импорт карты высот"),
-        (WorldGenStage.BakeLayers, "Слои Repetitionless"),
-        (WorldGenStage.BakeSplat, "Расчёт текстур поверхности"),
-        (WorldGenStage.BakePersist, "Запись текстур поверхности"),
-        (WorldGenStage.BakeSaveAssets, "Сохранение ассетов"),
-        (WorldGenStage.PreviewLoad, "Загрузка карт"),
-        (WorldGenStage.ShorePlan, "Детализация берегов"),
-        (WorldGenStage.PreviewGeometry, "Геометрия и коллизия"),
-        (WorldGenStage.RoadSurface, "Асфальт дорог"),
-        (WorldGenStage.PreviewWater, "Вода и край мира"),
-        (WorldGenStage.PreviewPoi, "Здания POI"),
-        (WorldGenStage.PreviewTransient, "Пометка предпросмотра"),
-        (WorldGenStage.PreviewSwap, "Замена предпросмотра"),
-        (WorldGenStage.PreviewDecor, "Растительность")
+        (WorldGenStage.MapWeights, "editor.worldRun.timing.mapWeights"),
+        (WorldGenStage.MapHeightNoise, "editor.worldRun.timing.mapHeightNoise"),
+        (WorldGenStage.MapHeightHydraulic, "editor.worldRun.timing.mapHeightHydraulic"),
+        (WorldGenStage.MapHeightThermal, "editor.worldRun.timing.mapHeightThermal"),
+        (WorldGenStage.MapRoadPlan, "editor.worldRun.timing.mapRoadPlan"),
+        (WorldGenStage.MapCarveTrunk, "editor.worldRun.timing.mapCarveTrunk"),
+        (WorldGenStage.MapCities, "editor.worldRun.timing.mapCities"),
+        (WorldGenStage.MapSettlementPads, "editor.worldRun.timing.mapSettlementPads"),
+        (WorldGenStage.MapCarveStreets, "editor.worldRun.timing.mapCarveStreets"),
+        (WorldGenStage.MapLots, "editor.worldRun.timing.mapLots"),
+        (WorldGenStage.MapPoiPlace, "editor.worldRun.timing.mapPoiPlace"),
+        (WorldGenStage.MapCarvePads, "editor.worldRun.timing.mapCarvePads"),
+        (WorldGenStage.BakeTextures, "editor.worldRun.timing.bakeTextures"),
+        (WorldGenStage.BakeHeightRaw, "editor.worldRun.timing.bakeHeightRaw"),
+        (WorldGenStage.BakeImport, "editor.worldRun.timing.bakeImport"),
+        (WorldGenStage.BakeLayers, "editor.worldRun.timing.bakeLayers"),
+        (WorldGenStage.BakeSplat, "editor.worldRun.timing.bakeSplat"),
+        (WorldGenStage.BakePersist, "editor.worldRun.timing.bakePersist"),
+        (WorldGenStage.BakeSaveAssets, "editor.worldRun.timing.bakeSaveAssets"),
+        (WorldGenStage.PreviewLoad, "editor.worldRun.timing.previewLoad"),
+        (WorldGenStage.ShorePlan, "editor.worldRun.timing.shorePlan"),
+        (WorldGenStage.PreviewGeometry, "editor.worldRun.timing.previewGeometry"),
+        (WorldGenStage.RoadSurface, "editor.worldRun.timing.roadSurface"),
+        (WorldGenStage.PreviewWater, "editor.worldRun.timing.previewWater"),
+        (WorldGenStage.PreviewPoi, "editor.worldRun.poi"),
+        (WorldGenStage.PreviewTransient, "editor.worldRun.timing.previewTransient"),
+        (WorldGenStage.PreviewSwap, "editor.worldRun.timing.previewSwap"),
+        (WorldGenStage.PreviewDecor, "editor.worldRun.timing.previewDecor")
     };
 
     private static readonly List<StageTime> TIMINGS = new();
@@ -59,6 +59,7 @@ public static class WorldGenerationEditorRun
 
     private const double BAR_INTERVAL = 0.1d;
 
+    private static string _status;
     private static string _stage;
     private static string _barStage;
     private static double _barShown;
@@ -66,7 +67,11 @@ public static class WorldGenerationEditorRun
 
     public static bool Busy { get; private set; }
     public static float Progress { get; private set; }
-    public static string Status { get; private set; } = "Готов к генерации";
+    public static string Status
+    {
+        get => _status ?? LocalizationService.Text("editor.worldRun.idle");
+        private set => _status = value;
+    }
     public static IReadOnlyList<StageTime> Timings => TIMINGS;
     public static IReadOnlyList<StageTime> Details => DETAILS;
     public static double TotalSeconds { get; private set; }
@@ -79,7 +84,7 @@ public static class WorldGenerationEditorRun
 
         Busy = true;
         Progress = 0f;
-        Status = "Подготовка";
+        Status = LocalizationService.Text("editor.worldRun.prepare");
         EditorApplication.delayCall += () => Run(owner, settings, generate);
     }
 
@@ -97,7 +102,7 @@ public static class WorldGenerationEditorRun
         _stage = null;
         _barStage = null;
         CLOCK.Restart();
-        Mark("Подготовка");
+        Mark(LocalizationService.Text("editor.worldRun.prepare"));
 
         try
         {
@@ -125,11 +130,11 @@ public static class WorldGenerationEditorRun
             if (world == null || !world.IsValid)
                 throw new InvalidOperationException("Generate and save the world before rebuilding its preview.");
 
-            Report("Предпросмотр всего мира", 0.65f);
-            preview = new GameObject("Предпросмотр мира") { tag = "EditorOnly" };
+            Report(LocalizationService.Text("editor.worldRun.fullPreview"), 0.65f);
+            preview = new GameObject(LocalizationService.Text("editor.worldRun.previewObject")) { tag = "EditorOnly" };
             preview.transform.SetParent(owner.transform, false);
 
-            var terrainRoot = new GameObject("Ландшафт и растительность");
+            var terrainRoot = new GameObject(LocalizationService.Text("editor.worldRun.terrainObject"));
             terrainRoot.transform.SetParent(preview.transform, false);
             var terrain = terrainRoot.AddComponent<VoxelTerrainBuilder>();
             terrain.hideFlags = HideFlags.HideInInspector;
@@ -141,7 +146,7 @@ public static class WorldGenerationEditorRun
             using (WorldGenProbe.Measure(WorldGenStage.PreviewTransient))
                 MakeTransient(terrainRoot);
 
-            var buildings = new GameObject("Здания POI");
+            var buildings = new GameObject(LocalizationService.Text("editor.worldRun.poi"));
             buildings.transform.SetParent(preview.transform, false);
             var pois = new PoiInstanceBuilder(world.Placement.Placements, buildings.transform);
 
@@ -149,12 +154,12 @@ public static class WorldGenerationEditorRun
             {
                 while (!pois.Ready)
                 {
-                    Report("Размещение зданий POI", 0.93f + pois.Progress * 0.04f);
+                    Report(LocalizationService.Text("editor.worldRun.placePoi"), 0.93f + pois.Progress * 0.04f);
                     pois.BuildNext(16);
                 }
             }
 
-            var propsRoot = new GameObject("Машины, хлам и тайники");
+            var propsRoot = new GameObject(LocalizationService.Text("loading.props"));
             propsRoot.transform.SetParent(preview.transform, false);
             float cull = settings.Props == null ? 0f : settings.Props.CullScreenHeight;
             var props = new PropInstanceBuilder(world.Placement.Props, propsRoot.transform, terrainRoot.transform, cull, settings.Voxels.ChunkMetres);
@@ -163,18 +168,18 @@ public static class WorldGenerationEditorRun
             {
                 while (!props.Ready)
                 {
-                    Report("Машины, хлам и тайники", 0.97f + props.Progress * 0.03f);
+                    Report(LocalizationService.Text("loading.props"), 0.97f + props.Progress * 0.03f);
                     props.BuildNext(256);
                 }
 
                 MakeTransient(propsRoot);
             }
 
-            Mark("Замена предпросмотра в сцене");
+            Mark(LocalizationService.Text("editor.worldRun.swapPreview"));
             using WorldGenProbe.Span swap = WorldGenProbe.Measure(WorldGenStage.PreviewSwap);
             Undo.IncrementCurrentGroup();
             int undoGroup = Undo.GetCurrentGroup();
-            Undo.SetCurrentGroupName("Обновить мир в сцене");
+            Undo.SetCurrentGroupName(LocalizationService.Text("editor.worldRun.updateUndo"));
             WorldGenerationMigration.Apply(owner, settings);
             ClearPreview(owner);
             Assign(owner, "_settings", settings);
@@ -185,7 +190,7 @@ public static class WorldGenerationEditorRun
             Assign(owner, "_pois", null);
             terrainRoot.transform.SetParent(null, false);
             propsRoot.transform.SetParent(null, false);
-            Undo.RegisterCreatedObjectUndo(preview, "Создать предпросмотр мира");
+            Undo.RegisterCreatedObjectUndo(preview, LocalizationService.Text("editor.worldRun.createUndo"));
             terrainRoot.transform.SetParent(preview.transform, false);
             propsRoot.transform.SetParent(preview.transform, false);
             Undo.CollapseUndoOperations(undoGroup);
@@ -194,15 +199,15 @@ public static class WorldGenerationEditorRun
             SceneView.RepaintAll();
             Progress = 1f;
             string elapsed = FormatTime(CLOCK.Elapsed.TotalSeconds);
-            Status = generate ? $"Мир сохранён за {elapsed}. Зданий POI: {world.Placement.Placements.Count}, машин, хлама и тайников: {world.Placement.Props.Count}" : $"Предпросмотр обновлён за {elapsed}";
+            Status = generate ? LocalizationService.Format("editor.worldRun.saved", elapsed, world.Placement.Placements.Count, world.Placement.Props.Count) : LocalizationService.Format("editor.worldRun.previewUpdated", elapsed);
         }
         catch (OperationCanceledException)
         {
-            Status = saved ? "Карты сохранены. Обновление предпросмотра отменено." : "Операция отменена. Предыдущий предпросмотр сохранён.";
+            Status = saved ? LocalizationService.Text("editor.worldRun.cancelledAfterSave") : LocalizationService.Text("editor.worldRun.cancelled");
         }
         catch (Exception exception)
         {
-            Status = "Генерация не завершена. Подробности в консоли.";
+            Status = LocalizationService.Text("editor.worldRun.failed");
             Debug.LogException(exception, owner);
         }
         finally
@@ -261,21 +266,21 @@ public static class WorldGenerationEditorRun
     public static string FormatTime(double seconds)
     {
         if (seconds < 60d)
-            return $"{seconds:0.0} с";
+            return LocalizationService.Format("editor.worldRun.seconds", seconds);
 
         int minutes = (int)(seconds / 60d);
 
-        return $"{minutes} мин {seconds - minutes * 60d:00.0} с";
+        return LocalizationService.Format("editor.worldRun.minutesAndSeconds", minutes, seconds - minutes * 60d);
     }
 
     private static void CollectDetails()
     {
-        foreach ((WorldGenStage stage, string label) in DETAIL_STAGES)
+        foreach ((WorldGenStage stage, string labelKey) in DETAIL_STAGES)
         {
             WorldGenStageStat stat = WorldGenProbe.Stat(stage);
 
             if (stat.Count > 0)
-                DETAILS.Add(new StageTime(label, WorldGenProbe.ToMs(stat.Ticks) / 1000d));
+                DETAILS.Add(new StageTime(LocalizationService.Text(labelKey), WorldGenProbe.ToMs(stat.Ticks) / 1000d));
         }
     }
 
@@ -345,7 +350,7 @@ public static class WorldGenerationEditorRun
         _barStage = stage;
         _barShown = now;
 
-        if (EditorUtility.DisplayCancelableProgressBar("Генерация мира", $"{stage} — {Progress:P0}", Progress))
+        if (EditorUtility.DisplayCancelableProgressBar(LocalizationService.Text("editor.worldWindow.title"), $"{stage} — {Progress:P0}", Progress))
             throw new OperationCanceledException();
     }
 

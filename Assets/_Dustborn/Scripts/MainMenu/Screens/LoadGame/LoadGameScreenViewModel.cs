@@ -6,20 +6,20 @@ using System.Threading;
 
 public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
 {
-    private const string DELETE_QUESTION = "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u043f\u0440\u043e\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u0435 «{0}»? \u041a\u0430\u0440\u0442\u0430 \u043e\u0441\u0442\u0430\u043d\u0435\u0442\u0441\u044f \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0439 \u0434\u043b\u044f \u043d\u043e\u0432\u043e\u0439 \u0438\u0433\u0440\u044b.";
+    private static string DeleteQuestion => LocalizationService.Text("menu.saves.deleteQuestion");
 
-    private readonly CancellationTokenSource _lifetime = new();
     private readonly GameSlotThumbnailCache _thumbnails;
     private readonly GameSlotCatalog _catalog;
     private readonly GameSlotLauncher _launcher;
     private readonly ConfirmDialogViewModel _dialog;
     private readonly ReactiveProperty<IReadOnlyList<ListItemViewModel>> _items = new(Array.Empty<ListItemViewModel>());
     private readonly ReactiveProperty<GameSlotInfo> _selected = new();
+    private readonly SerialDisposable _deleteConfirmation = new();
+    private CancellationTokenSource _thumbnailLoads;
     private bool _deleting;
 
     public ReadOnlyReactiveProperty<IReadOnlyList<ListItemViewModel>> Items => _items;
     public ReadOnlyReactiveProperty<bool> IsEmpty { get; }
-    public ReadOnlyReactiveProperty<string> SelectionDetails { get; }
     public ReactiveCommand<Unit> Load { get; }
     public ReactiveCommand<Unit> Delete { get; }
     public ReactiveCommand<Unit> Back { get; }
@@ -32,12 +32,12 @@ public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
         _launcher = launcher;
         _dialog = dialog;
 
-        SelectionDetails = _selected.Select(MainMenuText.SlotDescription).ToReadOnlyReactiveProperty();
         IsEmpty = _items.Select(items => items.Count == 0).ToReadOnlyReactiveProperty();
         Load = Command();
         Delete = Command();
         Back = NavigationCommand(MainMenuScreen.Main);
 
+        Disposables.Add(_deleteConfirmation);
         Disposables.Add(_launcher.Busy.Subscribe(_ => RefreshCommands()));
         Disposables.Add(catalog.Slots.Subscribe(Rebuild));
         Disposables.Add(_selected.Subscribe(_ => RefreshCommands()));
@@ -61,15 +61,26 @@ public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
     private void AskDelete()
     {
         GameSlotInfo slot = _selected.Value;
-        _dialog.Ask(string.Format(DELETE_QUESTION, slot.Name), () => DeleteSelectedAsync(slot.Id).Forget());
+
+        if (slot == null || _deleting || _launcher.Busy.CurrentValue)
+            return;
+
+        _deleteConfirmation.Disposable = _dialog.Ask(string.Format(DeleteQuestion, slot.Name))
+            .Subscribe(_ =>
+            {
+                if (!IsDisposed)
+                    DeleteSelectedAsync(slot.Id).Forget();
+            });
     }
 
     private async UniTask DeleteSelectedAsync(string id)
     {
         if (_deleting)
             return;
+
         _deleting = true;
         RefreshCommands();
+
         try
         {
             await _catalog.DeleteAsync(id);
@@ -78,11 +89,12 @@ public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
         catch (Exception)
         {
             if (!IsDisposed)
-                _dialog.ShowMessage("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0443\u0434\u0430\u043b\u0438\u0442\u044c \u043f\u0440\u043e\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u0435. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.");
+                _dialog.ShowMessage(LocalizationService.Text("menu.saves.deleteFailed"));
         }
         finally
         {
             _deleting = false;
+
             if (!IsDisposed)
                 RefreshCommands();
         }
@@ -90,16 +102,33 @@ public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
 
     private void Rebuild(IReadOnlyList<GameSlotInfo> slots)
     {
+        CancelThumbnailLoads();
         DisposeItems();
 
         ListItemViewModel[] items = new ListItemViewModel[slots.Count];
+
         for (int i = 0; i < slots.Count; i++)
             items[i] = Item(slots[i]);
 
         _selected.Value = Find(slots, _selected.Value?.Id) ?? (slots.Count > 0 ? slots[0] : null);
         _items.Value = items;
+
+        if (slots.Count == 0)
+            return;
+
+        _thumbnailLoads = new CancellationTokenSource();
+        CancellationToken token = _thumbnailLoads.Token;
+
         for (int i = 0; i < slots.Count; i++)
-            ShowThumbnailAsync(slots[i], items[i], _lifetime.Token).Forget();
+            ShowThumbnailAsync(slots[i], items[i], token).Forget();
+    }
+
+    private void CancelThumbnailLoads()
+    {
+        CancellationTokenSource loads = _thumbnailLoads;
+        _thumbnailLoads = null;
+        loads?.Cancel();
+        loads?.Dispose();
     }
 
     private async UniTask ShowThumbnailAsync(GameSlotInfo slot, ListItemViewModel item, CancellationToken token)
@@ -107,7 +136,8 @@ public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
         try
         {
             var texture = await _thumbnails.LoadAsync(slot, token);
-            if (!IsDisposed)
+
+            if (!token.IsCancellationRequested)
                 item.SetThumbnail(texture);
         }
         catch (OperationCanceledException) { }
@@ -159,12 +189,10 @@ public sealed class LoadGameScreenViewModel : MainMenuScreenViewModel
     protected override void OnDisposed()
     {
         base.OnDisposed();
-        _lifetime.Cancel();
-        _lifetime.Dispose();
+        CancelThumbnailLoads();
         DisposeItems();
         _items.Dispose();
         _selected.Dispose();
         IsEmpty.Dispose();
-        SelectionDetails.Dispose();
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using R3;
@@ -9,6 +10,7 @@ internal static partial class Harness
 {
     private static SaveRegistry PlayerRegistry() => new SaveRegistry()
         .Register<PlayerVitalsData>(SaveInstaller.VITALS_KEY, SaveScope.Slot, SaveInstaller.PLAYER_FILE)
+        .Register<PlayerEffectsData>(SaveInstaller.EFFECTS_KEY, SaveScope.Slot, SaveInstaller.PLAYER_FILE)
         .Register<PlayerProgressionData>(SaveInstaller.PROGRESSION_KEY, SaveScope.Slot, SaveInstaller.PLAYER_FILE);
 
     private static PlayerStatSheet DefaultSheet()
@@ -75,6 +77,115 @@ internal static partial class Harness
         using PlayerVitals restored = new(freshStats, new PlayerVitalsRepository(reloaded));
         Check(Near(restored.Stamina.Current.CurrentValue, 42.5f) && Near(restored.Food.Current.CurrentValue, 70f) &&
               Near(restored.Infection.Current.CurrentValue, 25f) && restored.Health.IsFull, "vitals survive a save");
+    }
+
+    private static async Task VerifyPlayerEffects()
+    {
+        MemoryStorage storage = new();
+        SaveRegistry oldRegistry = new SaveRegistry().Register<PlayerVitalsData>(SaveInstaller.VITALS_KEY, SaveScope.Slot, SaveInstaller.PLAYER_FILE);
+        SaveService oldSave = new(oldRegistry, storage, ProjectSerializer());
+        await oldSave.LoadScopeAsync(SaveScope.Slot, CancellationToken.None);
+        PlayerVitalsRepository oldVitals = new(oldSave);
+        oldVitals.Write(VitalType.Infection, 15f);
+        oldVitals.Write(VitalType.Health, 100f);
+        oldVitals.MarkInitialized();
+        await oldSave.SaveDirtyAsync(CancellationToken.None);
+
+        SaveService saves = await LoadedPlayerSaves(storage);
+        using PlayerStatSheet stats = DefaultSheet();
+        using PlayerVitals vitals = new(stats, new PlayerVitalsRepository(saves));
+        PlayerEffectSettings settings = new();
+        using PlayerEffects effects = new(vitals, stats, new PlayerEffectsRepository(saves), settings);
+        using PlayerDamageable player = new(vitals, effects);
+        using DamageFeed feed = new();
+        PlayerInjurySystem injuries = new(settings, effects, player, new DamageService(feed, new TestRewards()));
+        using HudPlayerEffectsViewModel hud = new(effects);
+        List<string> bleeding = new();
+        List<string> infection = new();
+        using IDisposable bleedingBinding = hud.ObserveLabel(PlayerEffectType.Bleeding).Subscribe(bleeding.Add);
+        using IDisposable infectionBinding = hud.ObserveLabel(PlayerEffectType.Infection).Subscribe(infection.Add);
+        Check(bleeding.Count == 1 && bleeding[0] == string.Empty && infection[0] == "15%", "old saves restore infection and start with no timed effects");
+        Check(Near(stats.Get(PlayerStatType.StaminaRegen).Value.CurrentValue, 16f), "infection applies its stamina penalty once on load");
+
+        injuries.Apply(new PlayerMovementResult(Vector2.zero, true, false, false, false, true, 0f, 7f), 0.02f);
+        Check(vitals.Health.IsFull && effects.FractureSlowdown == 0f, "normal jumps do not cause injury");
+        Check(effects.ApplyProtection(0.35f, 30f), "protection starts with an authored reduction and duration");
+        injuries.Apply(new PlayerMovementResult(Vector2.zero, true, false, false, false, true, 0f, 15f), 0.02f);
+        Check(Near(vitals.Health.Current.CurrentValue, 83.75f) && bleeding[^1] == "00:20", "hard landing uses damage protection and starts bleeding");
+        PlayerMovementRequest move = PlayerMovementRequest.Idle;
+        injuries.Modify(ref move);
+        Check(Near(move.SpeedMultiplier, 0.7f), "fracture reduces movement speed");
+        Check(!effects.ApplyProtection(0.2f, 60f), "a weaker protection cannot replace active protection");
+
+        effects.Tick(0.25f);
+        Check(bleeding.Count == 2, "countdown changes publish at the displayed second");
+        effects.Tick(0.75f);
+        Check(bleeding[^1] == "00:19" && Near(vitals.Health.Current.CurrentValue, 83f), "bleeding drains health while its timer runs");
+        await saves.SaveDirtyAsync(CancellationToken.None);
+
+        SaveService reloaded = await LoadedPlayerSaves(storage);
+        using PlayerStatSheet freshStats = DefaultSheet();
+        using PlayerVitals restoredVitals = new(freshStats, new PlayerVitalsRepository(reloaded));
+        using PlayerEffects restored = new(restoredVitals, freshStats, new PlayerEffectsRepository(reloaded), settings);
+        Check(restored.Remaining(PlayerEffectType.Bleeding) == 19f && restored.Remaining(PlayerEffectType.Fracture) == 59f &&
+              restored.Remaining(PlayerEffectType.Protection) == 29f && Near(restored.DamageProtection, 0.35f), "effect durations and strengths survive a save");
+        restored.Tick(60f);
+        Check(restored.FractureSlowdown == 0f && restored.DamageProtection == 0f &&
+              Near(restoredVitals.Health.Current.CurrentValue, 68.75f), "expired effects release their penalties and only apply remaining damage");
+
+        vitals.Infection.Set(0f);
+        Check(infection[^1] == string.Empty && Near(stats.Get(PlayerStatType.StaminaRegen).Value.CurrentValue, 20f), "curing infection hides its icon and clears its penalty");
+    }
+
+    private static async Task VerifyEffectConsumables()
+    {
+        SaveService saves = await LoadedPlayerSaves(new MemoryStorage());
+        using PlayerStatSheet stats = DefaultSheet();
+        using PlayerVitals vitals = new(stats, new PlayerVitalsRepository(saves));
+        using PlayerEffects effects = new(vitals, stats, new PlayerEffectsRepository(saves), new PlayerEffectSettings());
+        MedicineInventoryItem bandage = FakeAsset<MedicineInventoryItem>();
+        SetDeclaredField<InventoryItem>(bandage, nameof(InventoryItem.ItemId), "bandage");
+        SetDeclaredField<InventoryItem>(bandage, nameof(InventoryItem.MaxStack), 20);
+        SetDeclaredField<ConsumableInventoryItem>(bandage, nameof(ConsumableInventoryItem.Health), 15f);
+        SetDeclaredField<ConsumableInventoryItem>(bandage, nameof(ConsumableInventoryItem.Bleeding), -1f);
+        SetDeclaredField<ConsumableInventoryItem>(bandage, nameof(ConsumableInventoryItem.Duration), 10f);
+        MedicineInventoryItem painkillers = FakeAsset<MedicineInventoryItem>();
+        SetDeclaredField<InventoryItem>(painkillers, nameof(InventoryItem.ItemId), "painkillers");
+        SetDeclaredField<InventoryItem>(painkillers, nameof(InventoryItem.MaxStack), 20);
+        SetDeclaredField<ConsumableInventoryItem>(painkillers, nameof(ConsumableInventoryItem.Health), 10f);
+        SetDeclaredField<ConsumableInventoryItem>(painkillers, nameof(ConsumableInventoryItem.Infection), -5f);
+        SetDeclaredField<MedicineInventoryItem>(painkillers, nameof(MedicineInventoryItem.Protection), 35f);
+        SetDeclaredField<MedicineInventoryItem>(painkillers, nameof(MedicineInventoryItem.ProtectionDuration), 30f);
+        InventoryItemDatabase database = FakeAsset<InventoryItemDatabase>();
+        typeof(InventoryItemDatabase).GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic)
+            .SetValue(database, new InventoryItem[] { bandage, painkillers });
+        ItemCatalog catalog = new(database);
+        using InventoryRepository repository = new(new SaveService(InventoryRegistry(), new MemoryStorage(), ProjectSerializer()));
+        using InventoryService inventory = new(repository, catalog);
+        const string OWNER = "medicine";
+        inventory.RegisterInventory(new InventoryGridData { OwnerId = OWNER, Size = new Vector2Int(1, 1) });
+        inventory.AddItemsToInventory(OWNER, Vector2Int.zero, "bandage", 1);
+        ConsumableUseService consumables = new(inventory, catalog, vitals, effects);
+        vitals.Health.Set(50f);
+        effects.ApplyBleeding(0.75f, 20f);
+
+        Check(!consumables.Use(OWNER, Vector2Int.one) && effects.Remaining(PlayerEffectType.Bleeding) == 20f,
+            "an invalid item slot cannot apply medicine effects");
+        Check(consumables.Use(OWNER, Vector2Int.zero) && effects.Remaining(PlayerEffectType.Bleeding) == 0f &&
+              vitals.Health.Current.CurrentValue == 50f && effects.Remaining(PlayerEffectType.Healing) == 10f,
+            "using a bandage spends it once, stops bleeding and schedules healing");
+        effects.Tick(5f);
+        Check(!consumables.Use(OWNER, Vector2Int.zero) && effects.Remaining(PlayerEffectType.Healing) == 5f &&
+              Near(vitals.Health.Current.CurrentValue, 57.5f), "an empty slot cannot refresh healing");
+        effects.Tick(20f);
+        Check(effects.Remaining(PlayerEffectType.Healing) == 0f && Near(vitals.Health.Current.CurrentValue, 65f), "healing ends after granting the configured health");
+
+        inventory.AddItemsToInventory(OWNER, Vector2Int.zero, "painkillers", 1);
+        vitals.Infection.Set(6f);
+        Check(consumables.Use(OWNER, Vector2Int.zero) && Near(effects.DamageProtection, 0.35f) &&
+              effects.Remaining(PlayerEffectType.Protection) == 30f && effects.Remaining(PlayerEffectType.Healing) == 0f &&
+              vitals.Health.Current.CurrentValue == 75f && vitals.Infection.Current.CurrentValue == 1f,
+            "painkillers keep their immediate vital changes and add a separate protection timer");
     }
 
     private static async Task VerifyStamina()

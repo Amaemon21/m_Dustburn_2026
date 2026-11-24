@@ -96,14 +96,52 @@ internal static class AssetHarness
         await Expect<InvalidOperationException>(async () => await failing.LoadAsync(CancellationToken.None));
         Check(failing.Current == null && Addressables.Releases == releases + 1,
             "scene loading failure leaves no loaded data or retained handles");
+
+        using TestSceneLoader replaced = new(assets);
+        UniTaskCompletionSource<bool> finishFirst = new();
+        replaced.FinishNextLoad = finishFirst;
+        UniTask pending = replaced.LoadAsync(CancellationToken.None);
+        loads = Addressables.Loads;
+        await Expect<InvalidOperationException>(async () => await replaced.LoadAsync(CancellationToken.None));
+        Check(Addressables.Loads == loads, "an overlapping request does not acquire a second scope");
+
+        replaced.Unload();
+        await replaced.LoadAsync(CancellationToken.None);
+        object active = replaced.Current;
+        releases = Addressables.Releases;
+        finishFirst.TrySetResult(true);
+        await Expect<OperationCanceledException>(async () => await pending);
+        Check(ReferenceEquals(replaced.Current, active) && Addressables.Releases == releases,
+            "an unloaded request cannot publish over the new load or release the new handles");
+
+        using TestSceneLoader cancelled = new(assets);
+        using CancellationTokenSource cancellation = new();
+        UniTaskCompletionSource<bool> finishCancelled = new();
+        cancelled.FinishNextLoad = finishCancelled;
+        UniTask late = cancelled.LoadAsync(cancellation.Token);
+        releases = Addressables.Releases;
+        cancellation.Cancel();
+        finishCancelled.TrySetResult(true);
+        await Expect<OperationCanceledException>(async () => await late);
+        Check(cancelled.Current == null && Addressables.Releases == releases + 1,
+            "cancellation before publication releases the assets acquired by that load");
     }
 
     private sealed class TestSceneLoader : SceneAssetLoader<object>
     {
+        public UniTaskCompletionSource<bool> FinishNextLoad { get; set; }
+
         public TestSceneLoader(IAssetService assets) : base(assets) { }
+
         protected override async UniTask<object> LoadAssetsAsync(AssetScope scope, CancellationToken token)
         {
+            UniTaskCompletionSource<bool> finish = FinishNextLoad;
+            FinishNextLoad = null;
             await scope.LoadAsync<Sprite>("scene", token);
+
+            if (finish != null)
+                await finish.Task;
+
             return new object();
         }
     }

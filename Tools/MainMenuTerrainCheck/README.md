@@ -1,6 +1,11 @@
-Run `dotnet run -c Release --project Tools/MainMenuTerrainCheck/MainMenuTerrainCheck.csproj` from the repository root.
+Run from the repository root. Pass a writable output directory for the generated previews.
 
-The check executes the production layout math against Unity.Mathematics without loading UnityEngine or starting Unity. It checks 36 combinations of seed, size and camera yaw for valid heights, normalized paint weights, a flat house site, a continuous painted road and driveway, near-camera relief and grass exclusion. It also checks deterministic seeds and writes approximate top-down previews under `.codex/MainMenuTerrainCheck/`.
+```powershell
+$previewPath = Join-Path $env:TEMP 'Dustborn-MainMenuTerrainCheck'
+dotnet run -c Release --project Tools/MainMenuTerrainCheck/MainMenuTerrainCheck.csproj -- $previewPath
+```
+
+The check executes the production layout math against Unity.Mathematics without loading UnityEngine or starting Unity. It checks 36 combinations of seed, size and camera yaw for valid heights, normalized paint weights, a flat house site, a continuous painted road and driveway, near-camera relief and grass exclusion. It also checks deterministic seeds and writes approximate top-down previews to the supplied directory.
 
 The Editor tool is available at `Tools > Dustborn > Main Menu Terrain` with the MainMenu scene active. Each generation creates independent assets under `Assets/_Dustborn/Generated/MainMenu/`. The camera stays in place. The empty House Site object marks the flat footprint. Save the scene after reviewing the generated terrain. Undo restores previous terrain visibility and removes the new scene objects; generated assets remain available.
 

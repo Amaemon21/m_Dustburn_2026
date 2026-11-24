@@ -17,7 +17,7 @@ MonoBehaviour:
   <Category>k__BackingField: 5
   <Rarity>k__BackingField: 0
   <Description>k__BackingField: "\u0427\u0438\u0441\u0442\u0430\u044F \u043F\u043E\u0432\u044F\u0437\u043A\u0430."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: cd2392afc0d29974f98223860da7063b, type: 3}
   <PickUpPrefab>k__BackingField: {fileID: 5348616900736228205, guid: 9c9d95479ca4a674399ca10632ef9253, type: 3}
   <Held>k__BackingField: {fileID: 0}
   <MaxStack>k__BackingField: 20
@@ -28,5 +28,5 @@ MonoBehaviour:
   <Food>k__BackingField: 0
   <Water>k__BackingField: 0
   <Infection>k__BackingField: 0
-  <Bleeding>k__BackingField: 0
-  <Duration>k__BackingField: 0
+  <Bleeding>k__BackingField: -1
+  <Duration>k__BackingField: 10

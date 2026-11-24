@@ -405,7 +405,7 @@ public sealed class SaveService : ISaveService, IDisposable
     public UniTask SaveDirtyAsync(CancellationToken token)
         => _dirtyFiles.Count == 0 ? UniTask.CompletedTask : SaveFilesAsync(new List<string>(_dirtyFiles), token);
 
-    public UniTask<string[]> ListSlotsAsync(CancellationToken token) => _storage.ListDirectoriesAsync(null, token);
+    public UniTask<string[]> ListSlotsAsync(CancellationToken token) => _storage.ListDirectoriesAsync(string.Empty, token);
 
     public UniTask<bool> SlotExistsAsync(string slotId, CancellationToken token)
     {

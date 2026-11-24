@@ -5,4 +5,6 @@ using System.Collections.Generic;
 public class BlocksData
 {
     public Dictionary<string, BlockStateData> States = new();
+    public Dictionary<string, PlacedBlockData> Placed = new();
+    public float? BuildOriginY;
 }

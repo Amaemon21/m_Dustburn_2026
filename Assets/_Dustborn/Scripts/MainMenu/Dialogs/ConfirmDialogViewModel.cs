@@ -1,25 +1,17 @@
-using System;
 using R3;
 
 public sealed class ConfirmDialogViewModel : ViewModel
 {
     private readonly ReactiveProperty<bool> _isOpen = new();
     private readonly ReactiveProperty<string> _text = new(string.Empty);
-    private Action _confirmed;
-    private readonly ReactiveProperty<string> _confirmLabel = new("\u0423\u0434\u0430\u043b\u0438\u0442\u044c");
+    private readonly ReactiveProperty<string> _confirmLabel = new(LocalizationService.Text("dialog.delete"));
     private readonly ReactiveProperty<bool> _canCancel = new(true);
-    public ReadOnlyReactiveProperty<string> ConfirmLabel => _confirmLabel;
-    public ReadOnlyReactiveProperty<bool> CanCancel => _canCancel;
-
-    public void ShowMessage(string text)
-    {
-        Ask(text, null);
-        _confirmLabel.Value = "\u041f\u043e\u043d\u044f\u0442\u043d\u043e";
-        _canCancel.Value = false;
-    }
+    private Subject<Unit> _confirmed;
 
     public ReadOnlyReactiveProperty<bool> IsOpen => _isOpen;
     public ReadOnlyReactiveProperty<string> Text => _text;
+    public ReadOnlyReactiveProperty<string> ConfirmLabel => _confirmLabel;
+    public ReadOnlyReactiveProperty<bool> CanCancel => _canCancel;
     public ReactiveCommand<Unit> Confirm { get; } = new();
     public ReactiveCommand<Unit> Cancel { get; } = new();
 
@@ -29,30 +21,64 @@ public sealed class ConfirmDialogViewModel : ViewModel
         Disposables.Add(Cancel.Executed.Subscribe(_ => Hide()));
     }
 
-    public void Ask(string text, Action confirmed)
+    public Observable<Unit> Ask(string text)
     {
-        _confirmLabel.Value = "\u0423\u0434\u0430\u043b\u0438\u0442\u044c";
-        _canCancel.Value = true;
+        if (IsDisposed)
+            return Observable.Empty<Unit>();
+
+        using Subject<Unit> previous = TakeConfirmation();
+        Subject<Unit> confirmed = new();
         _confirmed = confirmed;
-        _text.Value = text;
-        _isOpen.Value = true;
+        Open(text, "dialog.delete", canCancel: true);
+        return Observable.Defer<Unit>(() => confirmed.IsDisposed ? Observable.Empty<Unit>() : confirmed);
+    }
+
+    public void ShowMessage(string text)
+    {
+        if (IsDisposed)
+            return;
+
+        using Subject<Unit> previous = TakeConfirmation();
+        Open(text, "dialog.acknowledge", canCancel: false);
     }
 
     public void Hide()
     {
-        _confirmed = null;
+        if (!IsDisposed)
+            Close()?.Dispose();
+    }
+
+    private void Open(string text, string confirmLabelKey, bool canCancel)
+    {
+        _text.Value = text;
+        _confirmLabel.Value = LocalizationService.Text(confirmLabelKey);
+        _canCancel.Value = canCancel;
+        _isOpen.Value = true;
+    }
+
+    private Subject<Unit> Close()
+    {
+        Subject<Unit> confirmed = TakeConfirmation();
         _isOpen.Value = false;
+        return confirmed;
+    }
+
+    private Subject<Unit> TakeConfirmation()
+    {
+        Subject<Unit> confirmed = _confirmed;
+        _confirmed = null;
+        return confirmed;
     }
 
     private void Answer()
     {
-        Action confirmed = _confirmed;
-        Hide();
-        confirmed?.Invoke();
+        using Subject<Unit> confirmed = Close();
+        confirmed?.OnNext(Unit.Default);
     }
 
     protected override void OnDisposed()
     {
+        Close()?.Dispose();
         Confirm.Dispose();
         Cancel.Dispose();
         _isOpen.Dispose();

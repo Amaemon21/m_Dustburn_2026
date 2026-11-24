@@ -169,7 +169,7 @@ public class WaterStampTests
         var database = AssetDatabase.LoadAssetAtPath<WaterStampDatabase>(DATABASE);
 
         if (database == null)
-            Assert.Ignore($"{DATABASE} is missing: run Мир/Импорт штампов воды first.");
+            Assert.Ignore($"{DATABASE} is missing. Import the water stamp database first.");
 
         return database;
     }

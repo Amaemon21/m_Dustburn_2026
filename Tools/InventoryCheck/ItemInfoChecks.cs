@@ -1,14 +1,39 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using R3;
 using UnityEngine;
 
 internal static partial class Harness
 {
+    private static void LoadInventoryTexts()
+    {
+        string root = AppContext.BaseDirectory;
+
+        while (root != null && !Directory.Exists(Path.Combine(root, "Assets", "_Dustborn")))
+            root = Directory.GetParent(root)?.FullName;
+
+        Check(root != null, "localization check locates the project root");
+        string asset = File.ReadAllText(Path.Combine(root, "Assets/_Dustborn/Content/Configs/UI/RussianText.asset"));
+        const string entryPattern = @"^  - _key: ((?:inventory|units)\.[^\r\n]+)\r?\n    _text: ([^\r\n]*(?:\r?\n      [^\r\n]*)*)";
+        var entries = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (Match entry in Regex.Matches(asset, entryPattern, RegexOptions.Multiline))
+        {
+            string value = Regex.Replace(entry.Groups[2].Value, @"\r?\n +", " ");
+            entries.Add(entry.Groups[1].Value, value.StartsWith('"') ? JsonSerializer.Deserialize<string>(value) : value);
+        }
+
+        LocalizationService.SetTexts(entries);
+    }
+
     private static void VerifyItemInfoStats()
     {
         MeleeActionConfig swing = new();
         SetBackingField(swing, nameof(MeleeActionConfig.Damage), 30);
+        SetBackingField(swing, nameof(MeleeActionConfig.SwingDuration), 0.4f);
         SetBackingField(swing, nameof(MeleeActionConfig.Recovery), 0.2f);
         SetBackingField(swing, nameof(MeleeActionConfig.Reach), 2.4f);
         SetBackingField(swing, nameof(MeleeActionConfig.StaminaCost), 8f);
@@ -16,10 +41,7 @@ internal static partial class Harness
         SetBackingField(swing, nameof(MeleeActionConfig.Bonuses),
             new[] { new MaterialBonus(FakeAsset<BlockMaterial>(), 2f, 1.5f), new MaterialBonus(FakeAsset<BlockMaterial>(), 0.5f, 1f) });
 
-        HandsMotionClip attack = Motion(HandsMotion.Attack, FakeAsset<AnimationClip>(), 0.05f, 0.8f);
-        SetBackingField(attack, nameof(HandsMotionClip.Speed), 2f);
         HeldItemConfig held = FakeAsset<HeldItemConfig>();
-        SetBackingField(held, nameof(HeldItemConfig.Animations), AnimationSet(null, attack));
         SetBackingField(held, nameof(HeldItemConfig.Primary), swing);
 
         ToolInventoryItem axe = FakeAsset<ToolInventoryItem>();
@@ -30,7 +52,7 @@ internal static partial class Harness
         Check(Types(stats) == "Damage SwingTime StaminaCost Reach Durability Weight",
             $"a tool lists its swing before its wear and weight, without material bonuses or hits left: {Types(stats)}");
         Check(Text(stats[0]) == "Урон: 30" && Text(stats[1]) == "Время удара: 0,6 с" && Text(stats[2]) == "Выносливость за удар: 8" &&
-              Text(stats[3]) == "Дальность: 2,4 м", "a swing reads as damage, time from the clip, stamina and reach");
+              Text(stats[3]) == "Дальность: 2,4 м", "a swing reads as damage, gameplay cycle time, stamina and reach");
         Check(Text(stats[4]) == "Прочность: 180 / 300" && Text(stats[5]) == "Вес: 2,5 кг", "durability shows what is left of the total");
         Check(ItemInfoText.Subtitle(axe) == "Инструмент · Хорошее качество", "a tool subtitle is its category and quality in Russian");
 
@@ -113,17 +135,22 @@ internal static partial class Harness
         Check(hover.Name.CurrentValue == null && hover.Anchor.CurrentValue == woodTop, "the name waits out the show delay at the slot's top edge");
         timers.Elapse(ItemNameHoverViewModel.SHOW_DELAY);
         Check(hover.Name.CurrentValue == "Дерево", "the name shows once the pointer rests on the slot");
-        wood.SetHover(null);
+        Check(hover.Details.CurrentValue.StartsWith(ItemInfoText.Subtitle(catalog.GetItem("wood"))) &&
+            hover.Details.CurrentValue.EndsWith("×2"), "tooltip shows the item's category and stack count");
+        inventory.RemoveItemsFromInventory("hover", new Vector2Int(0, 0), "wood", 1);
+        Check(hover.Details.CurrentValue == ItemInfoText.Subtitle(catalog.GetItem("wood")), "tooltip updates when the stack changes");
+        wood.ClearHover();
         Check(hover.Name.CurrentValue == null, "leaving the slot hides the name at once");
+        Check(hover.Details.CurrentValue == null, "leaving a slot clears the tooltip details");
         stone.SetHover(stoneTop);
         Check(hover.Name.CurrentValue == "Камень" && hover.Anchor.CurrentValue == stoneTop, "moving straight to the next slot shows its name without a delay");
-        wood.SetHover(null);
+        wood.ClearHover();
         Check(hover.Name.CurrentValue == "Камень", "a late exit from another slot keeps the hovered name");
-        stone.SetHover(null);
+        stone.ClearHover();
         timers.Elapse(ItemNameHoverViewModel.SWITCH_GRACE);
         wood.SetHover(woodTop);
         Check(hover.Name.CurrentValue == null, "after the grace a new hover waits for the delay again");
-        wood.SetHover(null);
+        wood.ClearHover();
         stone.SetHover(stoneTop);
         timers.Elapse(ItemNameHoverViewModel.SHOW_DELAY);
         Check(hover.Name.CurrentValue == "Камень", "a slot crossed before the delay never shows its name");
@@ -143,6 +170,16 @@ internal static partial class Harness
         Check(hover.Name.CurrentValue == "Дерево", "the name comes straight back after a short drag over the slot");
         inventory.SetSize("hover", new Vector2Int(4, 1));
         Check(hover.Name.CurrentValue == null, "rebuilt slots drop the hover");
+
+        Rect bounds = new(8f, 8f, 784f, 434f);
+        Vector2 size = new(180f, 64f);
+        Vector2 offset = new(14f, 18f);
+        Vector2 normal = ItemNameHoverView.PlaceBelowPointer(new Vector2(250f, 300f), size, bounds, offset);
+        Check(normal == new Vector2(264f, 218f), "tooltip follows below the cursor");
+        Vector2 corner = ItemNameHoverView.PlaceBelowPointer(new Vector2(785f, 12f), size, bounds, offset);
+        Check(corner == new Vector2(591f, 30f), "tooltip flips left and above near the bottom-right edge");
+        Vector2 clamped = ItemNameHoverView.PlaceBelowPointer(new Vector2(5f, 440f), size, bounds, new Vector2(0f, 0f));
+        Check(clamped.x == bounds.xMin && clamped.y + size.y <= bounds.yMax, "tooltip stays inside the viewport margins");
     }
 
     private sealed class ManualTimers

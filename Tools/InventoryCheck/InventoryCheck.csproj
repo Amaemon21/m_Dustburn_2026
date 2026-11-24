@@ -28,6 +28,8 @@
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/IItemAction.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/ItemActionContext.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/ItemActionFactory.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/IMeleeHitScanner.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/Melee*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Hands/Actions/MeleeHitScanner.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/View/IHeldItemPresenter.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/View/IAimSource.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/View/HandsMotionPlayer.cs" />
@@ -37,15 +39,23 @@
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Animation/SpringFloat.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Hands/PlayerHands.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Damage/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Damage/UI/View/**/*.cs" />
-    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlockView.cs;../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlockService.cs;../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlocksInstaller.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/BlocksInstaller.cs;../../Assets/_Dustborn/Scripts/Gameplay/Blocks/Building/**/*.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/Building/BlockGrid.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/Building/BlockSupport.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Blocks/Building/FallingBlock.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/Voxel/Decor/IDecorObject.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Service/WorldService/Voxel/Decor/IDecorObjectHook.cs" />
+    <Compile Include="BuildingChecks.cs" />
     <Compile Include="DamageChecks.cs" />
     <Compile Include="NotificationChecks.cs" />
     <Compile Include="WeightChecks.cs" />
     <Compile Include="CarryChecks.cs" />
     <Compile Include="VitalsChecks.cs" />
     <Compile Include="WorldSaveChecks.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Interaction/ItemActivationService.cs" />
     <Compile Include="ConfigListChecks.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Utils/ListDuplicates.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Utils/Localization/LocalizationService.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/WorldSave/**/*.cs" Exclude="../../Assets/_Dustborn/Scripts/Gameplay/WorldSave/WorldObjectBinder.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Player/Persistence/PlayerPlacementData.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Player/Persistence/PlayerPlacementRepository.cs" />
@@ -64,6 +74,7 @@
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/Scenes.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/GameRoot/SceneEnterParams.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Bootstrap/GameplayEnterParams.cs" />
+    <Compile Include="../../Assets/_Dustborn/Scripts/Gameplay/Bootstrap/*GameplayExit*.cs" />
     <Compile Include="../../Assets/_Dustborn/Scripts/MainMenu/Root/MainMenuEnterParams.cs" />
     <Compile Include="Harness.cs" />
     <Compile Include="WorldGeneratorMenuChecks.cs" />

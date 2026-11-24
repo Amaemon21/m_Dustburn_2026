@@ -11,9 +11,10 @@ public readonly struct CarryPenalty
     public bool CanSprint { get; }
     public bool CanJump { get; }
 
-    public static CarryPenalty None => new(null, 1f, 1f, 1f, 1f, true, true);
+    public static CarryPenalty None => new(1f, 1f, 1f, 1f, true, true);
 
-    private CarryPenalty(CarryZone zone, float walkSpeed, float sprintSpeed, float staminaCost, float staminaRegen, bool canSprint, bool canJump)
+    private CarryPenalty(float walkSpeed, float sprintSpeed, float staminaCost, float staminaRegen, bool canSprint, bool canJump,
+        CarryZone zone = null)
     {
         Zone = zone;
         WalkSpeed = walkSpeed;
@@ -45,13 +46,14 @@ public readonly struct CarryPenalty
         CarryZone next = NextAfter(zones, current);
         float t = next == null ? 0f : Mathf.Clamp01((load - current.From) / (next.From - current.From));
         CarryZone target = next ?? current;
-        return new CarryPenalty(current,
+        return new CarryPenalty(
             Mathf.Lerp(current.WalkSpeed, target.WalkSpeed, t),
             Mathf.Lerp(current.SprintSpeed, target.SprintSpeed, t),
             Mathf.Lerp(current.StaminaCost, target.StaminaCost, t),
             Mathf.Lerp(current.StaminaRegen, target.StaminaRegen, t),
             current.CanSprint,
-            current.CanJump);
+            current.CanJump,
+            current);
     }
 
     private static CarryZone NextAfter(IReadOnlyList<CarryZone> zones, CarryZone current)

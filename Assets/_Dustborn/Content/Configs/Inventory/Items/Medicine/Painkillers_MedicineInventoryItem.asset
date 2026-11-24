@@ -32,3 +32,5 @@ MonoBehaviour:
   <Infection>k__BackingField: -5
   <Bleeding>k__BackingField: 0
   <Duration>k__BackingField: 0
+  <Protection>k__BackingField: 35
+  <ProtectionDuration>k__BackingField: 30

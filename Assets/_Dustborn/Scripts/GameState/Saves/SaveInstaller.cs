@@ -17,6 +17,7 @@ public sealed class SaveInstaller : IInstaller
     public const string GAME_STATE_FILE = "gamestate";
     public const string PLAYER_FILE = "player";
     public const string VITALS_KEY = "vitals";
+    public const string EFFECTS_KEY = "effects";
     public const string PROGRESSION_KEY = "progression";
     public const string PLACEMENT_KEY = "placement";
 
@@ -30,6 +31,7 @@ public sealed class SaveInstaller : IInstaller
             .Register<DroppedItemsData>(DROPPED_ITEMS_KEY, SaveScope.Slot, WORLD_FILE)
             .Register<BlocksData>(BLOCKS_KEY, SaveScope.Slot, WORLD_FILE)
             .Register<PlayerVitalsData>(VITALS_KEY, SaveScope.Slot, PLAYER_FILE)
+            .Register<PlayerEffectsData>(EFFECTS_KEY, SaveScope.Slot, PLAYER_FILE)
             .Register<PlayerProgressionData>(PROGRESSION_KEY, SaveScope.Slot, PLAYER_FILE)
             .Register<PlayerPlacementData>(PLACEMENT_KEY, SaveScope.Slot, PLAYER_FILE)
             .Register<GameStateData>("gamestate", SaveScope.Slot, GAME_STATE_FILE);

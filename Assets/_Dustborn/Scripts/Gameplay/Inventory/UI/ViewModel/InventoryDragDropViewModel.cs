@@ -7,8 +7,8 @@ public sealed class InventoryDragDropViewModel : ViewModel
     private readonly IInventoryService _inventory;
     private readonly IItemDropService _drops;
     private readonly CompositeDisposable _sourceBindings = new();
-    private readonly ReactiveProperty<InventorySlotState> _state = new(new InventorySlotState(null, 0));
-    private readonly ReactiveProperty<Sprite> _icon = new(null);
+    private readonly ReactiveProperty<InventorySlotState> _state = new(InventorySlotState.Empty);
+    private readonly ReactiveProperty<Sprite> _icon = new();
     private readonly ReactiveProperty<Vector2> _position = new();
     private InventorySlotViewModel _source;
     private InventorySlotState _sourceState;
@@ -107,7 +107,7 @@ public sealed class InventoryDragDropViewModel : ViewModel
         _sourceBindings.Clear();
         _source?.SetDragging(0);
         _source = null;
-        _state.Value = new InventorySlotState(null, 0);
+        _state.Value = InventorySlotState.Empty;
         _icon.Value = null;
     }
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public sealed class MeleeHitScanner
+public sealed class MeleeHitScanner : IMeleeHitScanner
 {
     private const int CAPACITY = 16;
 
@@ -11,10 +11,12 @@ public sealed class MeleeHitScanner
         Ray ray = aim.Aim;
         int count = Physics.SphereCastNonAlloc(ray.origin, radius, ray.direction, _hits, reach, mask, QueryTriggerInteraction.Ignore);
         int nearest = -1;
+
         for (int i = 0; i < count; i++)
         {
             if (_hits[i].collider.transform.IsChildOf(aim.Body))
                 continue;
+
             if (nearest < 0 || _hits[i].distance < _hits[nearest].distance)
                 nearest = i;
         }

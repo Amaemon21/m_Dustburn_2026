@@ -13,7 +13,7 @@ public sealed class InventoryWeight : IReadOnlyInventoryWeight, IDisposable
     private readonly ReactiveProperty<float> _current = new(0f);
     private readonly ReactiveProperty<bool> _overloaded = new(false);
     private readonly ReactiveProperty<float> _load = new(0f);
-    private readonly ReactiveProperty<CarryZone> _zone = new(null);
+    private readonly ReactiveProperty<CarryZone> _zone = new();
     private readonly CompositeDisposable _subscriptions = new();
 
     public ReadOnlyReactiveProperty<float> Current => _current;
@@ -23,24 +23,38 @@ public sealed class InventoryWeight : IReadOnlyInventoryWeight, IDisposable
     public ReadOnlyReactiveProperty<float> Load => _load;
     public ReadOnlyReactiveProperty<CarryZone> Zone => _zone;
 
+    public InventoryWeight(ItemCatalog catalog, IReadOnlyInventoryGrid grid)
+        : this(catalog, Array.Empty<CarryZone>(), new[] { grid })
+    {
+    }
+
     public InventoryWeight(ItemCatalog catalog, IReadOnlyStat capacity, params IReadOnlyInventoryGrid[] grids)
-        : this(catalog, capacity, null, grids)
+        : this(catalog, capacity, Array.Empty<CarryZone>(), grids)
     {
     }
 
     public InventoryWeight(ItemCatalog catalog, IReadOnlyStat capacity, IReadOnlyList<CarryZone> zones, params IReadOnlyInventoryGrid[] grids)
+        : this(catalog, zones, grids, capacity)
+    {
+    }
+
+    private InventoryWeight(ItemCatalog catalog, IReadOnlyList<CarryZone> zones, IReadOnlyInventoryGrid[] grids, IReadOnlyStat capacity = null)
     {
         _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+
         if (grids == null || grids.Length == 0)
             throw new ArgumentException("An inventory weight needs at least one grid", nameof(grids));
 
         _grids = grids;
         _zones = zones;
         Capacity = capacity;
+
         foreach (IReadOnlyInventoryGrid grid in grids)
             _subscriptions.Add(grid.Changed.Subscribe(_ => Refresh()));
+
         if (capacity != null)
             _subscriptions.Add(capacity.Value.Subscribe(_ => RefreshOverload()));
+
         Refresh();
     }
 

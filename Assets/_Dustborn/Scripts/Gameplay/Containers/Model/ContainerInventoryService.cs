@@ -18,14 +18,17 @@ public sealed class ContainerInventoryService
     {
         if (string.IsNullOrWhiteSpace(containerId))
             throw new ArgumentException("Container id is required", nameof(containerId));
+        
         if (config == null)
             throw new ArgumentNullException(nameof(config));
 
         string ownerId = OwnerIdOf(containerId);
+        
         if (_inventory.TryGetInventory(ownerId, out IReadOnlyInventoryGrid existing))
         {
             if (existing.Kind != InventoryGridKind.Container)
                 throw new InvalidOperationException($"Inventory '{ownerId}' exists but is not a container");
+            
             return existing;
         }
 
@@ -35,6 +38,7 @@ public sealed class ContainerInventoryService
             Size = config.Size,
             Kind = InventoryGridKind.Container
         });
+        
         FillLoot(ownerId, config);
         return grid;
     }
@@ -42,12 +46,15 @@ public sealed class ContainerInventoryService
     public int MoveToPlayer(PlayerInventoryProxy player, string sourceId, Vector2Int coordinates)
     {
         InventorySlotState state = _inventory.GetInventory(sourceId).GetSlot(coordinates).State.CurrentValue;
+        
         if (state.IsEmpty)
             return 0;
 
         int moved = 0;
+        
         foreach (PlayerStackStep step in PlayerStackPlacement.Route(player, state.ItemId))
             moved += Fill(sourceId, coordinates, step.Grid, step.EmptySlots);
+        
         return moved;
     }
 
@@ -61,11 +68,14 @@ public sealed class ContainerInventoryService
     {
         IReadOnlyInventorySlot source = _inventory.GetInventory(sourceId).GetSlot(coordinates);
         InventorySlotState state = source.State.CurrentValue;
+        
         if (state.IsEmpty || sourceId == target.OwnerId)
             return 0;
 
         int capacity = target.CapacityFor(state.ItemId);
+        
         for (int y = 0; y < target.Size.y; y++)
+        {
             for (int x = 0; x < target.Size.x; x++)
             {
                 if (source.IsEmpty)
@@ -80,6 +90,8 @@ public sealed class ContainerInventoryService
                 if (amount > 0)
                     _inventory.MoveItems(sourceId, coordinates, target.OwnerId, destination, amount);
             }
+        }
+
         return state.Amount - source.Amount;
     }
 
@@ -87,9 +99,15 @@ public sealed class ContainerInventoryService
     {
         IReadOnlyInventoryGrid container = _inventory.GetInventory(containerOwnerId);
         int moved = 0;
+        
         for (int y = 0; y < container.Size.y; y++)
+        {
             for (int x = 0; x < container.Size.x; x++)
+            {
                 moved += MoveToPlayer(player, containerOwnerId, new Vector2Int(x, y));
+            }
+        }
+
         return moved;
     }
 
@@ -101,6 +119,7 @@ public sealed class ContainerInventoryService
         foreach (int index in Shuffled(config.Loot.Length, random))
         {
             ContainerLoot loot = config.Loot[index];
+            
             if (loot == null || loot.Item == null)
             {
                 Debug.LogError($"ContainerInventoryService: container config '{config.name}' has an empty loot entry");
@@ -111,11 +130,13 @@ public sealed class ContainerInventoryService
                 break;
 
             int amount = loot.Roll(random);
+            
             if (amount <= 0)
                 continue;
 
             AddItemsToInventoryGridResult result = _inventory.AddItemsToInventory(ownerId, loot.Item.ItemId, amount);
             stacks++;
+            
             if (result.ItemsNotAddedAmount > 0)
                 Debug.LogWarning($"ContainerInventoryService: '{config.name}' has no room for {result.ItemsNotAddedAmount} of '{loot.Item.ItemId}'");
         }
@@ -124,21 +145,26 @@ public sealed class ContainerInventoryService
     private static int[] Shuffled(int count, System.Random random)
     {
         int[] order = new int[count];
+        
         for (int i = 0; i < count; i++)
             order[i] = i;
+        
         for (int i = count - 1; i > 0; i--)
         {
             int j = random.Next(i + 1);
             (order[i], order[j]) = (order[j], order[i]);
         }
+        
         return order;
     }
 
     private static int SeedOf(string ownerId)
     {
         uint hash = 2166136261u;
+        
         foreach (char symbol in ownerId)
             hash = (hash ^ symbol) * 16777619u;
+        
         return (int)hash;
     }
 }

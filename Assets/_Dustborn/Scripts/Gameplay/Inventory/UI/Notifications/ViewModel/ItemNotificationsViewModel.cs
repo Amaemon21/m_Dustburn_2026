@@ -35,28 +35,35 @@ public sealed class ItemNotificationsViewModel : ViewModel
 
         int total = _player.Backpack.GetAmount(stack.ItemId) + _player.Hotbar.GetAmount(stack.ItemId);
         InventoryItem item = _catalog.GetItem(stack.ItemId);
-        Show(NotificationKind.Item, stack.ItemId, item == null ? null : item.Icon, stack.Amount, total);
+
+        if (item != null && item.Icon != null)
+            Show(NotificationKind.Item, stack.ItemId, stack.Amount, total, item.Icon);
+        else
+            Show(NotificationKind.Item, stack.ItemId, stack.Amount, total);
     }
 
     public void NotifyExperience(int amount)
     {
         if (amount > 0)
-            Show(NotificationKind.Experience, EXPERIENCE_KEY, null, amount, 0);
+            Show(NotificationKind.Experience, EXPERIENCE_KEY, amount, 0);
     }
 
-    private void Show(NotificationKind kind, string key, Sprite icon, int amount, int total)
+    private void Show(NotificationKind kind, string key, int amount, int total, Sprite icon = null)
     {
         if (IsDisposed)
             return;
 
         ItemNotificationViewModel current = Find(kind, key);
+
         if (current != null)
         {
             current.Add(amount, total);
             return;
         }
 
-        ItemNotificationViewModel entry = new(kind, key, icon, amount, total, LIFETIME, Remove);
+        ItemNotificationViewModel entry = icon != null
+            ? new(kind, key, amount, total, LIFETIME, Remove, icon)
+            : new(kind, key, amount, total, LIFETIME, Remove);
         _active.Add(entry);
         _added.OnNext(entry);
 

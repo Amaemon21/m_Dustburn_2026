@@ -2,6 +2,8 @@ using System;
 
 public readonly struct InventorySlotState : IEquatable<InventorySlotState>
 {
+    public static InventorySlotState Empty => default;
+
     public string ItemId { get; }
     public int Amount { get; }
     public int Wear { get; }

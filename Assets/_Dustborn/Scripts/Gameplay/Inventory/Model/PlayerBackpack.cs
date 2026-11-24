@@ -77,8 +77,8 @@ public sealed class PlayerBackpack : IDisposable
     public void Dispose()
     {
         _subscription.Dispose();
-        _inventory.Lock(_player.Equipment.OwnerId, null);
-        _inventory.Restrict(_player.Backpack.OwnerId, null);
+        _inventory.ClearLocks(_player.Equipment.OwnerId);
+        _inventory.ClearRestrictions(_player.Backpack.OwnerId);
         _capacity.RemoveModifiersFrom(this);
     }
 }

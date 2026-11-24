@@ -63,7 +63,7 @@ public partial class VoxelTerrainBuilder
 
             for (int start = 0, bank = 0; start < tasks.Count; start += workers, bank ^= 1)
             {
-                progress?.Invoke("Геометрия ландшафта", 0.7f * start / tasks.Count);
+                progress?.Invoke(LocalizationService.Text("loading.terrainGeometry"), 0.7f * start / tasks.Count);
                 int count = Mathf.Min(workers, tasks.Count - start);
                 int offset = bank * workers;
 
@@ -87,7 +87,7 @@ public partial class VoxelTerrainBuilder
 
             if (colliders != null)
             {
-                progress?.Invoke("Коллизия ландшафта", 0.7f);
+                progress?.Invoke(LocalizationService.Text("loading.terrainCollision"), 0.7f);
                 colliders.Flush();
             }
         }

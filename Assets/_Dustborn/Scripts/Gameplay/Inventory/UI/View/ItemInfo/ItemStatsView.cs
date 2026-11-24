@@ -14,10 +14,12 @@ public sealed class ItemStatsView : MonoBehaviour
     public void Show(InventoryItem item, InventorySlotState state)
     {
         _stats.Clear();
+
         if (item != null)
             item.CollectStats(_stats, state);
 
         int shown = 0;
+
         foreach (ItemStat stat in _stats)
         {
             if (IsHidden(stat.Type))
@@ -27,12 +29,22 @@ public sealed class ItemStatsView : MonoBehaviour
                 _styles.ColorOf(ItemStatText.Mood(stat)));
         }
 
+        HideRowsFrom(shown);
+    }
+
+    public void Clear()
+    {
+        _stats.Clear();
+        HideRowsFrom(0);
+    }
+
+    private void HideRowsFrom(int shown)
+    {
         List<ItemStatView> rows = Rows;
+
         for (int i = shown; i < rows.Count; i++)
             rows[i].Hide();
     }
-
-    public void Clear() => Show(null, default);
 
     private List<ItemStatView> Rows => _rows ??= new List<ItemStatView>(_template.transform.parent.GetComponentsInChildren<ItemStatView>(true));
 

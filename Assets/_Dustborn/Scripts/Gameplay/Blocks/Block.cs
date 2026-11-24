@@ -34,6 +34,7 @@ public sealed class Block : IDamageable, IHarvestable, IDisposable
     public DamageResult TakeDamage(int damage)
     {
         int health = _health.Value;
+        
         if (health <= 0 || damage <= 0)
             return new DamageResult(0, health <= 0);
 
@@ -41,6 +42,8 @@ public sealed class Block : IDamageable, IHarvestable, IDisposable
         _health.Value = health - dealt;
         return new DamageResult(dealt, _health.Value <= 0);
     }
+
+    internal void Collapse() => _health.Value = 0;
 
     public void Harvest(DamageResult result, float multiplier, ICollection<InventorySlotState> yields)
     {
@@ -55,14 +58,17 @@ public sealed class Block : IDamageable, IHarvestable, IDisposable
     {
         HarvestYield[] harvest = _config.Harvest ?? Array.Empty<HarvestYield>();
         int count = Math.Min(harvest.Length, _carry.Length);
+        
         for (int i = 0; i < count; i++)
         {
             HarvestYield yield = harvest[i];
+            
             if (yield == null || yield.Item == null || yield.Count <= 0)
                 continue;
 
             _carry[i] += (double)yield.Count * multiplier * dealt / MaxHealth;
             int whole = (int)Math.Floor(_carry[i] + CARRY_EPSILON);
+            
             if (whole <= 0)
                 continue;
 
@@ -79,10 +85,11 @@ public sealed class Block : IDamageable, IHarvestable, IDisposable
                 continue;
 
             int count = _random.Next(drop.MinCount, Math.Max(drop.MinCount, drop.MaxCount) + 1);
+            
             if (count > 0)
                 yields.Add(new InventorySlotState(drop.Item.ItemId, count));
         }
     }
 
-    public void Dispose() => _health.Dispose();
+    public void Dispose() => _health?.Dispose();
 }

@@ -9,11 +9,21 @@ public readonly struct HeldItem : IEquatable<HeldItem>
     public HeldItemConfig Config { get; }
     public bool IsEmpty => ItemId == null;
 
-    public HeldItem(string ownerId, Vector2Int coordinates, string itemId, HeldItemConfig config)
+    public HeldItem(string ownerId, Vector2Int coordinates)
     {
         OwnerId = ownerId;
         Coordinates = coordinates;
+        ItemId = null;
+        Config = null;
+    }
+
+    public HeldItem(string ownerId, Vector2Int coordinates, string itemId) : this(ownerId, coordinates)
+    {
         ItemId = itemId;
+    }
+
+    public HeldItem(string ownerId, Vector2Int coordinates, string itemId, HeldItemConfig config) : this(ownerId, coordinates, itemId)
+    {
         Config = config;
     }
 

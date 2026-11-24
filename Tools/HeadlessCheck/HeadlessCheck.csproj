@@ -73,7 +73,7 @@
     <Compile Include="VariationRun.cs" />
     <Compile Include="$(WorldGeneration)/Editor/GeneratedAssetFile.cs" />
     <Compile Include="$(Mathematics)/**/*.cs" Exclude="$(Mathematics)/math_unity_conversion.cs;$(Mathematics)/PropertyAttributes.cs" />
-    <Compile Include="$(SharedUtils)/**/*.cs" Exclude="$(SharedUtils)/UIWear/**/*.cs;$(SharedUtils)/Button/**/*.cs" />
+    <Compile Include="$(SharedUtils)/**/*.cs" Exclude="$(SharedUtils)/UIWear/**/*.cs;$(SharedUtils)/Button/**/*.cs;$(SharedUtils)/Localization/LocalizationTable.cs" />
     <Compile Include="$(WorldGeneration)/**/*.cs"
              Exclude="$(WorldGeneration)/Editor/**/*.cs;
                       $(WorldGeneration)/Runtime/WorldGenerator.cs;

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 public static class InventorySort
 {
     public const InventorySortMode DEFAULT_MODE = InventorySortMode.Type;
-    private const char CYRILLIC_YO = 'ё';
-    private const char CYRILLIC_YE = 'е';
+    private const char CYRILLIC_YO = (char)0x0451;
+    private const char CYRILLIC_YE = (char)0x0435;
 
     private static readonly ItemCategory[] TYPE_ORDER =
     {

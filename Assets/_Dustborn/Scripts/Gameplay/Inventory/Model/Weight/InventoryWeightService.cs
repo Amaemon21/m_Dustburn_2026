@@ -12,7 +12,7 @@ public sealed class InventoryWeightService : IDisposable
     }
 
     public IReadOnlyInventoryWeight Register(string ownerId, IReadOnlyStat capacity, params IReadOnlyInventoryGrid[] grids)
-        => Register(ownerId, capacity, null, grids);
+        => Register(ownerId, capacity, Array.Empty<CarryZone>(), grids);
 
     public IReadOnlyInventoryWeight Register(string ownerId, IReadOnlyStat capacity, IReadOnlyList<CarryZone> zones,
         params IReadOnlyInventoryGrid[] grids)

@@ -52,10 +52,11 @@ public sealed class PlayerMotor : IDisposable
 
         bool grounded = _controller.isGrounded;
         bool landed = grounded && !wasGrounded && _airTime > _config.MinAirTimeToLand;
+        float landingSpeed = landed ? Mathf.Max(0f, -_verticalVelocity) : 0f;
         _airTime = grounded ? 0f : _airTime + deltaTime;
 
         return new PlayerMovementResult(request.Move, grounded, sprinting && request.Move.sqrMagnitude > 0f, _crouching,
-            jumped, landed, planar.magnitude);
+            jumped, landed, planar.magnitude, landingSpeed);
     }
 
     private void UpdateCrouch(bool crouch)

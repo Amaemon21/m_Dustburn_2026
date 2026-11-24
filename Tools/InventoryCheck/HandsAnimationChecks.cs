@@ -134,13 +134,12 @@ internal static partial class Harness
         Check(mechanism.Stops == 2, "stopping the hands stops the item");
         player.Attach(mechanism);
         Check(mechanism.Stops == 2, "attaching the same item twice changes nothing");
-        player.Attach(null);
+        player.Detach();
         Check(mechanism.Stops == 3 && player.Play(HandsMotion.Attack) && mechanism.Played.Count == 1, "a detached item is left alone");
 
         HandsMotionClip swing = Motion(HandsMotion.Attack, idleClip, 0.05f, 0.8f);
         SetBackingField(swing, nameof(HandsMotionClip.Speed), 2f);
-        SetBackingField(swing, nameof(HandsMotionClip.Impact), 0.4f);
-        Check(Close(swing.PlayTime, 0.4f) && Close(swing.ImpactTime, 0.2f), "speed shortens a motion and moves its impact with it");
+        Check(Close(swing.PlayTime, 0.4f), "speed shortens visual playback");
     }
 
     private static bool Close(float value, float expected) => Math.Abs(value - expected) <= FADE_TOLERANCE;

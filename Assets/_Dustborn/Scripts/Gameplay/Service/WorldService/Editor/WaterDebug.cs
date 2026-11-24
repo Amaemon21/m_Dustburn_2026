@@ -20,7 +20,7 @@ public static class WaterDebug
 
         if (settings == null || !settings.IsValid)
         {
-            EditorUtility.DisplayDialog("Вода и штампы", "Настройки мира не найдены или неполные: " + SETTINGS_PATH, "OK");
+            EditorUtility.DisplayDialog(LocalizationService.Text("editor.waterDebug.title"), LocalizationService.Text("editor.waterDebug.missingSettings") + SETTINGS_PATH, "OK");
             return;
         }
 
@@ -51,15 +51,15 @@ private static string Run(WorldBuildSettings settings)
         WorldGenerationConfig config = settings.Config;
         var clock = Stopwatch.StartNew();
 
-        EditorUtility.DisplayProgressBar("Вода и штампы", "Карта биомов", 0.05f);
+        EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterDebug.title"), LocalizationService.Text("editor.waterDebug.biomes"), 0.05f);
         BiomeMap biomes = new BiomeMapGenerator(config, settings.Biomes).Generate();
 
-        EditorUtility.DisplayProgressBar("Вода и штампы", "Рельеф, штампы и эрозия", 0.2f);
+        EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterDebug.title"), LocalizationService.Text("editor.waterDebug.relief"), 0.2f);
         var relief = new HeightMapGenerator(config, settings.Biomes);
         HeightMap heights = relief.Generate(biomes);
         long reliefMillis = clock.ElapsedMilliseconds;
 
-        EditorUtility.DisplayProgressBar("Вода и штампы", "Сток, реки и озёра", 0.6f);
+        EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterDebug.title"), LocalizationService.Text("editor.waterDebug.hydrology"), 0.6f);
         WaterStampLibrary stamps = WaterStampLibrary.Create(config.Water);
         var hydrology = new Hydrology(config, heights, stamps);
         HydrologyGrid grid = hydrology.Analyze();
@@ -72,7 +72,7 @@ private static string Run(WorldBuildSettings settings)
         StandingWaterRegions regions = WaterShore.Finish(water, carved);
         long waterMillis = clock.ElapsedMilliseconds - reliefMillis;
 
-        EditorUtility.DisplayProgressBar("Вода и штампы", "Картинки", 0.85f);
+        EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterDebug.title"), LocalizationService.Text("editor.waterDebug.images"), 0.85f);
         Directory.CreateDirectory(OUTPUT);
 
         Save("flow_accumulation.png", WaterDebugImages.Accumulation(grid), grid.Resolution);
@@ -91,7 +91,7 @@ private static string Run(WorldBuildSettings settings)
 
         if (stamps != null)
         {
-            EditorUtility.DisplayProgressBar("Вода и штампы", "Штампы воды", 0.95f);
+            EditorUtility.DisplayProgressBar(LocalizationService.Text("editor.waterDebug.title"), LocalizationService.Text("editor.waterStamps.title"), 0.95f);
             Save("water_stamps_overview.png", WaterDebugImages.Stamps(carved, water, stamps, OVERVIEW, Vector2.zero, carved.WorldSize), OVERVIEW);
             Save("water_stamp_masks.png", WaterDebugImages.StampMasks(water, stamps, OVERVIEW), OVERVIEW);
             File.WriteAllText(Path.Combine(OUTPUT, "water_stamps.txt"), WaterDebugImages.StampReport(water.Stamps));

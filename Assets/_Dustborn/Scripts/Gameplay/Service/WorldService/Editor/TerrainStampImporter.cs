@@ -35,12 +35,12 @@ public static class TerrainStampImporter
         {
             TerrainStampDatabase database = Run();
             EditorGUIUtility.PingObject(database);
-            EditorUtility.DisplayDialog("Штампы рельефа", $"Импортировано штампов: {database.Count}. База подключена к конфигу генерации.", "OK");
+            EditorUtility.DisplayDialog(LocalizationService.Text("editor.terrainStamps.title"), LocalizationService.Format("editor.terrainStamps.imported", database.Count), "OK");
         }
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            EditorUtility.DisplayDialog("Штампы рельефа", exception.Message, "OK");
+            EditorUtility.DisplayDialog(LocalizationService.Text("editor.terrainStamps.title"), exception.Message, "OK");
         }
     }
 

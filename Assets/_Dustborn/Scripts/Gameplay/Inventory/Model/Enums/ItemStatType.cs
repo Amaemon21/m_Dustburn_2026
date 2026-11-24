@@ -15,5 +15,7 @@ public enum ItemStatType
     StaminaCost,
     Reach,
     ExtraRows,
-    CarryBonus
+    CarryBonus,
+    Protection,
+    ProtectionDuration
 }
